@@ -1,0 +1,4 @@
+interface:
+  display_name: "Anomaly Detection"
+  short_description: "Analyze and visualize time-series anomalies"
+  default_prompt: "Use $anomaly-detection to analyze this time series and visualize the evidence."

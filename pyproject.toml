@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "anomalyzer"
+version = "0.1.0"
+description = "Local, inspectable time-series anomaly evidence"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Troy Magennis" }]
+keywords = ["anomaly-detection", "time-series", "observability", "statistics"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = ["pydantic>=2.10,<3", "tzdata>=2024.1; sys_platform == 'win32'"]
+
+[project.urls]
+Homepage = "https://github.com/PredictabilityAtScale/anomaly-detection"
+Repository = "https://github.com/PredictabilityAtScale/anomaly-detection"
+Issues = "https://github.com/PredictabilityAtScale/anomaly-detection/issues"
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "jsonschema>=4,<5"]
+
+[project.scripts]
+anomalyzer = "anomalyzer.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

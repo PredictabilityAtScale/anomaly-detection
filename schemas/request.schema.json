@@ -1,0 +1,286 @@
+{
+  "$defs": {
+    "Context": {
+      "additionalProperties": false,
+      "properties": {
+        "concern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concern"
+        },
+        "known_events": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Known Events",
+          "type": "array"
+        },
+        "as_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "As Of"
+        }
+      },
+      "title": "Context",
+      "type": "object"
+    },
+    "Dataset": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "default": "series",
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "timestamps": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamps"
+        },
+        "values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "frequency": {
+          "anyOf": [
+            {
+              "pattern": "^[1-9][0-9]*(s|min|h|d|w)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frequency"
+        },
+        "timezone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timezone"
+        },
+        "units": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Units"
+        },
+        "entity": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Entity",
+          "type": "object"
+        }
+      },
+      "required": [
+        "values"
+      ],
+      "title": "Dataset",
+      "type": "object"
+    },
+    "Settings": {
+      "additionalProperties": false,
+      "properties": {
+        "recipe": {
+          "const": "seasonal-residual-v1",
+          "default": "seasonal-residual-v1",
+          "title": "Recipe",
+          "type": "string"
+        },
+        "season_length": {
+          "default": 1,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Season Length",
+          "type": "integer"
+        },
+        "trend": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "none",
+            "linear",
+            "exponential"
+          ],
+          "title": "Trend",
+          "type": "string"
+        },
+        "reset_points": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Reset Points",
+          "type": "array"
+        },
+        "training_size": {
+          "default": 28,
+          "minimum": 2,
+          "title": "Training Size",
+          "type": "integer"
+        },
+        "calibration_size": {
+          "default": 14,
+          "minimum": 3,
+          "title": "Calibration Size",
+          "type": "integer"
+        },
+        "point_threshold": {
+          "default": 3.0,
+          "exclusiveMinimum": 0,
+          "title": "Point Threshold",
+          "type": "number"
+        },
+        "cusum_k": {
+          "default": 0.5,
+          "exclusiveMinimum": 0,
+          "title": "Cusum K",
+          "type": "number"
+        },
+        "cusum_h": {
+          "default": 5.0,
+          "exclusiveMinimum": 0,
+          "title": "Cusum H",
+          "type": "number"
+        },
+        "moving_range_threshold": {
+          "default": 3.686,
+          "exclusiveMinimum": 0,
+          "title": "Moving Range Threshold",
+          "type": "number"
+        },
+        "scale_floor": {
+          "default": 1e-08,
+          "exclusiveMinimum": 0,
+          "title": "Scale Floor",
+          "type": "number"
+        },
+        "duplicate_policy": {
+          "default": "error",
+          "enum": [
+            "error",
+            "mean",
+            "sum"
+          ],
+          "title": "Duplicate Policy",
+          "type": "string"
+        },
+        "max_points": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Points",
+          "type": "integer"
+        },
+        "max_bytes": {
+          "default": 10000000,
+          "maximum": 100000000,
+          "minimum": 1,
+          "title": "Max Bytes",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 60,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "Settings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "analyze",
+      "default": "analyze",
+      "title": "Task",
+      "type": "string"
+    },
+    "datasets": {
+      "items": {
+        "$ref": "#/$defs/Dataset"
+      },
+      "maxItems": 1,
+      "minItems": 1,
+      "title": "Datasets",
+      "type": "array"
+    },
+    "config": {
+      "$ref": "#/$defs/Settings"
+    },
+    "context": {
+      "$ref": "#/$defs/Context"
+    }
+  },
+  "required": [
+    "datasets"
+  ],
+  "title": "Request",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
