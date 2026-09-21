@@ -76,6 +76,16 @@ Run 'anomalyzer methods --help' for method discovery.
                             help="Value unit label, e.g. calls; overrides JSON units; performs no conversion")
         tuning = sub.add_argument_group("analysis settings", "Defaults below apply unless supplied by JSON configuration.")
         limits = sub.add_argument_group("resource limits", "Defaults below apply unless supplied by JSON configuration.")
+        tuning.add_argument("--recipe", choices=["seasonal-residual-v1", "multi-resolution-v1"],
+                            help="Analysis recipe; multi-resolution derives finalized 24-hour aggregates and an intraday view")
+        tuning.add_argument("--aggregate-function", choices=["sum", "mean", "last"],
+                            help="How multi-resolution-v1 combines finalized subperiods (default: sum)")
+        tuning.add_argument("--aggregate-anchor", metavar="TIMESTAMP",
+                            help="Start of the fixed 24-hour aggregation grid; defaults to 00:00 UTC on the first observation date")
+        tuning.add_argument("--completed-period-season-length", type=int, metavar="PERIODS",
+                            help="Seasonal lag for completed 24-hour aggregates (default: 7)")
+        tuning.add_argument("--intraday-season-length", type=int, metavar="SAMPLES",
+                            help="Seasonal lag for the sub-day view (default: seven 24-hour periods)")
         settings = [
             (tuning, "season-length", int, "SAMPLES", "Baseline lag in samples; positional input infers a stable lag when omitted, then falls back to 1 (1..10000)"),
             (tuning, "training-size", int, "SAMPLES", "Initial samples reserved before calibration; effective size is max(training-size, season-length) (at least 2)"),
@@ -113,6 +123,8 @@ Run 'anomalyzer methods --help' for method discovery.
   nonexistent local DST times require explicit offsets.
   Missing values or irregular cadence make analysis inapplicable; no filling
   or resampling is performed.
+  JSON datasets may align period_statuses with values. A trailing incomplete
+  suffix is reported in data_quality and excluded from finalized scoring.
 
 Configuration:
   Precedence (highest first): CLI flags > settings file > embedded JSON
@@ -140,6 +152,10 @@ Configuration:
   sample; full timestamps must match one. Each segment reuses season_length but
   rebuilds its seasonal history and refits trend. Short segments remain
   non-triggering until their own calibration completes.
+  multi-resolution-v1 requires regular timestamped sub-day input whose cadence
+  divides 24 hours. It analyzes finalized source samples at their native cadence,
+  separately aggregates complete fixed 24-hour periods, and explicitly reports
+  the trailing incomplete aggregate without treating it as a completed day.
 
 Examples (from the repository root, with anomalyzer on PATH):
   # Daily CSV with weekly seasonality
@@ -218,6 +234,16 @@ def readable(result):
         return "Installed analysis methods\n" + "\n".join(f"  {m['id']}: {m['update_semantics']}" for m in result["methods"])
     lines = [f"Analysis: {result['status']}",
              f"Samples: {result['data_quality']['observation_count']}; episodes: {len(result['observations'])}; patterns: {len(result['anomaly_patterns'])}"]
+    incomplete = result["data_quality"].get("incomplete_period")
+    if incomplete:
+        lines.append(
+            "Incomplete period: "
+            f"{incomplete['start']} through {incomplete['observed_through']} "
+            f"({incomplete['completed_subperiods']}/{incomplete['expected_subperiods']} finalized subperiods; excluded from completed-period scoring)")
+    elif result["data_quality"].get("incomplete_count"):
+        lines.append(
+            f"Incomplete source periods: {result['data_quality']['incomplete_count']} "
+            "trailing sample(s), explicitly excluded from finalized scoring")
     for method in result["methods"]:
         lines.append(f"  {method['id']}: {method['status']}" + (f" — {method['error']}" if method["error"] else ""))
         counts = method.get("diagnostics", {}).get("maturity_counts")

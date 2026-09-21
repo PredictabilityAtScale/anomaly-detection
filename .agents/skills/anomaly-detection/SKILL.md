@@ -1,6 +1,6 @@
 ---
 name: anomaly-detection
-description: Analyze one numeric time series for anomalies, outliers, spikes, drops, sustained shifts, residual patterns, or regime changes with this repository's Anomalyzer CLI, then explain or chart the evidence. Use when the user asks to detect, find, investigate, visualize, or explain unusual changes in timestamped or ordered metric data. Do not use for generic charting, multivariate analysis, forecasting-only requests, or distribution comparison.
+description: Analyze one numeric time series for anomalies, outliers, spikes, drops, sustained shifts, residual patterns, or regime changes with this repository's Anomalyzer CLI, then explain the evidence. Create a quick chart or publication-quality visualization only when explicitly requested. Use when the user asks to detect, find, investigate, visualize, or explain unusual changes in timestamped or ordered metric data. Do not use for generic charting, multivariate analysis, forecasting-only requests, or distribution comparison.
 ---
 
 # Anomaly detection
@@ -45,6 +45,22 @@ Prefer reading JSON from stdout. If a durable result is useful, write it to a
 task-owned path with `--output`; do not replace an existing file without the
 user's intent.
 
+## Return text first
+
+Default to a concise text result immediately after Anomalyzer completes. Do not
+create a chart or invoke a visualization capability merely because a visual
+could help. Unless the user explicitly requests a graph, chart, visualization,
+or publication-ready figure, report:
+
+- run status and counts of point episodes and anomaly patterns;
+- the strongest calibrated evidence and important non-triggering evidence;
+- resolved lag, trend, initialization windows, and point threshold when useful;
+- the material limitations that affect interpretation.
+
+Keep the first response compact. When a chart could help, offer a quick inline
+chart or a publication-quality interactive figure as optional follow-ups, but
+do not generate either one automatically.
+
 ## Interpret the evidence
 
 Lead with the run status and the most decision-relevant evidence.
@@ -71,24 +87,56 @@ threshold, reset boundaries, and material data-quality transformations when
 they help the user judge the result. Preserve the detector's own wording when
 precision matters; do not invent confidence levels.
 
-## Visualize when useful
+## Visualization modes
 
-When the user requests a graph, or a visual materially improves interpretation,
-read and follow [references/visualization.md](references/visualization.md).
+Only visualize after Anomalyzer has produced structured JSON and the user has
+explicitly requested a visual. Choose the smallest requested mode.
 
-Use the host's strongest available visualization capability after analysis:
+### Quick inline chart
 
-- In Codex, use the built-in visualization skill/capability when it is available
-  and applicable, passing it the source series, structured result, and the chart
-  requirements in the reference.
-- In Claude Code or another Agent Skills host, use its available artifact,
-  charting, HTML/SVG, or plotting capability to implement the same semantics.
-- If no specialized visualization capability is available, produce an
-  accessible standalone HTML/SVG or a static scientific plot with the tools
-  already installed. Do not install a charting dependency without permission.
+Use this mode for an ordinary request to graph, chart, plot, or visualize the
+result, or when the user says `quick`, `simple`, or `not a full chart`. An
+explicit invocation of the host's visualization skill does not by itself make
+the request publication-quality.
 
-Analysis must still succeed when visualization is unavailable. Never substitute
-visual inspection for the structured detector result.
+In Codex, use the built-in visualization capability so the chart renders in
+the conversation. Keep it deliberately small: one responsive plot with the
+observed line, the available expected line, subtle training/calibration
+shading, reset boundaries, and triggered point markers. Include a concise title
+and labeled axes. Omit controls, KPI cards, residual subplots, pattern lanes,
+custom tooltips, and publication styling unless the user asks for them. Emit
+the native visualization content reference in the same response. Do not return
+a local `.svg` through Markdown; Codex clients may show it as a blank image.
+
+When the host has no native inline visualization capability, run the
+dependency-free fallback renderer with the same Python interpreter used for
+the CLI:
+
+```text
+python .agents/skills/anomaly-detection/scripts/quick_chart.py result.json --output anomaly-chart.svg
+```
+
+The fallback produces one static SVG panel matching the repository examples:
+observed and expected values, initialization shading, reset boundaries, and
+triggered point markers. It intentionally omits custom HTML, JavaScript,
+tooltips, controls, residual subplots, and pattern lanes. Write the result to a
+task-owned path and do not overwrite an existing file unless the user requested
+it. Present it using the host's supported artifact mechanism rather than
+assuming Markdown will render local SVG files.
+
+### Publication-quality interactive figure
+
+Use this mode only when the user explicitly asks for an interactive,
+publication-quality, presentation-ready, or detailed figure, requests hover
+tooltips, residual plots, pattern lanes, or multiple evidence panels. Then read
+and follow
+[references/visualization.md](references/visualization.md).
+
+In Codex, use the built-in visualization capability for this mode when
+available. In Claude Code or another Agent Skills host, use its strongest
+equivalent artifact or charting capability. Analysis must still succeed when
+visualization is unavailable. Never substitute visual inspection for the
+structured detector result.
 
 ## Repository references
 

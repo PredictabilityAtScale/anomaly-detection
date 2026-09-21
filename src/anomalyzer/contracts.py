@@ -9,8 +9,12 @@ class Contract(BaseModel):
 
 
 class Settings(Contract):
-    recipe: Literal["seasonal-residual-v1"] = "seasonal-residual-v1"
+    recipe: Literal["seasonal-residual-v1", "multi-resolution-v1"] = "seasonal-residual-v1"
     season_length: int = Field(default=1, ge=1, le=10000, strict=True)
+    completed_period_season_length: int = Field(default=7, ge=1, le=10000, strict=True)
+    intraday_season_length: int | None = Field(default=None, ge=1, le=10000, strict=True)
+    aggregate_function: Literal["sum", "mean", "last"] = "sum"
+    aggregate_anchor: str | None = None
     trend: Literal["auto", "none", "linear", "exponential"] = "auto"
     reset_points: list[int | str] = Field(default_factory=list)
     training_size: int = Field(default=28, ge=2, strict=True)
@@ -43,6 +47,7 @@ class Dataset(Contract):
     timezone: str | None = None
     units: str | None = Field(default=None, min_length=1)
     entity: dict[str, str] = Field(default_factory=dict)
+    period_statuses: list[Literal["complete", "incomplete"]] | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -60,6 +65,8 @@ class Dataset(Contract):
             raise ValueError("timestamps require frequency")
         elif len(self.timestamps) != len(self.values):
             raise ValueError("timestamps and values must have equal length")
+        if self.period_statuses is not None and len(self.period_statuses) != len(self.values):
+            raise ValueError("period_statuses and values must have equal length")
         return self
 
 

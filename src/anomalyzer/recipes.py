@@ -1,22 +1,23 @@
 import hashlib
 import json
 import math
+import re
 import statistics
 import time
 import uuid
+from datetime import datetime, timedelta, timezone
 from .baseline import expected_value
-from .contracts import Request, Result, MethodResult, Settings
+from .contracts import Dataset, Request, Result, MethodResult, Settings
 from .evidence import anomaly_patterns, episodes
 from .registry import versions
 from .seasonality import infer_season_length
 from .trend import Trend, fit_trend
-from .validation import prepare, resolve_reset_points
+from .validation import prepare, resolve_reset_points, timestamp
 
 
 def analyze(request: Request | dict | list[float | None],
             settings: Settings | dict | None = None) -> Result:
-    """Emit causal seasonal evidence, and flag only fully calibrated scores."""
-    start = time.perf_counter()
+    """Dispatch a validated request to its causal anomaly-detection recipe."""
     if isinstance(request, list):
         if isinstance(settings, Settings):
             settings = settings.model_dump(exclude_unset=True)
@@ -24,6 +25,14 @@ def analyze(request: Request | dict | list[float | None],
     elif settings is not None:
         raise ValueError("separate settings are only supported with a bare values list")
     request = Request.model_validate(request)
+    if request.config.recipe == "multi-resolution-v1":
+        return _analyze_multi_resolution(request)
+    return _analyze_seasonal(request)
+
+
+def _analyze_seasonal(request: Request) -> Result:
+    """Emit causal seasonal evidence, and flag only fully calibrated scores."""
+    start = time.perf_counter()
     cfg = request.config
     times, values, quality = prepare(request)
     reset_positions = resolve_reset_points(cfg.reset_points, times,
@@ -245,3 +254,253 @@ def analyze(request: Request | dict | list[float | None],
                           "Check that the declared season and calibration period represent ordinary behavior."],
         runtime_seconds=time.perf_counter()-start,
         stop_reason="runtime_budget" if method.status == "budget_exceeded" else "method_failure" if failed else "completed")
+
+
+def _namespace_result(result: Result, prefix: str):
+    """Give evidence from derived views stable, non-colliding identifiers."""
+    evidence_ids = {}
+    method_ids = {}
+    for method in result.methods:
+        old_method = method.id
+        method.id = f"{prefix}:{old_method}"
+        method_ids[old_method] = method.id
+        for item in method.evidence:
+            old_evidence = item["id"]
+            item["id"] = f"{prefix}:{old_evidence}"
+            item["method"] = method.id
+            evidence_ids[old_evidence] = item["id"]
+    for observation in result.observations:
+        observation["id"] = f"{prefix}:{observation['id']}"
+        observation["evidence_refs"] = [evidence_ids.get(item, item)
+                                         for item in observation["evidence_refs"]]
+        observation["supporting_methods"] = [method_ids.get(item, item)
+                                               for item in observation["supporting_methods"]]
+        observation["quiet_methods"] = [method_ids.get(item, item)
+                                          for item in observation["quiet_methods"]]
+    for pattern in result.anomaly_patterns:
+        pattern["id"] = f"{prefix}:{pattern['id']}"
+        pattern["evidence_refs"] = [evidence_ids.get(item, item)
+                                     for item in pattern["evidence_refs"]]
+    return result
+
+
+def _aggregate(values, function):
+    if function == "sum":
+        return math.fsum(values)
+    if function == "mean":
+        return statistics.mean(values)
+    return values[-1]
+
+
+def _analyze_multi_resolution(request: Request) -> Result:
+    """Analyze completed 24-hour aggregates and the underlying sub-day series."""
+    start = time.perf_counter()
+    cfg = request.config
+    ds = request.datasets[0]
+    if ds.timestamps is None or ds.frequency is None:
+        raise ValueError("multi-resolution-v1 requires timestamped input")
+    if cfg.reset_points:
+        raise ValueError("multi-resolution-v1 does not yet support reset_points")
+
+    times, values, source_quality = prepare(request)
+    if source_quality["missing_count"] or not source_quality["regular"]:
+        raise ValueError("multi-resolution-v1 requires complete, regular finalized subperiods")
+    match = re.fullmatch(r"([1-9][0-9]*)(s|min|h|d|w)", ds.frequency)
+    number, unit = match.groups()
+    source_seconds = int(number) * {
+        "s": 1, "min": 60, "h": 3600, "d": 86400, "w": 604800
+    }[unit]
+    if source_seconds >= 86400 or 86400 % source_seconds:
+        raise ValueError("multi-resolution-v1 requires a sub-day frequency that evenly divides 24 hours")
+    samples_per_period = 86400 // source_seconds
+    source_delta = timedelta(seconds=source_seconds)
+    parsed_times = [datetime.fromisoformat(value) for value in times]
+    if parsed_times:
+        anchor = (timestamp(cfg.aggregate_anchor, ds.timezone)
+                  if cfg.aggregate_anchor else
+                  parsed_times[0].astimezone(timezone.utc).replace(
+                      hour=0, minute=0, second=0, microsecond=0))
+    elif cfg.aggregate_anchor:
+        anchor = timestamp(cfg.aggregate_anchor, ds.timezone)
+    else:
+        anchor = None
+
+    buckets = {}
+    if anchor is not None:
+        for observed_at, value in zip(parsed_times, values):
+            offset = observed_at - anchor
+            if offset % source_delta:
+                raise ValueError("timestamps must align to the source-frequency grid from aggregate_anchor")
+            bucket = math.floor(offset.total_seconds() / 86400)
+            buckets.setdefault(bucket, []).append((observed_at, value))
+
+    complete_buckets = []
+    partial_buckets = []
+    for bucket, items in sorted(buckets.items()):
+        record = {
+            "bucket": bucket,
+            "start": anchor + timedelta(days=bucket),
+            "items": items,
+        }
+        if len(items) == samples_per_period:
+            complete_buckets.append(record)
+        else:
+            partial_buckets.append(record)
+    if len(partial_buckets) > 2 or any(
+            item is not partial_buckets[0] and item is not partial_buckets[-1]
+            for item in partial_buckets):
+        raise ValueError("only leading and trailing aggregate periods may be incomplete")
+    if partial_buckets and any(
+            record["bucket"] not in (min(buckets), max(buckets))
+            for record in partial_buckets):
+        raise ValueError("an internal aggregate period is incomplete")
+
+    daily_times = [record["start"].isoformat() for record in complete_buckets]
+    daily_values = [_aggregate([value for _, value in record["items"]],
+                               cfg.aggregate_function)
+                    for record in complete_buckets]
+    source_incomplete = source_quality.get("incomplete_periods", [])
+    incomplete_times = [datetime.fromisoformat(item["timestamp"])
+                        for item in source_incomplete if item["timestamp"]]
+    incomplete_bucket_numbers = [
+        math.floor((observed_at - anchor).total_seconds() / 86400)
+        for observed_at in incomplete_times] if anchor is not None else []
+    latest_bucket_number = max(
+        [*buckets.keys(), *incomplete_bucket_numbers], default=None)
+    latest_bucket = buckets.get(latest_bucket_number, [])
+    latest_has_incomplete_source = latest_bucket_number in incomplete_bucket_numbers
+    latest_is_complete = (len(latest_bucket) == samples_per_period
+                          and not latest_has_incomplete_source)
+    incomplete_period = None
+    if latest_bucket_number is not None and not latest_is_complete:
+        period_start = anchor + timedelta(days=latest_bucket_number)
+        observed_through = ((latest_bucket[-1][0] + source_delta).isoformat()
+                            if latest_bucket else
+                            max(incomplete_times).isoformat())
+        incomplete_period = {
+            "period_status": "incomplete",
+            "start": period_start.isoformat(),
+            "end": (period_start + timedelta(days=1)).isoformat(),
+            "observed_through": observed_through,
+            "completed_subperiods": len(latest_bucket),
+            "expected_subperiods": samples_per_period,
+            "aggregate_function": cfg.aggregate_function,
+            "observed_aggregate": (_aggregate(
+                [value for _, value in latest_bucket], cfg.aggregate_function)
+                if latest_bucket else None),
+            "incomplete_source_samples": [
+                item for item, bucket in zip(source_incomplete,
+                                              incomplete_bucket_numbers)
+                if bucket == latest_bucket_number],
+            "included_in_completed_period_view": False,
+        }
+
+    base_config = cfg.model_copy(update={"recipe": "seasonal-residual-v1",
+                                         "reset_points": []})
+    context = request.context.model_copy(update={"as_of": None})
+    daily_request = Request(
+        datasets=[Dataset(id=ds.id, timestamps=daily_times, values=daily_values,
+                          frequency="1d", units=ds.units, entity=ds.entity)],
+        config=base_config.model_copy(update={
+            "season_length": cfg.completed_period_season_length,
+            "max_runtime_seconds": max(
+                1e-12, cfg.max_runtime_seconds - (time.perf_counter() - start))}),
+        context=context)
+    daily = _namespace_result(_analyze_seasonal(daily_request), "completed_period")
+    resolved_intraday_season = (cfg.intraday_season_length
+                                if cfg.intraday_season_length is not None
+                                else 7 * samples_per_period)
+    intraday_request = Request(
+        datasets=[Dataset(id=ds.id, timestamps=times, values=values,
+                          frequency=ds.frequency, units=ds.units,
+                          entity=ds.entity)],
+        config=base_config.model_copy(update={
+            "season_length": resolved_intraday_season,
+            "max_runtime_seconds": max(
+                1e-12, cfg.max_runtime_seconds - (time.perf_counter() - start))}),
+        context=context)
+    intraday = _namespace_result(_analyze_seasonal(intraday_request), "intraday")
+    if incomplete_period:
+        period_start = datetime.fromisoformat(incomplete_period["start"])
+        period_end = datetime.fromisoformat(incomplete_period["end"])
+        current_evidence = [
+            item for method in intraday.methods for item in method.evidence
+            if item["timestamp"] is not None
+            and period_start <= datetime.fromisoformat(item["timestamp"]) < period_end]
+        incomplete_period["intraday_evidence_refs"] = [
+            item["id"] for item in current_evidence]
+        incomplete_period["intraday_triggered_samples"] = [
+            item["index"] for item in current_evidence if item["triggers"]]
+        for method in intraday.methods:
+            method.diagnostics["current_incomplete_period"] = {
+                "start": incomplete_period["start"],
+                "end": incomplete_period["end"],
+                "completed_subperiods": incomplete_period["completed_subperiods"],
+                "expected_subperiods": incomplete_period["expected_subperiods"],
+                "evidence_count": len(current_evidence),
+                "triggered_sample_count": len(
+                    incomplete_period["intraday_triggered_samples"]),
+            }
+
+    child_statuses = [daily.status, intraday.status]
+    if "completed" in child_statuses:
+        status = "partial" if any(value in ("failed", "partial")
+                                   for value in child_statuses) else "completed"
+    elif any(value in ("failed", "partial") for value in child_statuses):
+        status = "failed" if all(value == "failed" for value in child_statuses) else "partial"
+    elif "insufficient_history" in child_statuses:
+        status = "insufficient_history"
+    else:
+        status = "inapplicable"
+
+    resolved = request.model_dump(mode="json")
+    fingerprint = hashlib.sha256(json.dumps(
+        resolved, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode()).hexdigest()
+    data_quality = {
+        "input_count": source_quality["input_count"],
+        "observation_count": source_quality["observation_count"],
+        "source": source_quality,
+        "periodization": {
+            "period": "1d",
+            "duration_semantics": "fixed 24-hour windows",
+            "anchor": anchor.isoformat() if anchor is not None else None,
+            "source_frequency": ds.frequency,
+            "expected_subperiods": samples_per_period,
+            "aggregate_function": cfg.aggregate_function,
+            "completed_period_count": len(complete_buckets),
+            "excluded_leading_partial_periods": sum(
+                record["bucket"] == min(buckets) and record["bucket"] != max(buckets)
+                for record in partial_buckets) if buckets else 0,
+        },
+        "latest_period_status": "incomplete" if incomplete_period else "complete",
+        "incomplete_period": incomplete_period,
+        "views": {
+            "completed_period": daily.data_quality,
+            "intraday": intraday.data_quality,
+        },
+        "units": ds.units,
+        "entity": ds.entity,
+    }
+    limitations = list(dict.fromkeys(
+        ["Completed-period and intraday evidence are correlated views of the same source samples; do not count them as independent confirmation.",
+         "The initial multi-resolution recipe uses fixed 24-hour windows, not local calendar days or daylight-saving-aware wall-clock periods.",
+         "Source timestamps are interpreted as the starts of finalized subperiods; explicitly marked incomplete source samples are excluded from both views."]
+        + daily.limitations + intraday.limitations))
+    suggested = list(dict.fromkeys(
+        ["Inspect the incomplete-period marker before interpreting current pacing."]
+        + daily.suggested_checks + intraday.suggested_checks))
+    failed = status in ("failed", "partial")
+    return Result(
+        run_id=str(uuid.uuid4()), status=status, input_fingerprint=fingerprint,
+        resolved_config={**resolved, "derived": {
+            "completed_period_season_length": cfg.completed_period_season_length,
+            "intraday_season_length": resolved_intraday_season,
+            "samples_per_completed_period": samples_per_period}},
+        dependencies=versions(), data_quality=data_quality,
+        methods=[*daily.methods, *intraday.methods],
+        observations=[*daily.observations, *intraday.observations],
+        anomaly_patterns=[*daily.anomaly_patterns, *intraday.anomaly_patterns],
+        limitations=limitations, suggested_checks=suggested,
+        runtime_seconds=time.perf_counter() - start,
+        stop_reason="method_failure" if failed else "completed")

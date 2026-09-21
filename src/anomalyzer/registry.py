@@ -38,6 +38,20 @@ def methods():
             "score_semantics": "causal seasonal residual evidence; standardized scores are not probabilities",
             "update_semantics": "within each manual segment, previous seasonal observation plus training-only linear/compound trend change; model frozen before calibration",
             "capability": "batch chronological replay"
+        }, {
+            "id": "multi_resolution", "tasks": ["analyze"],
+            "provider": "python standard library", "installed": True,
+            "requirements": {"coordinate": "timestamp",
+                             "frequency": "regular sub-day cadence evenly dividing 24 hours",
+                             "aggregation": "sum, mean, or last"},
+            "parameters": {
+                "completed_period_season_length": "default 7 fixed 24-hour periods",
+                "intraday_season_length": "default seven 24-hour periods at source cadence",
+                "aggregate_anchor": "fixed-period grid origin; default 00:00 UTC on the first observation date",
+                "aggregate_function": "sum (default), mean, or last"},
+            "score_semantics": "two correlated seasonal-residual views: finalized 24-hour aggregates and finalized source subperiods",
+            "update_semantics": "a trailing partial aggregate is marked incomplete and excluded from completed-period scoring",
+            "capability": "batch multi-resolution chronological replay"
         }],
         "detectors": [
             {"id": "point", "score_semantics": "absolute standardized residual > point_threshold"},

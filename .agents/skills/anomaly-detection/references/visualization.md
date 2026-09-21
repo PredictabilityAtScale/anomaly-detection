@@ -1,10 +1,17 @@
-# Anomaly chart specification
+# Publication-quality anomaly chart specification
+
+Read this reference only when the user explicitly requests an interactive,
+publication-quality, presentation-ready, or detailed figure, asks for hover
+tooltips, residual plots, pattern lanes, or multiple evidence panels. Do not
+read or apply it for the default text response or a quick inline chart. Merely
+invoking the host's visualization skill does not require this full
+specification; honor `quick`, `simple`, or equivalent scope words.
 
 Use this reference only after Anomalyzer has produced structured JSON. The
 source series supplies the complete observed line; the result supplies expected
 values, residuals, scores, maturities, triggers, windows, and detected patterns.
 
-## Default composition
+## Publication composition
 
 For one series, prefer two aligned plots sharing the same horizontal coordinate:
 

@@ -120,6 +120,25 @@
           },
           "title": "Entity",
           "type": "object"
+        },
+        "period_statuses": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "complete",
+                  "incomplete"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period Statuses"
         }
       },
       "required": [
@@ -132,8 +151,11 @@
       "additionalProperties": false,
       "properties": {
         "recipe": {
-          "const": "seasonal-residual-v1",
           "default": "seasonal-residual-v1",
+          "enum": [
+            "seasonal-residual-v1",
+            "multi-resolution-v1"
+          ],
           "title": "Recipe",
           "type": "string"
         },
@@ -143,6 +165,49 @@
           "minimum": 1,
           "title": "Season Length",
           "type": "integer"
+        },
+        "completed_period_season_length": {
+          "default": 7,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Completed Period Season Length",
+          "type": "integer"
+        },
+        "intraday_season_length": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intraday Season Length"
+        },
+        "aggregate_function": {
+          "default": "sum",
+          "enum": [
+            "sum",
+            "mean",
+            "last"
+          ],
+          "title": "Aggregate Function",
+          "type": "string"
+        },
+        "aggregate_anchor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Aggregate Anchor"
         },
         "trend": {
           "default": "auto",

@@ -1,4 +1,4 @@
 interface:
   display_name: "Anomaly Detection"
-  short_description: "Analyze and visualize time-series anomalies"
-  default_prompt: "Use $anomaly-detection to analyze this time series and visualize the evidence."
+  short_description: "Analyze time-series anomalies with fast text results"
+  default_prompt: "Use $anomaly-detection to analyze this time series and return a concise text report first."

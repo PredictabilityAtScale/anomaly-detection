@@ -360,6 +360,62 @@ not reset or weaken the model automatically, because doing so could normalize a
 real incident. Use a reset only when an external event or reviewed change point
 establishes a new operating regime.
 
+## Incomplete periods and multi-resolution analysis
+
+An unfinished aggregate must be marked rather than submitted as though it were
+final. Canonical JSON may align `period_statuses` with `values`; values marked
+`incomplete` must form a trailing suffix. They are preserved in
+`data_quality.incomplete_periods` and excluded from baseline fitting,
+calibration, scoring, episodes, and patterns:
+
+```json
+{
+  "datasets": [{
+    "timestamps": ["2026-01-01T00:00:00Z", "2026-01-02T00:00:00Z"],
+    "values": [100, 20],
+    "period_statuses": ["complete", "incomplete"],
+    "frequency": "1d"
+  }]
+}
+```
+
+`multi-resolution-v1` accepts regular timestamped sub-day samples whose cadence
+evenly divides 24 hours. It keeps two correlated views: finalized source samples
+at their native cadence and completed fixed 24-hour aggregates. The trailing
+partial aggregate is clearly returned as `data_quality.incomplete_period` and is
+never inserted into the completed-period series. That record links the native
+subperiod evidence produced so far through `intraday_evidence_refs`. For hourly
+data the default intraday lag is 168 samples and the completed-period lag is
+seven days:
+
+```json
+{
+  "datasets": [{
+    "id": "calls",
+    "timestamps": ["2026-01-01T00:00:00Z", "2026-01-01T01:00:00Z"],
+    "values": [12, 15],
+    "frequency": "1h",
+    "units": "calls"
+  }],
+  "config": {
+    "recipe": "multi-resolution-v1",
+    "aggregate_function": "sum"
+  }
+}
+```
+
+The aggregation function is explicit: `sum`, `mean`, or `last`. Fixed 24-hour
+windows default to 00:00 UTC on the first observation date; use
+`aggregate_anchor` to choose another exact boundary. This first version does not
+claim local-calendar or daylight-saving-aware daily periods. Source timestamps
+are interpreted as the starts of finalized subperiods. A caller may mark a
+trailing unfinished source sample as incomplete; it is excluded from both views.
+
+Completed-period and intraday results use separate method and evidence IDs. They
+come from the same source observations and must not be counted as independent
+confirmation. CUSUM and Nelson patterns operate on native subperiod residuals,
+not repeatedly accumulated current-day totals.
+
 ## Inputs and validation
 
 CSV always requires a value column. Time and frequency are supplied together for

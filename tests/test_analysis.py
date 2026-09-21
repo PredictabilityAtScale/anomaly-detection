@@ -1,6 +1,7 @@
 import copy
 import json
 import math
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 import pytest
@@ -53,6 +54,90 @@ def test_short_series_returns_reference_evidence(request_factory):
     assert all(e["signal_maturity"] == "reference_only" for e in result.methods[0].evidence)
     assert all(e["standardized_residual"] is None for e in result.methods[0].evidence)
     assert all(not e["triggers"] for e in result.methods[0].evidence)
+
+
+def test_explicit_incomplete_period_is_reported_and_not_scored(request_factory):
+    request = request_factory([100.0] * 49 + [20.0])
+    request["datasets"][0]["period_statuses"] = ["complete"] * 49 + ["incomplete"]
+    result = analyze(request)
+    assert result.status == "completed"
+    assert result.data_quality["observation_count"] == 49
+    assert result.data_quality["incomplete_count"] == 1
+    assert result.data_quality["incomplete_periods"][0]["observed"] == 20
+    assert result.methods[0].evidence[-1]["index"] == 48
+    assert not result.observations
+
+
+def test_incomplete_periods_must_be_trailing(request_factory):
+    request = request_factory([100.0] * 50)
+    request["datasets"][0]["period_statuses"] = (
+        ["complete"] * 20 + ["incomplete"] + ["complete"] * 29)
+    with pytest.raises(ValueError, match="trailing suffix"):
+        analyze(request)
+
+
+def test_multi_resolution_marks_current_period_and_keeps_two_views():
+    count = 60 * 24 + 12
+    timestamps = [(datetime(2026, 1, 1, tzinfo=timezone.utc)
+                   + timedelta(hours=index)).isoformat()
+                  for index in range(count)]
+    request = {
+        "datasets": [{"id": "calls", "timestamps": timestamps,
+                      "values": [100.0] * count, "frequency": "1h",
+                      "units": "calls"}],
+        "config": {"recipe": "multi-resolution-v1",
+                   "max_runtime_seconds": 120},
+    }
+    result = analyze(request)
+    assert result.status == "completed"
+    assert [method.id for method in result.methods] == [
+        "completed_period:seasonal_trend", "intraday:seasonal_trend"]
+    assert result.data_quality["latest_period_status"] == "incomplete"
+    incomplete = result.data_quality["incomplete_period"]
+    assert incomplete["period_status"] == "incomplete"
+    assert incomplete["completed_subperiods"] == 12
+    assert incomplete["expected_subperiods"] == 24
+    assert incomplete["observed_aggregate"] == 1200
+    assert incomplete["included_in_completed_period_view"] is False
+    assert len(incomplete["intraday_evidence_refs"]) == 12
+    assert incomplete["intraday_triggered_samples"] == []
+    assert result.data_quality["views"]["completed_period"]["observation_count"] == 60
+    assert result.data_quality["views"]["intraday"]["observation_count"] == count
+    assert result.resolved_config["derived"]["intraday_season_length"] == 168
+
+
+def test_multi_resolution_marks_partial_source_sample_after_full_days():
+    count = 50 * 24 + 1
+    timestamps = [(datetime(2026, 1, 1, tzinfo=timezone.utc)
+                   + timedelta(hours=index)).isoformat()
+                  for index in range(count)]
+    request = {
+        "datasets": [{"timestamps": timestamps, "values": [100.0] * count,
+                      "period_statuses": ["complete"] * (count - 1) + ["incomplete"],
+                      "frequency": "1h"}],
+        "config": {"recipe": "multi-resolution-v1",
+                   "max_runtime_seconds": 120},
+    }
+    result = analyze(request)
+    incomplete = result.data_quality["incomplete_period"]
+    assert incomplete["completed_subperiods"] == 0
+    assert incomplete["observed_aggregate"] is None
+    assert incomplete["incomplete_source_samples"][0]["observed"] == 100
+    assert result.data_quality["views"]["completed_period"]["observation_count"] == 50
+    assert result.data_quality["views"]["intraday"]["observation_count"] == count - 1
+
+
+def test_multi_resolution_rejects_non_dividing_frequency():
+    timestamps = [(datetime(2026, 1, 1, tzinfo=timezone.utc)
+                   + timedelta(hours=5 * index)).isoformat()
+                  for index in range(20)]
+    request = {
+        "datasets": [{"timestamps": timestamps, "values": [1.0] * 20,
+                      "frequency": "5h"}],
+        "config": {"recipe": "multi-resolution-v1"},
+    }
+    with pytest.raises(ValueError, match="evenly divides"):
+        analyze(request)
 
 
 def test_bare_values_with_separate_settings():
