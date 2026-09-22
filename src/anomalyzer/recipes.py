@@ -10,6 +10,7 @@ from .baseline import expected_value
 from .contracts import Dataset, Request, Result, MethodResult, Settings
 from .evidence import anomaly_patterns, episodes
 from .registry import versions
+from .robust import EXTREME_Z, extreme_indices
 from .seasonality import infer_season_length
 from .trend import Trend, fit_trend
 from .validation import prepare, resolve_reset_points, timestamp
@@ -66,7 +67,7 @@ def _analyze_seasonal(request: Request) -> Result:
         parameters={**cfg.model_dump(), "training_size": training,
                     "resolved_reset_positions": reset_positions,
                     "season_length_source": season_source,
-                    "baseline_update": "within each manual segment, use the previous seasonal observation plus a training-fitted trend change; trend and calibration are frozen"})
+                    "baseline_update": ("within each manual segment, use the previous seasonal model reference plus a training-fitted trend change; robust mode substitutes an extreme point's prior expectation only for future model references; trend and calibration are frozen")})
     if season_inference is not None:
         method.diagnostics["season_inference"] = season_inference
     if quality["missing_count"] or not quality["regular"]:
@@ -85,6 +86,8 @@ def _analyze_seasonal(request: Request) -> Result:
             maturity_counts = {"reference_only": 0, "provisional": 0, "calibrated": 0}
             provisional_floor_count = 0
             segment_diagnostics = []
+            reference_values = values.copy()
+            evidence_by_index = {}
             boundaries = [0, *reset_positions, len(values)]
             first_calibrated = True
             total_calibration = 0
@@ -93,6 +96,9 @@ def _analyze_seasonal(request: Request) -> Result:
                 calibration = []
                 center = scale = raw_scale = None
                 segment_errors = []
+                training_excluded = []
+                calibration_excluded = []
+                evaluation_excluded = []
                 segment_length = segment_stop - segment_start
                 segment = {
                     "number": segment_number,
@@ -106,14 +112,36 @@ def _analyze_seasonal(request: Request) -> Result:
                 for index in range(segment_start + cfg.season_length, segment_stop):
                     check_budget()
                     local_index = index - segment_start
-                    expected = expected_value(values, index, cfg.season_length)
                     if local_index == training:
                         trend, trend_diagnostics = fit_trend(
                             values[segment_start:index], cfg.season_length,
-                            cfg.trend, cfg.scale_floor, check_budget)
+                            cfg.trend, cfg.scale_floor, check_budget,
+                            cfg.outlier_handling)
+                        local_excluded = trend_diagnostics.get(
+                            "excluded_positions", [])
+                        for local_position in local_excluded:
+                            absolute_position = segment_start + local_position
+                            if local_position < cfg.season_length:
+                                continue
+                            model_value = (
+                                reference_values[absolute_position - cfg.season_length]
+                                + trend.change(local_position - cfg.season_length,
+                                               local_position))
+                            reference_values[absolute_position] = model_value
+                            training_excluded.append(absolute_position)
+                            prior = evidence_by_index.get(absolute_position)
+                            if prior is not None:
+                                prior.update(
+                                    excluded_from_model=True,
+                                    model_value=model_value,
+                                    exclusion_reason="extreme_training_residual",
+                                    reference_action="use_expected")
+                        trend_diagnostics["excluded_positions"] = training_excluded
                         segment["trend"] = trend_diagnostics
                         if "trend" not in method.diagnostics:
                             method.diagnostics["trend"] = trend_diagnostics
+                    expected = expected_value(reference_values, index,
+                                              cfg.season_length)
                     expected += trend.change(local_index - cfg.season_length, local_index)
                     residual = values[index] - expected
                     if not math.isfinite(residual):
@@ -129,9 +157,12 @@ def _analyze_seasonal(request: Request) -> Result:
                     if training <= local_index < end_calibration:
                         calibration_samples = len(calibration)
                         if calibration_samples >= 3:
-                            provisional_center = statistics.mean(calibration)
-                            provisional_raw_scale = statistics.stdev(calibration)
-                            provisional_scale = max(provisional_raw_scale, cfg.scale_floor)
+                            prior_residuals = [item["residual"]
+                                               for item in calibration]
+                            provisional_center = statistics.mean(prior_residuals)
+                            provisional_raw_scale = statistics.stdev(prior_residuals)
+                            provisional_scale = max(provisional_raw_scale,
+                                                    cfg.scale_floor)
                             if not math.isfinite(provisional_center) or not math.isfinite(provisional_scale):
                                 raise RuntimeError("nonfinite provisional calibration statistics")
                             provisional_floor_count += provisional_raw_scale < cfg.scale_floor
@@ -141,13 +172,98 @@ def _analyze_seasonal(request: Request) -> Result:
                             maturity = "provisional"
                             semantics = ("provisional standardized forecast residual using earlier, incomplete "
                                          "segment calibration residuals; not threshold-eligible or a probability")
-                        calibration.append(residual)
+                        calibration.append({"index": index, "expected": expected,
+                                            "residual": residual})
                     elif local_index >= end_calibration:
                         if center is None:
                             if len(calibration) != cfg.calibration_size:
                                 raise RuntimeError("segment calibration residual count does not match calibration_size")
-                            center = statistics.mean(calibration)
-                            raw_scale = statistics.stdev(calibration)
+                            calibration_residuals = [item["residual"]
+                                                     for item in calibration]
+                            excluded_offsets = []
+                            robust_calibration = None
+                            if cfg.outlier_handling == "robust":
+                                excluded_offsets, robust_calibration = extreme_indices(
+                                    calibration_residuals, cfg.scale_floor)
+                                candidates = {
+                                    calibration[offset]["index"]
+                                    for offset in excluded_offsets}
+                                calibration_stable = False
+                                for _ in range(8):
+                                    for item in calibration:
+                                        reference_values[item["index"]] = values[item["index"]]
+                                    rebuilt = []
+                                    for item in calibration:
+                                        item_index = item["index"]
+                                        item_local = item_index - segment_start
+                                        item_expected = expected_value(
+                                            reference_values, item_index,
+                                            cfg.season_length)
+                                        item_expected += trend.change(
+                                            item_local - cfg.season_length,
+                                            item_local)
+                                        item_residual = values[item_index] - item_expected
+                                        rebuilt.append({"index": item_index,
+                                                        "expected": item_expected,
+                                                        "residual": item_residual})
+                                        reference_values[item_index] = (
+                                            item_expected if item_index in candidates
+                                            else values[item_index])
+                                    new_offsets, robust_calibration = extreme_indices(
+                                        [item["residual"] for item in rebuilt],
+                                        cfg.scale_floor)
+                                    new_candidates = {
+                                        rebuilt[offset]["index"]
+                                        for offset in new_offsets}
+                                    calibration = rebuilt
+                                    if new_candidates == candidates:
+                                        calibration_stable = True
+                                        break
+                                    candidates = new_candidates
+                                for item in calibration:
+                                    reference_values[item["index"]] = values[item["index"]]
+                                rebuilt = []
+                                for item in calibration:
+                                    item_index = item["index"]
+                                    item_local = item_index - segment_start
+                                    item_expected = expected_value(
+                                        reference_values, item_index,
+                                        cfg.season_length)
+                                    item_expected += trend.change(
+                                        item_local - cfg.season_length,
+                                        item_local)
+                                    item_residual = values[item_index] - item_expected
+                                    rebuilt.append({"index": item_index,
+                                                    "expected": item_expected,
+                                                    "residual": item_residual})
+                                    reference_values[item_index] = (
+                                        item_expected if item_index in candidates
+                                        else values[item_index])
+                                calibration = rebuilt
+                                robust_calibration["reference_rebuild_stable"] = calibration_stable
+                                calibration_excluded = sorted(candidates)
+                                excluded_offsets = [offset for offset, item
+                                                    in enumerate(calibration)
+                                                    if item["index"] in candidates]
+                                for item in calibration:
+                                    reference_values[item["index"]] = (
+                                        item["expected"]
+                                        if item["index"] in candidates
+                                        else values[item["index"]])
+                                for excluded_index in calibration_excluded:
+                                    prior = evidence_by_index.get(excluded_index)
+                                    if prior is not None:
+                                        prior.update(
+                                            excluded_from_model=True,
+                                            model_value=reference_values[excluded_index],
+                                            exclusion_reason="extreme_calibration_residual",
+                                            reference_action="use_expected")
+                            retained = [item["residual"]
+                                        for offset, item in enumerate(calibration)
+                                        if offset not in set(excluded_offsets)]
+                            center = statistics.mean(retained)
+                            raw_scale = (statistics.stdev(retained)
+                                         if len(retained) > 1 else 0.0)
                             scale = max(raw_scale, cfg.scale_floor)
                             if not math.isfinite(center) or not math.isfinite(scale):
                                 raise RuntimeError("nonfinite calibration statistics")
@@ -156,6 +272,9 @@ def _analyze_seasonal(request: Request) -> Result:
                             segment.update(
                                 status="calibrated", calibration_center=center,
                                 calibration_scale=scale, raw_scale=raw_scale,
+                                calibration_used_count=len(retained),
+                                calibration_excluded_positions=calibration_excluded,
+                                robust_calibration=robust_calibration,
                                 training_window=[times[segment_start] if times[segment_start] is not None else segment_start,
                                                  times[segment_start+training-1] if times[segment_start+training-1] is not None else segment_start+training-1],
                                 calibration_window=[times[segment_start+training] if times[segment_start+training] is not None else segment_start+training,
@@ -170,28 +289,61 @@ def _analyze_seasonal(request: Request) -> Result:
                                     calibration_window=segment["calibration_window"],
                                     evaluation_window=segment["evaluation_window"])
                                 first_calibrated = False
+                            expected = expected_value(reference_values, index,
+                                                      cfg.season_length)
+                            expected += trend.change(
+                                local_index - cfg.season_length, local_index)
+                            residual = values[index] - expected
+                            relative = (residual / abs(expected)
+                                        if expected != 0 else None)
                         z = (residual - center) / scale
                         if not math.isfinite(z):
                             raise RuntimeError("nonfinite detector statistic")
                         maturity = "calibrated"
-                        calibration_samples = len(calibration)
+                        calibration_samples = (len(calibration)
+                                               - len(calibration_excluded))
                         triggers = ["point"] if abs(z) > cfg.point_threshold else []
                         semantics = "standardized forecast residual using frozen segment calibration; not a probability"
                         errors.append(residual)
                         segment_errors.append(residual)
-                    method.evidence.append(dict(
+                    excluded_from_model = False
+                    exclusion_reason = None
+                    model_value = values[index]
+                    reference_action = "use_observed"
+                    if (cfg.outlier_handling == "robust"
+                            and maturity == "calibrated"
+                            and abs(z) > EXTREME_Z):
+                        excluded_from_model = True
+                        exclusion_reason = "extreme_calibrated_residual"
+                        model_value = expected
+                        reference_action = "use_expected"
+                        reference_values[index] = expected
+                        evaluation_excluded.append(index)
+                    else:
+                        reference_values[index] = values[index]
+                    evidence = dict(
                         id=f"{method.id}:{index}", method=method.id, index=index,
                         timestamp=times[index],
                         training_cutoff=(times[index-1] if times[index-1] is not None else index-1),
                         observed=values[index], expected=expected, residual=residual,
                         relative_deviation=relative, standardized_residual=z,
                         signal_maturity=maturity, calibration_samples=calibration_samples,
-                        triggers=triggers, score_semantics=semantics))
+                        triggers=triggers, score_semantics=semantics,
+                        excluded_from_model=excluded_from_model,
+                        model_value=model_value,
+                        exclusion_reason=exclusion_reason,
+                        reference_action=reference_action)
+                    method.evidence.append(evidence)
+                    evidence_by_index[index] = evidence
                     maturity_counts[maturity] += 1
                 total_calibration += len(calibration)
                 segment["calibration_observed_count"] = len(calibration)
                 segment["calibration_required_count"] = cfg.calibration_size
                 segment["evaluated_count"] = len(segment_errors)
+                segment["outlier_handling"] = cfg.outlier_handling
+                segment["training_excluded_positions"] = training_excluded
+                segment["calibration_excluded_positions"] = calibration_excluded
+                segment["evaluation_reference_replacements"] = evaluation_excluded
                 segment_diagnostics.append(segment)
             method.diagnostics.update(
                 maturity_counts=maturity_counts,
@@ -199,7 +351,23 @@ def _analyze_seasonal(request: Request) -> Result:
                 reset_count=len(reset_positions),
                 calibration_observed_count=total_calibration,
                 calibration_required_count=cfg.calibration_size * len(segment_diagnostics),
-                provisional_scale_floor_used_count=provisional_floor_count)
+                provisional_scale_floor_used_count=provisional_floor_count,
+                outlier_handling={
+                    "mode": cfg.outlier_handling,
+                    "method": ("huber_mad_v1" if cfg.outlier_handling == "robust"
+                               else "include_all_v1"),
+                    "extreme_standardized_residual_threshold": (
+                        EXTREME_Z if cfg.outlier_handling == "robust" else None),
+                    "training_excluded_positions": [
+                        position for segment in segment_diagnostics
+                        for position in segment["training_excluded_positions"]],
+                    "calibration_excluded_positions": [
+                        position for segment in segment_diagnostics
+                        for position in segment["calibration_excluded_positions"]],
+                    "evaluation_reference_replacements": [
+                        position for segment in segment_diagnostics
+                        for position in segment["evaluation_reference_replacements"]],
+                })
             if errors:
                 largest = max(abs(e) for e in errors)
                 rmse = largest * math.sqrt(statistics.mean((e / largest) ** 2 for e in errors)) if largest else 0.0
@@ -221,9 +389,15 @@ def _analyze_seasonal(request: Request) -> Result:
         "Nelson Rules 3, 4, and 8 describe residual trend, systematic oscillation, and mixture patterns; they are model/process diagnostics, not location-shift claims.",
         "CUSUM and moving-range thresholds are exploratory and applied to calibrated standardized residuals; they are not probabilities or independently corroborating evidence.",
         "Classical Nelson, CUSUM, and moving-range false-alarm behavior assumes an adequately estimated stable process; residual autocorrelation, non-normal tails, and a short calibration window can change the alert rate.",
-        "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures.",
-        "Seasonal updates adapt after one season; persistent level changes may stop triggering.",
-        "A departure enters the next season's baseline and may produce an echo signal."])
+        "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures."])
+    if cfg.outlier_handling == "robust":
+        method.limitations.extend([
+            "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
+            "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; a persistent shift remains abnormal until a reviewed reset."])
+    else:
+        method.limitations.extend([
+            "Seasonal updates adapt after one season; persistent level changes may stop triggering.",
+            "A departure enters the next season's baseline and may produce an echo signal."])
     if season_source == "inferred":
         method.limitations.append("Season length was inferred from a positional training prefix; confirm it with domain knowledge or replay.")
     elif season_source == "fallback":

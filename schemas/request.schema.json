@@ -220,6 +220,15 @@
           "title": "Trend",
           "type": "string"
         },
+        "outlier_handling": {
+          "default": "robust",
+          "enum": [
+            "robust",
+            "include"
+          ],
+          "title": "Outlier Handling",
+          "type": "string"
+        },
         "reset_points": {
           "items": {
             "anyOf": [

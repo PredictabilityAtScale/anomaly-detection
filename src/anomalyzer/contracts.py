@@ -16,6 +16,7 @@ class Settings(Contract):
     aggregate_function: Literal["sum", "mean", "last"] = "sum"
     aggregate_anchor: str | None = None
     trend: Literal["auto", "none", "linear", "exponential"] = "auto"
+    outlier_handling: Literal["robust", "include"] = "robust"
     reset_points: list[int | str] = Field(default_factory=list)
     training_size: int = Field(default=28, ge=2, strict=True)
     calibration_size: int = Field(default=14, ge=3, strict=True)
@@ -99,6 +100,10 @@ class Evidence(TypedDict):
     calibration_samples: int
     triggers: list[Literal["point"]]
     score_semantics: str
+    excluded_from_model: bool
+    model_value: float
+    exclusion_reason: str | None
+    reference_action: Literal["use_observed", "use_expected"]
 
 
 class Observation(TypedDict):

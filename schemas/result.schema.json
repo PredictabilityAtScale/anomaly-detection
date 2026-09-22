@@ -216,6 +216,33 @@
         "score_semantics": {
           "title": "Score Semantics",
           "type": "string"
+        },
+        "excluded_from_model": {
+          "title": "Excluded From Model",
+          "type": "boolean"
+        },
+        "model_value": {
+          "title": "Model Value",
+          "type": "number"
+        },
+        "exclusion_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Exclusion Reason"
+        },
+        "reference_action": {
+          "enum": [
+            "use_observed",
+            "use_expected"
+          ],
+          "title": "Reference Action",
+          "type": "string"
         }
       },
       "required": [
@@ -232,7 +259,11 @@
         "signal_maturity",
         "calibration_samples",
         "triggers",
-        "score_semantics"
+        "score_semantics",
+        "excluded_from_model",
+        "model_value",
+        "exclusion_reason",
+        "reference_action"
       ],
       "title": "Evidence",
       "type": "object"

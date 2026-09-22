@@ -174,7 +174,10 @@ def test_positional_episode_uses_integer_interval():
     values[9] = 150
     result = analyze(values, {"season_length": 1, "training_size": 2,
                               "calibration_size": 3})
-    assert result.observations[0]["interval"] == [9, 10]
+    assert result.observations[0]["interval"] == [9, 9]
+    signal = next(e for e in result.methods[0].evidence if e["index"] == 9)
+    assert signal["excluded_from_model"] is True
+    assert signal["reference_action"] == "use_expected"
 
 
 def test_anomaly_stream_detects_consecutive_run(request_factory):
@@ -276,7 +279,10 @@ def test_isolated_anomalies_do_not_form_second_order_pattern(request_factory):
     values = [100.0] * 70
     values[55] = values[60] = 150
     result = analyze(request_factory(values, season_length=7))
-    assert len(result.observations) == 4
+    assert len(result.observations) == 2
+    assert {55, 60} == {
+        e["index"] for e in result.methods[0].evidence
+        if e["excluded_from_model"]}
     assert not [pattern for pattern in result.anomaly_patterns
                 if pattern["kind"] == "consecutive_run"]
 
@@ -291,8 +297,12 @@ def test_manual_resets_retrain_without_crossing_boundaries(request_factory):
                  105 * 1.01**(i-100))
         values.append(round(level + weekly[i % 7] + variation[i % 5], 4))
     unmarked = analyze(request_factory(values, season_length=7))
-    assert len([e for e in unmarked.methods[0].evidence if e["triggers"]]) == 100
-    assert unmarked.anomaly_patterns[0]["sample_count"] == 100
+    unmarked_triggers = {
+        e["index"] for e in unmarked.methods[0].evidence if e["triggers"]}
+    assert 50 in unmarked_triggers and 90 in unmarked_triggers
+    assert 100 in unmarked_triggers and 149 in unmarked_triggers
+    assert unmarked.methods[0].diagnostics["outlier_handling"][
+        "evaluation_reference_replacements"]
 
     marked_request = request_factory(values, season_length=7,
                                      reset_points=[50, "2026-04-11"])
@@ -420,7 +430,7 @@ def test_failure_and_budget(request_factory, monkeypatch):
     assert analyze(request_factory(max_runtime_seconds=1e-12)).stop_reason == "runtime_budget"
 
 
-@pytest.mark.parametrize("change", [{"unknown": 1}, {"methods": ["ses"]}, {"cusum_k": 0}, {"cusum_h": 0}, {"moving_range_threshold": 0}, {"alpha": 0.2}, {"seed": 0}, {"recipe": "baseline-v1"}, {"season_length": 0}, {"training_size": True}])
+@pytest.mark.parametrize("change", [{"unknown": 1}, {"methods": ["ses"]}, {"cusum_k": 0}, {"cusum_h": 0}, {"moving_range_threshold": 0}, {"alpha": 0.2}, {"seed": 0}, {"recipe": "baseline-v1"}, {"season_length": 0}, {"training_size": True}, {"outlier_handling": "delete"}])
 def test_invalid_config(request_factory, change):
     with pytest.raises(ValueError):
         analyze(request_factory(**change))

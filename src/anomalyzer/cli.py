@@ -109,6 +109,9 @@ Run 'anomalyzer methods --help' for method discovery.
                             help=f"Handle duplicate timestamps: reject, average, or sum; missing values propagate (default: {defaults.duplicate_policy})")
         tuning.add_argument("--trend", choices=["auto", "none", "linear", "exponential"],
                             help="Training-only trend model; auto chooses conservatively (default: auto)")
+        tuning.add_argument("--outlier-handling", choices=["robust", "include"],
+                            help=("Protect trend, calibration, and future seasonal references from extreme residuals, or include every observation unchanged "
+                                  f"(default: {defaults.outlier_handling})"))
         tuning.add_argument("--reset-point", dest="reset_points", action="append",
                             type=lambda value: int(value) if re.fullmatch(r"[0-9]+", value) else value,
                             metavar="POSITION_OR_TIMESTAMP",
@@ -139,6 +142,11 @@ Configuration:
   max(training_size, season_length) + calibration_size + 1 observations: 43
   with defaults. Shorter series return non-triggering evidence when possible
   and an insufficient_history status.
+  Robust outlier handling is enabled by default. Actual observations remain
+  visible and scoreable; only an extreme point's influence on trend,
+  calibration, and future seasonal references is reduced. Use
+  --outlier-handling include to reproduce the unprotected baseline and its
+  possible one-season echo. Robust handling never creates a regime reset.
   Adjacent calibrated point anomalies remain individual evidence and also form
   a consecutive_run entry in anomaly_patterns when the run has at least two
   samples. Two-sided CUSUM and Nelson Rules 2, 5, and 6 inspect calibrated
@@ -249,6 +257,13 @@ def readable(result):
         counts = method.get("diagnostics", {}).get("maturity_counts")
         if counts:
             lines.append("    evidence: " + ", ".join(f"{name}={count}" for name, count in counts.items()))
+        handling = method.get("diagnostics", {}).get("outlier_handling")
+        if handling:
+            lines.append(
+                f"    model protection: {handling['mode']}; "
+                f"training exclusions={len(handling['training_excluded_positions'])}, "
+                f"calibration exclusions={len(handling['calibration_excluded_positions'])}, "
+                f"future reference replacements={len(handling['evaluation_reference_replacements'])}")
     for episode in result["observations"]:
         lines.append(f"  {episode['interval'][0]} to {episode['interval'][1]}: {episode['direction']}, peak departure {episode['magnitude']:.6g}")
     for pattern in result["anomaly_patterns"]:

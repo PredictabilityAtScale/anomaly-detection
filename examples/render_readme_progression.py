@@ -102,10 +102,12 @@ def read_request(name):
     return json.loads((EXAMPLES / f"{name}.json").read_text(encoding="utf-8"))
 
 
-def run_request(request, trend=None):
+def run_request(request, trend=None, outlier_handling=None):
     request = json.loads(json.dumps(request))
     if trend:
         request["config"]["trend"] = trend
+    if outlier_handling:
+        request["config"]["outlier_handling"] = outlier_handling
     result = analyze(request)
     method = result.methods[0]
     expected = {row["index"]: row["expected"] for row in method.evidence}
@@ -224,7 +226,7 @@ def figure_one():
 def figure_two():
     changes = {65: 40, 78: -35}
     request = mutate(read_request("growth_up"), changes)
-    result, expected, flags = run_request(request, "linear")
+    result, expected, flags = run_request(request, "linear", "include")
     values = request["datasets"][0]["values"]
     trend = result.methods[0].diagnostics["trend"]
     injected, echoes = set(changes), {72, 85}
@@ -245,8 +247,8 @@ def figure_two():
 def figure_three():
     changes = {65: 40, 78: -35}
     request = mutate(read_request("compound"), changes)
-    linear_result, linear_expected, linear_flags = run_request(request, "linear")
-    compound_result, compound_expected, compound_flags = run_request(request, "exponential")
+    linear_result, linear_expected, linear_flags = run_request(request, "linear", "include")
+    compound_result, compound_expected, compound_flags = run_request(request, "exponential", "include")
     values = request["datasets"][0]["values"]
     shared = bounds(values, expected_series(linear_expected, len(values)),
                     expected_series(compound_expected, len(values)))
@@ -273,8 +275,8 @@ def figure_three():
 def figure_four():
     request = read_request("steps")
     reset_request = read_request("steps_reset")
-    _, plain_expected, plain_flags = run_request(request)
-    _, reset_expected, reset_flags = run_request(reset_request)
+    _, plain_expected, plain_flags = run_request(request, outlier_handling="include")
+    _, reset_expected, reset_flags = run_request(reset_request, outlier_handling="include")
     values = request["datasets"][0]["values"]
     shared = bounds(values, expected_series(plain_expected, len(values)),
                     expected_series(reset_expected, len(values)))
@@ -394,6 +396,83 @@ def figure_six():
                  ("dash", NAVY, "frozen residual centerline"),
                  ("dot", RED, "first rule detection")])
     svg.text(1130, 658, "All shifted scores are +2.28σ; point anomalies: 0", 14,
+             MUTED, anchor="end")
+    return svg.finish()
+
+
+def figure_seven():
+    request = read_request("spike")
+    included, included_expected, included_flags = run_request(
+        request, outlier_handling="include")
+    robust, robust_expected, robust_flags = run_request(
+        request, outlier_handling="robust")
+    values = request["datasets"][0]["values"]
+    shared = bounds(values, expected_series(included_expected, len(values)),
+                    expected_series(robust_expected, len(values)))
+    ticks = [(0, "Jan 1"), (31, "Feb 1"), (65, "Mar 7"),
+             (72, "Mar 14"), (89, "Mar 31")]
+
+    svg = Svg()
+    header(svg, "07", "Protect the model from an incident",
+           "Score the actual spike, then keep it out of future seasonal references so it cannot echo.")
+    chart(svg, values,
+          [(GOLD, expected_series(included_expected, len(values)), 2.5, "7 5", 1)],
+          105, 170, 1015, 155, y_bounds=shared, flags=included_flags,
+          injected={65}, echoes={72}, ticks=[],
+          label="Include every observation  ·  spike + one-week echo")
+    chart(svg, values,
+          [(NAVY, expected_series(robust_expected, len(values)), 2.5, "7 5", 1)],
+          105, 410, 1015, 155, y_bounds=shared, flags=robust_flags,
+          injected={65}, ticks=ticks,
+          label="Robust default  ·  actual spike retained, echo prevented")
+    sx = lambda index: 105 + index / (len(values) - 1) * 1015
+    low, high = shared
+    sy = lambda value: 410 + 155 - (value - low) / (high - low) * 155
+    svg.circle(sx(65), sy(values[65]), 7, "#ffffff", AXIS, 2)
+    svg.circle(sx(65), sy(values[65]), 3.5, RED)
+    legend(svg, [("line", BLUE, "actual"), ("dash", GOLD, "include expectation"),
+                 ("dash", NAVY, "robust expectation"), ("dot", RED, "flag")], y=632)
+    svg.text(1130, 660, "The point is excluded from model influence, never from evidence", 14,
+             MUTED, anchor="end")
+    return svg.finish()
+
+
+def figure_eight():
+    weekly = [0, 10, -5, 8, 2, -12, -8]
+    variation = [.2, -.4, .6, -.3, .1]
+    values = [100 + weekly[index % 7] + variation[index % 5]
+              + (20 if index >= 60 else 0) for index in range(120)]
+    ordinary = analyze(values, {"season_length": 7})
+    reviewed = analyze(values, {"season_length": 7, "reset_points": [60]})
+    ordinary_expected = {row["index"]: row["expected"]
+                         for row in ordinary.methods[0].evidence}
+    reviewed_expected = {row["index"]: row["expected"]
+                         for row in reviewed.methods[0].evidence}
+    ordinary_flags = {row["index"] for row in ordinary.methods[0].evidence
+                      if row["triggers"]}
+    reviewed_flags = {row["index"] for row in reviewed.methods[0].evidence
+                      if row["triggers"]}
+    shared = bounds(values, expected_series(ordinary_expected, len(values)),
+                    expected_series(reviewed_expected, len(values)))
+    ticks = [(0, "0"), (60, "60 · shift"),
+             (102, "102 · recalibrated"), (119, "119")]
+
+    svg = Svg()
+    header(svg, "08", "Do not normalize a new regime automatically",
+           "A persistent shift stays abnormal until review declares a new baseline.")
+    chart(svg, values,
+          [(GOLD, expected_series(ordinary_expected, len(values)), 2.5, "7 5", 1)],
+          105, 170, 1015, 155, y_bounds=shared, flags=ordinary_flags,
+          injected=ordinary_flags, ticks=[],
+          label=f"No reset  ·  {len(ordinary_flags)} shifted samples flag")
+    chart(svg, values,
+          [(NAVY, expected_series(reviewed_expected, len(values)), 2.5, "7 5", 1)],
+          105, 410, 1015, 155, y_bounds=shared, flags=reviewed_flags,
+          ticks=ticks, boundaries=(60,),
+          label="Reviewed reset at 60  ·  rebuild history, fit, and calibration")
+    legend(svg, [("line", BLUE, "actual"), ("dash", GOLD, "old-regime expectation"),
+                 ("dash", NAVY, "reset expectation"), ("dot", RED, "flag")], y=632)
+    svg.text(1130, 660, "Detection suggests review; only a reviewed reset establishes the new normal", 14,
              MUTED, anchor="end")
     return svg.finish()
 
@@ -542,6 +621,8 @@ def main():
         "anomaly-progression-04-change-points": figure_four(),
         "anomaly-progression-05-season-discovery": figure_five(),
         "anomaly-progression-06-location-shift": figure_six(),
+        "anomaly-progression-07-robust-outliers": figure_seven(),
+        "anomaly-progression-08-reviewed-regime": figure_eight(),
         "nelson-rules-reference": figure_rule_reference(),
         "residual-detectors-reference": figure_extended_rule_reference(),
     }

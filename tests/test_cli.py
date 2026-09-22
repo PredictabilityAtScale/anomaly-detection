@@ -92,6 +92,19 @@ def test_manual_reset_cli():
                 if pattern["kind"] == "consecutive_run"]
 
 
+def test_outlier_handling_cli():
+    robust = run("analyze", "examples/spike.json", "--format", "json")
+    included = run("analyze", "examples/spike.json", "--outlier-handling",
+                   "include", "--format", "json")
+    assert robust.returncode == included.returncode == 0
+    robust_body, included_body = json.loads(robust.stdout), json.loads(included.stdout)
+    assert robust_body["resolved_config"]["config"]["outlier_handling"] == "robust"
+    assert {e["index"] for e in robust_body["methods"][0]["evidence"]
+            if e["triggers"]} == {65}
+    assert {e["index"] for e in included_body["methods"][0]["evidence"]
+            if e["triggers"]} == {65, 72}
+
+
 def test_size_limit_and_execution_exit(tmp_path, request_factory, capsys, monkeypatch):
     source = tmp_path / "case.json"
     source.write_text(json.dumps(request_factory()))

@@ -24,16 +24,16 @@ the four trend patterns run throughout training, calibration, and evaluation.
 | Case | Injected change | Expected flags |
 | --- | --- | --- |
 | ordinary | None | None |
-| spike | +40 calls on March 7 | March 7 and an echo on March 14 |
-| drop | -40 calls on March 7 | March 7 and an echo on March 14 |
-| shift | +4 calls daily starting March 2 | March 2–8, then the baseline adapts |
+| spike | +40 calls on March 7 | March 7; robust model history prevents the March 14 echo |
+| drop | -40 calls on March 7 | March 7; robust model history prevents the March 14 echo |
+| shift | +4 calls daily starting March 2 | March 2 onward; the extreme persistent shift remains abnormal until a reviewed reset |
 | growth_up | Add 0.6 calls per elapsed day | None: fitted linear trend |
 | growth_down | Subtract 0.6 calls per elapsed day | None: fitted linear trend |
 | compound | Underlying level grows 1.2% daily; weekly variation remains additive | None: fitted compound trend using five seasonal training cycles |
 | compound_down | Underlying level declines 1.2% daily; weekly variation remains additive | None: fitted compound trend using five seasonal training cycles |
 | location_shift_up | Residuals move to +2.28 sigma at position 60 | No point flags; Nelson Rule 5, CUSUM, Rule 6, and Rule 2 detect possible upward location shifts at positions 61, 62, 63, and 68 |
 | location_shift_down | Residuals move to -2.28 sigma at position 60 | No point flags; Nelson Rule 5, CUSUM, Rule 6, and Rule 2 detect possible downward location shifts at positions 61, 62, 63, and 68 |
-| steps | Steps at positions 50 and 100, with changing trend | Positions 50–149; one 100-sample consecutive anomaly pattern |
+| steps | Steps at positions 50 and 100, with changing trend | Most later samples; unreviewed regimes remain abnormal instead of becoming their own baseline |
 | steps_reset | Same stepped data with manual resets at position 50 and date 2026-04-11 | None after independent segment training/calibration |
 
 The compound level is `100 * 1.012 ** day`; its configuration uses 35 training
@@ -41,10 +41,9 @@ samples, or five complete seasonal cycles. These are synthetic usage rates,
 so fractional calls are intentional. Compound decline uses `100 * 0.988 ** day`.
 With a forced linear trend, the README comparison produces 34 flags.
 
-The `steps` case demonstrates the second-order anomaly stream. Every one of its
-100 consecutive flags remains point evidence, and the result also contains one
-`consecutive_run` pattern (along with any qualifying residual patterns).
-These patterns do not retrain anything. `steps_reset`
+The `steps` case demonstrates that robust model history does not automatically
+normalize unreviewed regime changes. Its point evidence and qualifying residual
+patterns do not retrain anything. `steps_reset`
 uses the same values with reviewed boundaries in `reset_points`; seasonal history,
 trend, and calibration restart independently in each segment.
 
@@ -66,15 +65,18 @@ threshold fields, and descriptions. They demonstrate mechanics rather than
 calibrated real-world false-alarm rates.
 
 The checked-in charts under `docs/images/` show the trend, seasonality,
-change-point, and location-shift cases. Regenerate them with
+change-point, location-shift, robust-outlier, and reviewed-regime cases. Regenerate them with
 `.venv/Scripts/python examples/render_readme_progression.py` after regenerating
 the examples. Historical expectations come directly from detector evidence;
 the charts do not extend them into periods where no causal expectation exists.
 
-The echo is intentional to expose a limitation: one week after a spike or drop,
-the changed observation becomes the baseline, so an ordinary value can be flagged
-in the opposite direction. A sustained change stops triggering after one week.
-Those flags are forecast departures, not a count of real incidents.
+The progression's early seasonality figures use `outlier_handling=include` to expose
+the original limitation: one week after a spike or drop, the changed observation
+becomes the baseline and an ordinary value can flag in the opposite direction. The
+robust default still scores and displays the actual incident, but substitutes its
+prior expectation only in future model references. A sustained extreme change then
+remains abnormal until external review supplies a reset point. These flags are
+forecast departures, not a count of real incidents.
 
 Run a single case through the CLI:
 

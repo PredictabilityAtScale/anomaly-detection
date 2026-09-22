@@ -66,7 +66,8 @@ overall average still confuses seasonality with change. Anomalyzer instead compa
 each observation with the same point in the previous season and adds the fitted
 linear change across that seven-day gap. The red points are the introduced changes;
 the orange points show the seasonal-naive echo that appears when each changed value
-becomes the reference one week later.
+becomes the reference one week later. This chapter deliberately uses
+`outlier_handling=include`; chapter 7 adds the robust default that prevents the echo.
 
 ![Weekly seasonality on a growing linear trend with introduced changes and one-week echoes](docs/images/anomaly-progression-02-linear-seasonality.png)
 
@@ -77,7 +78,8 @@ A straight line adds the same amount every day. Compound growth adds the same
 a widening residual and flags 34 samples in this example. With five seasonal
 cycles in its training window, the compound model
 follows the changing rate and reduces the result to four flags: the two introduced
-changes and their two one-week echoes.
+changes and their two one-week echoes. As in chapter 2, the comparison uses
+`outlier_handling=include` so trend choice is isolated from outlier handling.
 
 ![The same compound-growth series scored with linear and compound trend models](docs/images/anomaly-progression-03-compound.png)
 
@@ -89,7 +91,8 @@ known boundaries. Without that context, both later regimes remain departures and
 and 100, seasonal history, trend fitting, and calibration restart inside each
 segment. The three regimes are then modeled independently and no samples flag.
 Resets are always explicit: Anomalyzer does not automatically normalize an anomaly
-run that may still be a real incident.
+run that may still be a real incident. This chapter holds outlier handling at
+`include`; chapter 8 combines robust handling with the reviewed-reset workflow.
 
 ![A stepped series before and after explicit change-point resets](docs/images/anomaly-progression-04-change-points.png)
 
@@ -116,6 +119,34 @@ cause, or automatically establish a new operating regime. The downward example
 has symmetric behavior.
 
 ![Standardized residuals showing Nelson location-shift rules before any point exceeds three sigma](docs/images/anomaly-progression-06-location-shift.png)
+
+### 7. Protect the model from an incident
+
+An extreme observation is still real evidence even when it should not define the
+future baseline. The `robust` default first scores and preserves the actual point,
+then substitutes its pre-anomaly expectation only in the model's future seasonal
+reference history. Trend training uses a bounded-influence residual screen and a
+clean refit; calibration removes only extreme residual contamination before its
+mean and standard deviation are frozen. The upper panel shows the `include`
+comparator: the March 7 spike becomes March 14's seasonal reference and creates a
+false downward echo. The lower panel shows the default: March 7 remains a flagged,
+auditable actual, but March 14 compares with the protected model reference and does
+not flag.
+
+![The same isolated spike with include-all history and robust model-only replacement](docs/images/anomaly-progression-07-robust-outliers.png)
+
+### 8. Keep regime changes explicit
+
+Robust handling must not turn “exclude anomalies” into “silently choose a new
+normal.” In the upper panel a persistent level shift remains a departure because
+each extreme point is prevented from contaminating later seasonal references. In
+the lower panel external review establishes a reset at position 60. Seasonal
+history, trend fitting, and calibration then rebuild inside the new segment; early
+post-reset evidence is intentionally non-triggering until the new regime has enough
+history. Detection can suggest review, but only an explicit `reset_point` changes
+the operating regime.
+
+![A persistent level shift kept abnormal until a reviewed reset rebuilds the baseline](docs/images/anomaly-progression-08-reviewed-regime.png)
 
 #### The implemented rule shapes
 
@@ -179,7 +210,7 @@ not transfer automatically; use chronological replay, including
 `pattern_counts` and `first_detection_by_rule`, to compare detection delay and
 alert burden before operational use. No pattern automatically resets the model.
 
-Regenerate the six progression PNGs and both rule references with
+Regenerate the eight progression PNGs and both rule references with
 `.venv/Scripts/python examples/render_readme_progression.py` (or the equivalent
 `.venv/bin/python` command on Unix). The renderer is intentionally organized as
 one figure function and one output entry per chapter so this progression can grow.
@@ -216,8 +247,11 @@ a drop, and a sustained change, including the baseline's echo/adaptation limits.
 
 ## One baseline, inspectable residual checks
 
-The expectation for sample `t` is the observed value at `t - season_length`,
-plus the fitted trend's change between those two positions.
+The expectation for sample `t` is the model reference at `t - season_length`,
+plus the fitted trend's change between those two positions. The model reference
+normally equals the observed value. With the robust default, an extreme point's
+pre-anomaly expectation becomes its model-only reference after the actual point
+has been scored; the actual is never removed from evidence.
 A season of 1 uses the previous observation; 7 can represent weekly seasonality
 in daily data. Each prediction uses only earlier samples.
 
@@ -230,7 +264,12 @@ heuristic, not a statistical confidence test. Fitting requires at least
 `max(8, 4 * season_length)` training samples; shorter windows disclose a fallback
 to no trend. The fit uses at most the final `max(256, 4 * season_length)` training
 samples. Exponential log rates are bounded by the smaller of 0.1 per sample and
-20 divided by the fit-window length.
+20 divided by the fit-window length. With `outlier_handling=robust`, Anomalyzer
+also fits a bounded-influence seasonal residual screen, identifies only residuals
+beyond 4.5 robust standard deviations, substitutes their fitted values inside the
+training copy, and repeats ordinary model selection and fitting. The public trend
+still reports the refitted ordinary coefficients; diagnostics report the screened
+training positions and Huber downweight count.
 
 Use `--trend linear`, `--trend exponential`, or `--trend none` to override auto
 selection (JSON uses the `trend` key). `none` preserves the original
@@ -244,8 +283,12 @@ extrapolation can reduce accuracy. Overflow stops scoring with a disclosed error
 
 Evidence begins as soon as one full season is available. Defaults reserve 28
 initial samples (at least one season), then 14 calibration samples. Calibration
-forecast errors establish a mean and sample standard deviation. These remain
-fixed while later samples are scored:
+forecast errors establish a mean and sample standard deviation. In robust mode,
+the completed calibration window is screened with its median and normal-consistent
+MAD at the same 4.5 threshold; extreme residuals are excluded, seasonal references
+are rebuilt, and the mean and sample standard deviation are computed from the
+retained residuals. At least three residuals must remain. The resulting center and
+scale remain fixed while later samples are scored:
 
 ```text
 residual = observed - expected
@@ -269,6 +312,14 @@ Zero or tiny variance uses an explicit scale floor (default 1e-8 in input units)
 and reports a limitation. At least one sample after calibration is required for
 calibrated scoring. Before that, the result is `insufficient_history` but contains
 the weaker evidence available so far.
+
+Each evidence record also reports `excluded_from_model`, `model_value`,
+`exclusion_reason`, and `reference_action`. A calibrated point is excluded from
+future model references only when its absolute standardized residual exceeds 4.5;
+the ordinary point threshold remains separately configurable and defaults to 3.
+Thus a point can be anomalous without being extreme enough to alter model history.
+Set `outlier_handling` to `include` (CLI: `--outlier-handling include`) to preserve
+every raw reference and reproduce the earlier echo/adaptation behavior.
 
 With `season_length=7`, `training_size=2`, and the default 14-point calibration,
 the first calibrated score needs 21 prior samples; the default 28-point training
@@ -314,9 +365,13 @@ expected and observed values, residuals, scores, evidence references, data check
 calibration windows, resolved settings, dependency versions, and an input fingerprint.
 Readable output and JSON use the same result. Business impact remains unresolved.
 
-This simple baseline adapts to a level change after one season. It can miss slow
-changes, and a spike can cause an echo when it enters the next season's baseline.
-Choose a representative calibration period and inspect flagged observations.
+With `outlier_handling=include`, this simple baseline adapts to a level change after
+one season and a spike can cause an echo when it enters the next season's baseline.
+The robust default prevents extreme points from entering later seasonal references,
+so a persistent extreme shift remains abnormal until a reviewed reset. Robust
+exclusion is a modeling decision, not a claim that the actual was erroneous or
+operationally unimportant. Choose representative training and calibration periods,
+inspect excluded positions, and compare both modes during chronological replay.
 There is no EWMA, ensemble, broad automatic method search, or independent
 incident probability. Positional value-only input can infer one candidate
 sample lag as described below. Context about known events is preserved but does
