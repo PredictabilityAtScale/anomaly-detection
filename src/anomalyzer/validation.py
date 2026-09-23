@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 import re
 import math
-from .contracts import Request
+from .contracts import Context, Dataset, Request, Settings
 
 
 def timestamp(value: str, zone: str | None = None) -> datetime:
@@ -22,8 +22,21 @@ def timestamp(value: str, zone: str | None = None) -> datetime:
         raise ValueError(f"invalid timestamp {value!r}: {exc}") from exc
 
 
-def prepare(request: Request):
-    ds, cfg = request.datasets[0], request.config
+def prepare(dataset: Dataset | Request, settings: Settings | None = None,
+            context: Context | None = None):
+    """Prepare one dataset without coupling the engine to a request container.
+
+    Passing a ``Request`` remains supported as the schema-1.0 compatibility
+    adapter. New orchestration code always passes the dataset, settings, and
+    context explicitly.
+    """
+    if isinstance(dataset, Request):
+        request = dataset
+        ds, cfg, ctx = request.datasets[0], request.config, request.context
+    else:
+        if settings is None:
+            raise TypeError("settings are required when preparing a Dataset")
+        ds, cfg, ctx = dataset, settings, context or Context()
     if len(ds.values) > cfg.max_points:
         raise ValueError("dataset exceeds max_points")
     statuses = ds.period_statuses or ["complete"] * len(ds.values)
@@ -40,7 +53,7 @@ def prepare(request: Request):
         return items[:cutoff], incomplete
 
     if ds.timestamps is None:
-        if request.context.as_of:
+        if ctx.as_of:
             raise ValueError("as_of requires timestamps")
         items = [(None, value, status, index)
                  for index, (value, status) in enumerate(zip(ds.values, statuses))]
@@ -89,8 +102,8 @@ def prepare(request: Request):
     if duplicates:
         transforms.append(f"aggregated {duplicates} duplicates using {cfg.duplicate_policy}; null propagates")
     excluded = 0
-    if request.context.as_of:
-        cutoff = timestamp(request.context.as_of, ds.timezone)
+    if ctx.as_of:
+        cutoff = timestamp(ctx.as_of, ds.timezone)
         excluded = sum(t > cutoff for t, *_ in pairs)
         pairs = [item for item in pairs if item[0] <= cutoff]
         transforms.append(f"as_of excluded {excluded} samples")

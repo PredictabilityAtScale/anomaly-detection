@@ -4,9 +4,9 @@
 [![Python 3.11–3.13](https://img.shields.io/badge/python-3.11–3.13-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A small local CLI and Python API for **time-series anomalies**. Forecasting is
-only an internal baseline for anomaly scoring; there is no standalone forecasting
-or distribution-comparison feature.
+A small local CLI, Python API, and read-only MCP adapter for inspectable
+**time-series evidence**. Forecasting is only an internal baseline for scoring;
+there is no standalone forecasting or automatic relationship-discovery feature.
 
 Anomalyzer provides deterministic, inspectable evidence rather than a black-box
 alert. It supports timestamped CSV and JSON or ordered numeric values, causal
@@ -40,8 +40,56 @@ with open("examples/spike.json", encoding="utf-8") as stream:
 print(result.model_dump_json(indent=2))
 ```
 
-The checked-in [examples](examples/README.md) cover ordinary behavior, spikes,
-drops, growth, sustained shifts, and explicit regime resets.
+The checked-in [single-series examples](examples/README.md) cover ordinary
+behavior, spikes, drops, growth, sustained shifts, and explicit regime resets.
+The [agentic evidence examples](examples/agentic/README.md) cover ratios, lagged
+responses, explicit policy rules, and incomplete-data gating.
+
+## Agentic evidence and certainty
+
+Schema 1.0 remains the frozen single-series contract. Schema 1.1 accepts up to
+four named datasets and four explicit `ratio`, `difference`,
+`normalized_residual`, `lagged_response`, or `joint_condition` relationships.
+Every 1.1 dataset declares a non-empty entity scope. Cases and case IDs are
+grouped by that scope, so simultaneous evidence for different entities remains
+separate.
+Relationship timestamps are normalized to UTC and matched exactly; Anomalyzer
+does not interpolate, resample, convert units, or turn missing values into zero.
+
+The public 1.1 contract keeps five ideas separate:
+
+| Dimension | Meaning |
+| --- | --- |
+| Calculation certainty | Exact arithmetic: change, ratio, residual, or rule crossing |
+| Evidence maturity | `observation_only`, `early`, `provisional`, or `calibrated` |
+| Evidence strength | Magnitude under the named reference; never an invented probability |
+| Claim scope | What the numbers establish and explicitly do not establish |
+| Review state | `unreviewed`, `expected_change`, `confirmed_incident`, or `new_regime` |
+
+Do not interpret `confidence`, `certainty`, or “anomaly” without those
+qualifiers. An early `departure_candidate` is descriptive and non-triggering. A
+`supported_departure` means a configured, calibrated numerical criterion was
+met. A `criterion_violation` proves only that a caller-supplied boundary was
+crossed. None of these, by itself, proves a real-world cause, incident, or
+business impact. `action_eligible` and `notification_eligible` are set only by
+the deterministic policy in the request.
+
+```python
+import json
+from anomalyzer import analyze_relationships
+
+with open("examples/agentic/conversion.json", encoding="utf-8") as stream:
+    result = analyze_relationships(json.load(stream))
+
+relationship = result.relationship_results[0]
+print(relationship.assessments[-1].classification)
+print(relationship.lineage[-1].source_indexes)
+```
+
+The Python agent facade also provides `analyze_series`, `get_case`, and
+`replay_policy`. Start the same read-only tools over local stdio with
+`anomalyzer-mcp`; tool results include structured content and repeat the material
+limitations. The adapter performs no production actions.
 
 ## The progression
 

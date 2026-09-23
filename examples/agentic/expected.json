@@ -1,0 +1,6 @@
+{
+  "conversion.json": {"relationship": "conversion", "status": "completed", "triggered_samples": [14], "criterion_violations": [], "case_count": 1},
+  "lagged-response.json": {"relationship": "lead_response", "status": "completed", "triggered_samples": [11], "criterion_violations": [], "case_count": 1},
+  "unit-cost.json": {"relationship": "unit_cost", "status": "insufficient_history", "triggered_samples": [], "criterion_violations": [3], "case_count": 1},
+  "incomplete-usage.json": {"relationship": "confirmed_usage_drop", "status": "insufficient_evidence", "triggered_samples": [], "criterion_violations": [], "case_count": 0}
+}

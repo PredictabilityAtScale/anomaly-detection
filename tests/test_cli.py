@@ -112,3 +112,11 @@ def test_size_limit_and_execution_exit(tmp_path, request_factory, capsys, monkey
     assert main(["analyze", str(source), "--max-runtime-seconds", "0.000000000001", "--format", "json"]) == 1
     captured = capsys.readouterr()
     assert json.loads(captured.out)["status"] == "failed"
+
+
+def test_schema_11_relationship_request_through_cli():
+    result = run("analyze", "examples/agentic/conversion.json", "--format", "json")
+    assert result.returncode == 0, result.stderr
+    body = json.loads(result.stdout)
+    assert body["schema_version"] == "1.1"
+    assert body["relationship_results"][0]["relationship_id"] == "conversion"

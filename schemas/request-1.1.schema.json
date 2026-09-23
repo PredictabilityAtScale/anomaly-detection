@@ -1,0 +1,966 @@
+{
+  "$defs": {
+    "AcceptableRangeRule": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "acceptable_range",
+          "title": "Kind",
+          "type": "string"
+        },
+        "minimum": {
+          "title": "Minimum",
+          "type": "number"
+        },
+        "maximum": {
+          "title": "Maximum",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "minimum",
+        "maximum"
+      ],
+      "title": "AcceptableRangeRule",
+      "type": "object"
+    },
+    "ActionPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_explicit_rules": {
+          "default": false,
+          "title": "Allow Explicit Rules",
+          "type": "boolean"
+        },
+        "allow_calibrated_departures": {
+          "default": false,
+          "title": "Allow Calibrated Departures",
+          "type": "boolean"
+        },
+        "notification_requires_action": {
+          "default": true,
+          "title": "Notification Requires Action",
+          "type": "boolean"
+        }
+      },
+      "title": "ActionPolicy",
+      "type": "object"
+    },
+    "Context": {
+      "additionalProperties": false,
+      "properties": {
+        "concern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concern"
+        },
+        "known_events": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Known Events",
+          "type": "array"
+        },
+        "as_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "As Of"
+        }
+      },
+      "title": "Context",
+      "type": "object"
+    },
+    "DatasetV11": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "default": "series",
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "timestamps": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamps"
+        },
+        "values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "frequency": {
+          "anyOf": [
+            {
+              "pattern": "^[1-9][0-9]*(s|min|h|d|w)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frequency"
+        },
+        "timezone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timezone"
+        },
+        "units": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Units"
+        },
+        "entity": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "minProperties": 1,
+          "title": "Entity",
+          "type": "object"
+        },
+        "period_statuses": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "complete",
+                  "incomplete"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period Statuses"
+        },
+        "rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "values",
+        "entity"
+      ],
+      "title": "DatasetV11",
+      "type": "object"
+    },
+    "DifferenceRelationship": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "difference",
+          "title": "Kind",
+          "type": "string"
+        },
+        "minuend": {
+          "minLength": 1,
+          "title": "Minuend",
+          "type": "string"
+        },
+        "subtrahend": {
+          "minLength": 1,
+          "title": "Subtrahend",
+          "type": "string"
+        },
+        "alignment": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Alignment",
+          "type": "string"
+        },
+        "units": {
+          "minLength": 1,
+          "title": "Units",
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "minuend",
+        "subtrahend",
+        "units"
+      ],
+      "title": "DifferenceRelationship",
+      "type": "object"
+    },
+    "JointConditionRelationship": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "joint_condition",
+          "title": "Kind",
+          "type": "string"
+        },
+        "conditions": {
+          "items": {
+            "$ref": "#/$defs/JointConditionTerm"
+          },
+          "maxItems": 4,
+          "minItems": 2,
+          "title": "Conditions",
+          "type": "array"
+        },
+        "combine": {
+          "default": "all",
+          "enum": [
+            "all",
+            "any"
+          ],
+          "title": "Combine",
+          "type": "string"
+        },
+        "alignment": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Alignment",
+          "type": "string"
+        },
+        "units": {
+          "const": "condition_met",
+          "default": "condition_met",
+          "title": "Units",
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "conditions"
+      ],
+      "title": "JointConditionRelationship",
+      "type": "object"
+    },
+    "JointConditionTerm": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset": {
+          "minLength": 1,
+          "title": "Dataset",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "eq"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "dataset",
+        "operator",
+        "threshold"
+      ],
+      "title": "JointConditionTerm",
+      "type": "object"
+    },
+    "LaggedResponseRelationship": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "lagged_response",
+          "title": "Kind",
+          "type": "string"
+        },
+        "response": {
+          "minLength": 1,
+          "title": "Response",
+          "type": "string"
+        },
+        "predictor": {
+          "minLength": 1,
+          "title": "Predictor",
+          "type": "string"
+        },
+        "lag": {
+          "minimum": 0,
+          "title": "Lag",
+          "type": "integer"
+        },
+        "coefficient": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coefficient"
+        },
+        "training_size": {
+          "anyOf": [
+            {
+              "minimum": 2,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Training Size"
+        },
+        "alignment": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Alignment",
+          "type": "string"
+        },
+        "units": {
+          "minLength": 1,
+          "title": "Units",
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "response",
+        "predictor",
+        "lag",
+        "units"
+      ],
+      "title": "LaggedResponseRelationship",
+      "type": "object"
+    },
+    "MaximumAbsoluteChangeRule": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "maximum_absolute_change",
+          "title": "Kind",
+          "type": "string"
+        },
+        "threshold": {
+          "minimum": 0,
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "threshold"
+      ],
+      "title": "MaximumAbsoluteChangeRule",
+      "type": "object"
+    },
+    "MaximumRelativeChangeRule": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "maximum_relative_change",
+          "title": "Kind",
+          "type": "string"
+        },
+        "threshold": {
+          "minimum": 0,
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "threshold"
+      ],
+      "title": "MaximumRelativeChangeRule",
+      "type": "object"
+    },
+    "NormalizedResidualRelationship": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "normalized_residual",
+          "title": "Kind",
+          "type": "string"
+        },
+        "observed": {
+          "minLength": 1,
+          "title": "Observed",
+          "type": "string"
+        },
+        "expected": {
+          "minLength": 1,
+          "title": "Expected",
+          "type": "string"
+        },
+        "scale": {
+          "exclusiveMinimum": 0,
+          "title": "Scale",
+          "type": "number"
+        },
+        "alignment": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Alignment",
+          "type": "string"
+        },
+        "units": {
+          "const": "standardized_residual",
+          "default": "standardized_residual",
+          "title": "Units",
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "observed",
+        "expected",
+        "scale"
+      ],
+      "title": "NormalizedResidualRelationship",
+      "type": "object"
+    },
+    "RatioRelationship": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "ratio",
+          "title": "Kind",
+          "type": "string"
+        },
+        "numerator": {
+          "minLength": 1,
+          "title": "Numerator",
+          "type": "string"
+        },
+        "denominator": {
+          "minLength": 1,
+          "title": "Denominator",
+          "type": "string"
+        },
+        "alignment": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Alignment",
+          "type": "string"
+        },
+        "units": {
+          "minLength": 1,
+          "title": "Units",
+          "type": "string"
+        },
+        "zero_denominator": {
+          "default": "inapplicable",
+          "enum": [
+            "inapplicable",
+            "error"
+          ],
+          "title": "Zero Denominator",
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "numerator",
+        "denominator",
+        "units"
+      ],
+      "title": "RatioRelationship",
+      "type": "object"
+    },
+    "Settings": {
+      "additionalProperties": false,
+      "properties": {
+        "recipe": {
+          "default": "seasonal-residual-v1",
+          "enum": [
+            "seasonal-residual-v1",
+            "multi-resolution-v1"
+          ],
+          "title": "Recipe",
+          "type": "string"
+        },
+        "season_length": {
+          "default": 1,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Season Length",
+          "type": "integer"
+        },
+        "completed_period_season_length": {
+          "default": 7,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Completed Period Season Length",
+          "type": "integer"
+        },
+        "intraday_season_length": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intraday Season Length"
+        },
+        "aggregate_function": {
+          "default": "sum",
+          "enum": [
+            "sum",
+            "mean",
+            "last"
+          ],
+          "title": "Aggregate Function",
+          "type": "string"
+        },
+        "aggregate_anchor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Aggregate Anchor"
+        },
+        "trend": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "none",
+            "linear",
+            "exponential"
+          ],
+          "title": "Trend",
+          "type": "string"
+        },
+        "outlier_handling": {
+          "default": "robust",
+          "enum": [
+            "robust",
+            "include"
+          ],
+          "title": "Outlier Handling",
+          "type": "string"
+        },
+        "reset_points": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Reset Points",
+          "type": "array"
+        },
+        "training_size": {
+          "default": 28,
+          "minimum": 2,
+          "title": "Training Size",
+          "type": "integer"
+        },
+        "calibration_size": {
+          "default": 14,
+          "minimum": 3,
+          "title": "Calibration Size",
+          "type": "integer"
+        },
+        "point_threshold": {
+          "default": 3.0,
+          "exclusiveMinimum": 0,
+          "title": "Point Threshold",
+          "type": "number"
+        },
+        "cusum_k": {
+          "default": 0.5,
+          "exclusiveMinimum": 0,
+          "title": "Cusum K",
+          "type": "number"
+        },
+        "cusum_h": {
+          "default": 5.0,
+          "exclusiveMinimum": 0,
+          "title": "Cusum H",
+          "type": "number"
+        },
+        "moving_range_threshold": {
+          "default": 3.686,
+          "exclusiveMinimum": 0,
+          "title": "Moving Range Threshold",
+          "type": "number"
+        },
+        "scale_floor": {
+          "default": 1e-08,
+          "exclusiveMinimum": 0,
+          "title": "Scale Floor",
+          "type": "number"
+        },
+        "duplicate_policy": {
+          "default": "error",
+          "enum": [
+            "error",
+            "mean",
+            "sum"
+          ],
+          "title": "Duplicate Policy",
+          "type": "string"
+        },
+        "max_points": {
+          "default": 10000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Points",
+          "type": "integer"
+        },
+        "max_bytes": {
+          "default": 10000000,
+          "maximum": 100000000,
+          "minimum": 1,
+          "title": "Max Bytes",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 60,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "Settings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "analyze",
+      "default": "analyze",
+      "title": "Task",
+      "type": "string"
+    },
+    "datasets": {
+      "items": {
+        "$ref": "#/$defs/DatasetV11"
+      },
+      "maxItems": 4,
+      "minItems": 1,
+      "title": "Datasets",
+      "type": "array"
+    },
+    "relationships": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "difference": "#/$defs/DifferenceRelationship",
+            "joint_condition": "#/$defs/JointConditionRelationship",
+            "lagged_response": "#/$defs/LaggedResponseRelationship",
+            "normalized_residual": "#/$defs/NormalizedResidualRelationship",
+            "ratio": "#/$defs/RatioRelationship"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/RatioRelationship"
+          },
+          {
+            "$ref": "#/$defs/DifferenceRelationship"
+          },
+          {
+            "$ref": "#/$defs/NormalizedResidualRelationship"
+          },
+          {
+            "$ref": "#/$defs/LaggedResponseRelationship"
+          },
+          {
+            "$ref": "#/$defs/JointConditionRelationship"
+          }
+        ]
+      },
+      "maxItems": 4,
+      "title": "Relationships",
+      "type": "array"
+    },
+    "config": {
+      "$ref": "#/$defs/Settings"
+    },
+    "context": {
+      "$ref": "#/$defs/Context"
+    },
+    "policy": {
+      "$ref": "#/$defs/ActionPolicy"
+    }
+  },
+  "required": [
+    "schema_version",
+    "datasets"
+  ],
+  "title": "RequestV11",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

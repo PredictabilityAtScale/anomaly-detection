@@ -7,5 +7,6 @@ coverage.xml
 htmlcov/
 *.egg-info/
 dist/
+.codex-output/
 .uv-cache/
 work/

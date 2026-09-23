@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.1",
+  "datasets": [
+    {"id": "usage_events", "timestamps": ["2026-04-01T00:00:00Z", "2026-04-02T00:00:00Z", "2026-04-03T00:00:00Z", "2026-04-04T00:00:00Z"], "values": [100, 102, 98, 20], "frequency": "1d", "units": "events", "entity": {"tenant": "demo"}},
+    {"id": "ingestion_completeness", "timestamps": ["2026-04-01T00:00:00Z", "2026-04-02T00:00:00Z", "2026-04-03T00:00:00Z", "2026-04-04T00:00:00Z"], "values": [1, 1, 1, 0.2], "period_statuses": ["complete", "complete", "complete", "incomplete"], "frequency": "1d", "units": "fraction", "entity": {"tenant": "demo"}}
+  ],
+  "relationships": [{"id": "confirmed_usage_drop", "kind": "joint_condition", "conditions": [{"dataset": "usage_events", "operator": "lt", "threshold": 50}, {"dataset": "ingestion_completeness", "operator": "gte", "threshold": 0.99}], "combine": "all", "units": "condition_met"}],
+  "config": {"season_length": 1, "training_size": 4, "calibration_size": 3, "trend": "none"}
+}

@@ -1,0 +1,5 @@
+timestamp,usage_events,ingestion_completeness,completeness_status
+2026-04-01T00:00:00Z,100,1,complete
+2026-04-02T00:00:00Z,102,1,complete
+2026-04-03T00:00:00Z,98,1,complete
+2026-04-04T00:00:00Z,20,0.2,incomplete

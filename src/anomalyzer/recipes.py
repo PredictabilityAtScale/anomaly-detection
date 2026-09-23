@@ -7,7 +7,8 @@ import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from .baseline import expected_value
-from .contracts import Dataset, Request, Result, MethodResult, Settings
+from .budget import RuntimeBudget
+from .contracts import Dataset, Request, RequestV11, Result, MethodResult, Settings
 from .evidence import anomaly_patterns, episodes
 from .registry import versions
 from .robust import EXTREME_Z, extreme_indices
@@ -17,7 +18,7 @@ from .validation import prepare, resolve_reset_points, timestamp
 
 
 def analyze(request: Request | dict | list[float | None],
-            settings: Settings | dict | None = None) -> Result:
+            settings: Settings | dict | None = None):
     """Dispatch a validated request to its causal anomaly-detection recipe."""
     if isinstance(request, list):
         if isinstance(settings, Settings):
@@ -25,20 +26,32 @@ def analyze(request: Request | dict | list[float | None],
         request = {"datasets": [{"values": request}], "config": settings or {}}
     elif settings is not None:
         raise ValueError("separate settings are only supported with a bare values list")
+    if isinstance(request, RequestV11) or (
+            isinstance(request, dict) and request.get("schema_version") == "1.1"):
+        from .orchestrator import analyze_relationships
+        return analyze_relationships(request)
     request = Request.model_validate(request)
     if request.config.recipe == "multi-resolution-v1":
         return _analyze_multi_resolution(request)
-    return _analyze_seasonal(request)
+    return analyze_dataset(request.datasets[0], request.config, request.context)
 
 
 def _analyze_seasonal(request: Request) -> Result:
+    """Schema-1.0 compatibility adapter for internal derived views."""
+    return analyze_dataset(request.datasets[0], request.config, request.context)
+
+
+def analyze_dataset(dataset: Dataset, settings: Settings, context,
+                    budget: RuntimeBudget | None = None) -> Result:
     """Emit causal seasonal evidence, and flag only fully calibrated scores."""
+    if settings.recipe == "multi-resolution-v1":
+        return analyze_multi_resolution(dataset, settings, context, budget)
     start = time.perf_counter()
-    cfg = request.config
-    times, values, quality = prepare(request)
+    cfg = settings
+    times, values, quality = prepare(dataset, cfg, context)
     reset_positions = resolve_reset_points(cfg.reset_points, times,
-                                           request.datasets[0].timezone)
-    season_source = ("explicit" if "season_length" in request.config.model_fields_set
+                                           dataset.timezone)
+    season_source = ("explicit" if "season_length" in settings.model_fields_set
                      else "default")
     season_inference = None
     if quality["coordinate"] == "position" and season_source != "explicit":
@@ -56,7 +69,8 @@ def _analyze_seasonal(request: Request) -> Result:
                                          "training_size": detection_training})
             season_source = ("inferred" if season_inference["status"] == "detected"
                              else "fallback")
-    resolved = request.model_dump(mode="json")
+    resolved = Request(datasets=[dataset], config=settings,
+                       context=context).model_dump(mode="json")
     resolved["config"] = cfg.model_dump(mode="json")
     fingerprint = hashlib.sha256(json.dumps(resolved, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
     training = max(cfg.training_size, cfg.season_length)
@@ -80,6 +94,8 @@ def _analyze_seasonal(request: Request) -> Result:
     else:
         try:
             def check_budget():
+                if budget is not None:
+                    budget.check()
                 if time.perf_counter() - start >= cfg.max_runtime_seconds:
                     raise TimeoutError("runtime budget exhausted")
             errors = []
@@ -411,9 +427,9 @@ def _analyze_seasonal(request: Request) -> Result:
     return Result(
         run_id=str(uuid.uuid4()), status=status, input_fingerprint=fingerprint,
         resolved_config=resolved, dependencies=versions(), data_quality=quality,
-        methods=[method], observations=episodes([method], request.datasets[0].id),
+        methods=[method], observations=episodes([method], dataset.id),
         anomaly_patterns=anomaly_patterns(
-            [method], request.datasets[0].id,
+            [method], dataset.id,
             cusum_k=cfg.cusum_k, cusum_h=cfg.cusum_h,
             moving_range_threshold=cfg.moving_range_threshold),
         limitations=(["No timestamps supplied: evidence and episode intervals use zero-based positions."]
@@ -467,16 +483,23 @@ def _aggregate(values, function):
 
 
 def _analyze_multi_resolution(request: Request) -> Result:
+    """Schema-1.0 compatibility adapter for the multi-resolution recipe."""
+    return analyze_multi_resolution(
+        request.datasets[0], request.config, request.context)
+
+
+def analyze_multi_resolution(ds: Dataset, cfg: Settings, context,
+                             budget: RuntimeBudget | None = None) -> Result:
     """Analyze completed 24-hour aggregates and the underlying sub-day series."""
     start = time.perf_counter()
-    cfg = request.config
-    ds = request.datasets[0]
+    if budget is not None:
+        budget.check()
     if ds.timestamps is None or ds.frequency is None:
         raise ValueError("multi-resolution-v1 requires timestamped input")
     if cfg.reset_points:
         raise ValueError("multi-resolution-v1 does not yet support reset_points")
 
-    times, values, source_quality = prepare(request)
+    times, values, source_quality = prepare(ds, cfg, context)
     if source_quality["missing_count"] or not source_quality["regular"]:
         raise ValueError("multi-resolution-v1 requires complete, regular finalized subperiods")
     match = re.fullmatch(r"([1-9][0-9]*)(s|min|h|d|w)", ds.frequency)
@@ -571,29 +594,30 @@ def _analyze_multi_resolution(request: Request) -> Result:
 
     base_config = cfg.model_copy(update={"recipe": "seasonal-residual-v1",
                                          "reset_points": []})
-    context = request.context.model_copy(update={"as_of": None})
-    daily_request = Request(
-        datasets=[Dataset(id=ds.id, timestamps=daily_times, values=daily_values,
-                          frequency="1d", units=ds.units, entity=ds.entity)],
-        config=base_config.model_copy(update={
+    child_context = context.model_copy(update={"as_of": None})
+    daily_dataset = Dataset(
+        id=ds.id, timestamps=daily_times, values=daily_values,
+        frequency="1d", units=ds.units, entity=ds.entity)
+    daily_config = base_config.model_copy(update={
             "season_length": cfg.completed_period_season_length,
             "max_runtime_seconds": max(
-                1e-12, cfg.max_runtime_seconds - (time.perf_counter() - start))}),
-        context=context)
-    daily = _namespace_result(_analyze_seasonal(daily_request), "completed_period")
+                1e-12, cfg.max_runtime_seconds - (time.perf_counter() - start))})
+    daily = _namespace_result(analyze_dataset(
+        daily_dataset, daily_config, child_context, budget),
+        "completed_period")
     resolved_intraday_season = (cfg.intraday_season_length
                                 if cfg.intraday_season_length is not None
                                 else 7 * samples_per_period)
-    intraday_request = Request(
-        datasets=[Dataset(id=ds.id, timestamps=times, values=values,
-                          frequency=ds.frequency, units=ds.units,
-                          entity=ds.entity)],
-        config=base_config.model_copy(update={
+    intraday_dataset = Dataset(
+        id=ds.id, timestamps=times, values=values,
+        frequency=ds.frequency, units=ds.units, entity=ds.entity)
+    intraday_config = base_config.model_copy(update={
             "season_length": resolved_intraday_season,
             "max_runtime_seconds": max(
-                1e-12, cfg.max_runtime_seconds - (time.perf_counter() - start))}),
-        context=context)
-    intraday = _namespace_result(_analyze_seasonal(intraday_request), "intraday")
+                1e-12, cfg.max_runtime_seconds - (time.perf_counter() - start))})
+    intraday = _namespace_result(analyze_dataset(
+        intraday_dataset, intraday_config, child_context, budget),
+        "intraday")
     if incomplete_period:
         period_start = datetime.fromisoformat(incomplete_period["start"])
         period_end = datetime.fromisoformat(incomplete_period["end"])
@@ -627,7 +651,8 @@ def _analyze_multi_resolution(request: Request) -> Result:
     else:
         status = "inapplicable"
 
-    resolved = request.model_dump(mode="json")
+    resolved = Request(datasets=[ds], config=cfg,
+                       context=context).model_dump(mode="json")
     fingerprint = hashlib.sha256(json.dumps(
         resolved, sort_keys=True, separators=(",", ":"), allow_nan=False
     ).encode()).hexdigest()

@@ -36,6 +36,7 @@ dev = ["pytest>=8,<10", "jsonschema>=4,<5"]
 
 [project.scripts]
 anomalyzer = "anomalyzer.cli:main"
+anomalyzer-mcp = "anomalyzer.mcp:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

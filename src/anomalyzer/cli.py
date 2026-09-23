@@ -4,7 +4,7 @@ import re
 import sys
 from pathlib import Path
 from pydantic import ValidationError
-from .contracts import Request, Settings
+from .contracts import Request, RequestV11, Settings
 from .io import read_text, load_json, csv_dataset, write_result
 from .recipes import analyze
 from .registry import methods
@@ -19,7 +19,7 @@ def parser():
   2  Invalid input, configuration, or command-line options."""
     root = argparse.ArgumentParser(
         prog="anomalyzer", formatter_class=formatter,
-        description="Find anomalies in one time series, locally, without a model API.",
+        description="Produce inspectable single-series or declared-relationship evidence locally, without a model API.",
         epilog="""Quick start:
   anomalyzer analyze examples/spike.csv --time timestamp --value calls --frequency 1d
   anomalyzer analyze examples/spike.json --format json
@@ -36,7 +36,7 @@ Run 'anomalyzer methods --help' for method discovery.
         is_analysis = command == "analyze"
         sub = commands.add_parser(
             command, formatter_class=formatter,
-            help="Analyze a CSV or canonical JSON time series" if is_analysis
+            help="Analyze CSV or schema-1.0/1.1 canonical JSON evidence" if is_analysis
             else "List installed analysis methods and detectors",
             description="Compare each observation with a seasonal baseline adjusted for linear or exponential trend.\n"
             "Early evidence is non-triggering; calibrated departures can form anomaly episodes."
@@ -117,7 +117,9 @@ Run 'anomalyzer methods --help' for method discovery.
                             metavar="POSITION_OR_TIMESTAMP",
                             help="Start a new manual regime at a zero-based position, date, or exact timestamp; repeat for multiple resets")
         sub.epilog = """Input rules:
-  Supply one series. CSV always needs --value. Supply --time and --frequency
+  CSV supplies one series. Canonical schema-1.1 JSON can supply up to four
+  named datasets and four explicit relationships. CSV always needs --value.
+  Supply --time and --frequency
   together for timestamped data, or omit both for ordered positional values.
   Empty values mean missing, never zero; extra varying columns are rejected.
   JSON may be a canonical request object or a bare array of ordered values.
@@ -234,12 +236,31 @@ def build_request(args):
             value = getattr(args, key)
             if value is not None and isinstance(ds, dict):
                 ds[key] = value
-    return Request.model_validate(document)
+    contract = RequestV11 if document.get("schema_version") == "1.1" else Request
+    return contract.model_validate(document)
 
 
 def readable(result):
     if "detectors" in result:
         return "Installed analysis methods\n" + "\n".join(f"  {m['id']}: {m['update_semantics']}" for m in result["methods"])
+    if result.get("schema_version") == "1.1":
+        lines = [
+            f"Analysis: {result['status']}",
+            (f"Datasets: {len(result['dataset_results'])}; relationships: "
+             f"{len(result['relationship_results'])}; cases: {len(result['cases'])}"),
+        ]
+        for item in result["dataset_results"]:
+            lines.append(
+                f"  dataset {item['dataset_id']}: {item['status']}; "
+                f"assessments={len(item['assessments'])}" +
+                (f" — {item['error']}" if item["error"] else ""))
+        for item in result["relationship_results"]:
+            lines.append(
+                f"  relationship {item['relationship_id']} ({item['kind']}): "
+                f"{item['status']}; assessments={len(item['assessments'])}" +
+                (f" — {item['error']}" if item["error"] else ""))
+        lines.append("Business impact: unresolved. Relationship evidence does not establish cause.")
+        return "\n".join(lines)
     lines = [f"Analysis: {result['status']}",
              f"Samples: {result['data_quality']['observation_count']}; episodes: {len(result['observations'])}; patterns: {len(result['anomaly_patterns'])}"]
     incomplete = result["data_quality"].get("incomplete_period")

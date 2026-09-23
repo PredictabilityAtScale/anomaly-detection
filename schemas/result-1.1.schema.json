@@ -1,0 +1,1196 @@
+{
+  "$defs": {
+    "AnomalyPattern": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "consecutive_run",
+            "location_shift",
+            "residual_trend",
+            "systematic_oscillation",
+            "mixture_pattern",
+            "variation_shift"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "rule": {
+          "enum": [
+            "adjacent_point_anomalies",
+            "cusum",
+            "moving_range",
+            "nelson_rule_2",
+            "nelson_rule_3",
+            "nelson_rule_4",
+            "nelson_rule_5",
+            "nelson_rule_6",
+            "nelson_rule_8"
+          ],
+          "title": "Rule",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "interval": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "title": "Interval",
+          "type": "array"
+        },
+        "sample_count": {
+          "title": "Sample Count",
+          "type": "integer"
+        },
+        "triggering_samples": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Triggering Samples",
+          "type": "array"
+        },
+        "detection_index": {
+          "title": "Detection Index",
+          "type": "integer"
+        },
+        "peak_standardized_residual": {
+          "title": "Peak Standardized Residual",
+          "type": "number"
+        },
+        "direction": {
+          "enum": [
+            "increase",
+            "decrease",
+            "mixed"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "peak_cusum": {
+          "title": "Peak Cusum",
+          "type": "number"
+        },
+        "peak_moving_range": {
+          "title": "Peak Moving Range",
+          "type": "number"
+        },
+        "detector_threshold": {
+          "title": "Detector Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "dataset",
+        "kind",
+        "rule",
+        "description",
+        "interval",
+        "sample_count",
+        "triggering_samples",
+        "detection_index",
+        "peak_standardized_residual",
+        "direction",
+        "evidence_refs"
+      ],
+      "title": "AnomalyPattern",
+      "type": "object"
+    },
+    "Assessment": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "target_id": {
+          "title": "Target Id",
+          "type": "string"
+        },
+        "index": {
+          "title": "Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timestamp"
+        },
+        "classification": {
+          "enum": [
+            "observation",
+            "change",
+            "departure_candidate",
+            "supported_departure",
+            "criterion_violation"
+          ],
+          "title": "Classification",
+          "type": "string"
+        },
+        "maturity": {
+          "enum": [
+            "observation_only",
+            "early",
+            "provisional",
+            "calibrated"
+          ],
+          "title": "Maturity",
+          "type": "string"
+        },
+        "basis": {
+          "enum": [
+            "descriptive",
+            "explicit_rule",
+            "statistical_baseline",
+            "declared_relationship"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "action_eligible": {
+          "default": false,
+          "title": "Action Eligible",
+          "type": "boolean"
+        },
+        "notification_eligible": {
+          "default": false,
+          "title": "Notification Eligible",
+          "type": "boolean"
+        },
+        "review_state": {
+          "default": "unreviewed",
+          "enum": [
+            "unreviewed",
+            "expected_change",
+            "confirmed_incident",
+            "new_regime"
+          ],
+          "title": "Review State",
+          "type": "string"
+        },
+        "criterion_met": {
+          "default": false,
+          "title": "Criterion Met",
+          "type": "boolean"
+        },
+        "comparison_population": {
+          "title": "Comparison Population",
+          "type": "string"
+        },
+        "comparison_samples": {
+          "minimum": 0,
+          "title": "Comparison Samples",
+          "type": "integer"
+        },
+        "baseline": {
+          "additionalProperties": true,
+          "title": "Baseline",
+          "type": "object"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "number"
+        },
+        "absolute_change": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Absolute Change"
+        },
+        "relative_change": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relative Change"
+        },
+        "direction": {
+          "enum": [
+            "increase",
+            "decrease",
+            "unchanged"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "evidence_strength": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Strength"
+        },
+        "evidence_strength_semantics": {
+          "title": "Evidence Strength Semantics",
+          "type": "string"
+        },
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "established": {
+          "title": "Established",
+          "type": "string"
+        },
+        "not_established": {
+          "title": "Not Established",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "target_id",
+        "index",
+        "timestamp",
+        "classification",
+        "maturity",
+        "basis",
+        "comparison_population",
+        "comparison_samples",
+        "baseline",
+        "observed",
+        "direction",
+        "evidence_strength_semantics",
+        "assumptions",
+        "established",
+        "not_established"
+      ],
+      "title": "Assessment",
+      "type": "object"
+    },
+    "Case": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "revision_id": {
+          "title": "Revision Id",
+          "type": "string"
+        },
+        "entity": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Entity",
+          "type": "object"
+        },
+        "event_time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Event Time"
+        },
+        "detection_time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Detection Time"
+        },
+        "source_availability_cutoff": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Source Availability Cutoff"
+        },
+        "contributing_dataset_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contributing Dataset Ids",
+          "type": "array"
+        },
+        "contributing_relationship_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contributing Relationship Ids",
+          "type": "array"
+        },
+        "supporting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence",
+          "type": "array"
+        },
+        "conflicting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conflicting Evidence",
+          "type": "array"
+        },
+        "unavailable_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unavailable Evidence",
+          "type": "array"
+        },
+        "correlated_evidence_groups": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Correlated Evidence Groups",
+          "type": "array"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "maturity": {
+          "enum": [
+            "observation_only",
+            "early",
+            "provisional",
+            "calibrated"
+          ],
+          "title": "Maturity",
+          "type": "string"
+        },
+        "action_eligible": {
+          "title": "Action Eligible",
+          "type": "boolean"
+        },
+        "notification_eligible": {
+          "title": "Notification Eligible",
+          "type": "boolean"
+        },
+        "business_impact": {
+          "const": "unresolved",
+          "default": "unresolved",
+          "title": "Business Impact",
+          "type": "string"
+        },
+        "suggested_investigation_questions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggested Investigation Questions",
+          "type": "array"
+        },
+        "non_claims": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Non Claims",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "revision_id",
+        "entity",
+        "event_time",
+        "detection_time",
+        "source_availability_cutoff",
+        "contributing_dataset_ids",
+        "contributing_relationship_ids",
+        "supporting_evidence",
+        "conflicting_evidence",
+        "unavailable_evidence",
+        "correlated_evidence_groups",
+        "evidence_refs",
+        "maturity",
+        "action_eligible",
+        "notification_eligible",
+        "suggested_investigation_questions",
+        "non_claims"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "DatasetResultV11": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_id": {
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "partial",
+            "failed",
+            "inapplicable",
+            "insufficient_history"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "data_quality": {
+          "additionalProperties": true,
+          "title": "Data Quality",
+          "type": "object"
+        },
+        "methods": {
+          "items": {
+            "$ref": "#/$defs/MethodResult"
+          },
+          "title": "Methods",
+          "type": "array"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "title": "Observations",
+          "type": "array"
+        },
+        "anomaly_patterns": {
+          "items": {
+            "$ref": "#/$defs/AnomalyPattern"
+          },
+          "title": "Anomaly Patterns",
+          "type": "array"
+        },
+        "assessments": {
+          "items": {
+            "$ref": "#/$defs/Assessment"
+          },
+          "title": "Assessments",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "status",
+        "data_quality",
+        "methods",
+        "observations",
+        "anomaly_patterns",
+        "assessments",
+        "limitations"
+      ],
+      "title": "DatasetResultV11",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "index": {
+          "title": "Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timestamp"
+        },
+        "training_cutoff": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Training Cutoff"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "number"
+        },
+        "expected": {
+          "title": "Expected",
+          "type": "number"
+        },
+        "residual": {
+          "title": "Residual",
+          "type": "number"
+        },
+        "relative_deviation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Relative Deviation"
+        },
+        "standardized_residual": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Standardized Residual"
+        },
+        "signal_maturity": {
+          "enum": [
+            "reference_only",
+            "provisional",
+            "calibrated"
+          ],
+          "title": "Signal Maturity",
+          "type": "string"
+        },
+        "calibration_samples": {
+          "title": "Calibration Samples",
+          "type": "integer"
+        },
+        "triggers": {
+          "items": {
+            "const": "point",
+            "type": "string"
+          },
+          "title": "Triggers",
+          "type": "array"
+        },
+        "score_semantics": {
+          "title": "Score Semantics",
+          "type": "string"
+        },
+        "excluded_from_model": {
+          "title": "Excluded From Model",
+          "type": "boolean"
+        },
+        "model_value": {
+          "title": "Model Value",
+          "type": "number"
+        },
+        "exclusion_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Exclusion Reason"
+        },
+        "reference_action": {
+          "enum": [
+            "use_observed",
+            "use_expected"
+          ],
+          "title": "Reference Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "index",
+        "timestamp",
+        "training_cutoff",
+        "observed",
+        "expected",
+        "residual",
+        "relative_deviation",
+        "standardized_residual",
+        "signal_maturity",
+        "calibration_samples",
+        "triggers",
+        "score_semantics",
+        "excluded_from_model",
+        "model_value",
+        "exclusion_reason",
+        "reference_action"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "LineagePoint": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "title": "Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "source_dataset_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Dataset Ids",
+          "type": "array"
+        },
+        "source_indexes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Source Indexes",
+          "type": "object"
+        },
+        "source_timestamps": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Timestamps",
+          "type": "object"
+        },
+        "formula": {
+          "title": "Formula",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "units": {
+          "title": "Units",
+          "type": "string"
+        },
+        "alignment": {
+          "const": "exact",
+          "default": "exact",
+          "title": "Alignment",
+          "type": "string"
+        },
+        "lag": {
+          "default": 0,
+          "title": "Lag",
+          "type": "integer"
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unavailable Reason"
+        },
+        "latest_source_cutoff": {
+          "title": "Latest Source Cutoff",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index",
+        "timestamp",
+        "value",
+        "source_dataset_ids",
+        "source_indexes",
+        "source_timestamps",
+        "formula",
+        "units",
+        "latest_source_cutoff"
+      ],
+      "title": "LineagePoint",
+      "type": "object"
+    },
+    "MethodResult": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "inapplicable",
+            "insufficient_history",
+            "failed",
+            "budget_exceeded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "runtime_seconds": {
+          "default": 0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "applicability": {
+          "title": "Applicability",
+          "type": "string"
+        },
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "applicability"
+      ],
+      "title": "MethodResult",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "interval": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "title": "Interval",
+          "type": "array"
+        },
+        "direction": {
+          "enum": [
+            "increase",
+            "decrease",
+            "mixed"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "magnitude": {
+          "title": "Magnitude",
+          "type": "number"
+        },
+        "observed_statistic": {
+          "title": "Observed Statistic",
+          "type": "number"
+        },
+        "reference": {
+          "title": "Reference",
+          "type": "number"
+        },
+        "triggering_samples": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Triggering Samples",
+          "type": "array"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "supporting_methods": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Methods",
+          "type": "array"
+        },
+        "quiet_methods": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quiet Methods",
+          "type": "array"
+        },
+        "business_impact": {
+          "const": "unresolved",
+          "title": "Business Impact",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "dataset",
+        "interval",
+        "direction",
+        "magnitude",
+        "observed_statistic",
+        "reference",
+        "triggering_samples",
+        "evidence_refs",
+        "supporting_methods",
+        "quiet_methods",
+        "business_impact"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "RelationshipResult": {
+      "additionalProperties": false,
+      "properties": {
+        "relationship_id": {
+          "title": "Relationship Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "ratio",
+            "difference",
+            "normalized_residual",
+            "lagged_response",
+            "joint_condition"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "partial",
+            "failed",
+            "inapplicable",
+            "insufficient_history",
+            "insufficient_evidence"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "definition": {
+          "additionalProperties": true,
+          "title": "Definition",
+          "type": "object"
+        },
+        "applicability": {
+          "title": "Applicability",
+          "type": "string"
+        },
+        "data_quality": {
+          "additionalProperties": true,
+          "title": "Data Quality",
+          "type": "object"
+        },
+        "lineage": {
+          "items": {
+            "$ref": "#/$defs/LineagePoint"
+          },
+          "title": "Lineage",
+          "type": "array"
+        },
+        "methods": {
+          "items": {
+            "$ref": "#/$defs/MethodResult"
+          },
+          "title": "Methods",
+          "type": "array"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "title": "Observations",
+          "type": "array"
+        },
+        "anomaly_patterns": {
+          "items": {
+            "$ref": "#/$defs/AnomalyPattern"
+          },
+          "title": "Anomaly Patterns",
+          "type": "array"
+        },
+        "assessments": {
+          "items": {
+            "$ref": "#/$defs/Assessment"
+          },
+          "title": "Assessments",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "relationship_id",
+        "kind",
+        "status",
+        "definition",
+        "applicability",
+        "data_quality",
+        "lineage",
+        "methods",
+        "observations",
+        "anomaly_patterns",
+        "assessments",
+        "limitations"
+      ],
+      "title": "RelationshipResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "task": {
+      "const": "analyze",
+      "default": "analyze",
+      "title": "Task",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "partial",
+        "failed",
+        "inapplicable",
+        "insufficient_history"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "input_fingerprint": {
+      "title": "Input Fingerprint",
+      "type": "string"
+    },
+    "resolved_config": {
+      "additionalProperties": true,
+      "title": "Resolved Config",
+      "type": "object"
+    },
+    "dependencies": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Dependencies",
+      "type": "object"
+    },
+    "dataset_results": {
+      "items": {
+        "$ref": "#/$defs/DatasetResultV11"
+      },
+      "title": "Dataset Results",
+      "type": "array"
+    },
+    "relationship_results": {
+      "items": {
+        "$ref": "#/$defs/RelationshipResult"
+      },
+      "title": "Relationship Results",
+      "type": "array"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/Case"
+      },
+      "title": "Cases",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "runtime_seconds": {
+      "title": "Runtime Seconds",
+      "type": "number"
+    },
+    "stop_reason": {
+      "title": "Stop Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "status",
+    "input_fingerprint",
+    "resolved_config",
+    "dependencies",
+    "dataset_results",
+    "relationship_results",
+    "cases",
+    "limitations",
+    "runtime_seconds",
+    "stop_reason"
+  ],
+  "title": "ResultV11",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
