@@ -1,6 +1,6 @@
 ---
 name: anomaly-detection
-description: Analyze one numeric time series for anomalies, outliers, spikes, drops, sustained shifts, residual patterns, or regime changes with this repository's Anomalyzer CLI, then explain the evidence. Create a quick chart or publication-quality visualization only when explicitly requested. Use when the user asks to detect, find, investigate, visualize, or explain unusual changes in timestamped or ordered metric data. Do not use for generic charting, multivariate analysis, forecasting-only requests, or distribution comparison.
+description: Analyze one numeric time series for anomalies, outliers, spikes, drops, sustained shifts, residual patterns, or regime changes with this repository's Anomalyzer CLI, then explain the evidence and its reliability limits. Create a quick chart or publication-quality visualization only when explicitly requested. Use when the user asks to detect, find, investigate, visualize, or explain unusual changes in timestamped or ordered metric data. Do not use for generic charting, multivariate analysis, forecasting-only requests, or distribution comparison.
 ---
 
 # Anomaly detection
@@ -47,14 +47,29 @@ user's intent.
 
 ## Return text first
 
-Default to a concise text result immediately after Anomalyzer completes. Do not
-create a chart or invoke a visualization capability merely because a visual
-could help. Unless the user explicitly requests a graph, chart, visualization,
-or publication-ready figure, report:
+Default to a concise text result immediately after Anomalyzer completes. Write
+for an analyst who need not know statistical terminology. Lead with what changed,
+when, and how it compares with the usual level; then say how reliable that
+comparison is and what to check next. Use "one unusual day" or "several days
+running high/low" before method names. Keep scores, rule names, and thresholds
+in a short supporting detail when they help someone inspect the result. Do not
+hide a material limitation to make the summary simpler. Do not create a chart
+or invoke a visualization capability merely because a visual could help. Unless
+the user explicitly requests a graph, chart, visualization, or publication-ready
+figure, report:
 
-- run status and counts of point episodes and anomaly patterns;
-- the strongest calibrated evidence and important non-triggering evidence;
-- resolved lag, trend, initialization windows, and point threshold when useful;
+- what was found, its dates and observed-versus-expected values, or why the run
+  could not make a finding;
+- whether it was one unusual reading, a run of point flags, or a possible
+  ongoing change, without counting overlapping rules as separate events;
+- each method's `diagnostics.detection_readiness` status and material reasons,
+  translated into ordinary language;
+- the strongest calibrated evidence and important non-triggering evidence,
+  with run status and counts in supporting detail;
+- resolved lag, trend, initialization windows, and point threshold when they
+  explain the result;
+- a brief judgment of how much to rely on the findings, grounded in readiness,
+  evidence maturity, and representative history; and
 - the material limitations that affect interpretation.
 
 Keep the first response compact. When a chart could help, offer a quick inline
@@ -63,20 +78,43 @@ do not generate either one automatically.
 
 ## Interpret the evidence
 
-Lead with the run status and the most decision-relevant evidence.
+State the run status and lead with the most decision-relevant evidence. In
+user-facing prose, translate `supported` to "the baseline quality checks
+passed," `caution` to "the comparison may be unreliable because ...," and
+`not_assessed` to "there was not enough suitable history to judge the
+baseline." Keep the exact status available in supporting detail.
 
 - `completed` with no observations or patterns means the configured detector
   found none; it does not prove the series is normal.
 - `insufficient_history`, `inapplicable`, `partial`, or `failed` cannot establish
   normality. Explain the specific applicability, data-quality, or runtime issue.
 - Only `calibrated` evidence can trigger. Distinguish it from `reference_only`
-  and `provisional` evidence.
-- Describe `observations` as point-anomaly episodes. Describe
-  `anomaly_patterns` by their reported rule, interval, direction, and detection
-  index; do not collapse every rule into a generic incident.
+  and `provisional` evidence. Calibration means the residual center and scale
+  are frozen; it is not a confidence level or a validation of the baseline.
+- Explain the three levels separately: a `point` trigger is one value crossing
+  the configured threshold against the modeled expectation; `observations`
+  groups adjacent point flags into episodes; `anomaly_patterns` reports point
+  runs or rules over calibrated residuals. The same points can produce both an
+  episode and patterns, so do not count them as independent incidents.
+- Describe patterns by their reported rule, interval, direction, and first
+  `detection_index`. Nelson Rules 2, 5, and 6 and CUSUM suggest a possible
+  shift in residual location even without a point flag. Nelson Rules 3, 4,
+  and 8 concern residual trend, oscillation, or mixture; moving range concerns
+  short-term variation. Do not call every pattern a shift.
 - A standardized residual is a scale-relative departure, not a probability.
   Pattern rules are evidence about residual behavior, not proof of causality or
   a full-distribution change.
+- Read `methods[].diagnostics.detection_readiness` and its reasons for every
+  reported method. It checks training and calibration reference quality, not
+  alert accuracy. `caution` qualifies the point scores and patterns; explain
+  the specific weak fit, unstable season, residual drift, or other reported
+  reason. `supported` does not establish precision or operational usefulness;
+  `not_assessed` does not establish a good reference. If the field is absent,
+  say readiness is unavailable rather than assuming support.
+- If asked for confidence, state a qualitative assessment grounded in evidence
+  maturity, readiness reasons, baseline fit, and representative history. Do not
+  invent a confidence percentage or equate a large score, multiple overlapping
+  rules, or a `supported` rating with a known chance of a true incident.
 - Business impact is unresolved until the user supplies operational context.
 - Surface detector limitations that affect the result, including baseline echo,
   adaptation after one season, short history, tiny calibration variance, a
@@ -86,6 +124,31 @@ Report the resolved lag, trend choice, training/calibration windows, point
 threshold, reset boundaries, and material data-quality transformations when
 they help the user judge the result. Preserve the detector's own wording when
 precision matters; do not invent confidence levels.
+
+## When findings feed recurring alerts or actions
+
+Explain the ordinary behavior the reference learned (level, trend, recurring
+cycle, and typical variation) and where it fits poorly before recommending an
+alert. For each decision-relevant finding, start with the entity, unit, period,
+observed and expected values, whether the change is isolated or repeated, how
+reliable the comparison is, and a concrete question to investigate. Put the
+calibrated score, exact rule, and first detection time in supporting detail.
+Separate what the data establishes from possible causes and business impact.
+
+Treat `action_eligible` and `notification_eligible` in schema 1.1 as the result
+of a caller-supplied policy, not an endorsement that an action is safe or useful.
+The MCP adapter is read-only: it neither schedules runs nor delivers alerts or
+executes actions. Its policy does not gate eligibility on detection readiness.
+When readiness is `caution` or `not_assessed`, make that visible before suggesting
+an automatic response; consequential actions need an externally reviewed policy
+that accounts for that uncertainty. A `supported` rating also needs historical
+replay and reviewed outcomes before it can justify an alert threshold.
+
+For repeated runs, distinguish a newly detected period or rule from an ongoing
+or previously reported finding. Do not count overlapping point episodes and
+patterns as separate alerts. State that deduplication, late-data handling,
+review state, notification delivery, and action execution require the calling
+application; do not infer them from a fresh result or a run ID.
 
 ## Visualization modes
 

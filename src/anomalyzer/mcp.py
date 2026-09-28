@@ -19,15 +19,23 @@ from .orchestrator import analyze_relationships
 
 
 SERVER_INSTRUCTIONS = (
-    "Report the run status before interpreting detections. Only calibrated point "
+    "Write user-facing summaries for analysts without statistical training: "
+    "first say what changed, when, versus the expected level, how reliable the "
+    "comparison is, and what to check next. Put scores and rule names in "
+    "supporting detail. Report the run status before interpreting detections. "
+    "Only calibrated point "
     "triggers are point-anomaly flags; observations groups adjacent flags into "
     "episodes. anomaly_patterns contains point runs and residual-rule findings, "
     "which may overlap and are not independent incidents. Nelson Rules 2, 5, and "
     "6 and CUSUM suggest a possible shift in residual location even with no point "
     "flag; they do not establish a change in the full distribution. Describe the "
     "rule, interval, direction, first detection index, and material limitations. "
-    "Report methods[].diagnostics.detection_readiness and its reasons as a "
-    "training/calibration reference-quality check, not measured alert accuracy. "
+    "Report methods[].diagnostics.detection_readiness and its reasons in plain "
+    "language as a baseline-quality check, not measured alert accuracy. "
+    "For recurring monitoring, distinguish new findings from overlapping or "
+    "previously reported evidence using caller-held state. Policy eligibility "
+    "does not check detection readiness and is not an action recommendation. "
+    "The server does not schedule runs, deliver alerts, or execute actions. "
     "Do not infer cause, business impact, or normality from absent findings."
 )
 
@@ -76,7 +84,8 @@ TOOLS = [
             "findings. Cases group calibrated point departures or explicit rule "
             "violations; Nelson-only and CUSUM-only findings do not create cases. "
             "Check method detection_readiness, maturity, policy eligibility, "
-            "data quality, and limitations. "
+            "data quality, and limitations. Eligibility does not check readiness "
+            "or establish that an automated action is appropriate. "
             "This does not discover relationships or prove causality."),
         "inputSchema": RequestV11.model_json_schema(),
         "outputSchema": _output_schema(ResultV11, {
@@ -112,7 +121,9 @@ TOOLS = [
             "Re-evaluate deterministic action and notification eligibility over "
             "existing point departures and explicit rule violations without "
             "recomputing detections or executing an external action. Pattern-only "
-            "findings do not become cases or eligible actions."),
+            "findings do not become cases or eligible actions. Eligibility does "
+            "not check detection readiness; callers must evaluate that diagnostic "
+            "and their own alert or action policy separately."),
         "inputSchema": {
             "type": "object", "additionalProperties": False,
             "required": ["result", "policy"],
