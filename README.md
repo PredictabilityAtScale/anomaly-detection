@@ -162,6 +162,33 @@ a conservative suggestion—an explicit domain setting still takes precedence.
 
 ![A repeating weekly series and its ranked season-length candidates](docs/images/anomaly-progression-05-season-discovery.png)
 
+### When no stable pattern emerges
+
+This fixed random series has no repeating seven-sample season or selected trend.
+It produces no point-anomaly episodes and no pattern findings, but the
+reference-quality check still warns that the declared seasonal baseline is a
+poor fit:
+
+```python
+import random
+from anomalyzer import analyze
+
+rng = random.Random(2)
+values = [100 + rng.gauss(0, 10) for _ in range(90)]
+result = analyze(values, {"season_length": 7})
+readiness = result.methods[0].diagnostics["detection_readiness"]
+training_pattern = result.methods[0].diagnostics["segments"][0][
+    "detection_readiness"]["training_pattern"]
+print(len(result.observations), len(result.anomaly_patterns), readiness["status"])
+print(training_pattern["trend_selected"], training_pattern["seasonality"]["status"])
+```
+
+The two lines print `0 0 caution` and `none weak_or_unstable`. The warning
+also notes that this modeled reference has higher calibration MAE than the
+constant training median. Zero findings in one random draw do not establish
+normality or a reliable alert rate. See [detection readiness](#detection-readiness)
+for how this assessment is calculated.
+
 ### 6. Detect a sustained location shift
 
 Not every meaningful change contains an individually extreme observation. In this

@@ -68,3 +68,18 @@ def test_short_calibration_is_not_assessed_even_when_analysis_completes():
     assert readiness["status"] == "not_assessed"
     assert readiness["assessed_segments"] == 0
     assert any("Fewer than eight" in reason for reason in readiness["reasons"])
+
+
+def test_documented_random_example_has_no_findings_but_warns_on_reference():
+    rng = random.Random(2)
+    values = [100 + rng.gauss(0, 10) for _ in range(90)]
+    result = analyze(values, {"season_length": 7})
+    assert result.status == "completed"
+    assert not result.observations
+    assert not result.anomaly_patterns
+    readiness = result.methods[0].diagnostics["detection_readiness"]
+    assert readiness["status"] == "caution"
+    pattern = result.methods[0].diagnostics["segments"][0][
+        "detection_readiness"]["training_pattern"]
+    assert pattern["trend_selected"] == "none"
+    assert pattern["seasonality"]["status"] == "weak_or_unstable"
