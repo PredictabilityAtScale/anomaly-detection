@@ -194,6 +194,7 @@
   ],
   "config": {
     "season_length": 7,
+    "robust_reference_seasons": 1,
     "max_runtime_seconds": 120
   }
 }

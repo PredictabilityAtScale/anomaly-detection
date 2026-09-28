@@ -25,6 +25,12 @@ def test_mcp_lists_four_read_only_tools():
         "analyze_series", "analyze_relationships", "get_case", "replay_policy"]
     assert all(tool["annotations"]["readOnlyHint"] for tool in TOOLS)
     assert all("outputSchema" in tool for tool in TOOLS)
+    series, relationships = TOOLS[:2]
+    assert "pattern can indicate a possible shift without any point flag" in series["description"]
+    assert "detection_readiness" in series["description"]
+    assert "point-anomaly episodes" in series["outputSchema"]["properties"]["observations"]["description"].lower()
+    assert "Nelson-only and CUSUM-only findings do not create cases" in relationships["description"]
+    assert "pattern-only findings" in relationships["outputSchema"]["properties"]["cases"]["description"]
 
 
 def test_mcp_tool_call_returns_structured_content():
@@ -81,6 +87,8 @@ def test_mcp_stdio_legacy_handshake_and_tool_listing():
     assert process.returncode == 0, process.stderr
     responses = [json.loads(line) for line in process.stdout.splitlines()]
     assert responses[0]["result"]["protocolVersion"] == "2025-11-25"
+    assert "Nelson Rules 2, 5, and 6" in responses[0]["result"]["instructions"]
+    assert "detection_readiness" in responses[0]["result"]["instructions"]
     assert len(responses[1]["result"]["tools"]) == 4
 
 
@@ -95,6 +103,7 @@ def test_mcp_modern_discovery_and_stateless_tool_listing():
         "params": {"_meta": metadata}})
     assert discovery["result"]["supportedVersions"] == ["2026-07-28"]
     assert discovery["result"]["resultType"] == "complete"
+    assert "anomaly_patterns" in discovery["result"]["instructions"]
     listing = handle({
         "jsonrpc": "2.0", "id": "l", "method": "tools/list",
         "params": {"_meta": metadata}})

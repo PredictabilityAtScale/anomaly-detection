@@ -88,6 +88,7 @@ Run 'anomalyzer methods --help' for method discovery.
                             help="Seasonal lag for the sub-day view (default: seven 24-hour periods)")
         settings = [
             (tuning, "season-length", int, "SAMPLES", "Baseline lag in samples; positional input infers a stable lag when omitted, then falls back to 1 (1..10000)"),
+            (tuning, "robust-reference-seasons", int, "SEASONS", "Prior matching seasons used by the robust baseline; 1 reproduces the former single-reference behavior (1 or 4)"),
             (tuning, "training-size", int, "SAMPLES", "Initial samples reserved before calibration; effective size is max(training-size, season-length) (at least 2)"),
             (tuning, "calibration-size", int, "SAMPLES", "Following samples used to estimate and freeze residual mean and standard deviation (at least 3)"),
             (tuning, "point-threshold", float, "SCORE", "Flag when absolute standardized residual exceeds this positive threshold; not a probability"),
@@ -149,12 +150,25 @@ Configuration:
   calibration, and future seasonal references is reduced. Use
   --outlier-handling include to reproduce the unprotected baseline and its
   possible one-season echo. Robust handling never creates a regime reset.
-  Adjacent calibrated point anomalies remain individual evidence and also form
-  a consecutive_run entry in anomaly_patterns when the run has at least two
-  samples. Two-sided CUSUM and Nelson Rules 2, 5, and 6 inspect calibrated
+  A calibrated point above the point threshold is a point anomaly relative to
+  the modeled expectation and frozen residual calibration, not an estimated
+  current distribution. One or more consecutive point anomalies form an episode
+  in observations. Runs of at least two also produce a descriptive
+  consecutive_run in anomaly_patterns.
+  Two-sided CUSUM and Nelson Rules 2, 5, and 6 inspect calibrated
   residuals for possible location shifts. Nelson Rules 3, 4, and 8 describe
   residual trend, oscillation, and mixture patterns; moving range describes
-  possible short-term variation increases. Patterns never retrain automatically.
+  possible short-term variation increases. A residual pattern can exist with
+  no point anomaly or episode. Location rules can reveal repeated, smaller
+  departures without fitting a new distribution. They suggest that the residual
+  center may have moved; they do not establish a full-distribution shift.
+  Overlapping rules are not separate incidents. Patterns never retrain
+  automatically.
+  Each method reports detection_readiness under diagnostics. It checks only
+  training and calibration reference quality; supported is not a measured
+  false-alarm rate or a guarantee that alerts will be useful. Caution can mean
+  weak seasonal repetition, little improvement over a constant training level,
+  drifting or correlated calibration residuals, or a near-zero calibration scale.
   Repeat --reset-point to declare known regime boundaries. A reset starts a new
   training/calibration sequence and prevents references from crossing the
   boundary. Positions refer to the prepared chronological series after sorting,
@@ -252,17 +266,35 @@ def readable(result):
         for item in result["dataset_results"]:
             lines.append(
                 f"  dataset {item['dataset_id']}: {item['status']}; "
+                f"point-anomaly episodes={len(item['observations'])}; "
+                f"pattern findings={len(item['anomaly_patterns'])}; "
                 f"assessments={len(item['assessments'])}" +
                 (f" — {item['error']}" if item["error"] else ""))
+            for method in item["methods"]:
+                readiness = method.get("diagnostics", {}).get("detection_readiness")
+                if readiness:
+                    lines.append(f"    {method['id']} detection readiness: {readiness['status']}")
+                    lines.extend(f"      {reason}" for reason in readiness["reasons"])
         for item in result["relationship_results"]:
             lines.append(
                 f"  relationship {item['relationship_id']} ({item['kind']}): "
-                f"{item['status']}; assessments={len(item['assessments'])}" +
+                f"{item['status']}; point-anomaly episodes={len(item['observations'])}; "
+                f"pattern findings={len(item['anomaly_patterns'])}; "
+                f"assessments={len(item['assessments'])}" +
                 (f" — {item['error']}" if item["error"] else ""))
+            for method in item["methods"]:
+                readiness = method.get("diagnostics", {}).get("detection_readiness")
+                if readiness:
+                    lines.append(f"    {method['id']} detection readiness: {readiness['status']}")
+                    lines.extend(f"      {reason}" for reason in readiness["reasons"])
+        lines.append("Detection readiness checks training/calibration reference quality; alert accuracy is unmeasured.")
+        lines.append("Cases come from supported point departures or explicit-rule violations; pattern-only findings do not create cases.")
         lines.append("Business impact: unresolved. Relationship evidence does not establish cause.")
         return "\n".join(lines)
     lines = [f"Analysis: {result['status']}",
-             f"Samples: {result['data_quality']['observation_count']}; episodes: {len(result['observations'])}; patterns: {len(result['anomaly_patterns'])}"]
+             (f"Samples: {result['data_quality']['observation_count']}; "
+              f"point-anomaly episodes: {len(result['observations'])}; "
+              f"pattern findings: {len(result['anomaly_patterns'])}")]
     incomplete = result["data_quality"].get("incomplete_period")
     if incomplete:
         lines.append(
@@ -285,10 +317,22 @@ def readable(result):
                 f"training exclusions={len(handling['training_excluded_positions'])}, "
                 f"calibration exclusions={len(handling['calibration_excluded_positions'])}, "
                 f"future reference replacements={len(handling['evaluation_reference_replacements'])}")
+        readiness = method.get("diagnostics", {}).get("detection_readiness")
+        if readiness:
+            lines.append(f"    detection readiness: {readiness['status']}")
+            for reason in readiness["reasons"]:
+                lines.append(f"      {reason}")
+    lines.append("Detection readiness checks training/calibration reference quality; alert accuracy is unmeasured.")
+    lines.append("Point-anomaly episodes (consecutive threshold crossings against the calibrated reference):")
+    if not result["observations"]:
+        lines.append("  None.")
     for episode in result["observations"]:
         lines.append(f"  {episode['interval'][0]} to {episode['interval'][1]}: {episode['direction']}, peak departure {episode['magnitude']:.6g}")
+    lines.append("Pattern findings (point runs or residual rules; findings may overlap):")
+    if not result["anomaly_patterns"]:
+        lines.append("  None.")
     for pattern in result["anomaly_patterns"]:
-        lines.append(f"  {pattern['interval'][0]} to {pattern['interval'][1]}: {pattern['description']} Detection first became possible at sample {pattern['detection_index']}.")
+        lines.append(f"  [{pattern['rule']}] {pattern['interval'][0]} to {pattern['interval'][1]}: {pattern['description']} Detection first became possible at sample {pattern['detection_index']}.")
     if result["status"] != "completed":
         lines.append("This run does not establish normality. Inspect method applicability and status.")
     lines.extend(["Business impact: unresolved.", "Next: " + " ".join(result["suggested_checks"])])

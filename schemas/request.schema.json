@@ -229,6 +229,15 @@
           "title": "Outlier Handling",
           "type": "string"
         },
+        "robust_reference_seasons": {
+          "default": 4,
+          "enum": [
+            1,
+            4
+          ],
+          "title": "Robust Reference Seasons",
+          "type": "integer"
+        },
         "reset_points": {
           "items": {
             "anyOf": [

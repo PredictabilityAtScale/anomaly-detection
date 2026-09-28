@@ -7,7 +7,8 @@ from types import SimpleNamespace
 import pytest
 from jsonschema import validate
 from anomalyzer import Request, analyze
-from anomalyzer.baseline import expected_value
+from anomalyzer.baseline import expected_value, robust_expected_value
+from anomalyzer.trend import Trend
 from anomalyzer.contracts import Dataset, Settings, Result
 from anomalyzer.evaluation import replay
 from anomalyzer.evidence import anomaly_patterns
@@ -19,9 +20,33 @@ def test_forecast_independent_reference(period, expected):
     assert expected_value([1., 2., 4., 8.], 4, period) == expected
 
 
+def test_robust_weekly_reference_limits_one_high_week():
+    values = [100.0] * 29
+    for position, value in zip((0, 7, 14, 21), (17., 112., 46., 188.)):
+        values[position] = value
+    estimate = robust_expected_value(values, 28, 7, 0, Trend(), 4)
+    assert estimate == pytest.approx(76.8)
+    assert robust_expected_value(values, 28, 7, 0, Trend(), 1) == 188
+    values[21] = 1000
+    assert robust_expected_value(values, 28, 7, 0, Trend(), 4) == estimate
+    assert robust_expected_value(values, 27, 7, 0, Trend(), 4) == values[20]
+    assert robust_expected_value(values, 28, 7, 21, Trend(), 4) == 1000
+    linear_values = [value + 2 * position
+                     for position, value in enumerate(values)]
+    assert robust_expected_value(linear_values, 28, 7, 0,
+                                 Trend(kind="linear", coefficient=2), 4) == pytest.approx(
+                                     estimate + 56)
+
+
+def test_robust_lag_one_uses_prior_seasonal_values():
+    assert robust_expected_value([10., 20., 30., 100.], 4, 1, 0,
+                                 Trend(), 4) == pytest.approx(25.333333333333332)
+
+
 def test_calibration_reference(request_factory):
     # Increments 1, 2, 3 calibrate mean=2, sample stdev=1.
-    result = analyze(request_factory([0, 0, 1, 3, 6, 12], training_size=2, calibration_size=3))
+    result = analyze(request_factory([0, 0, 1, 3, 6, 12], training_size=2,
+                                     calibration_size=3, robust_reference_seasons=1))
     evidence = result.methods[0].evidence[-1]
     assert evidence["signal_maturity"] == "calibrated"
     assert evidence["calibration_samples"] == 3
@@ -32,7 +57,8 @@ def test_calibration_reference(request_factory):
 
 def test_early_evidence_maturity_and_no_provisional_trigger(request_factory):
     request = request_factory([0, 1, 3, 6, 10, 15], training_size=2,
-                              calibration_size=5, point_threshold=1)
+                              calibration_size=5, point_threshold=1,
+                              robust_reference_seasons=1)
     result = analyze(request)
     assert result.status == "insufficient_history"
     evidence = result.methods[0].evidence
@@ -143,7 +169,7 @@ def test_multi_resolution_rejects_non_dividing_frequency():
 def test_bare_values_with_separate_settings():
     values = [0, 0, 1, 3, 6, 12]
     result = analyze(values, {"season_length": 1, "training_size": 2,
-                              "calibration_size": 3})
+                              "calibration_size": 3, "robust_reference_seasons": 1})
     method = result.methods[0]
     assert result.data_quality["coordinate"] == "position"
     assert result.resolved_config["datasets"][0]["timestamps"] is None
@@ -417,12 +443,13 @@ def test_local_time():
 
 def test_failure_and_budget(request_factory, monkeypatch):
     import anomalyzer.recipes as recipes
-    original = recipes.expected_value
-    def failing(values, index, season_length):
+    original = recipes.robust_expected_value
+    def failing(values, index, season_length, segment_start, trend, reference_seasons):
         if index == 45:
             raise RuntimeError("reference failure")
-        return original(values, index, season_length)
-    monkeypatch.setattr(recipes, "expected_value", failing)
+        return original(values, index, season_length, segment_start, trend,
+                        reference_seasons)
+    monkeypatch.setattr(recipes, "robust_expected_value", failing)
     result = analyze(request_factory())
     assert result.status == "partial"
     assert "reference failure" in result.methods[0].error

@@ -17,6 +17,7 @@ class Settings(Contract):
     aggregate_anchor: str | None = None
     trend: Literal["auto", "none", "linear", "exponential"] = "auto"
     outlier_handling: Literal["robust", "include"] = "robust"
+    robust_reference_seasons: Literal[1, 4] = 4
     reset_points: list[int | str] = Field(default_factory=list)
     training_size: int = Field(default=28, ge=2, strict=True)
     calibration_size: int = Field(default=14, ge=3, strict=True)

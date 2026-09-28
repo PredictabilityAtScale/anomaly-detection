@@ -27,6 +27,7 @@ def methods():
                            "trend": "auto (default), none, linear, exponential; none returns seasonal_naive",
                            "trend_training": "at least max(8, 4*season_length) samples; otherwise disclosed seasonal fallback",
                            "outlier_handling": "robust (default) protects fitting and future seasonal references from extreme residuals; include preserves every raw reference",
+                           "robust_reference_seasons": "1 or 4 prior matching phases; default 4 trims extremes and modestly favors recent values after four complete cycles",
                            "cusum": "two-sided standardized residual CUSUM; defaults k=0.5 and h=5",
                            "moving_range_threshold": "adjacent standardized-residual range threshold; default 3.686",
                            "reset_points": "manual segment starts as prepared zero-based positions, dates, or exact timestamps"},
@@ -37,7 +38,7 @@ def methods():
                 "provisional": "standardized by at least 3 earlier calibration residuals; never triggers",
                 "calibrated": "standardized by the complete frozen calibration window; threshold-eligible"},
             "score_semantics": "causal seasonal residual evidence; standardized scores are not probabilities",
-            "update_semantics": "within each manual segment, previous seasonal model reference plus training-only linear/compound trend change; robust mode substitutes an extreme point's prior expectation only for future references; model frozen before calibration",
+            "update_semantics": "within each manual segment, robust mode aggregates up to four prior matching phases with trimmed extremes and modest recency weight; include mode uses one prior phase; extreme references may be replaced; trend and calibration are frozen",
             "capability": "batch chronological replay"
         }, {
             "id": "multi_resolution", "tasks": ["analyze"],

@@ -18,12 +18,39 @@ from .contracts import (
 from .orchestrator import analyze_relationships
 
 
+SERVER_INSTRUCTIONS = (
+    "Report the run status before interpreting detections. Only calibrated point "
+    "triggers are point-anomaly flags; observations groups adjacent flags into "
+    "episodes. anomaly_patterns contains point runs and residual-rule findings, "
+    "which may overlap and are not independent incidents. Nelson Rules 2, 5, and "
+    "6 and CUSUM suggest a possible shift in residual location even with no point "
+    "flag; they do not establish a change in the full distribution. Describe the "
+    "rule, interval, direction, first detection index, and material limitations. "
+    "Report methods[].diagnostics.detection_readiness and its reasons as a "
+    "training/calibration reference-quality check, not measured alert accuracy. "
+    "Do not infer cause, business impact, or normality from absent findings."
+)
+
+
+def _output_schema(model, descriptions):
+    """Explain ambiguous result fields without changing the public contracts."""
+    schema = model.model_json_schema()
+    for field, description in descriptions.items():
+        schema["properties"][field]["description"] = description
+    return schema
+
+
 TOOLS = [
     {
         "name": "analyze_series",
         "description": (
-            "Analyze one numerical series with causal seasonal evidence. Early "
-            "evidence is non-triggering and results do not establish a real-world cause."),
+            "Analyze one ordered numerical series against a causal seasonal/trend "
+            "reference. Use methods[].evidence for individual scores and point "
+            "flags, observations for point-anomaly episodes, and anomaly_patterns "
+            "for overlapping Nelson, CUSUM, moving-range, and point-run findings. "
+            "A pattern can indicate a possible shift without any point flag. "
+            "Report diagnostics.detection_readiness, status, and limitations; "
+            "readiness is not measured alert accuracy. No finding establishes a cause or incident."),
         "inputSchema": {
             "type": "object", "additionalProperties": False,
             "required": ["dataset"],
@@ -32,17 +59,32 @@ TOOLS = [
                 "settings": Settings.model_json_schema(),
             },
         },
-        "outputSchema": Result.model_json_schema(),
+        "outputSchema": _output_schema(Result, {
+            "methods": "Per-sample evidence and diagnostics.detection_readiness, a training/calibration reference-quality check.",
+            "observations": "Point-anomaly episodes: consecutive calibrated point flags, including singletons.",
+            "anomaly_patterns": "Overlapping point-run and residual-rule findings; a pattern may exist without a point episode.",
+            "limitations": "Model and detector limits that qualify any interpretation.",
+        }),
         "annotations": {"readOnlyHint": True, "destructiveHint": False,
                         "idempotentHint": True, "openWorldHint": False},
     },
     {
         "name": "analyze_relationships",
         "description": (
-            "Analyze two to four declared datasets and explicit relationships "
-            "with lineage. This does not discover relationships or prove causality."),
+            "Analyze one to four declared datasets and optional explicit relationships "
+            "with lineage. Each result retains point-anomaly episodes and pattern "
+            "findings. Cases group calibrated point departures or explicit rule "
+            "violations; Nelson-only and CUSUM-only findings do not create cases. "
+            "Check method detection_readiness, maturity, policy eligibility, "
+            "data quality, and limitations. "
+            "This does not discover relationships or prove causality."),
         "inputSchema": RequestV11.model_json_schema(),
-        "outputSchema": ResultV11.model_json_schema(),
+        "outputSchema": _output_schema(ResultV11, {
+            "dataset_results": "Dataset methods include detection readiness; episodes and pattern findings may overlap.",
+            "relationship_results": "Relationship methods include detection readiness; derived and source findings may be correlated.",
+            "cases": "Evidence groupings from point departures or explicit rule violations, not from pattern-only findings.",
+            "limitations": "Limits on the scope and reliability of the analysis.",
+        }),
         "annotations": {"readOnlyHint": True, "destructiveHint": False,
                         "idempotentHint": True, "openWorldHint": False},
     },
@@ -50,7 +92,8 @@ TOOLS = [
         "name": "get_case",
         "description": (
             "Retrieve a deterministic evidence grouping by case ID. A case is "
-            "not an incident declaration or causal explanation."),
+            "formed from point departures or explicit rule violations, not "
+            "pattern-only findings. It is not an incident declaration or causal explanation."),
         "inputSchema": {
             "type": "object", "additionalProperties": False,
             "required": ["result", "case_id"],
@@ -67,7 +110,9 @@ TOOLS = [
         "name": "replay_policy",
         "description": (
             "Re-evaluate deterministic action and notification eligibility over "
-            "existing evidence without executing an external action."),
+            "existing point departures and explicit rule violations without "
+            "recomputing detections or executing an external action. Pattern-only "
+            "findings do not become cases or eligible actions."),
         "inputSchema": {
             "type": "object", "additionalProperties": False,
             "required": ["result", "policy"],
@@ -124,9 +169,7 @@ def handle(message):
         result = _modern_result({
             "supportedVersions": ["2026-07-28"],
             "capabilities": {"tools": {"listChanged": False}},
-            "instructions": (
-                "Read-only numerical evidence tools. Results do not establish "
-                "real-world causality, incidents, or business impact."),
+            "instructions": SERVER_INSTRUCTIONS,
             "ttlMs": 3600000, "cacheScope": "public",
         })
     elif method == "initialize":
@@ -136,6 +179,7 @@ def handle(message):
             "protocolVersion": requested if requested in supported else "2025-11-25",
             "capabilities": {"tools": {"listChanged": False}},
             "serverInfo": {"name": "anomalyzer", "version": "0.1.0"},
+            "instructions": SERVER_INSTRUCTIONS,
         }
     elif method == "tools/list":
         result = {"tools": TOOLS}

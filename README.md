@@ -89,7 +89,15 @@ print(relationship.lineage[-1].source_indexes)
 The Python agent facade also provides `analyze_series`, `get_case`, and
 `replay_policy`. Start the same read-only tools over local stdio with
 `anomalyzer-mcp`; tool results include structured content and repeat the material
-limitations. The adapter performs no production actions.
+limitations. MCP tool descriptions, output schemas, and server instructions
+explain how to report point flags, episodes, and overlapping pattern findings.
+They also distinguish a possible residual location shift from a demonstrated
+change in the full distribution and direct clients to each method's
+`diagnostics.detection_readiness` assessment. A generic MCP client receives this
+guidance without loading the repository's anomaly-detection skill. Schema 1.1 cases
+currently come from calibrated point departures or caller-supplied rule
+violations; pattern-only findings remain in `anomaly_patterns`. The adapter
+performs no production actions.
 
 ## The progression
 
@@ -165,6 +173,9 @@ described as possible **upward location shifts** relative to the seasonal/trend
 expectation. They do not claim that the full distribution changed, identify a
 cause, or automatically establish a new operating regime. The downward example
 has symmetric behavior.
+The CLI reports zero point-anomaly episodes and several pattern findings for
+this example. The overlapping shift rules describe the same sustained behavior;
+their count is not a count of separate incidents.
 
 ![Standardized residuals showing Nelson location-shift rules before any point exceeds three sigma](docs/images/anomaly-progression-06-location-shift.png)
 
@@ -295,13 +306,19 @@ a drop, and a sustained change, including the baseline's echo/adaptation limits.
 
 ## One baseline, inspectable residual checks
 
-The expectation for sample `t` is the model reference at `t - season_length`,
-plus the fitted trend's change between those two positions. The model reference
-normally equals the observed value. With the robust default, an extreme point's
-pre-anomaly expectation becomes its model-only reference after the actual point
-has been scored; the actual is never removed from evidence.
-A season of 1 uses the previous observation; 7 can represent weekly seasonality
-in daily data. Each prediction uses only earlier samples.
+The robust expectation for sample `t` uses four previous matching seasonal
+positions, each adjusted to `t` with the training-fitted trend. It drops the
+highest and lowest values and averages the middle two with weights from 1 to 1.5
+favoring recent positions. Until four complete cycles are available, it uses the
+previous seasonal reference. A season length of 1 uses the four most recent
+observations once available. This limits one unusual
+week's influence even when its score was below the 4.5 extreme cutoff. Set
+`robust_reference_seasons=1` (CLI: `--robust-reference-seasons 1`) to reproduce
+the earlier single-reference robust baseline. `outlier_handling=include` retains
+the single-reference raw baseline. An extreme point's pre-anomaly expectation
+becomes its model-only reference after scoring; the actual remains in evidence.
+A season length of 7 can represent weekly seasonality in daily data. Each
+prediction uses only earlier samples within its manual segment.
 
 `trend` defaults to `auto`, which fits linear and exponential (compound) trends
 with additive seasonal offsets using only the completed training window. Both
@@ -366,6 +383,8 @@ Each evidence record also reports `excluded_from_model`, `model_value`,
 future model references only when its absolute standardized residual exceeds 4.5;
 the ordinary point threshold remains separately configurable and defaults to 3.
 Thus a point can be anomalous without being extreme enough to alter model history.
+The multi-season baseline still limits its influence when four matching references
+are available.
 Set `outlier_handling` to `include` (CLI: `--outlier-handling include`) to preserve
 every raw reference and reproduce the earlier echo/adaptation behavior.
 
@@ -375,11 +394,64 @@ reservation instead needs 42. Reducing that reservation is an explicit tradeoff:
 the seasonal-naive baseline itself needs only one season, but a longer ordinary
 history makes the chosen calibration window easier to inspect and defend.
 
-Consecutive flagged samples form episodes. The detector also analyzes the binary
-point-anomaly stream: two or more adjacent flags produce a `consecutive_run` in
-`anomaly_patterns`. Each underlying flag remains intact. This second-order record
-describes an unusual run; it does not assign a probability, decide that the run
-is a regime change, suppress evidence, or retrain the baseline.
+### Detection readiness
+
+Each method reports `diagnostics.detection_readiness` with `supported`,
+`caution`, or `not_assessed`, plus reasons and the number of segments checked.
+Each calibrated segment has its own assessment in
+`diagnostics.segments[].detection_readiness`. The CLI shows the overall status
+and reasons. Schema 1.1 carries the same diagnostics on dataset and relationship
+methods; multi-resolution results assess each view separately.
+
+This is a **reference-quality check**, not a measured accuracy score. It uses
+only training and calibration data, so a later anomaly does not lower the
+rating. It compares calibration mean absolute error (MAE) with the MAE of a
+constant training median on the same samples; less than 10% improvement raises
+a caution. For a declared season longer than one sample, it checks lag
+correlation in each half of up to 4,096 detrended training values; either half
+below 0.5 raises a caution. Absolute lag-1 calibration residual correlation of
+at least 0.65, a change in the calibration residual center of at least 1.25
+standard deviations between halves, or residuals near the scale floor also
+raise a caution. Too few training cycles to check a declared season raises a
+caution; fewer than eight retained calibration residuals produce `not_assessed`.
+
+No detected trend or season is not automatically a failure: a stable level can
+still be a useful reference. Conversely, a weakly repeating season or a model
+that does not improve on the training level makes point flags harder to
+interpret. These cutoffs are exploratory checks, not validated false-alarm or
+detection rates. A `supported` rating does not establish that operational alerts
+will be useful; replay on representative history and review labeled outcomes
+before relying on them.
+
+The result has three related levels of evidence:
+
+| Level | JSON location | Meaning |
+| --- | --- | --- |
+| Point anomaly | `methods[].evidence[].triggers` contains `point` | One value departed far enough from its modeled expectation under the frozen residual calibration to cross the configured point threshold. |
+| Point-anomaly episode | `observations` | One or more consecutive point anomalies grouped into an interval. A single flagged point is a one-sample episode. |
+| Pattern finding | `anomaly_patterns` | A consecutive point-anomaly run or a rule finding across calibrated residuals. Nelson, CUSUM, and moving-range findings can occur without any point anomaly or episode. |
+
+The point threshold compares each value with a seasonal/trend expectation and
+the frozen residual center and scale. It does not estimate a new "current
+distribution" and decide whether the point is unusual within it. A sustained
+location pattern suggests that the residual center may have moved relative to
+the calibrated reference, even when every individual point stays below the
+point threshold. The Nelson location rules use short, fixed windows rather than
+fitting a new distribution: Rule 5 looks for two of three residuals beyond 2σ,
+Rule 6 for four of five beyond 1σ, and Rule 2 for nine on one side of the
+centerline. They can expose a modest sustained shift before any point exceeds
+the default 3σ threshold. A sufficiently large point can still flag after just
+one observation, so Nelson rules do not always need fewer observations. Rules
+3, 4, and 8 and moving range instead describe other residual structure. None
+of these findings establishes a change in the full distribution of the
+underlying metric.
+
+Two or more adjacent point anomalies also produce a descriptive
+`consecutive_run` pattern. That pattern and the corresponding episode summarize
+the same underlying flags; they are not independent findings. A pattern does not
+assign a probability, decide that a run is a new regime or incident, suppress
+point evidence, or retrain the baseline. Multiple Nelson and CUSUM patterns may
+describe the same interval and should be investigated together.
 
 The same `anomaly_patterns` collection contains three Nelson rules and CUSUM that are
 specifically interpreted as possible shifts in the location, or center, of the
@@ -408,6 +480,11 @@ distribution shape. Classical false-alarm behavior can be changed by residual
 autocorrelation, non-normal tails, and uncertain calibration estimates, so replay
 the alert burden on representative history before operational use.
 
+Schema 1.1 keeps `observations` and `anomaly_patterns` on each dataset and
+relationship result. Its `cases` currently group supported calibrated point
+departures and caller-supplied rule violations. A Nelson-only or CUSUM-only
+pattern remains visible in `anomaly_patterns` but does not create a case.
+
 Results include
 expected and observed values, residuals, scores, evidence references, data checks,
 calibration windows, resolved settings, dependency versions, and an input fingerprint.
@@ -415,8 +492,9 @@ Readable output and JSON use the same result. Business impact remains unresolved
 
 With `outlier_handling=include`, this simple baseline adapts to a level change after
 one season and a spike can cause an echo when it enters the next season's baseline.
-The robust default prevents extreme points from entering later seasonal references,
-so a persistent extreme shift remains abnormal until a reviewed reset. Robust
+The robust default prevents extreme points from entering later seasonal references.
+A sustained moderate shift can gradually enter the four-season baseline, while
+a sustained extreme shift may continue to trigger until a reviewed reset. Robust
 exclusion is a modeling decision, not a claim that the actual was erroneous or
 operationally unimportant. Choose representative training and calibration periods,
 inspect excluded positions, and compare both modes during chronological replay.

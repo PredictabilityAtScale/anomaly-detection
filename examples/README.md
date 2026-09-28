@@ -46,6 +46,9 @@ normalize unreviewed regime changes. Its point evidence and qualifying residual
 patterns do not retrain anything. `steps_reset`
 uses the same values with reviewed boundaries in `reset_points`; seasonal history,
 trend, and calibration restart independently in each segment.
+The `shift` and `steps` fixtures explicitly set `robust_reference_seasons=1` to
+keep these single-reference persistent-shift examples reproducible. The default
+four-reference baseline can gradually absorb moderate sustained changes.
 
 The `location_shift_up` and `location_shift_down` cases demonstrate that location
 evidence is distinct from an extreme point. Every shifted residual has magnitude

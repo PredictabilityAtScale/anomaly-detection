@@ -120,3 +120,23 @@ def test_schema_11_relationship_request_through_cli():
     body = json.loads(result.stdout)
     assert body["schema_version"] == "1.1"
     assert body["relationship_results"][0]["relationship_id"] == "conversion"
+    readable = run("analyze", "examples/agentic/conversion.json")
+    assert readable.returncode == 0, readable.stderr
+    assert "point-anomaly episodes=" in readable.stdout
+    assert "pattern findings=" in readable.stdout
+    assert "pattern-only findings do not create cases" in readable.stdout
+
+
+def test_readable_output_distinguishes_episodes_from_patterns():
+    shift = run("analyze", "--config", "examples/location_shift_up.json")
+    assert shift.returncode == 0, shift.stderr
+    assert "point-anomaly episodes: 0; pattern findings:" in shift.stdout
+    assert "Point-anomaly episodes (consecutive threshold crossings against the calibrated reference):\n  None." in shift.stdout
+    assert "Pattern findings (point runs or residual rules; findings may overlap):" in shift.stdout
+    assert "[nelson_rule_5]" in shift.stdout
+    assert "detection readiness:" in shift.stdout
+
+    spike = run("analyze", "examples/spike.json")
+    assert spike.returncode == 0, spike.stderr
+    assert "point-anomaly episodes: 1; pattern findings:" in spike.stdout
+    assert "Point-anomaly episodes (consecutive threshold crossings against the calibrated reference):\n  None." not in spike.stdout

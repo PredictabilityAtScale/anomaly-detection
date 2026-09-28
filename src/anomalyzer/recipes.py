@@ -6,10 +6,11 @@ import statistics
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
-from .baseline import expected_value
+from .baseline import expected_value, robust_expected_value
 from .budget import RuntimeBudget
 from .contracts import Dataset, Request, RequestV11, Result, MethodResult, Settings
 from .evidence import anomaly_patterns, episodes
+from .readiness import assess_segment, summarize_segments
 from .registry import versions
 from .robust import EXTREME_Z, extreme_indices
 from .seasonality import infer_season_length
@@ -81,7 +82,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
         parameters={**cfg.model_dump(), "training_size": training,
                     "resolved_reset_positions": reset_positions,
                     "season_length_source": season_source,
-                    "baseline_update": ("within each manual segment, use the previous seasonal model reference plus a training-fitted trend change; robust mode substitutes an extreme point's prior expectation only for future model references; trend and calibration are frozen")})
+                    "baseline_update": ("within each manual segment, robust mode uses up to four prior matching seasonal references, trend-adjusted, with outer values trimmed and modest recency weights; include mode uses the previous seasonal reference; extreme points may be replaced for future references; trend and calibration are frozen")})
     if season_inference is not None:
         method.diagnostics["season_inference"] = season_inference
     if quality["missing_count"] or not quality["regular"]:
@@ -125,6 +126,15 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                     "reset_source": None if segment_start == 0 else "manual",
                     "status": "insufficient_history",
                 }
+                def forecast(at_index: int) -> float:
+                    if cfg.outlier_handling == "robust":
+                        return robust_expected_value(
+                            reference_values, at_index, cfg.season_length,
+                            segment_start, trend, cfg.robust_reference_seasons)
+                    local = at_index - segment_start
+                    return (expected_value(reference_values, at_index,
+                                           cfg.season_length)
+                            + trend.change(local - cfg.season_length, local))
                 for index in range(segment_start + cfg.season_length, segment_stop):
                     check_budget()
                     local_index = index - segment_start
@@ -139,10 +149,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                             absolute_position = segment_start + local_position
                             if local_position < cfg.season_length:
                                 continue
-                            model_value = (
-                                reference_values[absolute_position - cfg.season_length]
-                                + trend.change(local_position - cfg.season_length,
-                                               local_position))
+                            model_value = forecast(absolute_position)
                             reference_values[absolute_position] = model_value
                             training_excluded.append(absolute_position)
                             prior = evidence_by_index.get(absolute_position)
@@ -156,9 +163,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                         segment["trend"] = trend_diagnostics
                         if "trend" not in method.diagnostics:
                             method.diagnostics["trend"] = trend_diagnostics
-                    expected = expected_value(reference_values, index,
-                                              cfg.season_length)
-                    expected += trend.change(local_index - cfg.season_length, local_index)
+                    expected = forecast(index)
                     residual = values[index] - expected
                     if not math.isfinite(residual):
                         raise RuntimeError("nonfinite forecast residual")
@@ -212,12 +217,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                                     for item in calibration:
                                         item_index = item["index"]
                                         item_local = item_index - segment_start
-                                        item_expected = expected_value(
-                                            reference_values, item_index,
-                                            cfg.season_length)
-                                        item_expected += trend.change(
-                                            item_local - cfg.season_length,
-                                            item_local)
+                                        item_expected = forecast(item_index)
                                         item_residual = values[item_index] - item_expected
                                         rebuilt.append({"index": item_index,
                                                         "expected": item_expected,
@@ -242,12 +242,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                                 for item in calibration:
                                     item_index = item["index"]
                                     item_local = item_index - segment_start
-                                    item_expected = expected_value(
-                                        reference_values, item_index,
-                                        cfg.season_length)
-                                    item_expected += trend.change(
-                                        item_local - cfg.season_length,
-                                        item_local)
+                                    item_expected = forecast(item_index)
                                     item_residual = values[item_index] - item_expected
                                     rebuilt.append({"index": item_index,
                                                     "expected": item_expected,
@@ -297,6 +292,11 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                                                     times[segment_start+end_calibration-1] if times[segment_start+end_calibration-1] is not None else segment_start+end_calibration-1],
                                 evaluation_window=[times[index] if times[index] is not None else index,
                                                    times[segment_stop-1] if times[segment_stop-1] is not None else segment_stop-1])
+                            segment["detection_readiness"] = assess_segment(
+                                reference_values[segment_start:segment_start+training],
+                                calibration, calibration_excluded, cfg.season_length,
+                                segment.get("trend", {}).get("selected", "none"),
+                                cfg.scale_floor)
                             if first_calibrated:
                                 method.diagnostics.update(
                                     calibration_center=center, calibration_scale=scale,
@@ -305,10 +305,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                                     calibration_window=segment["calibration_window"],
                                     evaluation_window=segment["evaluation_window"])
                                 first_calibrated = False
-                            expected = expected_value(reference_values, index,
-                                                      cfg.season_length)
-                            expected += trend.change(
-                                local_index - cfg.season_length, local_index)
+                            expected = forecast(index)
                             residual = values[index] - expected
                             relative = (residual / abs(expected)
                                         if expected != 0 else None)
@@ -397,6 +394,8 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
             method.status, method.error = "budget_exceeded", str(exc)
         except Exception as exc:
             method.status, method.error = "failed", f"{type(exc).__name__}: {exc}"
+    method.diagnostics["detection_readiness"] = summarize_segments(
+        method.diagnostics.get("segments", []), method.status)
     method.limitations.extend([
         "Reference-only and provisional evidence is non-triggering and does not establish an anomaly.",
         "Repeated thresholds are exploratory and do not control a family-wise false-alarm rate.",
@@ -409,7 +408,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
     if cfg.outlier_handling == "robust":
         method.limitations.extend([
             "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
-            "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; a persistent shift remains abnormal until a reviewed reset."])
+            "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; sustained moderate shifts can gradually enter the multi-season baseline."])
     else:
         method.limitations.extend([
             "Seasonal updates adapt after one season; persistent level changes may stop triggering.",
