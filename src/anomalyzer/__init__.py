@@ -1,7 +1,6 @@
 """Public, local-only analysis API."""
 from .contracts import Request, RequestV11, Result, ResultV11
-from .agent import analyze_series, get_case, replay_policy
-from .orchestrator import analyze_relationships
+from .agent import analyze_relationships, analyze_series, get_case, replay_policy
 from .recipes import analyze, analyze_dataset
 
 __all__ = [

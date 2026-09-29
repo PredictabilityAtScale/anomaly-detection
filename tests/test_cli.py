@@ -125,6 +125,19 @@ def test_schema_11_relationship_request_through_cli():
     assert "point-anomaly episodes=" in readable.stdout
     assert "pattern findings=" in readable.stdout
     assert "pattern-only findings do not create cases" in readable.stdout
+    assert "Recent cases (latest 1 of 1):" in readable.stdout
+    assert "site=demo" in readable.stdout
+    assert "relationship conversion (ratio): observed 0.0615385 orders_per_visit vs expected 0.1 orders_per_visit" in readable.stdout
+    assert "Check: Did collection completeness" in readable.stdout
+
+
+def test_schema_11_readable_case_distinguishes_explicit_rule():
+    result = run("analyze", "examples/agentic/unit-cost.json")
+    assert result.returncode == 0, result.stderr
+    assert "service=demo" in result.stdout
+    assert "relationship unit_cost (ratio): observed 0.157143 usd_per_request" in result.stdout
+    assert "crossed declared rule(s): review-above-13c (outside [0, 0.13] usd_per_request)" in result.stdout
+    assert "detection readiness: not_assessed" in result.stdout
 
 
 def test_readable_output_distinguishes_episodes_from_patterns():

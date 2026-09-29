@@ -87,17 +87,24 @@ print(relationship.lineage[-1].source_indexes)
 ```
 
 The Python agent facade also provides `analyze_series`, `get_case`, and
-`replay_policy`. Start the same read-only tools over local stdio with
-`anomalyzer-mcp`; tool results include structured content and repeat the material
-limitations. MCP tool descriptions, output schemas, and server instructions
-explain how to report point flags, episodes, and overlapping pattern findings.
-They also distinguish a possible residual location shift from a demonstrated
-change in the full distribution and direct clients to each method's
-`diagnostics.detection_readiness` assessment. A generic MCP client receives this
-guidance without loading the repository's anomaly-detection skill. Schema 1.1 cases
-currently come from calibrated point departures or caller-supplied rule
-violations; pattern-only findings remain in `anomaly_patterns`. The adapter
-performs no production actions.
+`replay_policy`. For a dataset object, `analyze_series` accepts the same
+optional `settings` and `context` as a schema-1.0 request, including an
+`as_of` event-time cutoff. The CLI, Python facade, and MCP call the same
+analysis core. Start the read-only MCP server over local stdio with
+`anomalyzer-mcp`. MCP discovery includes guidance on point flags, episodes,
+overlapping patterns, and detection readiness, so a generic MCP client can
+interpret results without loading the repository's skill. Schema 1.1 cases
+come from calibrated point departures or caller-supplied rule violations;
+short-history candidates and pattern-only findings remain separate. The
+adapter performs no production actions.
+
+The agent-facing MCP tools are `analyze`, `list_findings`, and `get_evidence`.
+`analyze` accepts `{"request": <canonical JSON request>}` for either schema
+version and uses the same numerical entrypoint as the CLI. It returns a compact
+assessment and a run ID; the other tools page through findings and supporting
+evidence. Full results are held only for the MCP server session, with a bounded
+cache. Older MCP tool names remain callable for compatibility but are no longer
+advertised in tool discovery.
 
 ## The progression
 

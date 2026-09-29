@@ -1,24 +1,33 @@
-"""Small read-only MCP stdio adapter over the public Python facade.
+"""Agent-facing MCP stdio adapter over the public Python analysis core.
 
 The adapter intentionally contains no analysis logic. It accepts newline-
-delimited JSON-RPC messages, as required by MCP stdio transports, and returns
-structured JSON content from the same validated contracts used by Python/CLI.
+delimited JSON-RPC messages, as required by MCP stdio transports, and provides
+compact views over session-cached results from the same core used by Python/CLI.
 """
 from __future__ import annotations
 
 import json
 import sys
+from collections import OrderedDict
 
-from pydantic import TypeAdapter, ValidationError
+from pydantic import ValidationError
 
-from .agent import analyze_series, get_case, replay_policy
+from .agent import analyze_relationships, analyze_series, get_case, replay_policy
 from .contracts import (
-    ActionPolicy, Case, Dataset, RequestV11, Result, ResultV11, Settings,
+    Contract, Request, RequestV11,
 )
-from .orchestrator import analyze_relationships
+from .mcp_views import get_evidence, list_findings, summarize
+from .recipes import analyze
+
+
+class AnalyzeRequestArguments(Contract):
+    request: Request | RequestV11
 
 
 SERVER_INSTRUCTIONS = (
+    "Use analyze to assess a canonical request, list_findings to browse its "
+    "bounded findings, and get_evidence to inspect one finding. Results are "
+    "cached only for this server session; use the returned run_id. "
     "Write user-facing summaries for analysts without statistical training: "
     "first say what changed, when, versus the expected level, how reliable the "
     "comparison is, and what to check next. Put scores and rule names in "
@@ -30,7 +39,7 @@ SERVER_INSTRUCTIONS = (
     "6 and CUSUM suggest a possible shift in residual location even with no point "
     "flag; they do not establish a change in the full distribution. Describe the "
     "rule, interval, direction, first detection index, and material limitations. "
-    "Report methods[].diagnostics.detection_readiness and its reasons in plain "
+    "Report the readiness status and reasons in plain "
     "language as a baseline-quality check, not measured alert accuracy. "
     "For recurring monitoring, distinguish new findings from overlapping or "
     "previously reported evidence using caller-held state. Policy eligibility "
@@ -40,108 +49,160 @@ SERVER_INSTRUCTIONS = (
 )
 
 
-def _output_schema(model, descriptions):
-    """Explain ambiguous result fields without changing the public contracts."""
-    schema = model.model_json_schema()
-    for field, description in descriptions.items():
-        schema["properties"][field]["description"] = description
-    return schema
-
-
 TOOLS = [
     {
-        "name": "analyze_series",
+        "name": "analyze",
         "description": (
-            "Analyze one ordered numerical series against a causal seasonal/trend "
-            "reference. Use methods[].evidence for individual scores and point "
-            "flags, observations for point-anomaly episodes, and anomaly_patterns "
-            "for overlapping Nelson, CUSUM, moving-range, and point-run findings. "
-            "A pattern can indicate a possible shift without any point flag. "
-            "Report diagnostics.detection_readiness, status, and limitations; "
-            "readiness is not measured alert accuracy. No finding establishes a cause or incident."),
-        "inputSchema": {
-            "type": "object", "additionalProperties": False,
-            "required": ["dataset"],
+            "Analyze a schema-1.0 or schema-1.1 request. Returns a compact "
+            "assessment, readiness and data-quality checks, a preview of findings, "
+            "and a run_id for drilldown. The full result stays in this MCP session. "
+            "No finding establishes cause, incident status, or action authority."),
+        "inputSchema": AnalyzeRequestArguments.model_json_schema(),
+        "outputSchema": {
+            "type": "object",
+            "required": ["run_id", "schema_version", "status", "headline",
+                         "finding_count", "findings_preview", "readiness",
+                         "data_quality", "next_step", "limitations"],
             "properties": {
-                "dataset": Dataset.model_json_schema(),
-                "settings": Settings.model_json_schema(),
+                "run_id": {"type": "string"}, "schema_version": {"type": "string"},
+                "status": {"type": "string"}, "headline": {"type": "string"},
+                "finding_count": {"type": "integer"},
+                "findings_preview": {"type": "array", "items": {"type": "object"}},
+                "readiness": {"type": "array", "items": {"type": "object"}},
+                "data_quality": {"type": "array", "items": {"type": "object"}},
+                "next_step": {"type": "string"}, "limitations": {"type": "array"},
             },
+            "additionalProperties": True,
         },
-        "outputSchema": _output_schema(Result, {
-            "methods": "Per-sample evidence and diagnostics.detection_readiness, a training/calibration reference-quality check.",
-            "observations": "Point-anomaly episodes: consecutive calibrated point flags, including singletons.",
-            "anomaly_patterns": "Overlapping point-run and residual-rule findings; a pattern may exist without a point episode.",
-            "limitations": "Model and detector limits that qualify any interpretation.",
-        }),
         "annotations": {"readOnlyHint": True, "destructiveHint": False,
                         "idempotentHint": True, "openWorldHint": False},
     },
     {
-        "name": "analyze_relationships",
+        "name": "list_findings",
         "description": (
-            "Analyze one to four declared datasets and optional explicit relationships "
-            "with lineage. Each result retains point-anomaly episodes and pattern "
-            "findings. Cases group calibrated point departures or explicit rule "
-            "violations; Nelson-only and CUSUM-only findings do not create cases. "
-            "Check method detection_readiness, maturity, policy eligibility, "
-            "data quality, and limitations. Eligibility does not check readiness "
-            "or establish that an automated action is appropriate. "
-            "This does not discover relationships or prove causality."),
-        "inputSchema": RequestV11.model_json_schema(),
-        "outputSchema": _output_schema(ResultV11, {
-            "dataset_results": "Dataset methods include detection readiness; episodes and pattern findings may overlap.",
-            "relationship_results": "Relationship methods include detection readiness; derived and source findings may be correlated.",
-            "cases": "Evidence groupings from point departures or explicit rule violations, not from pattern-only findings.",
-            "limitations": "Limits on the scope and reliability of the analysis.",
-        }),
+            "Page through cases, early candidates, point episodes, residual patterns, and data-quality "
+            "issues from a prior analyze call. These types can overlap and are not "
+            "a count of separate incidents. The run_id lasts only for this session."),
+        "inputSchema": {
+            "type": "object", "additionalProperties": False,
+            "required": ["run_id"],
+            "properties": {
+                "run_id": {"type": "string", "minLength": 1},
+                "cursor": {"type": "integer", "minimum": 0, "default": 0},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 100,
+                          "default": 20},
+            },
+        },
+        "outputSchema": {
+            "type": "object", "additionalProperties": True,
+            "required": ["run_id", "total", "findings", "next_cursor"],
+            "properties": {
+                "run_id": {"type": "string"}, "total": {"type": "integer"},
+                "findings": {"type": "array", "items": {"type": "object"}},
+                "next_cursor": {"type": ["integer", "null"]},
+            },
+        },
         "annotations": {"readOnlyHint": True, "destructiveHint": False,
                         "idempotentHint": True, "openWorldHint": False},
     },
     {
-        "name": "get_case",
+        "name": "get_evidence",
         "description": (
-            "Retrieve a deterministic evidence grouping by case ID. A case is "
-            "formed from point departures or explicit rule violations, not "
-            "pattern-only findings. It is not an incident declaration or causal explanation."),
+            "Inspect one finding by run_id and finding_id. Returns the numerical "
+            "record, relevant assessments and lineage, readiness, limitations, "
+            "and a page of source samples. This does not establish cause or impact."),
         "inputSchema": {
             "type": "object", "additionalProperties": False,
-            "required": ["result", "case_id"],
+            "required": ["run_id", "finding_id"],
             "properties": {
-                "result": ResultV11.model_json_schema(),
-                "case_id": {"type": "string", "minLength": 1},
+                "run_id": {"type": "string", "minLength": 1},
+                "finding_id": {"type": "string", "minLength": 1},
+                "cursor": {"type": "integer", "minimum": 0, "default": 0},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 100,
+                          "default": 50},
             },
         },
-        "outputSchema": TypeAdapter(Case | None).json_schema(),
-        "annotations": {"readOnlyHint": True, "destructiveHint": False,
-                        "idempotentHint": True, "openWorldHint": False},
-    },
-    {
-        "name": "replay_policy",
-        "description": (
-            "Re-evaluate deterministic action and notification eligibility over "
-            "existing point departures and explicit rule violations without "
-            "recomputing detections or executing an external action. Pattern-only "
-            "findings do not become cases or eligible actions. Eligibility does "
-            "not check detection readiness; callers must evaluate that diagnostic "
-            "and their own alert or action policy separately."),
-        "inputSchema": {
-            "type": "object", "additionalProperties": False,
-            "required": ["result", "policy"],
+        "outputSchema": {
+            "type": "object", "additionalProperties": True,
+            "required": ["run_id", "finding", "record", "sample_count",
+                         "samples", "next_cursor", "readiness"],
             "properties": {
-                "result": ResultV11.model_json_schema(),
-                "policy": ActionPolicy.model_json_schema(),
+                "run_id": {"type": "string"}, "finding": {"type": "object"},
+                "record": {"type": "object"}, "sample_count": {"type": "integer"},
+                "samples": {"type": "array", "items": {"type": "object"}},
+                "next_cursor": {"type": ["integer", "null"]},
+                "readiness": {"type": "array", "items": {"type": "object"}},
             },
         },
-        "outputSchema": ResultV11.model_json_schema(),
         "annotations": {"readOnlyHint": True, "destructiveHint": False,
                         "idempotentHint": True, "openWorldHint": False},
     },
 ]
 
 
+MAX_CACHED_RUNS = 8
+MAX_CACHED_BYTES = 64_000_000
+_RUNS = OrderedDict()
+_RUN_BYTES = 0
+
+
+def _remember(result):
+    global _RUN_BYTES
+    size = len(json.dumps(result, allow_nan=False).encode("utf-8"))
+    if size > MAX_CACHED_BYTES:
+        raise ValueError("analysis result exceeds the MCP session cache limit")
+    if result["run_id"] in _RUNS:
+        _RUN_BYTES -= _RUNS.pop(result["run_id"])[1]
+    _RUNS[result["run_id"]] = (result, size)
+    _RUN_BYTES += size
+    while len(_RUNS) > MAX_CACHED_RUNS or (
+            _RUN_BYTES > MAX_CACHED_BYTES and len(_RUNS) > 1):
+        _, (_, evicted_size) = _RUNS.popitem(last=False)
+        _RUN_BYTES -= evicted_size
+
+
+def _cached(run_id):
+    if run_id not in _RUNS:
+        raise ValueError("run_id not found in this MCP session; analyze again")
+    return _RUNS[run_id][0]
+
+
+def _compact_result(structured, message):
+    return {
+        "content": [{"type": "text", "text": message}],
+        "structuredContent": structured, "isError": False,
+    }
+
+
 def _tool_call(name, arguments):
-    if name == "analyze_series":
-        result = analyze_series(arguments["dataset"], arguments.get("settings"))
+    if name == "analyze":
+        result = analyze(AnalyzeRequestArguments.model_validate(arguments).request)
+        full = result.model_dump(mode="json")
+        _remember(full)
+        summary = summarize(full)
+        return _compact_result(
+            summary, f"{summary['headline']} Run {summary['run_id']}; "
+            f"{summary['finding_count']} finding(s). Use list_findings for details.")
+    if name == "list_findings":
+        run_id = arguments["run_id"]
+        page = list_findings(_cached(run_id), arguments.get("cursor", 0),
+                             arguments.get("limit", 20))
+        return _compact_result(
+            page, f"{len(page['findings'])} of {page['total']} findings for "
+            f"run {run_id}.")
+    if name == "get_evidence":
+        run_id = arguments["run_id"]
+        detail = get_evidence(_cached(run_id), arguments["finding_id"],
+                              arguments.get("cursor", 0),
+                              arguments.get("limit", 50))
+        return _compact_result(
+            detail, f"{detail['finding']['headline']} "
+            f"{detail['sample_count']} supporting sample(s) available.")
+    if name == "analyze_request":
+        result = analyze(AnalyzeRequestArguments.model_validate(arguments).request)
+    elif name == "analyze_series":
+        result = analyze_series(arguments["dataset"], arguments.get("settings"),
+                                arguments.get("context"))
     elif name == "analyze_relationships":
         result = analyze_relationships(arguments)
     elif name == "get_case":

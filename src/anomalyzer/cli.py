@@ -254,6 +254,62 @@ def build_request(args):
     return contract.model_validate(document)
 
 
+def _recent_case_lines(result):
+    cases = result["cases"]
+    if not cases:
+        return ["Recent cases: none from calibrated point departures or explicit rules."]
+
+    definitions = {
+        item["id"]: ("dataset", None, item.get("units"))
+        for item in result["resolved_config"]["datasets"]
+    }
+    definitions.update({
+        item["id"]: ("relationship", item["kind"], item.get("units"))
+        for item in result["resolved_config"]["relationships"]
+    })
+    assessments = {
+        assessment["id"]: assessment
+        for collection in (result["relationship_results"], result["dataset_results"])
+        for item in collection for assessment in item["assessments"]
+    }
+    shown = min(3, len(cases))
+    lines = [f"Recent cases (latest {shown} of {len(cases)}):"]
+    for case in reversed(cases[-shown:]):
+        entity = ", ".join(f"{key}={value}" for key, value in sorted(case["entity"].items()))
+        lines.append(f"  {case['event_time']} [{entity}] {case['id']}")
+        for assessment_id in case["supporting_evidence"]:
+            assessment = assessments.get(assessment_id)
+            if assessment is None:
+                continue
+            target = assessment["target_id"]
+            source_kind, relationship_kind, units = definitions[target]
+            label = f"{source_kind} {target}"
+            if relationship_kind:
+                label += f" ({relationship_kind})"
+            observed = f"{assessment['observed']:.6g}"
+            unit_label = f" {units}" if units else ""
+            baseline = assessment["baseline"]
+            if baseline["kind"] == "seasonal_residual":
+                detail = (f"observed {observed}{unit_label} vs expected "
+                          f"{baseline['expected']:.6g}{unit_label}; calibrated point departure")
+            else:
+                rules = []
+                for rule in baseline["violations"]:
+                    if rule["kind"] == "acceptable_range":
+                        boundary = (f"outside [{rule['minimum']:.6g}, "
+                                    f"{rule['maximum']:.6g}]{unit_label}")
+                    elif rule["kind"] == "maximum_absolute_change":
+                        boundary = f"absolute change > {rule['threshold']:.6g}{unit_label}"
+                    else:
+                        boundary = f"relative change > {rule['threshold']:.6g}"
+                    rules.append(f"{rule['id']} ({boundary})")
+                rules = ", ".join(rules)
+                detail = f"observed {observed}{unit_label}; crossed declared rule(s): {rules}"
+            lines.append(f"    {label}: {detail}")
+        lines.append(f"    Check: {case['suggested_investigation_questions'][0]}")
+    return lines
+
+
 def readable(result):
     if "detectors" in result:
         return "Installed analysis methods\n" + "\n".join(f"  {m['id']}: {m['update_semantics']}" for m in result["methods"])
@@ -263,6 +319,7 @@ def readable(result):
             (f"Datasets: {len(result['dataset_results'])}; relationships: "
              f"{len(result['relationship_results'])}; cases: {len(result['cases'])}"),
         ]
+        lines.extend(_recent_case_lines(result))
         for item in result["dataset_results"]:
             lines.append(
                 f"  dataset {item['dataset_id']}: {item['status']}; "

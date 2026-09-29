@@ -3,26 +3,30 @@ from __future__ import annotations
 
 from .cases import compose_cases, target_entities
 from .contracts import (
-    ActionPolicy, Case, Dataset, RequestV11, ResultV11, Settings,
+    ActionPolicy, Case, Context, Dataset, RequestV11, ResultV11, Settings,
 )
-from .orchestrator import analyze_relationships as _analyze_relationships
 from .recipes import analyze
 
 
 def analyze_series(dataset: Dataset | dict | list[float | None],
-                   settings: Settings | dict | None = None):
+                   settings: Settings | dict | None = None,
+                   context: Context | dict | None = None):
     """Analyze one series using the frozen schema-1.0 semantics."""
     if isinstance(dataset, list):
+        if context is not None:
+            raise ValueError("context requires a Dataset rather than a bare values list")
         return analyze(dataset, settings)
     validated = Dataset.model_validate(dataset)
     config = Settings.model_validate(settings or {})
+    context = Context.model_validate(context or {})
     return analyze({"datasets": [validated.model_dump(mode="json")],
-                    "config": config.model_dump(mode="json")})
+                    "config": config.model_dump(mode="json"),
+                    "context": context.model_dump(mode="json")})
 
 
 def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
     """Analyze declared relationships; this does not discover or prove causes."""
-    return _analyze_relationships(request)
+    return analyze(RequestV11.model_validate(request))
 
 
 def get_case(result: ResultV11 | dict, case_id: str) -> Case | None:

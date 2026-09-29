@@ -1,6 +1,6 @@
 ---
 name: anomaly-detection
-description: Analyze one numeric time series for anomalies, outliers, spikes, drops, sustained shifts, residual patterns, or regime changes with this repository's Anomalyzer CLI, then explain or chart the evidence. Use when the user asks to detect, find, investigate, visualize, or explain unusual changes in timestamped or ordered metric data. Do not use for generic charting, multivariate analysis, forecasting-only requests, or distribution comparison.
+description: Analyze numeric time series and explicitly declared relationships with this repository's Anomalyzer CLI, then explain unusual changes and evidence limits. Use for spikes, drops, sustained shifts, ratios, differences, lagged responses, or joint metric conditions. Create a visualization only when explicitly requested. Do not use for generic charting, forecasting-only requests, distribution comparison, or automatic relationship discovery.
 ---
 
 # Anomaly detection

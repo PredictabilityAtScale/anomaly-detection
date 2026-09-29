@@ -1,6 +1,6 @@
 ---
 name: anomaly-detection
-description: Analyze one numeric time series for anomalies, outliers, spikes, drops, sustained shifts, residual patterns, or regime changes with this repository's Anomalyzer CLI, then explain the evidence and its reliability limits. Create a quick chart or publication-quality visualization only when explicitly requested. Use when the user asks to detect, find, investigate, visualize, or explain unusual changes in timestamped or ordered metric data. Do not use for generic charting, multivariate analysis, forecasting-only requests, or distribution comparison.
+description: Analyze numeric time series and explicitly declared relationships with this repository's Anomalyzer CLI, then explain unusual changes and evidence limits. Use for spikes, drops, sustained shifts, ratios, differences, lagged responses, or joint metric conditions. Create a visualization only when explicitly requested. Do not use for generic charting, forecasting-only requests, distribution comparison, or automatic relationship discovery.
 ---
 
 # Anomaly detection
@@ -21,7 +21,12 @@ working executable exists, explain the missing prerequisite and stop.
 
 Inspect the input before constructing the command:
 
-- Analyze exactly one entity, numeric measure, and unit at a time.
+- For a single series, analyze one entity, numeric measure, and unit at a time.
+- For related metrics, use a canonical schema-1.1 JSON request with up to four
+  named datasets and four explicit relationships. Each dataset needs a nonempty
+  entity scope. Related datasets must have matching entity metadata, identical
+  UTC-normalized timestamps, and the same declared cadence. Declare source and
+  relationship units; Anomalyzer does not infer relationships or convert units.
 - For CSV, identify the value column. Supply time column and fixed frequency
   together, or omit both for ordered positional data.
 - Preserve missing values as missing. Do not impute, resample, interpolate,
@@ -39,11 +44,21 @@ Request full structured output with `--format json`. Typical commands are:
 anomalyzer analyze data.csv --time timestamp --value calls --frequency 1d --season-length 7 --format json
 anomalyzer analyze values.csv --value calls --format json
 anomalyzer analyze request.json --format json
+anomalyzer analyze examples/agentic/conversion.json --format json
 ```
 
 Prefer reading JSON from stdout. If a durable result is useful, write it to a
 task-owned path with `--output`; do not replace an existing file without the
 user's intent.
+
+When `anomalyzer-mcp` is available, pass a canonical schema-1.0 or schema-1.1
+JSON request to `analyze` as `{"request": ...}`. Its compact structured result
+includes a `run_id`, readiness, data quality, and a findings preview. Use
+`list_findings` with that run ID, then `get_evidence` for a selected finding
+when the summary needs support. The run ID lasts only for the MCP session.
+An early candidate is a separate finding when history is insufficient; it is
+not a calibrated case or an action trigger.
+The CLI remains useful for CSV, local files, and the full canonical result.
 
 ## Return text first
 
@@ -60,6 +75,8 @@ figure, report:
 
 - what was found, its dates and observed-versus-expected values, or why the run
   could not make a finding;
+- for schema 1.1, the entity and declared relationship, source lineage,
+  important unavailable inputs, and the most relevant case or early assessment;
 - whether it was one unusual reading, a run of point flags, or a possible
   ongoing change, without counting overlapping rules as separate events;
 - each method's `diagnostics.detection_readiness` status and material reasons,
@@ -88,9 +105,12 @@ baseline." Keep the exact status available in supporting detail.
   found none; it does not prove the series is normal.
 - `insufficient_history`, `inapplicable`, `partial`, or `failed` cannot establish
   normality. Explain the specific applicability, data-quality, or runtime issue.
-- Only `calibrated` evidence can trigger. Distinguish it from `reference_only`
-  and `provisional` evidence. Calibration means the residual center and scale
-  are frozen; it is not a confidence level or a validation of the baseline.
+- Only `calibrated` evidence can trigger a statistical point flag. Distinguish
+  it from `reference_only` and `provisional` evidence. Schema 1.1 also permits
+  an explicit caller-supplied rule to mark `criterion_met` with short history;
+  that is an exact rule crossing, not a calibrated anomaly. Calibration means
+  the residual center and scale are frozen; it is not a confidence level or a
+  validation of the baseline.
 - Explain the three levels separately: a `point` trigger is one value crossing
   the configured threshold against the modeled expectation; `observations`
   groups adjacent point flags into episodes; `anomaly_patterns` reports point
@@ -116,6 +136,11 @@ baseline." Keep the exact status available in supporting detail.
   invent a confidence percentage or equate a large score, multiple overlapping
   rules, or a `supported` rating with a known chance of a true incident.
 - Business impact is unresolved until the user supplies operational context.
+- For schema 1.1, distinguish an early `departure_candidate` from a calibrated
+  `supported_departure` and an exact caller-supplied `criterion_violation`.
+  Early candidates do not create cases. Cases currently group only calibrated
+  point departures and explicit rule violations; sustained pattern findings
+  may remain outside cases. Derived and source evidence can be correlated.
 - Surface detector limitations that affect the result, including baseline echo,
   adaptation after one season, short history, tiny calibration variance, a
   lag-inference fallback, missed multiple seasonalities, or short reset segments.
@@ -138,7 +163,8 @@ Separate what the data establishes from possible causes and business impact.
 Treat `action_eligible` and `notification_eligible` in schema 1.1 as the result
 of a caller-supplied policy, not an endorsement that an action is safe or useful.
 The MCP adapter is read-only: it neither schedules runs nor delivers alerts or
-executes actions. Its policy does not gate eligibility on detection readiness.
+executes actions. Its run cache lasts only for the server session. Its policy
+does not gate eligibility on detection readiness.
 When readiness is `caution` or `not_assessed`, make that visible before suggesting
 an automatic response; consequential actions need an externally reviewed policy
 that accounts for that uncertainty. A `supported` rating also needs historical
