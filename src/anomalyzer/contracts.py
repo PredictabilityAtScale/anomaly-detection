@@ -9,7 +9,9 @@ class Contract(BaseModel):
 
 
 class Settings(Contract):
-    recipe: Literal["seasonal-residual-v1", "multi-resolution-v1"] = "seasonal-residual-v1"
+    recipe: Literal[
+        "seasonal-residual-v1", "adaptive-seasonal-v1", "multi-resolution-v1",
+    ] = "seasonal-residual-v1"
     season_length: int = Field(default=1, ge=1, le=10000, strict=True)
     completed_period_season_length: int = Field(default=7, ge=1, le=10000, strict=True)
     intraday_season_length: int | None = Field(default=None, ge=1, le=10000, strict=True)
@@ -18,6 +20,10 @@ class Settings(Contract):
     trend: Literal["auto", "none", "linear", "exponential"] = "auto"
     outlier_handling: Literal["robust", "include"] = "robust"
     robust_reference_seasons: Literal[1, 4] = 4
+    adaptive_window: int = Field(default=56, ge=3, le=512, strict=True)
+    adaptive_slope_lookback: int = Field(default=24, ge=1, le=128, strict=True)
+    adaptive_season_weight: float = Field(default=0.8, ge=0, le=1)
+    adaptive_min_seasonal_matches: int = Field(default=3, ge=1, le=32, strict=True)
     reset_points: list[int | str] = Field(default_factory=list)
     training_size: int = Field(default=28, ge=2, strict=True)
     calibration_size: int = Field(default=14, ge=3, strict=True)
@@ -30,6 +36,15 @@ class Settings(Contract):
     max_points: int = Field(default=10000, ge=1, le=1000000, strict=True)
     max_bytes: int = Field(default=10000000, ge=1, le=100000000, strict=True)
     max_runtime_seconds: float = Field(default=60, gt=0, le=3600)
+
+    @model_validator(mode="after")
+    def compatible_recipe_settings(self):
+        if self.adaptive_slope_lookback > self.adaptive_window:
+            raise ValueError("adaptive_slope_lookback must not exceed adaptive_window")
+        if self.recipe == "adaptive-seasonal-v1" and self.trend != "auto":
+            raise ValueError(
+                "adaptive-seasonal-v1 owns its rolling trend; trend must remain auto")
+        return self
 
     @field_validator("reset_points")
     @classmethod
@@ -456,6 +471,9 @@ class Case(Contract):
     correlated_evidence_groups: list[list[str]]
     evidence_refs: list[str]
     maturity: Maturity
+    severity: Literal["warning", "critical"]
+    severity_reasons: list[str]
+    explanation: str
     action_eligible: bool
     notification_eligible: bool
     business_impact: Literal["unresolved"] = "unresolved"

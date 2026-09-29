@@ -723,6 +723,7 @@
           "default": "seasonal-residual-v1",
           "enum": [
             "seasonal-residual-v1",
+            "adaptive-seasonal-v1",
             "multi-resolution-v1"
           ],
           "title": "Recipe",
@@ -805,6 +806,34 @@
             4
           ],
           "title": "Robust Reference Seasons",
+          "type": "integer"
+        },
+        "adaptive_window": {
+          "default": 56,
+          "maximum": 512,
+          "minimum": 3,
+          "title": "Adaptive Window",
+          "type": "integer"
+        },
+        "adaptive_slope_lookback": {
+          "default": 24,
+          "maximum": 128,
+          "minimum": 1,
+          "title": "Adaptive Slope Lookback",
+          "type": "integer"
+        },
+        "adaptive_season_weight": {
+          "default": 0.8,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Adaptive Season Weight",
+          "type": "number"
+        },
+        "adaptive_min_seasonal_matches": {
+          "default": 3,
+          "maximum": 32,
+          "minimum": 1,
+          "title": "Adaptive Min Seasonal Matches",
           "type": "integer"
         },
         "reset_points": {

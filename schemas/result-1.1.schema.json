@@ -428,6 +428,25 @@
           "title": "Maturity",
           "type": "string"
         },
+        "severity": {
+          "enum": [
+            "warning",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "severity_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Severity Reasons",
+          "type": "array"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
         "action_eligible": {
           "title": "Action Eligible",
           "type": "boolean"
@@ -472,6 +491,9 @@
         "correlated_evidence_groups",
         "evidence_refs",
         "maturity",
+        "severity",
+        "severity_reasons",
+        "explanation",
         "action_eligible",
         "notification_eligible",
         "suggested_investigation_questions",

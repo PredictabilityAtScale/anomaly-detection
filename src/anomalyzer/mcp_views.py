@@ -90,6 +90,11 @@ def _case_assessments(result, case):
 
 
 def _case_headline(case, matches, definitions):
+    if case.get("explanation"):
+        if matches:
+            kind, target, _ = matches[0]
+            return f"{kind} {target}: {case['explanation']}"
+        return case["explanation"]
     if not matches:
         return f"Numerical case for {case['entity']} at {case['event_time']}."
     kind, target, assessment = matches[0]
@@ -137,6 +142,7 @@ def build_findings(result):
                 "entity": case["entity"], "event_time": case["event_time"],
                 "headline": _case_headline(case, matches, definitions),
                 "maturity": case["maturity"],
+                "severity": case["severity"],
                 "readiness": (_readiness(next(item for _, name, item in _targets(result)
                                               if name == target))[0]
                               if target else "not_assessed"),

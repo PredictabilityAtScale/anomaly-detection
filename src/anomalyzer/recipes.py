@@ -6,7 +6,7 @@ import statistics
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
-from .baseline import expected_value, robust_expected_value
+from .baseline import adaptive_expected_value, expected_value, robust_expected_value
 from .budget import RuntimeBudget
 from .contracts import Dataset, Request, RequestV11, Result, MethodResult, Settings
 from .evidence import anomaly_patterns, episodes
@@ -76,13 +76,24 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
     fingerprint = hashlib.sha256(json.dumps(resolved, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
     training = max(cfg.training_size, cfg.season_length)
     end_calibration = training + cfg.calibration_size
+    adaptive = cfg.recipe == "adaptive-seasonal-v1"
     method = MethodResult(
-        id="seasonal_naive" if cfg.trend == "none" else "seasonal_trend", status="completed",
+        id=("adaptive_seasonal" if adaptive else
+            "seasonal_naive" if cfg.trend == "none" else "seasonal_trend"),
+        status="completed",
         applicability="regular, complete series with separate training/calibration/evaluation windows",
         parameters={**cfg.model_dump(), "training_size": training,
                     "resolved_reset_positions": reset_positions,
                     "season_length_source": season_source,
-                    "baseline_update": ("within each manual segment, robust mode uses up to four prior matching seasonal references, trend-adjusted, with outer values trimmed and modest recency weights; include mode uses the previous seasonal reference; extreme points may be replaced for future references; trend and calibration are frozen")})
+                    "baseline_update": (
+                        "one-step rolling expectation from the most recent bounded window; "
+                        "median short-horizon pairwise slope projects prior observations, "
+                        "and matching seasonal phases are blended when enough are available; "
+                        "isolated extreme calibrated points may be replaced for future references, "
+                        "while a persistent same-direction change is admitted after two protected points; "
+                        "the expectation rolls while residual calibration remains frozen"
+                        if adaptive else
+                        "within each manual segment, robust mode uses up to four prior matching seasonal references, trend-adjusted, with outer values trimmed and modest recency weights; include mode uses the previous seasonal reference; extreme points may be replaced for future references; trend and calibration are frozen")})
     if season_inference is not None:
         method.diagnostics["season_inference"] = season_inference
     if quality["missing_count"] or not quality["regular"]:
@@ -116,6 +127,9 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                 training_excluded = []
                 calibration_excluded = []
                 evaluation_excluded = []
+                adaptive_extreme_direction = None
+                adaptive_extreme_run = 0
+                adaptive_regime_admissions = []
                 segment_length = segment_stop - segment_start
                 segment = {
                     "number": segment_number,
@@ -127,6 +141,13 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                     "status": "insufficient_history",
                 }
                 def forecast(at_index: int) -> float:
+                    if adaptive:
+                        return adaptive_expected_value(
+                            reference_values, at_index, cfg.season_length,
+                            segment_start, cfg.adaptive_window,
+                            cfg.adaptive_slope_lookback,
+                            cfg.adaptive_season_weight,
+                            cfg.adaptive_min_seasonal_matches)
                     if cfg.outlier_handling == "robust":
                         return robust_expected_value(
                             reference_values, at_index, cfg.season_length,
@@ -139,10 +160,21 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                     check_budget()
                     local_index = index - segment_start
                     if local_index == training:
-                        trend, trend_diagnostics = fit_trend(
-                            values[segment_start:index], cfg.season_length,
-                            cfg.trend, cfg.scale_floor, check_budget,
-                            cfg.outlier_handling)
+                        if adaptive:
+                            trend_diagnostics = {
+                                "selected": "rolling_robust",
+                                "window": cfg.adaptive_window,
+                                "slope_lookback": cfg.adaptive_slope_lookback,
+                                "season_weight": cfg.adaptive_season_weight,
+                                "minimum_seasonal_matches":
+                                    cfg.adaptive_min_seasonal_matches,
+                                "excluded_positions": [],
+                            }
+                        else:
+                            trend, trend_diagnostics = fit_trend(
+                                values[segment_start:index], cfg.season_length,
+                                cfg.trend, cfg.scale_floor, check_budget,
+                                cfg.outlier_handling)
                         local_excluded = trend_diagnostics.get(
                             "excluded_positions", [])
                         for local_position in local_excluded:
@@ -323,9 +355,28 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                     exclusion_reason = None
                     model_value = values[index]
                     reference_action = "use_observed"
+                    extreme = (maturity == "calibrated"
+                               and abs(z) > EXTREME_Z)
+                    protect_extreme = extreme
+                    if (adaptive and cfg.outlier_handling == "robust"
+                            and maturity == "calibrated"):
+                        if extreme:
+                            direction = 1 if z > 0 else -1
+                            if direction == adaptive_extreme_direction:
+                                adaptive_extreme_run += 1
+                            else:
+                                adaptive_extreme_direction = direction
+                                adaptive_extreme_run = 1
+                            # Protect isolated spikes, then let a persistent
+                            # same-direction change enter the rolling reference.
+                            protect_extreme = adaptive_extreme_run <= 2
+                            if not protect_extreme:
+                                adaptive_regime_admissions.append(index)
+                        else:
+                            adaptive_extreme_direction = None
+                            adaptive_extreme_run = 0
                     if (cfg.outlier_handling == "robust"
-                            and maturity == "calibrated"
-                            and abs(z) > EXTREME_Z):
+                            and protect_extreme):
                         excluded_from_model = True
                         exclusion_reason = "extreme_calibrated_residual"
                         model_value = expected
@@ -357,6 +408,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                 segment["training_excluded_positions"] = training_excluded
                 segment["calibration_excluded_positions"] = calibration_excluded
                 segment["evaluation_reference_replacements"] = evaluation_excluded
+                segment["adaptive_regime_admissions"] = adaptive_regime_admissions
                 segment_diagnostics.append(segment)
             method.diagnostics.update(
                 maturity_counts=maturity_counts,
@@ -380,6 +432,9 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                     "evaluation_reference_replacements": [
                         position for segment in segment_diagnostics
                         for position in segment["evaluation_reference_replacements"]],
+                    "adaptive_regime_admissions": [
+                        position for segment in segment_diagnostics
+                        for position in segment["adaptive_regime_admissions"]],
                 })
             if errors:
                 largest = max(abs(e) for e in errors)
@@ -404,10 +459,18 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
         "Nelson Rules 3, 4, and 8 describe residual trend, systematic oscillation, and mixture patterns; they are model/process diagnostics, not location-shift claims.",
         "CUSUM and moving-range thresholds are exploratory and applied to calibrated standardized residuals; they are not probabilities or independently corroborating evidence.",
         "Classical Nelson, CUSUM, and moving-range false-alarm behavior assumes an adequately estimated stable process; residual autocorrelation, non-normal tails, and a short calibration window can change the alert rate.",
-        "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures."])
+        ("The rolling expectation adapts after every finalized observation. "
+         "Robust mode protects the first two consecutive extreme residuals in "
+         "one direction, then admits a persistent change to the rolling "
+         "reference; calibrated location-shift rules are retained to surface "
+         "moderate changes during adaptation."
+         if adaptive else
+         "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures.")])
     if cfg.outlier_handling == "robust":
         method.limitations.extend([
-            "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
+            (("Robust rolling medians, calibration screening, and isolated-extreme replacement limit contamination of future adaptive references; this does not establish that an excluded point is erroneous or unimportant."
+              if adaptive else
+              "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.")),
             "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; sustained moderate shifts can gradually enter the multi-season baseline."])
     else:
         method.limitations.extend([

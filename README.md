@@ -94,9 +94,13 @@ analysis core. Start the read-only MCP server over local stdio with
 `anomalyzer-mcp`. MCP discovery includes guidance on point flags, episodes,
 overlapping patterns, and detection readiness, so a generic MCP client can
 interpret results without loading the repository's skill. Schema 1.1 cases
-come from calibrated point departures or caller-supplied rule violations;
-short-history candidates and pattern-only findings remain separate. The
-adapter performs no production actions.
+come from calibrated point departures, caller-supplied rule violations, and,
+with `adaptive-seasonal-v1`, grouped Nelson/CUSUM location shifts. Short-history candidates and diagnostic
+trend, oscillation, mixture, and variation patterns remain separate. Cases
+carry deterministic `warning` or `critical` severity and a plain-language
+explanation. Multiple source datasets can raise severity; a derived
+relationship adds context without being counted as independent confirmation.
+The adapter performs no production actions.
 
 The agent-facing MCP tools are `analyze`, `list_findings`, and `get_evidence`.
 `analyze` accepts `{"request": <canonical JSON request>}` for either schema
@@ -130,7 +134,7 @@ each observation with the same point in the previous season and adds the fitted
 linear change across that seven-day gap. The red points are the introduced changes;
 the orange points show the seasonal-naive echo that appears when each changed value
 becomes the reference one week later. This chapter deliberately uses
-`outlier_handling=include`; chapter 7 adds the robust default that prevents the echo.
+`outlier_handling=include`; chapter 8 adds the robust default that prevents the echo.
 
 ![Weekly seasonality on a growing linear trend with introduced changes and one-week echoes](docs/images/anomaly-progression-02-linear-seasonality.png)
 
@@ -146,7 +150,27 @@ changes and their two one-week echoes. As in chapter 2, the comparison uses
 
 ![The same compound-growth series scored with linear and compound trend models](docs/images/anomaly-progression-03-compound.png)
 
-### 4. Treat discontinuities as new regimes
+### 4. Update the expectation one step at a time
+
+A frozen trend is easy to audit, but it can mistake ordinary acceleration for a
+long incident. `adaptive-seasonal-v1` recomputes each expectation from only the
+history available before that sample. It takes the median of recent pairwise
+slopes, projects the bounded 56-sample history forward, and blends the median of
+matching seasonal phases at 80% once three are available. The upper panel shows
+the frozen compound model drifting far above the gradually accelerating series.
+The lower panel shows the rolling reference following the changing growth rate
+while still exposing the isolated change at sample 80.
+
+The expectation rolls, but the residual calibration does not. This keeps scores
+comparable while Nelson location rules and CUSUM accumulate moderate misses that
+may matter before one point crosses the configured threshold. Robust mode keeps
+the first two consecutive extreme misses in one direction out of the reference;
+a persistent third miss is admitted so a real regime can be followed after it
+has already produced evidence.
+
+![A gradually accelerating seasonal series compared with frozen and one-step rolling expectations](docs/images/anomaly-progression-04-adaptive.png)
+
+### 5. Treat discontinuities as new regimes
 
 One continuous trend cannot explain a series whose level and direction change at
 known boundaries. Without that context, both later regimes remain departures and
@@ -155,11 +179,11 @@ and 100, seasonal history, trend fitting, and calibration restart inside each
 segment. The three regimes are then modeled independently and no samples flag.
 Resets are always explicit: Anomalyzer does not automatically normalize an anomaly
 run that may still be a real incident. This chapter holds outlier handling at
-`include`; chapter 8 combines robust handling with the reviewed-reset workflow.
+`include`; chapter 9 combines robust handling with the reviewed-reset workflow.
 
-![A stepped series before and after explicit change-point resets](docs/images/anomaly-progression-04-change-points.png)
+![A stepped series before and after explicit change-point resets](docs/images/anomaly-progression-05-change-points.png)
 
-### 5. Discover the season
+### 6. Discover the season
 
 Sometimes value-only positional data arrives without a known lag. Anomalyzer
 detrends an initial prefix, ranks autocorrelation candidates, and requires the same
@@ -167,7 +191,7 @@ candidate to win in its earliest three-cycle window. Here lag 7 is confirmed fro
 positions 0–27; lags 14 and 21 are harmonics of the same weekly cycle. Inference is
 a conservative suggestion—an explicit domain setting still takes precedence.
 
-![A repeating weekly series and its ranked season-length candidates](docs/images/anomaly-progression-05-season-discovery.png)
+![A repeating weekly series and its ranked season-length candidates](docs/images/anomaly-progression-06-season-discovery.png)
 
 ### When no stable pattern emerges
 
@@ -196,7 +220,7 @@ constant training median. Zero findings in one random draw do not establish
 normality or a reliable alert rate. See [detection readiness](#detection-readiness)
 for how this assessment is calculated.
 
-### 6. Detect a sustained location shift
+### 7. Detect a sustained location shift
 
 Not every meaningful change contains an individually extreme observation. In this
 example, the residual process moves upward to a steady +2.28 standard deviations,
@@ -211,9 +235,9 @@ The CLI reports zero point-anomaly episodes and several pattern findings for
 this example. The overlapping shift rules describe the same sustained behavior;
 their count is not a count of separate incidents.
 
-![Standardized residuals showing Nelson location-shift rules before any point exceeds three sigma](docs/images/anomaly-progression-06-location-shift.png)
+![Standardized residuals showing Nelson location-shift rules before any point exceeds three sigma](docs/images/anomaly-progression-07-location-shift.png)
 
-### 7. Protect the model from an incident
+### 8. Protect the model from an incident
 
 An extreme observation is still real evidence even when it should not define the
 future baseline. The `robust` default first scores and preserves the actual point,
@@ -226,9 +250,9 @@ false downward echo. The lower panel shows the default: March 7 remains a flagge
 auditable actual, but March 14 compares with the protected model reference and does
 not flag.
 
-![The same isolated spike with include-all history and robust model-only replacement](docs/images/anomaly-progression-07-robust-outliers.png)
+![The same isolated spike with include-all history and robust model-only replacement](docs/images/anomaly-progression-08-robust-outliers.png)
 
-### 8. Keep regime changes explicit
+### 9. Keep regime changes explicit
 
 Robust handling must not turn “exclude anomalies” into “silently choose a new
 normal.” In the upper panel a persistent level shift remains a departure because
@@ -239,7 +263,7 @@ post-reset evidence is intentionally non-triggering until the new regime has eno
 history. Detection can suggest review, but only an explicit `reset_point` changes
 the operating regime.
 
-![A persistent level shift kept abnormal until a reviewed reset rebuilds the baseline](docs/images/anomaly-progression-08-reviewed-regime.png)
+![A persistent level shift kept abnormal until a reviewed reset rebuilds the baseline](docs/images/anomaly-progression-09-reviewed-regime.png)
 
 #### The implemented rule shapes
 
@@ -303,7 +327,7 @@ not transfer automatically; use chronological replay, including
 `pattern_counts` and `first_detection_by_rule`, to compare detection delay and
 alert burden before operational use. No pattern automatically resets the model.
 
-Regenerate the eight progression PNGs and both rule references with
+Regenerate the nine progression PNGs and both rule references with
 `.venv/Scripts/python examples/render_readme_progression.py` (or the equivalent
 `.venv/bin/python` command on Unix). The renderer is intentionally organized as
 one figure function and one output entry per chapter so this progression can grow.
@@ -338,7 +362,7 @@ Use `.venv/Scripts/anomalyzer` if the executable is not on your PATH, or
 The [example walkthrough](examples/README.md) checks ordinary behavior, a spike,
 a drop, and a sustained change, including the baseline's echo/adaptation limits.
 
-## One baseline, inspectable residual checks
+## Two baseline choices, one inspectable residual stream
 
 The robust expectation for sample `t` uses four previous matching seasonal
 positions, each adjusted to `t` with the training-fitted trend. It drops the
@@ -353,6 +377,28 @@ the single-reference raw baseline. An extreme point's pre-anomaly expectation
 becomes its model-only reference after scoring; the actual remains in evidence.
 A season length of 7 can represent weekly seasonality in daily data. Each
 prediction uses only earlier samples within its manual segment.
+
+Set `recipe` to `adaptive-seasonal-v1` (CLI:
+`--recipe adaptive-seasonal-v1`) when the expected level or growth rate should
+change continuously. For every sample, it uses at most the prior 56 observations
+(`adaptive_window`), computes the median of pairwise slopes separated by at most
+24 samples (`adaptive_slope_lookback`), and projects every observation in that
+window to the next sample. Their median is the general rolling trend. When at
+least three matching seasonal phases exist, their projected median receives 80%
+weight (`adaptive_season_weight`) and the general trend receives 20%. All four
+settings are explicit in structured output. The calculation is causal and
+prefix invariant: future observations never revise an earlier expectation.
+
+The adaptive recipe intentionally freezes the calibration mean and standard
+deviation while updating the expectation. This separates “what value should be
+expected now?” from “how large is an ordinary forecast miss?” An isolated
+calibrated residual beyond 4.5 standard deviations is replaced by its expected
+value in future rolling references. If extreme residuals persist in the same
+direction, the third and later values enter the rolling history so ordinary
+growth or a reviewed operating change can be followed. Nelson Rules 2, 5, and
+6 and CUSUM continue to examine the frozen-calibration residual stream during
+that adaptation. In schema 1.1, overlapping same-direction location rules form
+one early case at their first detection position.
 
 `trend` defaults to `auto`, which fits linear and exponential (compound) trends
 with additive seasonal offsets using only the completed training window. Both
@@ -675,8 +721,9 @@ embedded settings, settings file, CLI flags. Unknown keys and options fail clear
 The former `methods`, `alpha`, and `seed` settings are removed and rejected, as
 is the former `baseline-v1` recipe. CUSUM uses positive `cusum_k` and `cusum_h`
 settings (defaults 0.5 and 5); moving range uses positive
-`moving_range_threshold` (default 3.686). The current recipe is
-`seasonal-residual-v1`; omit the recipe field to use it.
+`moving_range_threshold` (default 3.686). The default frozen recipe is
+`seasonal-residual-v1`; select `adaptive-seasonal-v1` for the causal rolling
+expectation described above.
 Public JSON schemas are in `schemas/`, generated by `scripts/export_schemas.py`.
 
 ## Python API

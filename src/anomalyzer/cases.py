@@ -5,6 +5,7 @@ import json
 from .contracts import (
     Assessment, Case, DatasetResultV11, RelationshipResult, RequestV11,
 )
+from .robust import EXTREME_Z
 
 
 def target_entities(request: RequestV11) -> dict[str, dict[str, str]]:
@@ -66,9 +67,47 @@ def compose_cases(dataset_results: list[DatasetResultV11],
         action = any(assessment.action_eligible for _, _, assessment in items)
         notification = any(assessment.notification_eligible
                            for _, _, assessment in items)
+        strongest = max((assessment.evidence_strength or 0.0
+                         for _, _, assessment in items), default=0.0)
+        independent_datasets = sorted({
+            source_id for kind, source_id, assessment in items
+            if kind == "dataset" and assessment.criterion_met
+        })
+        severity_reasons = []
+        if strongest >= EXTREME_Z:
+            severity_reasons.append(
+                f"standardized evidence reached {strongest:.3g}, at or above "
+                f"the robust extreme threshold {EXTREME_Z:g}")
+        if len(independent_datasets) >= 2:
+            severity_reasons.append(
+                "calibrated or declared criteria were met in multiple source "
+                f"datasets: {', '.join(independent_datasets)}")
+        severity = "critical" if severity_reasons else "warning"
+        if not severity_reasons:
+            severity_reasons.append(
+                "one source criterion or correlated derived relationship was met")
+        source_phrases = []
+        seen_sources = set()
+        for kind, source_id, assessment in sorted(
+                items, key=lambda value: (value[0], value[1], value[2].id)):
+            key = (kind, source_id, assessment.direction)
+            if key in seen_sources:
+                continue
+            seen_sources.add(key)
+            direction = ("was unchanged" if assessment.direction == "unchanged"
+                         else f"{assessment.direction}d")
+            label = (f"source dataset {source_id}" if kind == "dataset"
+                     else f"declared relationship {source_id}")
+            source_phrases.append(f"{label} {direction}")
+        explanation = (
+            f"At {event}, " + "; ".join(source_phrases) + ". "
+            f"Severity is {severity} because " + "; ".join(severity_reasons) + ".")
         revision_material = json.dumps({
             "evidence_refs": refs,
             "maturity": maturity,
+            "severity": severity,
+            "severity_reasons": severity_reasons,
+            "explanation": explanation,
             "action_eligible": action,
             "notification_eligible": notification,
         }, sort_keys=True, separators=(",", ":"))
@@ -84,7 +123,8 @@ def compose_cases(dataset_results: list[DatasetResultV11],
             supporting_evidence=refs, conflicting_evidence=[],
             unavailable_evidence=[],
             correlated_evidence_groups=[correlation_group] if len(correlation_group) > 1 else [],
-            evidence_refs=refs, maturity=maturity,
+            evidence_refs=refs, maturity=maturity, severity=severity,
+            severity_reasons=severity_reasons, explanation=explanation,
             action_eligible=action, notification_eligible=notification,
             suggested_investigation_questions=[
                 "Did collection completeness, entity scope, or unit semantics change?",

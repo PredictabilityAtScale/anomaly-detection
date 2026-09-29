@@ -272,6 +272,60 @@ def figure_three():
     return svg.finish()
 
 
+def figure_adaptive():
+    weekly = [0, 12, -5, 9, 3, -8, -11]
+    variation = [0, .8, -.5, 1.2, -.7, .4, -.3, 1, -.9]
+    values = [200 + .6 * index + .015 * index * index
+              + weekly[index % 7] + variation[index % 9]
+              for index in range(110)]
+    values[80] += 45
+    frozen_request = {
+        "datasets": [{"values": values}],
+        "config": {"season_length": 7, "training_size": 35,
+                   "calibration_size": 14},
+    }
+    adaptive_request = json.loads(json.dumps(frozen_request))
+    adaptive_request["config"]["recipe"] = "adaptive-seasonal-v1"
+    frozen = analyze(frozen_request)
+    adaptive = analyze(adaptive_request)
+    frozen_expected = {row["index"]: row["expected"]
+                       for row in frozen.methods[0].evidence}
+    adaptive_expected = {row["index"]: row["expected"]
+                         for row in adaptive.methods[0].evidence}
+    frozen_flags = {row["index"] for row in frozen.methods[0].evidence
+                    if row["triggers"]}
+    adaptive_flags = {row["index"] for row in adaptive.methods[0].evidence
+                      if row["triggers"]}
+    shared = bounds(values, expected_series(frozen_expected, len(values)),
+                    expected_series(adaptive_expected, len(values)))
+    ticks = [(0, "0"), (49, "49 · calibrated"),
+             (80, "80 · isolated change"), (109, "109")]
+
+    svg = Svg()
+    header(svg, "04", "Update the expectation one step at a time",
+           "A bounded rolling trend follows gradual acceleration while frozen calibration preserves comparable evidence.")
+    chart(svg, values,
+          [(GOLD, expected_series(frozen_expected, len(values)), 2.5, "7 5", 1)],
+          105, 170, 1015, 155, y_bounds=shared, flags=frozen_flags,
+          injected={80}, ticks=[],
+          label=(f"Frozen training trend  ·  {len(frozen_flags)} samples flagged  ·  "
+                 f"held-out MAE {frozen.methods[0].diagnostics['held_out_mae']:.1f}"))
+    chart(svg, values,
+          [(NAVY, expected_series(adaptive_expected, len(values)), 2.5, "7 5", 1)],
+          105, 410, 1015, 155, y_bounds=shared, flags=adaptive_flags,
+          injected={80}, ticks=ticks,
+          label=(f"One-step rolling expectation  ·  {len(adaptive_flags)} samples flagged  ·  "
+                 f"held-out MAE {adaptive.methods[0].diagnostics['held_out_mae']:.1f}"))
+    legend(svg, [("line", BLUE, "actual"),
+                 ("dash", GOLD, "frozen expectation"),
+                 ("dash", NAVY, "rolling expectation"),
+                 ("dot", RED, "flag")], y=632)
+    svg.text(1130, 660,
+             "Every rolling expectation uses only observations available before that point",
+             14, MUTED, anchor="end")
+    return svg.finish()
+
+
 def figure_four():
     request = read_request("steps")
     reset_request = read_request("steps_reset")
@@ -283,7 +337,7 @@ def figure_four():
     ticks = [(0, "Jan 1"), (50, "Feb 20"), (100, "Apr 11"), (149, "May 30")]
 
     svg = Svg()
-    header(svg, "04", "Treat discontinuities as new regimes", "A reviewed change point restarts seasonal history, trend fitting, and calibration.")
+    header(svg, "05", "Treat discontinuities as new regimes", "A reviewed change point restarts seasonal history, trend fitting, and calibration.")
     chart(svg, values, [(GOLD, expected_series(plain_expected, len(values)), 2.5, "7 5", 1)],
           105, 170, 1015, 155, y_bounds=shared, flags=plain_flags, injected=plain_flags,
           ticks=[], label=f"No change points  ·  {len(plain_flags)} samples flagged")
@@ -305,7 +359,7 @@ def figure_five():
     ranked = inference["ranked_candidates"][:5]
 
     svg = Svg()
-    header(svg, "05", "Discover a stable season", "When positional input omits the lag, detrend a prefix, rank candidates, then confirm the winner early.")
+    header(svg, "06", "Discover a stable season", "When positional input omits the lag, detrend a prefix, rank candidates, then confirm the winner early.")
     # The line chart intentionally shows four complete weeks from the inference window.
     sample = values[:28]
     low, high = bounds(sample)
@@ -356,7 +410,7 @@ def figure_six():
                   if pattern["kind"] == "location_shift"}
 
     svg = Svg()
-    header(svg, "06", "Detect a sustained location shift",
+    header(svg, "07", "Detect a sustained location shift",
            "Moderate departures can form a shift pattern even when no single point crosses three sigma.")
     x, y, width, height = 95, 165, 1040, 385
     first, last = min(scores), max(scores)
@@ -413,7 +467,7 @@ def figure_seven():
              (72, "Mar 14"), (89, "Mar 31")]
 
     svg = Svg()
-    header(svg, "07", "Protect the model from an incident",
+    header(svg, "08", "Protect the model from an incident",
            "Score the actual spike, then keep it out of future seasonal references so it cannot echo.")
     chart(svg, values,
           [(GOLD, expected_series(included_expected, len(values)), 2.5, "7 5", 1)],
@@ -458,7 +512,7 @@ def figure_eight():
              (102, "102 · recalibrated"), (119, "119")]
 
     svg = Svg()
-    header(svg, "08", "Do not normalize a new regime automatically",
+    header(svg, "09", "Do not normalize a new regime automatically",
            "A persistent shift stays abnormal until review declares a new baseline.")
     chart(svg, values,
           [(GOLD, expected_series(ordinary_expected, len(values)), 2.5, "7 5", 1)],
@@ -618,11 +672,12 @@ def main():
         "anomaly-progression-01-linear": figure_one(),
         "anomaly-progression-02-linear-seasonality": figure_two(),
         "anomaly-progression-03-compound": figure_three(),
-        "anomaly-progression-04-change-points": figure_four(),
-        "anomaly-progression-05-season-discovery": figure_five(),
-        "anomaly-progression-06-location-shift": figure_six(),
-        "anomaly-progression-07-robust-outliers": figure_seven(),
-        "anomaly-progression-08-reviewed-regime": figure_eight(),
+        "anomaly-progression-04-adaptive": figure_adaptive(),
+        "anomaly-progression-05-change-points": figure_four(),
+        "anomaly-progression-06-season-discovery": figure_five(),
+        "anomaly-progression-07-location-shift": figure_six(),
+        "anomaly-progression-08-robust-outliers": figure_seven(),
+        "anomaly-progression-09-reviewed-regime": figure_eight(),
         "nelson-rules-reference": figure_rule_reference(),
         "residual-detectors-reference": figure_extended_rule_reference(),
     }

@@ -138,11 +138,21 @@ baseline." Keep the exact status available in supporting detail.
 - Business impact is unresolved until the user supplies operational context.
 - For schema 1.1, distinguish an early `departure_candidate` from a calibrated
   `supported_departure` and an exact caller-supplied `criterion_violation`.
-  Early candidates do not create cases. Cases currently group only calibrated
-  point departures and explicit rule violations; sustained pattern findings
-  may remain outside cases. Derived and source evidence can be correlated.
+  Early candidates do not create cases. The frozen recipe groups calibrated
+  point departures and explicit rule violations. With
+  `adaptive-seasonal-v1`, calibrated Nelson/CUSUM location shifts can also
+  create a case before a point crossing; overlapping same-direction rules are
+  grouped once. Derived and source evidence can be correlated. Report case
+  severity from the result: multiple source datasets can raise severity, while
+  relationship evidence adds explanation without being counted as independent
+  confirmation.
+- For `adaptive-seasonal-v1`, report that each expectation uses a bounded
+  causal rolling window and robust median slope/seasonal projections while the
+  residual calibration stays frozen. The first two consecutive extreme misses
+  in one direction are protected from future references; a persistent third
+  miss is admitted so a real change can be followed after detection.
 - Surface detector limitations that affect the result, including baseline echo,
-  adaptation after one season, short history, tiny calibration variance, a
+  rolling-reference adaptation, adaptation after one season, short history, tiny calibration variance, a
   lag-inference fallback, missed multiple seasonalities, or short reset segments.
 
 Report the resolved lag, trend choice, training/calibration windows, point

@@ -76,8 +76,13 @@ Run 'anomalyzer methods --help' for method discovery.
                             help="Value unit label, e.g. calls; overrides JSON units; performs no conversion")
         tuning = sub.add_argument_group("analysis settings", "Defaults below apply unless supplied by JSON configuration.")
         limits = sub.add_argument_group("resource limits", "Defaults below apply unless supplied by JSON configuration.")
-        tuning.add_argument("--recipe", choices=["seasonal-residual-v1", "multi-resolution-v1"],
-                            help="Analysis recipe; multi-resolution derives finalized 24-hour aggregates and an intraday view")
+        tuning.add_argument(
+            "--recipe", choices=["seasonal-residual-v1",
+                                 "adaptive-seasonal-v1",
+                                 "multi-resolution-v1"],
+            help=("Analysis recipe; adaptive-seasonal uses a one-step rolling "
+                  "trend/season reference; multi-resolution derives finalized "
+                  "24-hour aggregates and an intraday view"))
         tuning.add_argument("--aggregate-function", choices=["sum", "mean", "last"],
                             help="How multi-resolution-v1 combines finalized subperiods (default: sum)")
         tuning.add_argument("--aggregate-anchor", metavar="TIMESTAMP",
@@ -89,6 +94,10 @@ Run 'anomalyzer methods --help' for method discovery.
         settings = [
             (tuning, "season-length", int, "SAMPLES", "Baseline lag in samples; positional input infers a stable lag when omitted, then falls back to 1 (1..10000)"),
             (tuning, "robust-reference-seasons", int, "SEASONS", "Prior matching seasons used by the robust baseline; 1 reproduces the former single-reference behavior (1 or 4)"),
+            (tuning, "adaptive-window", int, "SAMPLES", "Recent causal window used by adaptive-seasonal-v1 (3..512)"),
+            (tuning, "adaptive-slope-lookback", int, "SAMPLES", "Maximum sample separation used for adaptive median pairwise slopes (1..128); cannot exceed adaptive-window"),
+            (tuning, "adaptive-season-weight", float, "WEIGHT", "Weight on matching seasonal projections once enough exist (0..1)"),
+            (tuning, "adaptive-min-seasonal-matches", int, "COUNT", "Matching prior seasonal phases required before seasonal blending (1..32)"),
             (tuning, "training-size", int, "SAMPLES", "Initial samples reserved before calibration; effective size is max(training-size, season-length) (at least 2)"),
             (tuning, "calibration-size", int, "SAMPLES", "Following samples used to estimate and freeze residual mean and standard deviation (at least 3)"),
             (tuning, "point-threshold", float, "SCORE", "Flag when absolute standardized residual exceeds this positive threshold; not a probability"),
@@ -180,6 +189,11 @@ Configuration:
   divides 24 hours. It analyzes finalized source samples at their native cadence,
   separately aggregates complete fixed 24-hour periods, and explicitly reports
   the trailing incomplete aggregate without treating it as a completed day.
+  adaptive-seasonal-v1 recomputes a one-step expectation from only the recent
+  history available before each sample. Its rolling median slope and seasonal
+  blend adapt to ordinary growth while calibration remains frozen. Calibrated
+  Nelson location rules and CUSUM can surface a sustained moderate shift before
+  an individual point crosses the point threshold.
 
 Examples (from the repository root, with anomalyzer on PATH):
   # Daily CSV with weekly seasonality
@@ -257,7 +271,7 @@ def build_request(args):
 def _recent_case_lines(result):
     cases = result["cases"]
     if not cases:
-        return ["Recent cases: none from calibrated point departures or explicit rules."]
+        return ["Recent cases: none from calibrated point or location-shift departures or explicit rules."]
 
     definitions = {
         item["id"]: ("dataset", None, item.get("units"))
@@ -276,7 +290,9 @@ def _recent_case_lines(result):
     lines = [f"Recent cases (latest {shown} of {len(cases)}):"]
     for case in reversed(cases[-shown:]):
         entity = ", ".join(f"{key}={value}" for key, value in sorted(case["entity"].items()))
-        lines.append(f"  {case['event_time']} [{entity}] {case['id']}")
+        lines.append(
+            f"  {case['event_time']} [{entity}] {case['id']} "
+            f"severity={case['severity']}")
         for assessment_id in case["supporting_evidence"]:
             assessment = assessments.get(assessment_id)
             if assessment is None:
@@ -292,6 +308,11 @@ def _recent_case_lines(result):
             if baseline["kind"] == "seasonal_residual":
                 detail = (f"observed {observed}{unit_label} vs expected "
                           f"{baseline['expected']:.6g}{unit_label}; calibrated point departure")
+            elif baseline["kind"] == "location_shift_pattern":
+                rules = ", ".join(baseline["rules"])
+                detail = (f"observed {observed}{unit_label} vs expected "
+                          f"{baseline['expected']:.6g}{unit_label}; calibrated "
+                          f"location shift ({rules})")
             else:
                 rules = []
                 for rule in baseline["violations"]:
@@ -306,6 +327,7 @@ def _recent_case_lines(result):
                 rules = ", ".join(rules)
                 detail = f"observed {observed}{unit_label}; crossed declared rule(s): {rules}"
             lines.append(f"    {label}: {detail}")
+        lines.append(f"    Why: {case['explanation']}")
         lines.append(f"    Check: {case['suggested_investigation_questions'][0]}")
     return lines
 
@@ -345,7 +367,7 @@ def readable(result):
                     lines.append(f"    {method['id']} detection readiness: {readiness['status']}")
                     lines.extend(f"      {reason}" for reason in readiness["reasons"])
         lines.append("Detection readiness checks training/calibration reference quality; alert accuracy is unmeasured.")
-        lines.append("Cases come from supported point departures or explicit-rule violations; pattern-only findings do not create cases.")
+        lines.append("Cases come from supported point departures, explicit-rule violations, and under adaptive-seasonal-v1 calibrated Nelson/CUSUM location shifts; overlapping location rules are grouped.")
         lines.append("Business impact: unresolved. Relationship evidence does not establish cause.")
         return "\n".join(lines)
     lines = [f"Analysis: {result['status']}",

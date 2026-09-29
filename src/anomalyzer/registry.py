@@ -41,6 +41,26 @@ def methods():
             "update_semantics": "within each manual segment, robust mode aggregates up to four prior matching phases with trimmed extremes and modest recency weight; include mode uses one prior phase; extreme references may be replaced; trend and calibration are frozen",
             "capability": "batch chronological replay"
         }, {
+            "id": "adaptive_seasonal", "tasks": ["analyze"],
+            "provider": "python standard library", "installed": True,
+            "requirements": {
+                "regular": True, "complete": True,
+                "minimum_reference": "2 observations within a segment",
+                "minimum_calibrated": "max(training_size, season_length) + calibration_size + 1 observations",
+            },
+            "parameters": {
+                "recipe": "adaptive-seasonal-v1",
+                "adaptive_window": "recent causal reference window; default 56 samples",
+                "adaptive_slope_lookback": "maximum separation for median pairwise slopes; default 24 samples",
+                "adaptive_season_weight": "matching-phase blend weight after enough matches; default 0.8",
+                "adaptive_min_seasonal_matches": "matching phases required for blending; default 3",
+                "outlier_handling": "robust replaces extreme calibrated points with their expectations in future reference windows",
+            },
+            "coordinate_support": ["timestamp", "position"],
+            "score_semantics": "one-step rolling forecast residual standardized by a frozen calibration window; not a probability",
+            "update_semantics": "the bounded trend/season expectation updates after each finalized observation while calibration remains frozen",
+            "capability": "adaptive batch chronological replay with early calibrated location-shift cases",
+        }, {
             "id": "multi_resolution", "tasks": ["analyze"],
             "provider": "python standard library", "installed": True,
             "requirements": {"coordinate": "timestamp",

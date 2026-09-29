@@ -28,7 +28,7 @@ def test_methods_and_invalid_options():
     result = run("methods", "--format", "json")
     assert result.returncode == 0
     assert {method["id"] for method in json.loads(result.stdout)["methods"]} == {
-        "seasonal_trend", "multi_resolution"}
+        "seasonal_trend", "adaptive_seasonal", "multi_resolution"}
     assert [d["id"] for d in json.loads(result.stdout)["detectors"]] == [
         "point", "consecutive_run", "nelson_rule_2", "nelson_rule_3",
         "nelson_rule_4", "nelson_rule_5", "nelson_rule_6", "nelson_rule_8",
@@ -124,7 +124,7 @@ def test_schema_11_relationship_request_through_cli():
     assert readable.returncode == 0, readable.stderr
     assert "point-anomaly episodes=" in readable.stdout
     assert "pattern findings=" in readable.stdout
-    assert "pattern-only findings do not create cases" in readable.stdout
+    assert "calibrated Nelson/CUSUM location shifts" in readable.stdout
     assert "Recent cases (latest 1 of 1):" in readable.stdout
     assert "site=demo" in readable.stdout
     assert "relationship conversion (ratio): observed 0.0615385 orders_per_visit vs expected 0.1 orders_per_visit" in readable.stdout

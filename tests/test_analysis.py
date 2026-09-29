@@ -7,7 +7,9 @@ from types import SimpleNamespace
 import pytest
 from jsonschema import validate
 from anomalyzer import Request, analyze
-from anomalyzer.baseline import expected_value, robust_expected_value
+from anomalyzer.baseline import (
+    adaptive_expected_value, expected_value, robust_expected_value,
+)
 from anomalyzer.trend import Trend
 from anomalyzer.contracts import Dataset, Settings, Result
 from anomalyzer.evaluation import replay
@@ -41,6 +43,69 @@ def test_robust_weekly_reference_limits_one_high_week():
 def test_robust_lag_one_uses_prior_seasonal_values():
     assert robust_expected_value([10., 20., 30., 100.], 4, 1, 0,
                                  Trend(), 4) == pytest.approx(25.333333333333332)
+
+
+def test_adaptive_expectation_is_one_step_and_prefix_invariant():
+    values = [100 + 0.5 * index + 2 * (index % 7)
+              for index in range(40)]
+    expected = adaptive_expected_value(
+        values, 30, 7, 0, 28, 12, 0.8, 3)
+    assert expected == pytest.approx(119.4)
+    assert adaptive_expected_value(
+        values + [999] * 20, 30, 7, 0, 28, 12, 0.8, 3) == expected
+
+
+def test_adaptive_recipe_tracks_a_persistent_growth_change(request_factory):
+    seasonal = [0, 3, -2, 5, -1, 2, -4]
+    values = [
+        100 + index + seasonal[index % 7]
+        if index < 42 else
+        142 + 3 * (index - 42) + seasonal[index % 7]
+        for index in range(90)
+    ]
+    frozen = analyze(request_factory(
+        values, season_length=7, training_size=28, calibration_size=14))
+    adaptive = analyze(request_factory(
+        values, recipe="adaptive-seasonal-v1", season_length=7,
+        training_size=28, calibration_size=14))
+    frozen_method = frozen.methods[0]
+    adaptive_method = adaptive.methods[0]
+    assert adaptive_method.id == "adaptive_seasonal"
+    assert adaptive_method.diagnostics["held_out_mae"] < (
+        frozen_method.diagnostics["held_out_mae"] / 2)
+    assert abs(adaptive_method.evidence[-1]["expected"] - values[-1]) < 5
+    assert adaptive_method.diagnostics["outlier_handling"][
+        "adaptive_regime_admissions"]
+
+
+def test_adaptive_recipe_contains_an_isolated_extreme(request_factory):
+    weekly = [0, 5, -2, 3, -1, 2, -4]
+    variation = [0, .5, -.3, .8, -.6, .2]
+    ordinary = [100 + .4 * index + weekly[index % 7]
+                + variation[index % 6] for index in range(90)]
+    changed = ordinary.copy()
+    changed[70] += 100
+    settings = {
+        "recipe": "adaptive-seasonal-v1", "season_length": 7,
+        "training_size": 28, "calibration_size": 14,
+    }
+    control = analyze(request_factory(ordinary, **settings))
+    result = analyze(request_factory(changed, **settings))
+    evidence = {item["index"]: item for item in result.methods[0].evidence}
+    control_evidence = {item["index"]: item
+                        for item in control.methods[0].evidence}
+    assert evidence[70]["excluded_from_model"] is True
+    assert evidence[77]["expected"] == pytest.approx(
+        control_evidence[77]["expected"], abs=.05)
+    assert not result.methods[0].diagnostics["outlier_handling"][
+        "adaptive_regime_admissions"]
+
+
+def test_adaptive_settings_reject_conflicting_or_unbounded_trend():
+    with pytest.raises(ValueError, match="owns its rolling trend"):
+        Settings(recipe="adaptive-seasonal-v1", trend="linear")
+    with pytest.raises(ValueError, match="must not exceed"):
+        Settings(adaptive_window=10, adaptive_slope_lookback=11)
 
 
 def test_calibration_reference(request_factory):

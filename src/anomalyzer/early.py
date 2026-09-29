@@ -4,7 +4,9 @@ from __future__ import annotations
 import statistics
 from typing import Iterable
 
-from .contracts import ActionPolicy, Assessment, ExplicitRule, MethodResult
+from .contracts import (
+    ActionPolicy, AnomalyPattern, Assessment, ExplicitRule, MethodResult,
+)
 
 
 def _direction(change: float | None) -> str:
@@ -185,4 +187,93 @@ def calibrated_assessments(target_id: str, methods: list[MethodResult],
                     "The criterion does not establish a real-world anomaly, cause, "
                     "incident, or business impact."),
                 evidence_refs=[item["id"]]))
+    return assessments
+
+
+def location_pattern_assessments(
+        target_id: str, methods: list[MethodResult],
+        patterns: list[AnomalyPattern], policy: ActionPolicy | None = None,
+        relationship: bool = False) -> list[Assessment]:
+    """Turn overlapping calibrated location rules into one early case signal.
+
+    Nelson location rules and CUSUM can accumulate moderate departures before
+    any individual point crosses the point threshold. Overlapping rules in the
+    same direction are one correlated signal, so they produce one assessment
+    at the earliest detection position rather than several apparent incidents.
+    """
+    policy = policy or ActionPolicy()
+    candidates = [pattern for pattern in patterns
+                  if pattern["kind"] == "location_shift"
+                  and pattern["direction"] in ("increase", "decrease")]
+    groups: list[dict] = []
+    for pattern in sorted(
+            candidates,
+            key=lambda item: (item["direction"], min(item["triggering_samples"]),
+                              item["detection_index"], item["id"])):
+        start = min(pattern["triggering_samples"])
+        stop = max(pattern["triggering_samples"])
+        if (groups and groups[-1]["direction"] == pattern["direction"]
+                and start <= groups[-1]["stop"]):
+            groups[-1]["patterns"].append(pattern)
+            groups[-1]["stop"] = max(groups[-1]["stop"], stop)
+        else:
+            groups.append({"direction": pattern["direction"], "start": start,
+                           "stop": stop, "patterns": [pattern]})
+
+    evidence = {item["index"]: item for method in methods
+                for item in method.evidence
+                if item["signal_maturity"] == "calibrated"}
+    assessments = []
+    for group in groups:
+        patterns_in_group = group["patterns"]
+        detection = min(pattern["detection_index"]
+                        for pattern in patterns_in_group)
+        item = evidence.get(detection)
+        if item is None:
+            continue
+        rules = sorted({pattern["rule"] for pattern in patterns_in_group})
+        pattern_ids = sorted(pattern["id"] for pattern in patterns_in_group)
+        evidence_refs = sorted({ref for pattern in patterns_in_group
+                                for ref in pattern["evidence_refs"]})
+        peak = max(pattern["peak_standardized_residual"]
+                   for pattern in patterns_in_group)
+        action = policy.allow_calibrated_departures
+        assessments.append(Assessment(
+            id=(f"{target_id}:assessment:{detection}:location_shift:"
+                f"{group['direction']}"),
+            target_id=target_id, index=detection,
+            timestamp=item["timestamp"], classification="supported_departure",
+            maturity="calibrated",
+            basis=("declared_relationship" if relationship
+                   else "statistical_baseline"),
+            action_eligible=action,
+            notification_eligible=(
+                action if policy.notification_requires_action else True),
+            criterion_met=True,
+            comparison_population="frozen calibration residual stream",
+            comparison_samples=item["calibration_samples"],
+            baseline={
+                "kind": "location_shift_pattern",
+                "method": item["method"], "expected": item["expected"],
+                "rules": rules, "pattern_ids": pattern_ids,
+                "detection_index": detection,
+            },
+            observed=item["observed"], absolute_change=item["residual"],
+            relative_change=item["relative_deviation"],
+            direction=group["direction"], evidence_strength=peak,
+            evidence_strength_semantics=(
+                "peak absolute standardized residual within overlapping "
+                "calibrated location-shift rules; not a probability or an "
+                "independent-evidence count"),
+            assumptions=[
+                "The declared cadence, seasonal reference, and frozen residual calibration are appropriate.",
+                "Overlapping Nelson and CUSUM findings in one direction are correlated and grouped once.",
+            ],
+            established=(
+                "At least one configured calibrated location-shift rule was met; "
+                "the detection position is the earliest point where that rule could be established."),
+            not_established=(
+                "The numerical shift criterion does not establish a real-world "
+                "anomaly, cause, incident, or business impact."),
+            evidence_refs=evidence_refs))
     return assessments

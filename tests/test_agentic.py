@@ -82,6 +82,89 @@ def test_cases_are_scoped_by_entity_at_the_same_event_time():
     assert len({case.id for case in result.cases}) == 2
 
 
+def test_two_source_datasets_escalate_case_severity():
+    body = request({"a": [10, 10, 20], "b": [5, 5, 15]})
+    for dataset in body["datasets"]:
+        dataset["rules"] = [{
+            "id": "max-step", "kind": "maximum_absolute_change",
+            "threshold": 5,
+        }]
+    result = analyze(body)
+    case = result.cases[-1]
+    assert case.severity == "critical"
+    assert "multiple source datasets" in case.severity_reasons[0]
+    assert "source dataset a increased" in case.explanation
+    assert "source dataset b increased" in case.explanation
+
+
+def test_relationship_evidence_explains_but_does_not_double_count_severity():
+    relationship = {
+        "id": "conversion", "kind": "ratio", "numerator": "orders",
+        "denominator": "visits", "units": "orders_per_visit",
+        "rules": [{"id": "ratio-step", "kind": "maximum_absolute_change",
+                   "threshold": 0.05}],
+    }
+    body = request(
+        {"orders": [10, 10, 2], "visits": [100, 100, 100]},
+        [relationship])
+    body["datasets"][0]["rules"] = [{
+        "id": "orders-step", "kind": "maximum_absolute_change",
+        "threshold": 5,
+    }]
+    result = analyze(body)
+    case = result.cases[-1]
+    assert case.severity == "warning"
+    assert case.contributing_dataset_ids == ["orders"]
+    assert case.contributing_relationship_ids == ["conversion"]
+    assert "declared relationship conversion decreased" in case.explanation
+
+
+def test_adaptive_location_shift_creates_one_early_case_without_point_trigger():
+    noise = [-2, -1, 0, 1, 2, 1, -1]
+    values = ([100 + noise[index % 7] for index in range(50)]
+              + [100.8 + noise[index % 7] for index in range(50, 75)])
+    body = request({"series": values})
+    body["config"] = {
+        "recipe": "adaptive-seasonal-v1", "season_length": 7,
+        "training_size": 28, "calibration_size": 14,
+        "point_threshold": 50, "cusum_h": 5,
+    }
+    result = analyze(body)
+    method = result.dataset_results[0].methods[0]
+    assert not any(item["triggers"] for item in method.evidence)
+    shift_assessments = [
+        item for item in result.dataset_results[0].assessments
+        if item.baseline.get("kind") == "location_shift_pattern"
+    ]
+    assert len(shift_assessments) == 1
+    assert {"cusum", "nelson_rule_5"}.issubset(
+        shift_assessments[0].baseline["rules"])
+    assert len(result.cases) == 1
+    assert shift_assessments[0].index == 51
+    assert result.cases[0].event_time == shift_assessments[0].timestamp
+
+
+def test_adaptive_recipe_runs_for_declared_relationships():
+    values = {
+        "orders": [10.0] * 50 + [12.0] * 25,
+        "visits": [100.0] * 75,
+    }
+    body = request(values, [{
+        "id": "conversion", "kind": "ratio", "numerator": "orders",
+        "denominator": "visits", "units": "orders_per_visit",
+    }])
+    body["config"] = {
+        "recipe": "adaptive-seasonal-v1", "season_length": 7,
+        "training_size": 28, "calibration_size": 14,
+    }
+    result = analyze(body)
+    relationship = result.relationship_results[0]
+    assert relationship.status == "completed"
+    assert relationship.methods[0].id == "relationship:conversion:adaptive_seasonal"
+    assert any(case.contributing_relationship_ids == ["conversion"]
+               for case in result.cases)
+
+
 def test_schema_11_requires_explicit_entity_scope():
     body = request({"a": [1, 2]})
     del body["datasets"][0]["entity"]

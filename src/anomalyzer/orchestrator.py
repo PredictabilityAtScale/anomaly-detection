@@ -12,7 +12,10 @@ from .cases import compose_cases, target_entities
 from .contracts import (
     DatasetResultV11, RelationshipResult, RequestV11, ResultV11,
 )
-from .early import calibrated_assessments, descriptive_assessments
+from .early import (
+    calibrated_assessments, descriptive_assessments,
+    location_pattern_assessments,
+)
 from .recipes import _namespace_result, analyze_dataset
 from .registry import versions
 from .relationships import derive
@@ -81,8 +84,11 @@ def _shift_result_indexes(result, offset):
 
 def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
     request = RequestV11.model_validate(request)
-    if request.config.recipe != "seasonal-residual-v1":
-        raise ValueError("schema 1.1 relationships currently require seasonal-residual-v1")
+    if request.config.recipe not in (
+            "seasonal-residual-v1", "adaptive-seasonal-v1"):
+        raise ValueError(
+            "schema 1.1 relationships require seasonal-residual-v1 or "
+            "adaptive-seasonal-v1")
     started = time.perf_counter()
     budget = RuntimeBudget(request.config.max_runtime_seconds)
     canonical = _canonical_request(request)
@@ -106,6 +112,10 @@ def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
                 request.policy)
             assessments.extend(calibrated_assessments(
                 dataset.id, result.methods, request.policy))
+            if request.config.recipe == "adaptive-seasonal-v1":
+                assessments.extend(location_pattern_assessments(
+                    dataset.id, result.methods, result.anomaly_patterns,
+                    request.policy))
             dataset_results.append(DatasetResultV11(
                 dataset_id=dataset.id, status=result.status,
                 data_quality=result.data_quality, methods=result.methods,
@@ -133,6 +143,10 @@ def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
             assessments.extend(calibrated_assessments(
                 relationship.id, result.methods, request.policy,
                 relationship=True))
+            if request.config.recipe == "adaptive-seasonal-v1":
+                assessments.extend(location_pattern_assessments(
+                    relationship.id, result.methods, result.anomaly_patterns,
+                    request.policy, relationship=True))
             if quality["available_count"] == 0 or quality["latest_evidence_state"] == "insufficient_evidence":
                 status = "insufficient_evidence"
             elif quality["unavailable_count"] and result.status == "inapplicable":
@@ -191,6 +205,7 @@ def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
         limitations=[
             "Assessment strength is not a probability or universal confidence percentage.",
             "Early descriptive candidates are non-triggering and cannot create a case.",
+            "With adaptive-seasonal-v1, calibrated Nelson location rules and CUSUM can create a case before a point threshold; overlapping rules are grouped as correlated evidence.",
             "Cases group evidence deterministically; they do not assert causality or resolved business impact.",
             "Review state is unreviewed unless an external reviewer updates it."],
         runtime_seconds=time.perf_counter() - started,
