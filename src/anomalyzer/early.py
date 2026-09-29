@@ -223,6 +223,9 @@ def location_pattern_assessments(
     evidence = {item["index"]: item for method in methods
                 for item in method.evidence
                 if item["signal_maturity"] == "calibrated"}
+    evidence_by_id = {item["id"]: item for method in methods
+                      for item in method.evidence
+                      if item["signal_maturity"] == "calibrated"}
     assessments = []
     for group in groups:
         patterns_in_group = group["patterns"]
@@ -231,12 +234,21 @@ def location_pattern_assessments(
         item = evidence.get(detection)
         if item is None:
             continue
-        rules = sorted({pattern["rule"] for pattern in patterns_in_group})
-        pattern_ids = sorted(pattern["id"] for pattern in patterns_in_group)
-        evidence_refs = sorted({ref for pattern in patterns_in_group
-                                for ref in pattern["evidence_refs"]})
-        peak = max(pattern["peak_standardized_residual"]
-                   for pattern in patterns_in_group)
+        detected_patterns = [
+            pattern for pattern in patterns_in_group
+            if pattern["detection_index"] == detection
+        ]
+        rules = sorted({pattern["rule"] for pattern in detected_patterns})
+        pattern_ids = sorted(pattern["id"] for pattern in detected_patterns)
+        evidence_refs = sorted({
+            ref for pattern in detected_patterns
+            for ref in pattern["evidence_refs"]
+            if ref in evidence_by_id
+            and evidence_by_id[ref]["index"] <= detection
+        })
+        peak = max(
+            abs(evidence_by_id[ref]["standardized_residual"])
+            for ref in evidence_refs)
         action = policy.allow_calibrated_departures
         assessments.append(Assessment(
             id=(f"{target_id}:assessment:{detection}:location_shift:"

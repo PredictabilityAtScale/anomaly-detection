@@ -137,11 +137,35 @@ def test_adaptive_location_shift_creates_one_early_case_without_point_trigger():
         if item.baseline.get("kind") == "location_shift_pattern"
     ]
     assert len(shift_assessments) == 1
-    assert {"cusum", "nelson_rule_5"}.issubset(
-        shift_assessments[0].baseline["rules"])
+    assert shift_assessments[0].baseline["rules"] == ["nelson_rule_5"]
     assert len(result.cases) == 1
     assert shift_assessments[0].index == 51
     assert result.cases[0].event_time == shift_assessments[0].timestamp
+
+
+def test_location_case_severity_does_not_use_future_pattern_peak():
+    noise = [-2, -1, 0, 1, 2, 1, -1]
+    values = ([100 + noise[index % 7] for index in range(50)]
+              + [100.8 + noise[index % 7] for index in range(50, 65)]
+              + [120 + noise[index % 7] for index in range(65, 75)])
+    body = request({"series": values})
+    body["config"] = {
+        "recipe": "adaptive-seasonal-v1", "season_length": 7,
+        "training_size": 28, "calibration_size": 14,
+        "point_threshold": 50, "cusum_h": 5,
+    }
+    result = analyze(body)
+    shift = next(
+        item for item in result.dataset_results[0].assessments
+        if item.baseline.get("kind") == "location_shift_pattern")
+    evidence = {
+        item["id"]: item for item in result.dataset_results[0].methods[0].evidence
+    }
+    assert all(evidence[ref]["index"] <= shift.index
+               for ref in shift.evidence_refs)
+    assert shift.evidence_strength == max(
+        abs(evidence[ref]["standardized_residual"])
+        for ref in shift.evidence_refs)
 
 
 def test_adaptive_recipe_runs_for_declared_relationships():
