@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1842" height="1190" viewBox="0 0 1842 1190" role="img" aria-labelledby="title desc">
+<title id="title">Anomalyzer capability dependencies</title>
+<desc id="desc">Static capability map. Arrows lead from a dependency to the capability that uses it. Colors reflect saved acceptance coverage, not detection accuracy. Open the interactive map for evidence.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8"/></marker></defs>
+<style>text {font-family:Segoe UI,Arial,sans-serif;fill:#0f172a} .heading {font-size:30px;font-weight:700} .note {font-size:17px;fill:#475569} .label {font-size:17px;font-weight:600} .scope {font-size:13px;fill:#64748b}</style>
+<rect width="1842" height="1190" fill="#f8fafc"/>
+<text x="36" y="50" class="heading">Anomalyzer capability dependencies</text>
+<text x="36" y="82" class="note">Dependency → dependent capability · 26 capabilities · 30 dependencies</text>
+<circle cx="43" cy="118" r="6" fill="#059669"/>
+<text x="59" y="124" class="note">Full coverage</text>
+<circle cx="293" cy="118" r="6" fill="#d97706"/>
+<text x="309" y="124" class="note">Partial coverage</text>
+<circle cx="543" cy="118" r="6" fill="#e11d48"/>
+<text x="559" y="124" class="note">Not covered</text>
+<path d="M276,566.0 C309.0,566.0 309.0,216.0 339,216.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M276,566.0 C309.0,566.0 309.0,356.0 339,356.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,636.0 H600 V1000 H936 V636.0 H951" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M888,286.0 C921.0,286.0 921.0,636.0 951,636.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M276,566.0 C309.0,566.0 309.0,496.0 339,496.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M276,566.0 C309.0,566.0 309.0,636.0 339,636.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M276,706.0 C309.0,706.0 309.0,916.0 339,916.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,216.0 C615.0,216.0 615.0,286.0 645,286.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M276,706.0 C309.0,706.0 309.0,776.0 339,776.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,496.0 C615.0,496.0 615.0,566.0 645,566.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,496.0 H600 V1008 H1242 V496.0 H1257" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M1194,636.0 C1227.0,636.0 1227.0,496.0 1257,496.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,636.0 C615.0,636.0 615.0,846.0 645,846.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,216.0 H600 V1016 H936 V356.0 H951" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,216.0 H600 V1024 H936 V496.0 H951" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,216.0 H600 V1032 H1242 V356.0 H1257" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,356.0 H600 V1040 H1548 V356.0 H1563" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,356.0 C615.0,356.0 615.0,426.0 645,426.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,216.0 C615.0,216.0 615.0,426.0 645,426.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,776.0 H600 V1048 H936 V776.0 H951" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,356.0 H600 V1056 H936 V776.0 H951" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M276,566.0 H294 V1064 H630 V706.0 H645" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M888,566.0 H906 V1072 H1242 V776.0 H1257" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M1194,636.0 C1227.0,636.0 1227.0,776.0 1257,776.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M1500,496.0 C1533.0,496.0 1533.0,496.0 1563,496.0" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M888,846.0 H906 V1080 H1548 V636.0 H1563" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M1194,636.0 H1212 V1088 H1548 V636.0 H1563" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,916.0 H600 V1096 H1242 V636.0 H1257" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,216.0 H600 V1104 H1242 V636.0 H1257" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M582,916.0 H600 V1112 H1548 V776.0 H1563" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<g data-capability="analysis/expectations/select-season-length">
+<title>Use a declared season or infer a positional season (full)</title>
+<rect x="36" y="370.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="50" y="394.0" class="label">Use a declared season or</text>
+<text x="50" y="414.0" class="label">infer a positional season</text>
+<text x="50" y="472.0" class="scope">analysis/expectations</text></g>
+<g data-capability="data/inputs/accept-analysis-requests">
+<title>Accept numeric series and explicit analysis requests (full)</title>
+<rect x="36" y="510.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="50" y="534.0" class="label">Accept numeric series and</text>
+<text x="50" y="554.0" class="label">explicit analysis requests</text>
+<text x="50" y="612.0" class="scope">data/inputs</text></g>
+<g data-capability="data/quality/prepare-timestamped-series">
+<title>Prepare timestamps, duplicates, and event-time cutoffs (full)</title>
+<rect x="36" y="650.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="50" y="674.0" class="label">Prepare timestamps,</text>
+<text x="50" y="694.0" class="label">duplicates, and event-time</text>
+<text x="50" y="714.0" class="label">cutoffs</text>
+<text x="50" y="752.0" class="scope">data/quality</text></g>
+<g data-capability="analysis/evidence/calibrate-departures">
+<title>Separate early references from calibrated departures (full)</title>
+<rect x="342" y="160.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="356" y="184.0" class="label">Separate early references</text>
+<text x="356" y="204.0" class="label">from calibrated departures</text>
+<text x="356" y="262.0" class="scope">analysis/evidence</text></g>
+<g data-capability="analysis/expectations/model-seasonal-level-and-growth">
+<title>Establish expectations for seasonal levels and growth (full)</title>
+<rect x="342" y="300.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="356" y="324.0" class="label">Establish expectations for</text>
+<text x="356" y="344.0" class="label">seasonal levels and growth</text>
+<text x="356" y="402.0" class="scope">analysis/expectations</text></g>
+<g data-capability="interfaces/python/analyze-through-public-api">
+<title>Analyze data through the public Python API (full)</title>
+<rect x="342" y="440.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="356" y="464.0" class="label">Analyze data through the</text>
+<text x="356" y="484.0" class="label">public Python API</text>
+<text x="356" y="542.0" class="scope">interfaces/python</text></g>
+<g data-capability="investigation/assessments/describe-early-changes">
+<title>Describe early changes before calibration (full)</title>
+<rect x="342" y="580.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="356" y="604.0" class="label">Describe early changes</text>
+<text x="356" y="624.0" class="label">before calibration</text>
+<text x="356" y="682.0" class="scope">investigation/assessments</text></g>
+<g data-capability="data/quality/exclude-incomplete-periods">
+<title>Keep unfinished periods visible without scoring them (full)</title>
+<rect x="342" y="720.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="356" y="744.0" class="label">Keep unfinished periods</text>
+<text x="356" y="764.0" class="label">visible without scoring</text>
+<text x="356" y="784.0" class="label">them</text>
+<text x="356" y="822.0" class="scope">data/quality</text></g>
+<g data-capability="relationships/quality/require-compatible-sources">
+<title>Require compatible relationship sources (full)</title>
+<rect x="342" y="860.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="356" y="884.0" class="label">Require compatible</text>
+<text x="356" y="904.0" class="label">relationship sources</text>
+<text x="356" y="962.0" class="scope">relationships/quality</text></g>
+<g data-capability="analysis/detection/identify-residual-patterns">
+<title>Identify sustained shifts and other residual patterns (full)</title>
+<rect x="648" y="230.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="662" y="254.0" class="label">Identify sustained shifts</text>
+<text x="662" y="274.0" class="label">and other residual</text>
+<text x="662" y="294.0" class="label">patterns</text>
+<text x="662" y="332.0" class="scope">analysis/detection</text></g>
+<g data-capability="analysis/expectations/reset-declared-regimes">
+<title>Restart expectations at declared regime boundaries (full)</title>
+<rect x="648" y="370.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="662" y="394.0" class="label">Restart expectations at</text>
+<text x="662" y="414.0" class="label">declared regime boundaries</text>
+<text x="662" y="472.0" class="scope">analysis/expectations</text></g>
+<g data-capability="interfaces/cli/analyze-files-and-streams">
+<title>Analyze files and streams from the command line (full)</title>
+<rect x="648" y="510.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="662" y="534.0" class="label">Analyze files and streams</text>
+<text x="662" y="554.0" class="label">from the command line</text>
+<text x="662" y="612.0" class="scope">interfaces/cli</text></g>
+<g data-capability="execution/resilience/retain-evidence-under-failure-and-limits">
+<title>Retain useful evidence under failures and resource limits (full)</title>
+<rect x="648" y="650.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="662" y="674.0" class="label">Retain useful evidence</text>
+<text x="662" y="694.0" class="label">under failures and</text>
+<text x="662" y="714.0" class="label">resource limits</text>
+<text x="662" y="752.0" class="scope">execution/resilience</text></g>
+<g data-capability="investigation/rules/check-declared-numerical-rules">
+<title>Check caller-declared numerical rules (full)</title>
+<rect x="648" y="790.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="662" y="814.0" class="label">Check caller-declared</text>
+<text x="662" y="834.0" class="label">numerical rules</text>
+<text x="662" y="892.0" class="scope">investigation/rules</text></g>
+<g data-capability="analysis/detection/report-point-anomaly-episodes">
+<title>Detect point departures and group adjacent episodes (full)</title>
+<rect x="954" y="300.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="968" y="324.0" class="label">Detect point departures</text>
+<text x="968" y="344.0" class="label">and group adjacent</text>
+<text x="968" y="364.0" class="label">episodes</text>
+<text x="968" y="402.0" class="scope">analysis/detection</text></g>
+<g data-capability="analysis/evidence/assess-reference-readiness">
+<title>Explain whether the reference deserves confidence (full)</title>
+<rect x="954" y="440.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="968" y="464.0" class="label">Explain whether the</text>
+<text x="968" y="484.0" class="label">reference deserves</text>
+<text x="968" y="504.0" class="label">confidence</text>
+<text x="968" y="542.0" class="scope">analysis/evidence</text></g>
+<g data-capability="investigation/cases/group-related-evidence">
+<title>Group qualifying evidence into scoped investigation cases (full)</title>
+<rect x="954" y="580.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="968" y="604.0" class="label">Group qualifying evidence</text>
+<text x="968" y="624.0" class="label">into scoped investigation</text>
+<text x="968" y="644.0" class="label">cases</text>
+<text x="968" y="682.0" class="scope">investigation/cases</text></g>
+<g data-capability="analysis/resolution/monitor-within-unfinished-days">
+<title>Analyze subperiods alongside completed daily aggregates (full)</title>
+<rect x="954" y="720.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="968" y="744.0" class="label">Analyze subperiods</text>
+<text x="968" y="764.0" class="label">alongside completed daily</text>
+<text x="968" y="784.0" class="label">aggregates</text>
+<text x="968" y="822.0" class="scope">analysis/resolution</text></g>
+<g data-capability="analysis/expectations/adapt-to-changing-growth">
+<title>Update expectations as recent growth changes (full)</title>
+<rect x="1260" y="300.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1274" y="324.0" class="label">Update expectations as</text>
+<text x="1274" y="344.0" class="label">recent growth changes</text>
+<text x="1274" y="402.0" class="scope">analysis/expectations</text></g>
+<g data-capability="interfaces/mcp/investigate-findings-and-evidence">
+<title>Investigate findings through compact MCP tools (full)</title>
+<rect x="1260" y="440.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1274" y="464.0" class="label">Investigate findings</text>
+<text x="1274" y="484.0" class="label">through compact MCP tools</text>
+<text x="1274" y="542.0" class="scope">interfaces/mcp</text></g>
+<g data-capability="relationships/comparisons/compare-declared-metrics">
+<title>Compare rates, gaps, supplied expectations, and joint conditions (full)</title>
+<rect x="1260" y="580.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1274" y="604.0" class="label">Compare rates, gaps,</text>
+<text x="1274" y="624.0" class="label">supplied expectations, and</text>
+<text x="1274" y="644.0" class="label">joint conditions</text>
+<text x="1274" y="682.0" class="scope">relationships/comparisons</text></g>
+<g data-capability="interfaces/cli/explain-findings-in-readable-output">
+<title>Explain evidence in readable CLI output (full)</title>
+<rect x="1260" y="720.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1274" y="744.0" class="label">Explain evidence in</text>
+<text x="1274" y="764.0" class="label">readable CLI output</text>
+<text x="1274" y="822.0" class="scope">interfaces/cli</text></g>
+<g data-capability="analysis/expectations/protect-reference-from-extremes">
+<title>Protect future references from extreme observations (full)</title>
+<rect x="1566" y="300.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1580" y="324.0" class="label">Protect future references</text>
+<text x="1580" y="344.0" class="label">from extreme observations</text>
+<text x="1580" y="402.0" class="scope">analysis/expectations</text></g>
+<g data-capability="interfaces/mcp/connect-read-only-local-server">
+<title>Connect a client to the read-only local MCP server (full)</title>
+<rect x="1566" y="440.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1580" y="464.0" class="label">Connect a client to the</text>
+<text x="1580" y="484.0" class="label">read-only local MCP server</text>
+<text x="1580" y="542.0" class="scope">interfaces/mcp</text></g>
+<g data-capability="investigation/policy/replay-action-eligibility">
+<title>Replay action and notification eligibility (full)</title>
+<rect x="1566" y="580.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1580" y="604.0" class="label">Replay action and</text>
+<text x="1580" y="624.0" class="label">notification eligibility</text>
+<text x="1580" y="682.0" class="scope">investigation/policy</text></g>
+<g data-capability="relationships/comparisons/evaluate-delayed-response">
+<title>Evaluate a declared delayed response (full)</title>
+<rect x="1566" y="720.0" width="240" height="112" rx="10" fill="white" stroke="#059669" stroke-width="2"/>
+<text x="1580" y="744.0" class="label">Evaluate a declared</text>
+<text x="1580" y="764.0" class="label">delayed response</text>
+<text x="1580" y="822.0" class="scope">relationships/comparisons</text></g>
+<text x="36" y="1154" class="note">Coverage reflects saved reviews, not detection accuracy. Open the interactive map for acceptance criteria and evidence.</text>
+</svg>

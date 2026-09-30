@@ -72,15 +72,17 @@ not support `reset_points`; both other recipes support explicit resets.
 The CapabilityKit maps describe Anomalyzer's observable behavior, acceptance
 criteria, implementation evidence, and dependencies.
 
-- [Interactive dependency map](.capabilities/dependency-viewer.html): explore
+- [Interactive dependency map](https://predictabilityatscale.github.io/anomaly-detection/dependency-viewer.html): explore
   dependencies and inspect each capability's acceptance coverage.
-- [Interactive capability map](.capabilities/story-map-viewer.html): browse
+- [Interactive capability map](https://predictabilityatscale.github.io/anomaly-detection/story-map-viewer.html): browse
   capabilities and their review evidence.
 
-Open the HTML files from a local checkout in your browser to use the interactive
-viewers. The dependency graph below provides an embedded preview.
+The static preview below links to the hosted interactive dependency map. Coverage
+reflects saved capability reviews, not detection accuracy. The viewers also work
+locally: open [.capabilities/dependency-viewer.html](.capabilities/dependency-viewer.html)
+or [.capabilities/story-map-viewer.html](.capabilities/story-map-viewer.html) from a checkout.
 
-[![Anomalyzer capability dependency graph](.capabilities/dependency-graph.svg)](.capabilities/dependency-viewer.html)
+[![Anomalyzer capability dependency graph](.capabilities/dependency-preview.svg)](https://predictabilityatscale.github.io/anomaly-detection/dependency-viewer.html)
 
 ## The progression
 

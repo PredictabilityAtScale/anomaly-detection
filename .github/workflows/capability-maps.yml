@@ -1,0 +1,61 @@
+name: Capability maps
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.capabilities/**'
+      - 'docs/capability-maps/**'
+      - 'scripts/export_capability_preview.py'
+      - '.github/workflows/capability-maps.yml'
+  pull_request:
+    paths:
+      - '.capabilities/**'
+      - 'docs/capability-maps/**'
+      - 'scripts/export_capability_preview.py'
+      - '.github/workflows/capability-maps.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capability-maps-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Check static preview
+        run: python scripts/export_capability_preview.py --check
+      - name: Assemble public map files
+        run: |
+          mkdir -p _site
+          cp docs/capability-maps/index.html _site/index.html
+          cp .capabilities/dependency-viewer.html _site/dependency-viewer.html
+          cp .capabilities/story-map-viewer.html _site/story-map-viewer.html
+          cp .capabilities/dependency-preview.svg _site/dependency-preview.svg
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy maps
+        id: deployment
+        uses: actions/deploy-pages@v4

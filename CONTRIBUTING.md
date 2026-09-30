@@ -37,6 +37,23 @@ compiled output. Read [the local guide](docs/capabilitykit/SKILL.md) for review 
 dependency workflows. `implemented` records existing behavior; passing selected
 tests alone does not mean a capability has been semantically verified.
 
+After updating capabilities or their review evidence, regenerate the interactive
+maps and the static README preview:
+
+```bash
+capabilitykit graph-viewer
+capabilitykit story-map-viewer
+python scripts/export_capability_preview.py
+```
+
+Commit all three viewer exports and `.capabilities/dependency-preview.svg`.
+The preview contains pre-rendered nodes and edges because SVG image embeds do not
+execute JavaScript. `python scripts/export_capability_preview.py --check` checks
+that it matches the graph export. The Capability maps workflow checks the preview
+on pull requests and publishes the two HTML viewers, preview, and landing page
+to GitHub Pages after changes reach `main`. Repository Settings → Pages must use
+**GitHub Actions** as the publishing source.
+
 - Add or update tests for behavior changes.
 - Keep analysis causal: an observation must not influence its own baseline.
 - Preserve deterministic numerical output except for documented runtime values
