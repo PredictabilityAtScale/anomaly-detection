@@ -47,8 +47,9 @@ python scripts/export_capability_preview.py
 ```
 
 Commit all three viewer exports and `.capabilities/dependency-preview.svg`.
-The preview contains pre-rendered nodes and edges because SVG image embeds do not
-execute JavaScript. `python scripts/export_capability_preview.py --check` checks
+The preview freezes the original bubble graph's force layout into pre-rendered
+nodes and edges because SVG image embeds do not execute JavaScript.
+`python scripts/export_capability_preview.py --check` checks
 that it matches the graph export. The Capability maps workflow checks the preview
 on pull requests and publishes the two HTML viewers, preview, and landing page
 to GitHub Pages after changes reach `main`. Repository Settings → Pages must use
