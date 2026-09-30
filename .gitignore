@@ -10,3 +10,9 @@ dist/
 .codex-output/
 .uv-cache/
 work/
+
+# Local analysis data, results, and uploaded reference images
+/analysis/
+/.codex-remote-attachments/
+/usagetap-visits-*.csv
+/usagetap-visits-*-result.json
