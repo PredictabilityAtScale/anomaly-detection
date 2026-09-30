@@ -1,0 +1,52 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Analysis applies cooperative resource limits and exposes partial or failed results without discarding valid earlier or sibling evidence.",
+  "criteria": [
+    {
+      "criterion": "A method failure preserves evidence completed before the failure and reports the error.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:400",
+        "src/anomalyzer/recipes.py:448",
+        "tests/test_analysis.py:509"
+      ]
+    },
+    {
+      "criterion": "Runtime budgets are checked cooperatively and produce an explicit stop reason.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/budget.py:18",
+        "src/anomalyzer/recipes.py:108",
+        "src/anomalyzer/recipes.py:508",
+        "tests/test_analysis.py:509"
+      ]
+    },
+    {
+      "criterion": "CLI byte limits and execution failures produce distinct error exits.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/io.py:9",
+        "src/anomalyzer/cli.py:429",
+        "tests/test_cli.py:108"
+      ]
+    },
+    {
+      "criterion": "A failed dataset or relationship leaves healthy sibling results available and marks the overall run partial.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/orchestrator.py:125",
+        "src/anomalyzer/orchestrator.py:171",
+        "src/anomalyzer/orchestrator.py:185",
+        "tests/test_capability_behaviors.py:159",
+        "tests/test_capability_behaviors.py:30"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Inspected failure/budget and sibling-failure tests and error handlers: retained evidence through index 44, explicit runtime_budget, and healthy sibling results; budget checks are cooperative."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

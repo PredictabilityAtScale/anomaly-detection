@@ -47,19 +47,22 @@ def derive(relationship: Relationship,
     if relationship.kind == "lagged_response" and coefficient is None:
         response, predictor = sources
         training_size = relationship.training_size
-        pairs = []
-        for index in range(relationship.lag, min(len(times), training_size + relationship.lag)):
-            x = predictor.values[index - relationship.lag]
-            y = response.values[index]
-            if x is not None and y is not None:
-                pairs.append((x, y))
-        denominator = math.fsum(x * x for x, _ in pairs)
-        if len(pairs) < 2 or denominator == 0:
-            raise ValueError("lagged-response training prefix cannot estimate a coefficient")
-        coefficient = math.fsum(x * y for x, y in pairs) / denominator
         coefficient_cutoff = relationship.lag + training_size - 1
+        training_complete = len(times) > coefficient_cutoff
+        if training_complete:
+            pairs = []
+            for index in range(relationship.lag, coefficient_cutoff + 1):
+                x = predictor.values[index - relationship.lag]
+                y = response.values[index]
+                if x is not None and y is not None:
+                    pairs.append((x, y))
+            denominator = math.fsum(x * x for x, _ in pairs)
+            if len(pairs) < 2 or denominator == 0:
+                raise ValueError("lagged-response training prefix cannot estimate a coefficient")
+            coefficient = math.fsum(x * y for x, y in pairs) / denominator
         parameters = {
-            "coefficient": coefficient, "coefficient_source": "estimated",
+            "coefficient": coefficient,
+            "coefficient_source": "estimated" if training_complete else "pending_training",
             "training_size": training_size,
             "training_cutoff_index": coefficient_cutoff,
             "fit": "least_squares_through_origin",
@@ -113,7 +116,8 @@ def derive(relationship: Relationship,
             response, predictor = sources
             lag = relationship.lag
             predictor_index = index - lag
-            formula = (f"{relationship.response}[t] - {coefficient} * "
+            factor = coefficient if coefficient is not None else "pending_coefficient"
+            formula = (f"{relationship.response}[t] - {factor} * "
                        f"{relationship.predictor}[t-{lag}]")
             if predictor_index < 0:
                 used = [(response, index)]

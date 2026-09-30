@@ -1,0 +1,105 @@
+title: Establish expectations for seasonal levels and growth
+status: implemented
+summary: The default recipe builds an expectation from earlier matching seasonal
+  observations and a training-fitted level, linear, or compound-growth model.
+intent: Distinguish unusual departures from ordinary repeating patterns and growth.
+acceptance:
+  - A supplied season length selects earlier matching seasonal observations for
+    the reference.
+  - Automatic trend selection represents suitable linear and compound growth
+    without flagging ordinary growth as point anomalies.
+  - The fitted trend remains frozen after training within a regime; later
+    changed values do not rewrite that fit.
+  - Callers can explicitly select none, linear, or exponential trend, and
+    unsupported trend modes are rejected.
+guidance:
+  - Expectations support scoring; they are not a standalone forecasting API.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/expectations/model-seasonal-level-and-growth
+  # run deterministic review only: capabilitykit review analysis/expectations/model-seasonal-level-and-growth --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/expectations/model-seasonal-level-and-growth --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/expectations/model-seasonal-level-and-growth --input review.json
+  # -----------------------------
+  depends_on:
+    - data/inputs/accept-analysis-requests
+  implementation:
+    references:
+      - src/anomalyzer/baseline.py
+      - src/anomalyzer/trend.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_trend.py
+  verification:
+    automated:
+      - id: seasonal-reference
+        description: Check independent lagged-reference values.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_forecast_independent_reference
+      - id: growth-and-departures
+        description: Keep clean linear and compound growth ordinary while identifying
+          injected departures.
+        command: python -m pytest -q tests/test_trend.py::test_trend_and_anomalies
+      - id: frozen-fit
+        description: Keep the training fit stable when later observations change.
+        command: python -m pytest -q
+          tests/test_trend.py::test_frozen_fit_and_legacy_mode
+      - id: explicit-trends
+        description: Accept supported trend choices and handle short, constant, and
+          signed series.
+        command: python -m pytest -q
+          tests/test_trend.py::test_explicit_modes_and_validation
+          tests/test_trend.py::test_short_history_constant_and_signed_linear
+    manual:
+      - Compare examples/growth_up.json and examples/compound.json with their
+        selected trend and evidence expectations.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected growth_up and compound: linear/exponential selections
+        respectively, zero point episodes and zero patterns."
+    intent_summary: The default recipe builds an expectation from earlier matching
+      seasonal observations and a training-fitted level, linear, or
+      compound-growth model.
+    criteria:
+      - criterion: A supplied season length selects earlier matching seasonal
+          observations for the reference.
+        status: covered
+        evidence:
+          - src/anomalyzer/baseline.py:8
+          - src/anomalyzer/baseline.py:31
+          - tests/test_analysis.py:21
+      - criterion: Automatic trend selection represents suitable linear and compound
+          growth without flagging ordinary growth as point anomalies.
+        status: covered
+        evidence:
+          - src/anomalyzer/trend.py:120
+          - src/anomalyzer/trend.py:144
+          - tests/test_trend.py:11
+      - criterion: The fitted trend remains frozen after training within a regime; later
+          changed values do not rewrite that fit.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:162
+          - tests/test_trend.py:36
+      - criterion: Callers can explicitly select none, linear, or exponential trend, and
+          unsupported trend modes are rejected.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:20
+          - tests/test_trend.py:49
+          - tests/test_trend.py:57
+    done: true
+    input_fingerprint: 6457b655a192216bfaf19b7cf1161c9fb5dce02d244314a793d3dc3892d5d5b3
+    mode: quick

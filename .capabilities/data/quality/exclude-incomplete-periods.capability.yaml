@@ -1,0 +1,103 @@
+title: Keep unfinished periods visible without scoring them
+status: implemented
+summary: Explicitly incomplete trailing observations are reported as data
+  quality evidence and excluded from completed-series analysis.
+intent: Prevent an unfinished period from appearing to be an unexplained drop.
+acceptance:
+  - Incomplete observations form a trailing suffix after chronological
+    preparation.
+  - The observed values and timestamps of unfinished periods remain available in
+    data quality output.
+  - Incomplete source samples are excluded from expectations, calibration, point
+    scoring, and completed aggregates.
+  - A relationship with an unavailable latest source reports that unavailability
+    rather than normal behavior.
+guidance:
+  - Completeness is declared by the caller; the engine does not infer collection
+    completeness.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review data/quality/exclude-incomplete-periods
+  # run deterministic review only: capabilitykit review data/quality/exclude-incomplete-periods --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review data/quality/exclude-incomplete-periods --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result data/quality/exclude-incomplete-periods --input review.json
+  # -----------------------------
+  depends_on:
+    - data/quality/prepare-timestamped-series
+  implementation:
+    references:
+      - src/anomalyzer/validation.py
+      - src/anomalyzer/alignment.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_mcp.py
+  verification:
+    automated:
+      - id: unfinished-values
+        description: Retain an unfinished value without scoring it.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_explicit_incomplete_period_is_reported_and_not_scored
+      - id: trailing-only
+        description: Reject incomplete observations followed by completed observations.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_incomplete_periods_must_be_trailing
+      - id: source-and-agent-views
+        description: Exclude a partial source sample from both analysis views and expose
+          unavailable relationship evidence.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_multi_resolution_marks_partial_source_sample_after_full_days
+          tests/test_mcp.py::test_agent_sees_unavailable_latest_evidence
+    manual:
+      - Inspect examples/agentic/incomplete-usage.json and confirm the latest
+        headline explains missing completeness and does not imply normality.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected incomplete-usage MCP drilldown: partial run and latest
+        relationship evidence unavailable, with explicit unavailable lineage
+        instead of a normality claim."
+    intent_summary: Explicitly incomplete trailing observations are reported as data
+      quality evidence and excluded from completed-series analysis.
+    criteria:
+      - criterion: Incomplete observations form a trailing suffix after chronological
+          preparation.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:44
+          - tests/test_analysis.py:162
+      - criterion: The observed values and timestamps of unfinished periods remain
+          available in data quality output.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:50
+          - src/anomalyzer/validation.py:114
+          - tests/test_analysis.py:150
+      - criterion: Incomplete source samples are excluded from expectations,
+          calibration, point scoring, and completed aggregates.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:53
+          - src/anomalyzer/recipes.py:564
+          - tests/test_analysis.py:150
+          - tests/test_analysis.py:200
+      - criterion: A relationship with an unavailable latest source reports that
+          unavailability rather than normal behavior.
+        status: covered
+        evidence:
+          - src/anomalyzer/alignment.py:35
+          - src/anomalyzer/orchestrator.py:150
+          - tests/test_mcp.py:87
+    done: true
+    input_fingerprint: cfbbb238edfc93aaf5b13a03c47f209023dc9a945afc7e06ba30d642893e2ea1
+    mode: quick

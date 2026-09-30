@@ -1,0 +1,46 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Callers can supply a season length; ordered values without one can use conservative season inference with a lag-one fallback.",
+  "criteria": [
+    {
+      "criterion": "An explicit season length is honored and reported as explicit.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:55",
+        "tests/test_analysis.py:234"
+      ]
+    },
+    {
+      "criterion": "A repeating positional series can infer a seasonal lag and report the selection window.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonality.py:96",
+        "tests/test_analysis.py:247"
+      ]
+    },
+    {
+      "criterion": "A positional series without a sufficiently stable candidate falls back to lag one and records why.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonality.py:79",
+        "src/anomalyzer/seasonality.py:84",
+        "tests/test_analysis.py:247"
+      ]
+    },
+    {
+      "criterion": "The reserved calibration and evaluation tail does not determine positional season selection.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonality.py:69",
+        "tests/test_capability_behaviors.py:147"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Inspected positional-season: lag 7, selection window [0,27], ranked candidates, strength criteria, and separate confirmation candidates; domain confirmation remains a stated interpretation limit."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

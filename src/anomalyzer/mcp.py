@@ -10,7 +10,7 @@ import json
 import sys
 from collections import OrderedDict
 
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
 from .agent import analyze_relationships, analyze_series, get_case, replay_policy
 from .contracts import (
@@ -22,6 +22,17 @@ from .recipes import analyze
 
 class AnalyzeRequestArguments(Contract):
     request: Request | RequestV11
+
+
+class ListFindingsArguments(Contract):
+    run_id: str = Field(min_length=1, strict=True)
+    cursor: int = Field(default=0, ge=0, strict=True)
+    limit: int = Field(default=20, ge=1, le=100, strict=True)
+
+
+class GetEvidenceArguments(ListFindingsArguments):
+    finding_id: str = Field(min_length=1, strict=True)
+    limit: int = Field(default=50, ge=1, le=100, strict=True)
 
 
 SERVER_INSTRUCTIONS = (
@@ -83,16 +94,7 @@ TOOLS = [
             "Page through cases, early candidates, point episodes, residual patterns, and data-quality "
             "issues from a prior analyze call. These types can overlap and are not "
             "a count of separate incidents. The run_id lasts only for this session."),
-        "inputSchema": {
-            "type": "object", "additionalProperties": False,
-            "required": ["run_id"],
-            "properties": {
-                "run_id": {"type": "string", "minLength": 1},
-                "cursor": {"type": "integer", "minimum": 0, "default": 0},
-                "limit": {"type": "integer", "minimum": 1, "maximum": 100,
-                          "default": 20},
-            },
-        },
+        "inputSchema": ListFindingsArguments.model_json_schema(),
         "outputSchema": {
             "type": "object", "additionalProperties": True,
             "required": ["run_id", "total", "findings", "next_cursor"],
@@ -111,17 +113,7 @@ TOOLS = [
             "Inspect one finding by run_id and finding_id. Returns the numerical "
             "record, relevant assessments and lineage, readiness, limitations, "
             "and a page of source samples. This does not establish cause or impact."),
-        "inputSchema": {
-            "type": "object", "additionalProperties": False,
-            "required": ["run_id", "finding_id"],
-            "properties": {
-                "run_id": {"type": "string", "minLength": 1},
-                "finding_id": {"type": "string", "minLength": 1},
-                "cursor": {"type": "integer", "minimum": 0, "default": 0},
-                "limit": {"type": "integer", "minimum": 1, "maximum": 100,
-                          "default": 50},
-            },
-        },
+        "inputSchema": GetEvidenceArguments.model_json_schema(),
         "outputSchema": {
             "type": "object", "additionalProperties": True,
             "required": ["run_id", "finding", "record", "sample_count",
@@ -184,17 +176,17 @@ def _tool_call(name, arguments):
             summary, f"{summary['headline']} Run {summary['run_id']}; "
             f"{summary['finding_count']} finding(s). Use list_findings for details.")
     if name == "list_findings":
-        run_id = arguments["run_id"]
-        page = list_findings(_cached(run_id), arguments.get("cursor", 0),
-                             arguments.get("limit", 20))
+        validated = ListFindingsArguments.model_validate(arguments)
+        run_id = validated.run_id
+        page = list_findings(_cached(run_id), validated.cursor, validated.limit)
         return _compact_result(
             page, f"{len(page['findings'])} of {page['total']} findings for "
             f"run {run_id}.")
     if name == "get_evidence":
-        run_id = arguments["run_id"]
-        detail = get_evidence(_cached(run_id), arguments["finding_id"],
-                              arguments.get("cursor", 0),
-                              arguments.get("limit", 50))
+        validated = GetEvidenceArguments.model_validate(arguments)
+        run_id = validated.run_id
+        detail = get_evidence(_cached(run_id), validated.finding_id,
+                              validated.cursor, validated.limit)
         return _compact_result(
             detail, f"{detail['finding']['headline']} "
             f"{detail['sample_count']} supporting sample(s) available.")

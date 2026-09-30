@@ -1,0 +1,104 @@
+title: Identify sustained shifts and other residual patterns
+status: implemented
+summary: Residual rules identify location shifts, trends, oscillation, mixture
+  patterns, and short-term variation beyond isolated point departures.
+intent: Find accumulating changes and explain which numerical pattern was detected.
+acceptance:
+  - Nelson location rules and CUSUM can identify a sustained residual location
+    shift without any point-threshold crossing.
+  - CUSUM reports the first detection position, direction, accumulated score,
+    and configured threshold.
+  - Trend, oscillation, and mixture findings retain their specific pattern
+    meanings.
+  - Moving-range findings identify variation changes separately from location
+    changes.
+guidance:
+  - Pattern findings may overlap and are not independent confirmations.
+  - A residual location shift does not establish a change in the full
+    distribution.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/detection/identify-residual-patterns
+  # run deterministic review only: capabilitykit review analysis/detection/identify-residual-patterns --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/detection/identify-residual-patterns --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/detection/identify-residual-patterns --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/evidence/calibrate-departures
+  implementation:
+    references:
+      - src/anomalyzer/evidence.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+  verification:
+    automated:
+      - id: location-shift
+        description: Find moderate increases and decreases without point anomalies.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_nelson_patterns_describe_location_shift_without_point_anomaly
+      - id: accumulating-change
+        description: Detect a known CUSUM accumulation at the expected position.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_cusum_detects_accumulated_moderate_location_shift
+      - id: diagnostic-patterns
+        description: Distinguish residual trend, oscillation, and mixture rules.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_nelson_diagnostics_have_specific_semantics
+      - id: variation
+        description: Describe a moving-range increase as variation rather than location.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_moving_range_detects_short_term_variation_increase
+    manual:
+      - Compare examples/location_shift_up.json with its point episodes and
+        pattern findings, allowing for overlapping residual rules.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected location_shift_up: zero point episodes and distinct
+        overlapping Nelson/CUSUM/oscillation findings, with rule-specific
+        detection positions."
+    intent_summary: Residual rules identify location shifts, trends, oscillation,
+      mixture patterns, and short-term variation beyond isolated point
+      departures.
+    criteria:
+      - criterion: Nelson location rules and CUSUM can identify a sustained residual
+          location shift without any point-threshold crossing.
+        status: covered
+        evidence:
+          - src/anomalyzer/evidence.py:118
+          - src/anomalyzer/evidence.py:189
+          - tests/test_analysis.py:293
+      - criterion: CUSUM reports the first detection position, direction, accumulated
+          score, and configured threshold.
+        status: covered
+        evidence:
+          - src/anomalyzer/evidence.py:211
+          - src/anomalyzer/evidence.py:230
+          - tests/test_analysis.py:350
+      - criterion: Trend, oscillation, and mixture findings retain their specific
+          pattern meanings.
+        status: covered
+        evidence:
+          - src/anomalyzer/evidence.py:70
+          - src/anomalyzer/evidence.py:122
+          - tests/test_analysis.py:340
+      - criterion: Moving-range findings identify variation changes separately from
+          location changes.
+        status: covered
+        evidence:
+          - src/anomalyzer/evidence.py:234
+          - tests/test_analysis.py:360
+    done: true
+    input_fingerprint: cdf098fcce90b49d1ca7bd72aa107bf76ad3455602faf1cc370e5c921cec4ace
+    mode: quick

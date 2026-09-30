@@ -1,0 +1,103 @@
+title: Update expectations as recent growth changes
+status: implemented
+summary: The adaptive recipe updates each expectation from a bounded window of
+  earlier observations while retaining frozen residual calibration.
+intent: Follow evolving growth without losing evidence of an isolated unusual value.
+acceptance:
+  - Each rolling expectation uses only observations before the sample being
+    scored.
+  - Persistent growth changes can be followed more closely than by the frozen
+    default recipe.
+  - An isolated extreme value is held out of future model references rather than
+    creating a seasonal echo.
+  - Conflicting trend choices and slope lookbacks exceeding the adaptive window
+    are rejected.
+guidance:
+  - A persistent third extreme miss in one direction may be admitted to the
+    rolling reference; this is not a manual regime reset.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/expectations/adapt-to-changing-growth
+  # run deterministic review only: capabilitykit review analysis/expectations/adapt-to-changing-growth --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/expectations/adapt-to-changing-growth --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/expectations/adapt-to-changing-growth --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/evidence/calibrate-departures
+  implementation:
+    references:
+      - src/anomalyzer/baseline.py
+      - src/anomalyzer/recipes.py
+      - src/anomalyzer/contracts.py
+      - tests/test_analysis.py
+  verification:
+    automated:
+      - id: causal-window
+        description: Keep a known rolling expectation invariant when future values are
+          appended.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_adaptive_expectation_is_one_step_and_prefix_invariant
+      - id: changing-growth
+        description: Follow a persistent growth change and report model admissions.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_adaptive_recipe_tracks_a_persistent_growth_change
+      - id: isolated-extreme
+        description: Exclude an isolated extreme from later reference estimates.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_adaptive_recipe_contains_an_isolated_extreme
+      - id: bounded-settings
+        description: Reject conflicting or unbounded adaptive settings.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_adaptive_settings_reject_conflicting_or_unbounded_trend
+    manual:
+      - Inspect the adaptive recipe's rolling-window parameters and frozen
+        calibration before interpreting its final expectation.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Inspected rolling window, bounded slope lookback, causal projection and
+        model parameters, plus frozen residual calibration; reviewed persistence
+        admission and isolated-extreme tests.
+    intent_summary: The adaptive recipe updates each expectation from a bounded
+      window of earlier observations while retaining frozen residual
+      calibration.
+    criteria:
+      - criterion: Each rolling expectation uses only observations before the sample
+          being scored.
+        status: covered
+        evidence:
+          - src/anomalyzer/baseline.py:61
+          - tests/test_analysis.py:48
+      - criterion: Persistent growth changes can be followed more closely than by the
+          frozen default recipe.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:145
+          - src/anomalyzer/recipes.py:370
+          - tests/test_analysis.py:58
+      - criterion: An isolated extreme value is held out of future model references
+          rather than creating a seasonal echo.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:378
+          - tests/test_analysis.py:81
+      - criterion: Conflicting trend choices and slope lookbacks exceeding the adaptive
+          window are rejected.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:41
+          - tests/test_analysis.py:104
+    done: true
+    input_fingerprint: 721a009ceb8f2712c136332303945944247d48da709e823f09af1421f596611a
+    mode: quick

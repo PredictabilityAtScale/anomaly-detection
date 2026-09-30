@@ -1,0 +1,61 @@
+{
+  "capabilityId": "interfaces/mcp/connect-read-only-local-server",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\interfaces\\mcp\\connect-read-only-local-server.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "The local stdio MCP server advertises three read-only investigation tools with schemas and interpretation guidance.",
+      "criteria": [
+        {
+          "criterion": "Tool discovery advertises analyze, list_findings, and get_evidence as read-only with input and output schemas.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp.py:63",
+            "tests/test_mcp.py:27"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Legacy initialization and modern stateless discovery return supported protocol metadata and interpretation guidance.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp.py:228",
+            "tests/test_mcp.py:248",
+            "tests/test_mcp.py:268"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Analysis tool calls return structured content together with compact text.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp.py:162",
+            "tests/test_mcp.py:39"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Invalid tool input and unknown session run IDs return structured errors rather than fabricated results.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp.py:156",
+            "src/anomalyzer/mcp.py:257",
+            "tests/test_mcp.py:235",
+            "tests/test_mcp.py:367"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Read protocol discovery instructions and pyproject console entrypoint; full-suite stdio test starts the server in the installed Python environment and verifies handshake/tool listing."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

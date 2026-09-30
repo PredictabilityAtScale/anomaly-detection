@@ -1,0 +1,8 @@
+{
+  "command": ".venv\\Scripts\\python.exe -m pytest -q",
+  "exit_code": 0,
+  "passed": 149,
+  "log": "verification.log",
+  "executor": "primary Codex agent",
+  "scope": "full project suite after acceptance repairs"
+}

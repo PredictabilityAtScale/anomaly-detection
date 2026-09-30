@@ -1,0 +1,51 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Readable CLI output distinguishes point episodes, pattern findings, cases, explicit rule violations, and reference readiness.",
+  "criteria": [
+    {
+      "criterion": "Point-anomaly episode counts and residual-pattern findings are labeled separately.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cli.py:347",
+        "src/anomalyzer/cli.py:405",
+        "tests/test_cli.py:143"
+      ]
+    },
+    {
+      "criterion": "Relationship cases identify entity scope, observed and expected values, declared units, and investigation questions.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cli.py:291",
+        "src/anomalyzer/cli.py:308",
+        "src/anomalyzer/cli.py:331",
+        "tests/test_cli.py:117",
+        "examples/agentic/conversion.json"
+      ]
+    },
+    {
+      "criterion": "Explicit numerical rules are named with their boundaries instead of appearing as statistical anomaly claims.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cli.py:318",
+        "tests/test_cli.py:134",
+        "examples/agentic/unit-cost.json"
+      ]
+    },
+    {
+      "criterion": "Readiness status remains visible, including when it was not assessed.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cli.py:352",
+        "src/anomalyzer/cli.py:399",
+        "tests/test_cli.py:134"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Read conversion and unit-cost stdout: entity/unit labels, observed versus expected conversion, named 0.13 unit-cost boundary, investigation questions and not_assessed readiness remain clear."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

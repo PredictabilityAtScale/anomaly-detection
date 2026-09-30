@@ -1,0 +1,73 @@
+{
+  "capabilityId": "interfaces/cli/analyze-files-and-streams",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\interfaces\\cli\\analyze-files-and-streams.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "The CLI analyzes CSV, JSON requests, and bare JSON values from files or stdin, with configurable settings and protected output files.",
+      "criteria": [
+        {
+          "criterion": "The methods command lists supported analysis recipes and residual detectors.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cli.py:426",
+            "src/anomalyzer/registry.py:15",
+            "tests/test_cli.py:27"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Equivalent file and stdin JSON inputs produce equivalent request fingerprints and analysis semantics.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/io.py:9",
+            "src/anomalyzer/cli.py:239",
+            "tests/test_cli.py:13",
+            "tests/test_mcp.py:163"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "CSV supports positional or timestamped selected values, treats empty cells as missing, and rejects varying unmapped entity columns.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/io.py:33",
+            "tests/test_cli.py:51"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Settings resolve in embedded-request, settings-file, then CLI-flag precedence; bare JSON values can use CLI configuration.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cli.py:253",
+            "tests/test_cli.py:51",
+            "tests/test_cli.py:71"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Output files require explicit overwrite permission, and invalid input is distinguished from execution failure by exit status.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/io.py:69",
+            "src/anomalyzer/cli.py:424",
+            "tests/test_cli.py:41",
+            "tests/test_cli.py:108"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Executed conversion and unit-cost readable CLI plus spike JSON CLI; inspected stdout results, empty stderr on successful runs, and explicit partial exit 1 for incomplete-usage."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

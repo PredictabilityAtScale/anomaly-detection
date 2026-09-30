@@ -1,0 +1,102 @@
+title: Prepare timestamps, duplicates, and event-time cutoffs
+status: implemented
+summary: Timestamped observations are normalized to UTC, ordered, and checked
+  against their declared cadence before analysis.
+intent: Compare like periods and make preparation decisions visible to the caller.
+acceptance:
+  - Timestamped datasets provide both timestamps and frequency; positional
+    datasets provide neither.
+  - Local timestamps require a timezone, and ambiguous or nonexistent
+    daylight-saving times require an explicit offset.
+  - Duplicate timestamps are rejected unless an aggregation policy is supplied;
+    duplicate counts and transformations remain visible.
+  - An as_of cutoff excludes later observations, and cadence is checked as a
+    fixed elapsed duration.
+guidance:
+  - No interpolation, imputation, resampling, or unit conversion occurs.
+  - Duplicate null values propagate through aggregation.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review data/quality/prepare-timestamped-series
+  # run deterministic review only: capabilitykit review data/quality/prepare-timestamped-series --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review data/quality/prepare-timestamped-series --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result data/quality/prepare-timestamped-series --input review.json
+  # -----------------------------
+  implementation:
+    references:
+      - src/anomalyzer/validation.py
+      - src/anomalyzer/contracts.py
+      - tests/test_analysis.py
+      - tests/test_mcp.py
+  verification:
+    automated:
+      - id: coordinate-contract
+        description: Reject partial timestamp metadata and positional as_of cutoffs.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_timestamp_metadata_is_all_or_nothing
+      - id: local-time
+        description: Normalize valid local times and reject ambiguous or nonexistent times.
+        command: python -m pytest -q tests/test_analysis.py::test_local_time
+      - id: duplicates-cutoff
+        description: Require an explicit duplicate policy and retain counts after the
+          cutoff.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_duplicate_sort_and_cutoff
+      - id: cadence-context
+        description: Check fixed weekly cadence and preserve cutoff semantics across
+          interfaces.
+        command: python -m pytest -q tests/test_analysis.py::test_weekly_cadence
+          tests/test_mcp.py::test_single_series_context_matches_python_cli_and_mcp
+    manual:
+      - Inspect a timestamped result's data_quality transformations, UTC window,
+        and resolved context to confirm preparation is explainable.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Inspected UTC normalization, sorted/duplicate/cutoff transformations and
+        resolved API context; cross-interface context tests establish a
+        71-observation cutoff.
+    intent_summary: Timestamped observations are normalized to UTC, ordered, and
+      checked against their declared cadence before analysis.
+    criteria:
+      - criterion: Timestamped datasets provide both timestamps and frequency;
+          positional datasets provide neither.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:77
+          - tests/test_analysis.py:418
+      - criterion: Local timestamps require a timezone, and ambiguous or nonexistent
+          daylight-saving times require an explicit offset.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:8
+          - tests/test_analysis.py:500
+      - criterion: Duplicate timestamps are rejected unless an aggregation policy is
+          supplied; duplicate counts and transformations remain visible.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:87
+          - src/anomalyzer/validation.py:103
+          - tests/test_analysis.py:478
+      - criterion: An as_of cutoff excludes later observations, and cadence is checked
+          as a fixed elapsed duration.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:105
+          - src/anomalyzer/validation.py:111
+          - tests/test_analysis.py:491
+          - tests/test_mcp.py:191
+    done: true
+    input_fingerprint: a3ff0ad595bad47badf430164c079cf127b2db9820c819d4b6b6fcf568de2709
+    mode: quick

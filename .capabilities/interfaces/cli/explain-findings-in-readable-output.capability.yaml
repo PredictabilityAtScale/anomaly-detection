@@ -1,0 +1,103 @@
+title: Explain evidence in readable CLI output
+status: implemented
+summary: Readable CLI output distinguishes point episodes, pattern findings,
+  cases, explicit rule violations, and reference readiness.
+intent: Let a person understand what changed and which evidence supports it
+  without parsing the full JSON result.
+acceptance:
+  - Point-anomaly episode counts and residual-pattern findings are labeled
+    separately.
+  - Relationship cases identify entity scope, observed and expected values,
+    declared units, and investigation questions.
+  - Explicit numerical rules are named with their boundaries instead of
+    appearing as statistical anomaly claims.
+  - Readiness status remains visible, including when it was not assessed.
+guidance:
+  - Readable summaries should retain the evidence's claim limits and allow
+    drilldown into JSON.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review interfaces/cli/explain-findings-in-readable-output
+  # run deterministic review only: capabilitykit review interfaces/cli/explain-findings-in-readable-output --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review interfaces/cli/explain-findings-in-readable-output --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result interfaces/cli/explain-findings-in-readable-output --input review.json
+  # -----------------------------
+  depends_on:
+    - interfaces/cli/analyze-files-and-streams
+    - investigation/cases/group-related-evidence
+  implementation:
+    references:
+      - src/anomalyzer/cli.py
+      - tests/test_cli.py
+      - examples/agentic/conversion.json
+      - examples/agentic/unit-cost.json
+  verification:
+    automated:
+      - id: episodes-patterns
+        description: Distinguish shift patterns from point episodes in readable output.
+        command: python -m pytest -q
+          tests/test_cli.py::test_readable_output_distinguishes_episodes_from_patterns
+      - id: relationship-case
+        description: Explain a conversion case with entity, units, comparison, and a
+          suggested check.
+        command: python -m pytest -q
+          tests/test_cli.py::test_schema_11_relationship_request_through_cli
+      - id: explicit-rule
+        description: Describe the unit-cost rule boundary and unassessed readiness.
+        command: python -m pytest -q
+          tests/test_cli.py::test_schema_11_readable_case_distinguishes_explicit_rule
+    manual:
+      - Read the conversion and unit-cost example output and confirm the
+        descriptions state the supported numerical comparison in plain language.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Read conversion and unit-cost stdout: entity/unit labels, observed
+        versus expected conversion, named 0.13 unit-cost boundary, investigation
+        questions and not_assessed readiness remain clear."
+    intent_summary: Readable CLI output distinguishes point episodes, pattern
+      findings, cases, explicit rule violations, and reference readiness.
+    criteria:
+      - criterion: Point-anomaly episode counts and residual-pattern findings are
+          labeled separately.
+        status: covered
+        evidence:
+          - src/anomalyzer/cli.py:347
+          - src/anomalyzer/cli.py:405
+          - tests/test_cli.py:143
+      - criterion: Relationship cases identify entity scope, observed and expected
+          values, declared units, and investigation questions.
+        status: covered
+        evidence:
+          - src/anomalyzer/cli.py:291
+          - src/anomalyzer/cli.py:308
+          - src/anomalyzer/cli.py:331
+          - tests/test_cli.py:117
+          - examples/agentic/conversion.json
+      - criterion: Explicit numerical rules are named with their boundaries instead of
+          appearing as statistical anomaly claims.
+        status: covered
+        evidence:
+          - src/anomalyzer/cli.py:318
+          - tests/test_cli.py:134
+          - examples/agentic/unit-cost.json
+      - criterion: Readiness status remains visible, including when it was not assessed.
+        status: covered
+        evidence:
+          - src/anomalyzer/cli.py:352
+          - src/anomalyzer/cli.py:399
+          - tests/test_cli.py:134
+    done: true
+    input_fingerprint: d56f02d9d917bbc1b20ee9d5fa90a43a3d66d351fa1410743eea8916c829cc64
+    mode: quick

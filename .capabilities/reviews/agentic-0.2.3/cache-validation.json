@@ -1,0 +1,132 @@
+[
+  {
+    "id": "analysis/detection/identify-residual-patterns",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/detection/report-point-anomaly-episodes",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/evidence/assess-reference-readiness",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/evidence/calibrate-departures",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/expectations/adapt-to-changing-growth",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/expectations/model-seasonal-level-and-growth",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/expectations/protect-reference-from-extremes",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/expectations/reset-declared-regimes",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/expectations/select-season-length",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "analysis/resolution/monitor-within-unfinished-days",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "data/inputs/accept-analysis-requests",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "data/quality/exclude-incomplete-periods",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "data/quality/prepare-timestamped-series",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "execution/resilience/retain-evidence-under-failure-and-limits",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "interfaces/cli/analyze-files-and-streams",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "interfaces/cli/explain-findings-in-readable-output",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "interfaces/mcp/connect-read-only-local-server",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "interfaces/mcp/investigate-findings-and-evidence",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "interfaces/python/analyze-through-public-api",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "investigation/assessments/describe-early-changes",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "investigation/cases/group-related-evidence",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "investigation/policy/replay-action-eligibility",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "investigation/rules/check-declared-numerical-rules",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "relationships/comparisons/compare-declared-metrics",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "relationships/comparisons/evaluate-delayed-response",
+    "current": true,
+    "depth": "verified"
+  },
+  {
+    "id": "relationships/quality/require-compatible-sources",
+    "current": true,
+    "depth": "verified"
+  }
+]

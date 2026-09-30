@@ -1,0 +1,115 @@
+title: Analyze files and streams from the command line
+status: implemented
+summary: The CLI analyzes CSV, JSON requests, and bare JSON values from files or
+  stdin, with configurable settings and protected output files.
+intent: Make local analysis usable in scripts and ad hoc investigation.
+acceptance:
+  - The methods command lists supported analysis recipes and residual detectors.
+  - Equivalent file and stdin JSON inputs produce equivalent request
+    fingerprints and analysis semantics.
+  - CSV supports positional or timestamped selected values, treats empty cells
+    as missing, and rejects varying unmapped entity columns.
+  - Settings resolve in embedded-request, settings-file, then CLI-flag
+    precedence; bare JSON values can use CLI configuration.
+  - Output files require explicit overwrite permission, and invalid input is
+    distinguished from execution failure by exit status.
+guidance:
+  - CSV callers must select one entity and unit before analysis.
+  - Exit 0 includes completed analysis with anomalies, insufficient history, or
+    inapplicability; exit 2 means invalid input, and exit 1 means execution
+    failure or partial execution.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review interfaces/cli/analyze-files-and-streams
+  # run deterministic review only: capabilitykit review interfaces/cli/analyze-files-and-streams --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review interfaces/cli/analyze-files-and-streams --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result interfaces/cli/analyze-files-and-streams --input review.json
+  # -----------------------------
+  depends_on:
+    - interfaces/python/analyze-through-public-api
+  implementation:
+    references:
+      - src/anomalyzer/cli.py
+      - src/anomalyzer/io.py
+      - src/anomalyzer/__main__.py
+      - tests/test_cli.py
+  verification:
+    automated:
+      - id: file-stdin
+        description: Analyze equivalent file and stdin requests.
+        command: python -m pytest -q tests/test_cli.py::test_stdin_file_equivalence
+      - id: csv-precedence
+        description: Validate selected CSV fields and apply flag-over-file-over-embedded
+          precedence.
+        command: python -m pytest -q tests/test_cli.py::test_csv_and_precedence
+      - id: value-list
+        description: Analyze a bare JSON array and expose inferred settings.
+        command: python -m pytest -q tests/test_cli.py::test_bare_json_values_cli
+      - id: output-and-exits
+        description: Protect existing output and distinguish invalid options from failed
+          execution.
+        command: python -m pytest -q tests/test_cli.py::test_output_protection
+          tests/test_cli.py::test_methods_and_invalid_options
+          tests/test_cli.py::test_size_limit_and_execution_exit
+    manual:
+      - Run an example in readable and JSON modes and confirm stdout contains
+        results while diagnostics go to stderr.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Executed conversion and unit-cost readable CLI plus spike JSON CLI;
+        inspected stdout results, empty stderr on successful runs, and explicit
+        partial exit 1 for incomplete-usage.
+    intent_summary: The CLI analyzes CSV, JSON requests, and bare JSON values from
+      files or stdin, with configurable settings and protected output files.
+    criteria:
+      - criterion: The methods command lists supported analysis recipes and residual
+          detectors.
+        status: covered
+        evidence:
+          - src/anomalyzer/cli.py:426
+          - src/anomalyzer/registry.py:15
+          - tests/test_cli.py:27
+      - criterion: Equivalent file and stdin JSON inputs produce equivalent request
+          fingerprints and analysis semantics.
+        status: covered
+        evidence:
+          - src/anomalyzer/io.py:9
+          - src/anomalyzer/cli.py:239
+          - tests/test_cli.py:13
+          - tests/test_mcp.py:163
+      - criterion: CSV supports positional or timestamped selected values, treats empty
+          cells as missing, and rejects varying unmapped entity columns.
+        status: covered
+        evidence:
+          - src/anomalyzer/io.py:33
+          - tests/test_cli.py:51
+      - criterion: Settings resolve in embedded-request, settings-file, then CLI-flag
+          precedence; bare JSON values can use CLI configuration.
+        status: covered
+        evidence:
+          - src/anomalyzer/cli.py:253
+          - tests/test_cli.py:51
+          - tests/test_cli.py:71
+      - criterion: Output files require explicit overwrite permission, and invalid input
+          is distinguished from execution failure by exit status.
+        status: covered
+        evidence:
+          - src/anomalyzer/io.py:69
+          - src/anomalyzer/cli.py:424
+          - tests/test_cli.py:41
+          - tests/test_cli.py:108
+    done: true
+    input_fingerprint: 2fc9eadc1647e522b7d5318e2941a789357dc2753d9b446f119f8322ee026c27
+    mode: quick

@@ -1,0 +1,66 @@
+{
+  "capabilityId": "data/inputs/accept-analysis-requests",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\data\\inputs\\accept-analysis-requests.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Callers can submit ordered numeric values or versioned requests containing datasets, settings, context, and declared relationships.",
+      "criteria": [
+        {
+          "criterion": "Ordered value lists work with separate settings, while schema 1.0 requests describe one dataset.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:21",
+            "src/anomalyzer/contracts.py:96",
+            "tests/test_analysis.py:234"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Schema 1.1 datasets declare a nonempty entity scope and support explicit relationships between named datasets.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/contracts.py:240",
+            "src/anomalyzer/contracts.py:335",
+            "tests/test_agentic.py:192"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Unknown settings, unsupported recipes, nonfinite values, booleans, and numeric strings are rejected.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/contracts.py:7",
+            "src/anomalyzer/contracts.py:71",
+            "tests/test_analysis.py:526",
+            "tests/test_analysis.py:531"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Published schema 1.0 and 1.1 request and result schemas match the public Python contracts.",
+          "status": "covered",
+          "evidence": [
+            "schemas/request.schema.json",
+            "schemas/result.schema.json",
+            "schemas/request-1.1.schema.json",
+            "schemas/result-1.1.schema.json",
+            "tests/test_analysis.py:547",
+            "tests/test_agentic.py:317"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Read README input/API examples and schema-version limits; independently parsed all four published schemas and asserted equality to their current public contracts."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

@@ -1,0 +1,107 @@
+title: Analyze data through the public Python API
+status: implemented
+summary: The public Python API accepts series or canonical requests and returns
+  the same numerical analysis used by the CLI and MCP compatibility interfaces.
+intent: Embed local analysis in an application without changing the meaning of
+  the evidence.
+acceptance:
+  - analyze accepts bare ordered values with separate validated settings and
+    dispatches canonical schema 1.0 or 1.1 requests.
+  - analyze_series preserves supplied settings and event-time context for a
+    single dataset.
+  - analyze_relationships preserves the declared multi-dataset relationship
+    semantics.
+  - Equivalent requests retain numerical results across Python, CLI, and
+    full-result MCP compatibility calls apart from run IDs and runtime.
+guidance:
+  - All interfaces use local analysis; there is no hosted service or model API
+    requirement.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review interfaces/python/analyze-through-public-api
+  # run deterministic review only: capabilitykit review interfaces/python/analyze-through-public-api --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review interfaces/python/analyze-through-public-api --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result interfaces/python/analyze-through-public-api --input review.json
+  # -----------------------------
+  depends_on:
+    - data/inputs/accept-analysis-requests
+  implementation:
+    references:
+      - src/anomalyzer/__init__.py
+      - src/anomalyzer/agent.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_mcp.py
+  verification:
+    automated:
+      - id: request-parity
+        description: Match canonical request results across Python, CLI, and full-result
+          MCP compatibility calls.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_canonical_request_matches_python_cli_and_mcp
+          tests/test_analysis.py::test_bare_values_with_separate_settings
+      - id: series-context
+        description: Preserve a single-series event-time cutoff and context across
+          interfaces.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_single_series_context_matches_python_cli_and_mcp
+          tests/test_mcp.py::test_series_wrapper_preserves_omitted_and_explicit_season_settings
+      - id: relationship-parity
+        description: Match declared relationship evidence across the public interfaces.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_relationship_semantics_match_python_cli_and_mcp
+    manual:
+      - Review the Python API examples in README.md and confirm callers can
+        inspect the returned validated models and JSON.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Read README Python facade examples, model_dump_json usage and
+        settings/context semantics; inspected parity tests across Python, CLI
+        and full-result MCP calls.
+    intent_summary: The public Python API accepts series or canonical requests and
+      returns the same numerical analysis used by the CLI and MCP compatibility
+      interfaces.
+    criteria:
+      - criterion: analyze accepts bare ordered values with separate validated settings
+          and dispatches canonical schema 1.0 or 1.1 requests.
+        status: covered
+        evidence:
+          - src/anomalyzer/__init__.py:3
+          - src/anomalyzer/recipes.py:21
+          - tests/test_analysis.py:234
+      - criterion: analyze_series preserves supplied settings and event-time context for
+          a single dataset.
+        status: covered
+        evidence:
+          - src/anomalyzer/agent.py:11
+          - tests/test_mcp.py:191
+          - tests/test_mcp.py:291
+      - criterion: analyze_relationships preserves the declared multi-dataset
+          relationship semantics.
+        status: covered
+        evidence:
+          - src/anomalyzer/agent.py:27
+          - tests/test_mcp.py:217
+      - criterion: Equivalent requests retain numerical results across Python, CLI, and
+          full-result MCP compatibility calls apart from run IDs and runtime.
+        status: covered
+        evidence:
+          - tests/test_mcp.py:163
+          - tests/test_mcp.py:191
+          - tests/test_mcp.py:217
+          - src/anomalyzer/__main__.py:1
+    done: true
+    input_fingerprint: bf2a5c3fdd1c6905c4c08f5668771c662ee878baca8fcf53aa63313e2b6500ef
+    mode: quick

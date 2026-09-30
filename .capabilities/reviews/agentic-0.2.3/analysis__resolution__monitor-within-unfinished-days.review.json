@@ -1,0 +1,58 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Multi-resolution analysis keeps native finalized subperiod evidence and completed fixed 24-hour aggregates, with a separate marker for the unfinished day.",
+  "criteria": [
+    {
+      "criterion": "Callers can select sum, mean, or last aggregation for completed and partial periods.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:18",
+        "src/anomalyzer/recipes.py:539",
+        "tests/test_capability_behaviors.py:178"
+      ]
+    },
+    {
+      "criterion": "Regular timestamped sub-day samples produce distinct native and completed-period analysis views.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:617",
+        "src/anomalyzer/recipes.py:667",
+        "src/anomalyzer/recipes.py:680",
+        "tests/test_analysis.py:170"
+      ]
+    },
+    {
+      "criterion": "A trailing partial aggregate reports observed progress and links its native evidence while remaining outside the completed-period series.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:639",
+        "src/anomalyzer/recipes.py:690",
+        "tests/test_analysis.py:170"
+      ]
+    },
+    {
+      "criterion": "An explicitly unfinished source sample is excluded from both analysis views.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:44",
+        "src/anomalyzer/recipes.py:564",
+        "tests/test_analysis.py:200"
+      ]
+    },
+    {
+      "criterion": "A source cadence that does not evenly divide 24 hours is rejected.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:572",
+        "tests/test_analysis.py:221"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Inspected multi-resolution: separate completed_period/intraday namespaces; trailing 12/24 finalized samples aggregate to 1200 and link 12 intraday evidence records, excluded from completed-period scoring."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

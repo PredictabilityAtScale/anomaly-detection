@@ -1,0 +1,111 @@
+title: Group qualifying evidence into scoped investigation cases
+status: implemented
+summary: Qualifying assessments are grouped by event time and entity into cases
+  with explanations, evidence references, and numerical severity.
+intent: Give investigators a coherent account of related evidence without
+  counting derived metrics as independent confirmation.
+acceptance:
+  - Evidence for different declared entities remains in separate cases even at
+    the same event time.
+  - Criteria met in multiple source datasets can raise numerical severity and
+    identify the contributing sources.
+  - A derived relationship adds context without counting as an additional
+    independent source for severity.
+  - Adaptive location-shift rules can create an early grouped case without a
+    point trigger, using only evidence available at detection.
+guidance:
+  - Warning and critical are deterministic numerical grouping rules, not
+    validated incident impact.
+  - Diagnostic trend, oscillation, mixture, and variation findings remain
+    distinct from adaptive location-shift cases.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review investigation/cases/group-related-evidence
+  # run deterministic review only: capabilitykit review investigation/cases/group-related-evidence --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review investigation/cases/group-related-evidence --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result investigation/cases/group-related-evidence --input review.json
+  # -----------------------------
+  depends_on:
+    - investigation/assessments/describe-early-changes
+    - analysis/detection/identify-residual-patterns
+  implementation:
+    references:
+      - src/anomalyzer/cases.py
+      - src/anomalyzer/early.py
+      - src/anomalyzer/orchestrator.py
+      - tests/test_agentic.py
+  verification:
+    automated:
+      - id: entity-scope
+        description: Separate cases for different entities at the same event time.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_cases_are_scoped_by_entity_at_the_same_event_time
+      - id: source-severity
+        description: Escalate numerical severity when two source datasets meet criteria.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_two_source_datasets_escalate_case_severity
+      - id: correlated-context
+        description: Keep relationship evidence from double-counting source severity.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_relationship_evidence_explains_but_does_not_double_count_severity
+      - id: first-detection
+        description: Group an adaptive location shift before point triggers without
+          using a later pattern peak.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_adaptive_location_shift_creates_one_early_case_without_point_trigger
+          tests/test_agentic.py::test_location_case_severity_does_not_use_future_pattern_peak
+    manual:
+      - Inspect a case's contributing targets, explanation, evidence references,
+        and investigation questions; distinguish it from a point-anomaly
+        episode.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Inspected conversion case contributors, explanation, evidence references
+        and investigation questions; correlated source/derived support is
+        grouped without adding a source vote.
+    intent_summary: Qualifying assessments are grouped by event time and entity into
+      cases with explanations, evidence references, and numerical severity.
+    criteria:
+      - criterion: Evidence for different declared entities remains in separate cases
+          even at the same event time.
+        status: covered
+        evidence:
+          - src/anomalyzer/cases.py:42
+          - tests/test_agentic.py:69
+      - criterion: Criteria met in multiple source datasets can raise numerical severity
+          and identify the contributing sources.
+        status: covered
+        evidence:
+          - src/anomalyzer/cases.py:72
+          - tests/test_agentic.py:85
+      - criterion: A derived relationship adds context without counting as an additional
+          independent source for severity.
+        status: covered
+        evidence:
+          - src/anomalyzer/cases.py:72
+          - src/anomalyzer/cases.py:116
+          - tests/test_agentic.py:100
+      - criterion: Adaptive location-shift rules can create an early grouped case
+          without a point trigger, using only evidence available at detection.
+        status: covered
+        evidence:
+          - src/anomalyzer/early.py:193
+          - src/anomalyzer/early.py:237
+          - src/anomalyzer/orchestrator.py:115
+          - tests/test_agentic.py:122
+          - tests/test_agentic.py:146
+    done: true
+    input_fingerprint: b647ff13888d65add579db8e57a7ee593bfe13ecf5ee24e676a959ca05e96bb1
+    mode: quick

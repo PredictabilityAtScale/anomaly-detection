@@ -1,0 +1,46 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "The adaptive recipe updates each expectation from a bounded window of earlier observations while retaining frozen residual calibration.",
+  "criteria": [
+    {
+      "criterion": "Each rolling expectation uses only observations before the sample being scored.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/baseline.py:61",
+        "tests/test_analysis.py:48"
+      ]
+    },
+    {
+      "criterion": "Persistent growth changes can be followed more closely than by the frozen default recipe.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:145",
+        "src/anomalyzer/recipes.py:370",
+        "tests/test_analysis.py:58"
+      ]
+    },
+    {
+      "criterion": "An isolated extreme value is held out of future model references rather than creating a seasonal echo.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:378",
+        "tests/test_analysis.py:81"
+      ]
+    },
+    {
+      "criterion": "Conflicting trend choices and slope lookbacks exceeding the adaptive window are rejected.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:41",
+        "tests/test_analysis.py:104"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Inspected rolling window, bounded slope lookback, causal projection and model parameters, plus frozen residual calibration; reviewed persistence admission and isolated-extreme tests."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

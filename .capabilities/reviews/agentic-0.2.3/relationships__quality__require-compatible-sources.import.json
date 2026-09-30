@@ -1,0 +1,60 @@
+{
+  "capabilityId": "relationships/quality/require-compatible-sources",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\relationships\\quality\\require-compatible-sources.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Declared relationships require exact UTC timestamp alignment, shared cadence and entity scope, and compatible declared units.",
+      "criteria": [
+        {
+          "criterion": "Related datasets use identical normalized timestamps, the same declared cadence, and matching entity metadata.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/alignment.py:42",
+            "tests/test_capability_behaviors.py:30"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Relationship sources are timestamped and have unique timestamps; implicit resampling and duplicate aggregation are not accepted for lineage.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/alignment.py:23",
+            "src/anomalyzer/alignment.py:44",
+            "tests/test_capability_behaviors.py:30"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Difference relationships require identical declared source units and matching output units.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:41",
+            "tests/test_agentic.py:242"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "An invalid relationship is reported as failed while valid sibling dataset results remain available.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/orchestrator.py:171",
+            "tests/test_capability_behaviors.py:30",
+            "tests/test_capability_behaviors.py:159"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Read target errors/statuses and exact-alignment tests: timestamp/cadence/entity/unit mismatch or failed source yields a failed relationship while a healthy sibling remains available."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

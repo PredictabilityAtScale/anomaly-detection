@@ -1,0 +1,63 @@
+{
+  "capabilityId": "relationships/comparisons/compare-declared-metrics",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\relationships\\comparisons\\compare-declared-metrics.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Explicit relationships produce ratio, difference, normalized-residual, and joint-condition series with source-level lineage.",
+      "criteria": [
+        {
+          "criterion": "Ratios retain the computed value, formula, and original source indexes for each sample.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:84",
+            "src/anomalyzer/relationships.py:152",
+            "tests/test_agentic.py:211"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Differences, supplied-scale residuals, and all/any threshold conditions produce the declared derived values.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:97",
+            "src/anomalyzer/relationships.py:134",
+            "tests/test_agentic.py:285"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Missing sources and zero denominators remain unavailable with a reason rather than becoming zero.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:89",
+            "src/anomalyzer/relationships.py:142",
+            "tests/test_agentic.py:226"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Derived series can be analyzed with the frozen or adaptive single-resolution recipe.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/orchestrator.py:87",
+            "src/anomalyzer/orchestrator.py:135",
+            "tests/test_agentic.py:171",
+            "tests/test_examples.py:17"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected conversion drilldown: relationship departure 8/130 versus expected 0.1 while source datasets have no point episodes; lineage preserves formula and source positions."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

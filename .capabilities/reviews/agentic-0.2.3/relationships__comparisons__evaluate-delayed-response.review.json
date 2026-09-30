@@ -1,0 +1,47 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "A lagged-response relationship compares current response with a supplied or training-fitted multiple of an earlier predictor.",
+  "criteria": [
+    {
+      "criterion": "A supplied lag and coefficient use the predictor at the declared earlier sample position.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:115",
+        "tests/test_agentic.py:254"
+      ]
+    },
+    {
+      "criterion": "Derived values retain response and predictor source indexes and source cutoffs in lineage.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:152",
+        "tests/test_agentic.py:254",
+        "examples/agentic/lagged-response.json"
+      ]
+    },
+    {
+      "criterion": "When requested, the coefficient is fitted once from a declared training prefix and remains frozen.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:47",
+        "tests/test_agentic.py:294",
+        "tests/test_agentic.py:330"
+      ]
+    },
+    {
+      "criterion": "Samples lacking the earlier predictor or awaiting coefficient training remain unavailable.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:122",
+        "tests/test_agentic.py:330"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Inspected lagged-response leading unavailable values and first usable sample: supplied coefficient 2, lag 2, response index 2/predictor index 0 and source cutoff preserved."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

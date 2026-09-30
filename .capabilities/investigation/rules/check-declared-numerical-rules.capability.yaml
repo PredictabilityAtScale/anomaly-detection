@@ -1,0 +1,108 @@
+title: Check caller-declared numerical rules
+status: implemented
+summary: Acceptable ranges and maximum absolute or relative changes identify
+  explicit criterion violations, including before calibration.
+intent: Let callers check clear numerical constraints without presenting them as
+  learned anomaly thresholds.
+acceptance:
+  - Values outside an inclusive acceptable range are violations, while values on
+    the boundary are accepted.
+  - Absolute and relative changes must exceed their declared maximum to violate
+    a rule.
+  - Relative-change checks require a nonzero previous value and do not bridge
+    missing observations.
+  - Violations identify the exact declared rule and remain action-ineligible
+    unless policy explicitly permits them.
+guidance:
+  - An exact rule crossing does not establish cause, an incident, or business
+    impact.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review investigation/rules/check-declared-numerical-rules
+  # run deterministic review only: capabilitykit review investigation/rules/check-declared-numerical-rules --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review investigation/rules/check-declared-numerical-rules --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result investigation/rules/check-declared-numerical-rules --input review.json
+  # -----------------------------
+  depends_on:
+    - investigation/assessments/describe-early-changes
+  implementation:
+    references:
+      - src/anomalyzer/early.py
+      - src/anomalyzer/contracts.py
+      - tests/test_agentic.py
+      - tests/test_cli.py
+      - tests/test_capability_behaviors.py
+  verification:
+    automated:
+      - id: rule-boundaries
+        description: Check inclusive range boundaries and strict absolute/relative
+          change thresholds.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_explicit_rules_respect_boundaries
+      - id: relative-availability
+        description: Avoid relative violations across zero or missing values.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_relative_rule_does_not_compare_across_zero_or_missing_values
+      - id: explicit-not-actionable
+        description: Create evidence and a case for an exact rule crossing without
+          enabling action by default.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_explicit_rule_is_exact_but_not_actionable_without_policy
+      - id: readable-rule
+        description: Identify the exact unit-cost range rule in CLI output.
+        command: python -m pytest -q
+          tests/test_cli.py::test_schema_11_readable_case_distinguishes_explicit_rule
+    manual:
+      - Read the unit-cost example's crossed rule and confirm its text
+        distinguishes the declared bound from statistical detection.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Read unit-cost stdout and drilldown: review-above-13c outside [0,0.13]
+        is a caller-declared numerical criterion, with explicit non-claims about
+        cause and incidents."
+    intent_summary: Acceptable ranges and maximum absolute or relative changes
+      identify explicit criterion violations, including before calibration.
+    criteria:
+      - criterion: Values outside an inclusive acceptable range are violations, while
+          values on the boundary are accepted.
+        status: covered
+        evidence:
+          - src/anomalyzer/early.py:22
+          - src/anomalyzer/contracts.py:209
+          - tests/test_capability_behaviors.py:74
+      - criterion: Absolute and relative changes must exceed their declared maximum to
+          violate a rule.
+        status: covered
+        evidence:
+          - src/anomalyzer/early.py:25
+          - tests/test_capability_behaviors.py:74
+      - criterion: Relative-change checks require a nonzero previous value and do not
+          bridge missing observations.
+        status: covered
+        evidence:
+          - src/anomalyzer/early.py:29
+          - src/anomalyzer/early.py:53
+          - tests/test_capability_behaviors.py:87
+      - criterion: Violations identify the exact declared rule and remain
+          action-ineligible unless policy explicitly permits them.
+        status: covered
+        evidence:
+          - src/anomalyzer/early.py:34
+          - src/anomalyzer/early.py:121
+          - tests/test_agentic.py:49
+          - tests/test_cli.py:134
+    done: true
+    input_fingerprint: cfaf57c3735cf5a978003aebe8d85e4716c8e9f705c2f5647e579da6ebe18d92
+    mode: quick

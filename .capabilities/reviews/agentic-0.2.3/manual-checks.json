@@ -1,0 +1,2087 @@
+{
+  "spike": {
+    "status": "completed",
+    "episodes": 1,
+    "patterns": [
+      {
+        "rule": "cusum",
+        "kind": "location_shift",
+        "detection_index": 65,
+        "direction": "increase"
+      },
+      {
+        "rule": "moving_range",
+        "kind": "variation_shift",
+        "detection_index": 65,
+        "direction": "mixed"
+      }
+    ],
+    "sample": {
+      "id": "seasonal_trend:65",
+      "method": "seasonal_trend",
+      "index": 65,
+      "timestamp": "2026-03-07T00:00:00+00:00",
+      "training_cutoff": "2026-03-06T00:00:00+00:00",
+      "observed": 135.2,
+      "expected": 94.87499999999999,
+      "residual": 40.325,
+      "relative_deviation": 0.42503293807641646,
+      "standardized_residual": 85.30878531523909,
+      "signal_maturity": "calibrated",
+      "calibration_samples": 14,
+      "triggers": [
+        "point"
+      ],
+      "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+      "excluded_from_model": true,
+      "model_value": 94.87499999999999,
+      "exclusion_reason": "extreme_calibrated_residual",
+      "reference_action": "use_expected"
+    },
+    "trend": {
+      "requested": "auto",
+      "selected": "none",
+      "fit_samples": 28,
+      "minimum_samples": 28,
+      "minimum_error_reduction": 0.5,
+      "rate_bounds": [
+        -0.1,
+        0.1
+      ],
+      "outlier_handling": "robust",
+      "fit_objective": "two_pass_huber_screen_then_least_squares",
+      "excluded_positions": [],
+      "fit_window": [
+        0,
+        27
+      ],
+      "seasonal_sse": 3.599999999999987,
+      "linear_sse": 3.5897142857142734,
+      "exponential_sse": 3.577521736816344,
+      "coefficient": 0.0,
+      "rate": 0.0,
+      "origin": 0,
+      "robust_residuals": {
+        "center": 0.012499999999995737,
+        "scale": 0.4818450000000042,
+        "raw_scale": 0.4818450000000042,
+        "threshold": 4.5
+      },
+      "downweighted_count": 0
+    },
+    "readiness": {
+      "status": "caution",
+      "reasons": [
+        "Calibration residuals have strong lag-1 correlation; rule alert rates may differ from a stable independent-residual reference."
+      ],
+      "assessed_segments": 1,
+      "unassessed_segments": 0,
+      "scope": "Training and calibration diagnostics only; this does not estimate detection precision, false-alarm rate, or business usefulness."
+    },
+    "resolved_resets": []
+  },
+  "location_shift_up": {
+    "status": "completed",
+    "episodes": 0,
+    "patterns": [
+      {
+        "rule": "nelson_rule_2",
+        "kind": "location_shift",
+        "detection_index": 68,
+        "direction": "increase"
+      },
+      {
+        "rule": "nelson_rule_5",
+        "kind": "location_shift",
+        "detection_index": 61,
+        "direction": "increase"
+      },
+      {
+        "rule": "nelson_rule_6",
+        "kind": "location_shift",
+        "detection_index": 63,
+        "direction": "increase"
+      },
+      {
+        "rule": "nelson_rule_4",
+        "kind": "systematic_oscillation",
+        "detection_index": 57,
+        "direction": "mixed"
+      },
+      {
+        "rule": "cusum",
+        "kind": "location_shift",
+        "detection_index": 62,
+        "direction": "increase"
+      }
+    ],
+    "sample": {
+      "id": "seasonal_naive:89",
+      "method": "seasonal_naive",
+      "index": 89,
+      "timestamp": "2026-03-31T00:00:00+00:00",
+      "training_cutoff": "2026-03-30T00:00:00+00:00",
+      "observed": 99.9367,
+      "expected": 97.9367,
+      "residual": 2.0,
+      "relative_deviation": 0.020421353792806986,
+      "standardized_residual": 2.282634627285618,
+      "signal_maturity": "calibrated",
+      "calibration_samples": 14,
+      "triggers": [],
+      "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+      "excluded_from_model": false,
+      "model_value": 99.9367,
+      "exclusion_reason": null,
+      "reference_action": "use_observed"
+    },
+    "trend": {
+      "requested": "none",
+      "selected": "none",
+      "fit_samples": 30,
+      "minimum_samples": 120,
+      "minimum_error_reduction": 0.5,
+      "rate_bounds": [
+        -0.1,
+        0.1
+      ],
+      "outlier_handling": "include",
+      "fit_objective": "sum_of_squares",
+      "excluded_positions": [],
+      "reason": "disabled"
+    },
+    "readiness": {
+      "status": "caution",
+      "reasons": [
+        "The declared season could not be checked for stable repetition in training.",
+        "Calibration residuals have strong lag-1 correlation; rule alert rates may differ from a stable independent-residual reference."
+      ],
+      "assessed_segments": 1,
+      "unassessed_segments": 0,
+      "scope": "Training and calibration diagnostics only; this does not estimate detection precision, false-alarm rate, or business usefulness."
+    },
+    "resolved_resets": []
+  },
+  "growth_up": {
+    "status": "completed",
+    "episodes": 0,
+    "patterns": [],
+    "sample": {
+      "id": "seasonal_trend:89",
+      "method": "seasonal_trend",
+      "index": 89,
+      "timestamp": "2026-03-31T00:00:00+00:00",
+      "training_cutoff": "2026-03-30T00:00:00+00:00",
+      "observed": 141.5,
+      "expected": 141.40895238095237,
+      "residual": 0.09104761904762881,
+      "relative_deviation": 0.0006438603604271722,
+      "standardized_residual": 0.2978637996372231,
+      "signal_maturity": "calibrated",
+      "calibration_samples": 14,
+      "triggers": [],
+      "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+      "excluded_from_model": false,
+      "model_value": 141.5,
+      "exclusion_reason": null,
+      "reference_action": "use_observed"
+    },
+    "trend": {
+      "requested": "auto",
+      "selected": "linear",
+      "fit_samples": 28,
+      "minimum_samples": 28,
+      "minimum_error_reduction": 0.5,
+      "rate_bounds": [
+        -0.1,
+        0.1
+      ],
+      "outlier_handling": "robust",
+      "fit_objective": "two_pass_huber_screen_then_least_squares",
+      "excluded_positions": [],
+      "fit_window": [
+        0,
+        27
+      ],
+      "seasonal_sse": 626.04,
+      "linear_sse": 3.589714285714258,
+      "exponential_sse": 3.575599366631473,
+      "coefficient": 0.6024489795918367,
+      "rate": 0.0,
+      "origin": 27,
+      "robust_residuals": {
+        "center": 0.012500000000005063,
+        "scale": 0.48766950000000725,
+        "raw_scale": 0.48766950000000725,
+        "threshold": 4.5
+      },
+      "downweighted_count": 0
+    },
+    "readiness": {
+      "status": "caution",
+      "reasons": [
+        "Calibration residuals have strong lag-1 correlation; rule alert rates may differ from a stable independent-residual reference."
+      ],
+      "assessed_segments": 1,
+      "unassessed_segments": 0,
+      "scope": "Training and calibration diagnostics only; this does not estimate detection precision, false-alarm rate, or business usefulness."
+    },
+    "resolved_resets": []
+  },
+  "compound": {
+    "status": "completed",
+    "episodes": 0,
+    "patterns": [],
+    "sample": {
+      "id": "seasonal_trend:89",
+      "method": "seasonal_trend",
+      "index": 89,
+      "timestamp": "2026-03-31T00:00:00+00:00",
+      "training_cutoff": "2026-03-30T00:00:00+00:00",
+      "observed": 277.2117,
+      "expected": 277.07588469552377,
+      "residual": 0.1358153044762389,
+      "relative_deviation": 0.0004901736743545369,
+      "standardized_residual": 0.1934108325151554,
+      "signal_maturity": "calibrated",
+      "calibration_samples": 14,
+      "triggers": [],
+      "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+      "excluded_from_model": false,
+      "model_value": 277.2117,
+      "exclusion_reason": null,
+      "reference_action": "use_observed"
+    },
+    "trend": {
+      "requested": "auto",
+      "selected": "exponential",
+      "fit_samples": 35,
+      "minimum_samples": 28,
+      "minimum_error_reduction": 0.5,
+      "rate_bounds": [
+        -0.1,
+        0.1
+      ],
+      "outlier_handling": "robust",
+      "fit_objective": "two_pass_huber_screen_then_least_squares",
+      "excluded_positions": [],
+      "fit_window": [
+        0,
+        34
+      ],
+      "seasonal_sse": 7408.5947400879995,
+      "linear_sse": 26.765165173714234,
+      "exponential_sse": 4.563711999164556,
+      "coefficient": 149.97998639542348,
+      "rate": 0.011930062842352845,
+      "origin": 34,
+      "robust_residuals": {
+        "center": 0.06000544699435295,
+        "scale": 0.5929988809835517,
+        "raw_scale": 0.5929988809835517,
+        "threshold": 4.5
+      },
+      "downweighted_count": 0
+    },
+    "readiness": {
+      "status": "caution",
+      "reasons": [
+        "Calibration residuals have strong lag-1 correlation; rule alert rates may differ from a stable independent-residual reference."
+      ],
+      "assessed_segments": 1,
+      "unassessed_segments": 0,
+      "scope": "Training and calibration diagnostics only; this does not estimate detection precision, false-alarm rate, or business usefulness."
+    },
+    "resolved_resets": []
+  },
+  "steps_reset": {
+    "status": "completed",
+    "episodes": 0,
+    "patterns": [],
+    "sample": {
+      "id": "seasonal_trend:149",
+      "method": "seasonal_trend",
+      "index": 149,
+      "timestamp": "2026-05-30T00:00:00+00:00",
+      "training_cutoff": "2026-05-29T00:00:00+00:00",
+      "observed": 166.0766,
+      "expected": 166.4774430640153,
+      "residual": -0.4008430640152767,
+      "relative_deviation": -0.00240779205060917,
+      "standardized_residual": -0.37436973040404764,
+      "signal_maturity": "calibrated",
+      "calibration_samples": 14,
+      "triggers": [],
+      "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+      "excluded_from_model": false,
+      "model_value": 166.0766,
+      "exclusion_reason": null,
+      "reference_action": "use_observed"
+    },
+    "trend": {
+      "requested": "auto",
+      "selected": "linear",
+      "fit_samples": 28,
+      "minimum_samples": 28,
+      "minimum_error_reduction": 0.5,
+      "rate_bounds": [
+        -0.1,
+        0.1
+      ],
+      "outlier_handling": "robust",
+      "fit_objective": "two_pass_huber_screen_then_least_squares",
+      "excluded_positions": [],
+      "fit_window": [
+        0,
+        27
+      ],
+      "seasonal_sse": 160.47000000000003,
+      "linear_sse": 3.589714285714296,
+      "exponential_sse": 3.5754789503044186,
+      "coefficient": 0.30244897959183675,
+      "rate": 0.0,
+      "origin": 27,
+      "robust_residuals": {
+        "center": 0.012499999999998845,
+        "scale": 0.4876695000000033,
+        "raw_scale": 0.4876695000000033,
+        "threshold": 4.5
+      },
+      "downweighted_count": 0
+    },
+    "readiness": {
+      "status": "caution",
+      "reasons": [
+        "Calibration residuals have strong lag-1 correlation; rule alert rates may differ from a stable independent-residual reference."
+      ],
+      "assessed_segments": 3,
+      "unassessed_segments": 0,
+      "scope": "Training and calibration diagnostics only; this does not estimate detection precision, false-alarm rate, or business usefulness."
+    },
+    "resolved_resets": [
+      50,
+      100
+    ]
+  },
+  "conversion": {
+    "status": "completed",
+    "headline": "relationship conversion: At 2026-01-15T00:00:00+00:00, declared relationship conversion decreased. Severity is critical because standardized evidence reached 3.85e+06, at or above the robust extreme threshold 4.5.",
+    "findings": [
+      {
+        "id": "case:0ecd5b5ec3820224",
+        "kind": "case",
+        "target_id": "conversion",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-15T00:00:00+00:00",
+        "headline": "relationship conversion: At 2026-01-15T00:00:00+00:00, declared relationship conversion decreased. Severity is critical because standardized evidence reached 3.85e+06, at or above the robust extreme threshold 4.5.",
+        "maturity": "calibrated",
+        "severity": "critical",
+        "readiness": "not_assessed",
+        "note": "A case is numerical evidence, not an incident or permission to act."
+      },
+      {
+        "id": "episode:relationship:conversion:episode-1",
+        "kind": "episode",
+        "target_id": "conversion",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-15T00:00:00+00:00",
+        "headline": "conversion: 0.0615385 versus expected 0.1 (decrease) over 2026-01-15T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "A point episode can overlap residual patterns."
+      },
+      {
+        "id": "candidate:conversion:assessment:14:early",
+        "kind": "candidate",
+        "target_id": "conversion",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-15T00:00:00+00:00",
+        "headline": "conversion: early possible departure at 2026-01-15T00:00:00+00:00; observed 0.0615385 versus prior range 0.1 to 0.1.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "pattern:relationship:conversion:anomaly-pattern-1",
+        "kind": "pattern",
+        "target_id": "conversion",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-15T00:00:00+00:00",
+        "headline": "conversion: possible location shift (decrease, cusum) over 2026-01-15T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "pattern:relationship:conversion:anomaly-pattern-2",
+        "kind": "pattern",
+        "target_id": "conversion",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-15T00:00:00+00:00",
+        "headline": "conversion: possible variation shift (mixed, moving_range) over 2026-01-14T00:00:00+00:00 to 2026-01-15T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "pattern:dataset:orders:anomaly-pattern-1",
+        "kind": "pattern",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-11T00:00:00+00:00",
+        "headline": "orders: possible location shift (increase, nelson_rule_5) over 2026-01-09T00:00:00+00:00 to 2026-01-11T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "pattern:dataset:qualified_visits:anomaly-pattern-1",
+        "kind": "pattern",
+        "target_id": "qualified_visits",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-11T00:00:00+00:00",
+        "headline": "qualified_visits: possible location shift (increase, nelson_rule_5) over 2026-01-09T00:00:00+00:00 to 2026-01-11T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "candidate:orders:assessment:6:early",
+        "kind": "candidate",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-07T00:00:00+00:00",
+        "headline": "orders: early possible departure at 2026-01-07T00:00:00+00:00; observed 7 versus prior range 8 to 13.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:qualified_visits:assessment:6:early",
+        "kind": "candidate",
+        "target_id": "qualified_visits",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-07T00:00:00+00:00",
+        "headline": "qualified_visits: early possible departure at 2026-01-07T00:00:00+00:00; observed 70 versus prior range 80 to 130.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:orders:assessment:3:early",
+        "kind": "candidate",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-04T00:00:00+00:00",
+        "headline": "orders: early possible departure at 2026-01-04T00:00:00+00:00; observed 13 versus prior range 8 to 12.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:qualified_visits:assessment:3:early",
+        "kind": "candidate",
+        "target_id": "qualified_visits",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-04T00:00:00+00:00",
+        "headline": "qualified_visits: early possible departure at 2026-01-04T00:00:00+00:00; observed 130 versus prior range 80 to 120.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      }
+    ],
+    "evidence": {
+      "run_id": "4a029564-1dec-48ee-94e1-a0a563f31022",
+      "finding": {
+        "id": "case:0ecd5b5ec3820224",
+        "kind": "case",
+        "target_id": "conversion",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-15T00:00:00+00:00",
+        "headline": "relationship conversion: At 2026-01-15T00:00:00+00:00, declared relationship conversion decreased. Severity is critical because standardized evidence reached 3.85e+06, at or above the robust extreme threshold 4.5.",
+        "maturity": "calibrated",
+        "severity": "critical",
+        "readiness": "not_assessed",
+        "note": "A case is numerical evidence, not an incident or permission to act."
+      },
+      "record": {
+        "id": "case:0ecd5b5ec3820224",
+        "revision_id": "case:0ecd5b5ec3820224:ba3ef7ace6e8",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-01-15T00:00:00+00:00",
+        "detection_time": "2026-01-15T00:00:00+00:00",
+        "source_availability_cutoff": "2026-01-15T00:00:00+00:00",
+        "contributing_dataset_ids": [],
+        "contributing_relationship_ids": [
+          "conversion"
+        ],
+        "supporting_evidence": [
+          "conversion:assessment:14:relationship:conversion:seasonal_naive",
+          "relationship:conversion:seasonal_naive:14"
+        ],
+        "conflicting_evidence": [],
+        "unavailable_evidence": [],
+        "correlated_evidence_groups": [],
+        "evidence_refs": [
+          "conversion:assessment:14:relationship:conversion:seasonal_naive",
+          "relationship:conversion:seasonal_naive:14"
+        ],
+        "maturity": "calibrated",
+        "severity": "critical",
+        "severity_reasons": [
+          "standardized evidence reached 3.85e+06, at or above the robust extreme threshold 4.5"
+        ],
+        "explanation": "At 2026-01-15T00:00:00+00:00, declared relationship conversion decreased. Severity is critical because standardized evidence reached 3.85e+06, at or above the robust extreme threshold 4.5.",
+        "action_eligible": false,
+        "notification_eligible": false,
+        "business_impact": "unresolved",
+        "suggested_investigation_questions": [
+          "Did collection completeness, entity scope, or unit semantics change?",
+          "Which reviewed operational or business changes overlap this event time?",
+          "Does the declared relationship remain appropriate for this regime?"
+        ],
+        "non_claims": [
+          "Correlated evidence is not counted as independent confirmation.",
+          "Numerical association does not establish cause.",
+          "Business impact remains unresolved unless supplied externally."
+        ]
+      },
+      "assessments": [
+        {
+          "id": "conversion:assessment:14:relationship:conversion:seasonal_naive",
+          "target_id": "conversion",
+          "index": 14,
+          "timestamp": "2026-01-15T00:00:00+00:00",
+          "classification": "supported_departure",
+          "maturity": "calibrated",
+          "basis": "declared_relationship",
+          "action_eligible": false,
+          "notification_eligible": false,
+          "review_state": "unreviewed",
+          "criterion_met": true,
+          "comparison_population": "frozen calibration residual window",
+          "comparison_samples": 3,
+          "baseline": {
+            "kind": "seasonal_residual",
+            "method": "relationship:conversion:seasonal_naive",
+            "expected": 0.1,
+            "point_threshold": 4.0
+          },
+          "observed": 0.06153846153846154,
+          "absolute_change": -0.038461538461538464,
+          "relative_change": -0.38461538461538464,
+          "direction": "decrease",
+          "evidence_strength": 3846153.8461538465,
+          "evidence_strength_semantics": "absolute standardized residual under the frozen baseline; not a probability",
+          "assumptions": [
+            "The declared cadence, seasonal reference, and frozen calibration are appropriate.",
+            "The score is interpreted as model-conditional evidence, not event truth."
+          ],
+          "established": "The configured calibrated numerical criterion was met.",
+          "not_established": "The criterion does not establish a real-world anomaly, cause, incident, or business impact.",
+          "evidence_refs": [
+            "relationship:conversion:seasonal_naive:14"
+          ]
+        }
+      ],
+      "lineage": [
+        {
+          "index": 14,
+          "timestamp": "2026-01-15T00:00:00+00:00",
+          "value": 0.06153846153846154,
+          "source_dataset_ids": [
+            "orders",
+            "qualified_visits"
+          ],
+          "source_indexes": {
+            "orders": 14,
+            "qualified_visits": 14
+          },
+          "source_timestamps": {
+            "orders": "2026-01-15T00:00:00+00:00",
+            "qualified_visits": "2026-01-15T00:00:00+00:00"
+          },
+          "formula": "orders[t] / qualified_visits[t]",
+          "parameters": {},
+          "units": "orders_per_visit",
+          "alignment": "exact",
+          "lag": 0,
+          "unavailable_reason": null,
+          "latest_source_cutoff": "2026-01-15T00:00:00+00:00"
+        }
+      ],
+      "readiness": [
+        {
+          "target_id": "conversion",
+          "kind": "relationship",
+          "status": "not_assessed",
+          "methods": [
+            {
+              "id": "relationship:conversion:seasonal_naive",
+              "status": "not_assessed",
+              "reasons": [
+                "Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably."
+              ],
+              "limitations": [
+                "Calibration variance is zero or tiny in a segment; scale_floor determines sensitivity, with no probability interpretation.",
+                "Reference-only and provisional evidence is non-triggering and does not establish an anomaly.",
+                "Repeated thresholds are exploratory and do not control a family-wise false-alarm rate.",
+                "Consecutive-run patterns describe the point-anomaly stream; they are not an independent probability or incident classification.",
+                "Nelson Rules 2, 5, and 6 are applied only to calibrated residuals around a frozen centerline; they indicate a possible location shift, not a change in the full distribution or a business incident.",
+                "Nelson Rules 3, 4, and 8 describe residual trend, systematic oscillation, and mixture patterns; they are model/process diagnostics, not location-shift claims.",
+                "CUSUM and moving-range thresholds are exploratory and applied to calibrated standardized residuals; they are not probabilities or independently corroborating evidence.",
+                "Classical Nelson, CUSUM, and moving-range false-alarm behavior assumes an adequately estimated stable process; residual autocorrelation, non-normal tails, and a short calibration window can change the alert rate.",
+                "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures.",
+                "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
+                "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; sustained moderate shifts can gradually enter the multi-season baseline."
+              ]
+            }
+          ],
+          "limitations": [
+            "Arrival history is absent: samples are assumed available at event time.",
+            "No labels supplied: no detection precision, recall, or business impact is claimed.",
+            "Known events and concerns are context only; they do not suppress signals.",
+            "Runtime limit is cooperative between samples.",
+            "The declared relationship is model input, not a discovered or causal relationship.",
+            "Derived and source evidence can be correlated and must not be counted as independent votes.",
+            "No interpolation, resampling, implicit zero, or unit conversion was performed."
+          ]
+        }
+      ],
+      "sample_count": 1,
+      "samples": [
+        {
+          "id": "relationship:conversion:seasonal_naive:14",
+          "method": "relationship:conversion:seasonal_naive",
+          "index": 14,
+          "timestamp": "2026-01-15T00:00:00+00:00",
+          "training_cutoff": "2026-01-14T00:00:00+00:00",
+          "observed": 0.06153846153846154,
+          "expected": 0.1,
+          "residual": -0.038461538461538464,
+          "relative_deviation": -0.38461538461538464,
+          "standardized_residual": -3846153.8461538465,
+          "signal_maturity": "calibrated",
+          "calibration_samples": 3,
+          "triggers": [
+            "point"
+          ],
+          "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+          "excluded_from_model": true,
+          "model_value": 0.1,
+          "exclusion_reason": "extreme_calibrated_residual",
+          "reference_action": "use_expected"
+        }
+      ],
+      "next_cursor": null,
+      "note": "Evidence establishes numerical criteria only; source context, cause, impact, and action authority require external review."
+    },
+    "lineage_preview": [
+      {
+        "index": 0,
+        "timestamp": "2026-01-01T00:00:00+00:00",
+        "value": 0.1,
+        "source_dataset_ids": [
+          "orders",
+          "qualified_visits"
+        ],
+        "source_indexes": {
+          "orders": 0,
+          "qualified_visits": 0
+        },
+        "source_timestamps": {
+          "orders": "2026-01-01T00:00:00+00:00",
+          "qualified_visits": "2026-01-01T00:00:00+00:00"
+        },
+        "formula": "orders[t] / qualified_visits[t]",
+        "parameters": {},
+        "units": "orders_per_visit",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-01-01T00:00:00+00:00"
+      },
+      {
+        "index": 1,
+        "timestamp": "2026-01-02T00:00:00+00:00",
+        "value": 0.1,
+        "source_dataset_ids": [
+          "orders",
+          "qualified_visits"
+        ],
+        "source_indexes": {
+          "orders": 1,
+          "qualified_visits": 1
+        },
+        "source_timestamps": {
+          "orders": "2026-01-02T00:00:00+00:00",
+          "qualified_visits": "2026-01-02T00:00:00+00:00"
+        },
+        "formula": "orders[t] / qualified_visits[t]",
+        "parameters": {},
+        "units": "orders_per_visit",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-01-02T00:00:00+00:00"
+      },
+      {
+        "index": 2,
+        "timestamp": "2026-01-03T00:00:00+00:00",
+        "value": 0.1,
+        "source_dataset_ids": [
+          "orders",
+          "qualified_visits"
+        ],
+        "source_indexes": {
+          "orders": 2,
+          "qualified_visits": 2
+        },
+        "source_timestamps": {
+          "orders": "2026-01-03T00:00:00+00:00",
+          "qualified_visits": "2026-01-03T00:00:00+00:00"
+        },
+        "formula": "orders[t] / qualified_visits[t]",
+        "parameters": {},
+        "units": "orders_per_visit",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-01-03T00:00:00+00:00"
+      }
+    ],
+    "readable_stdout": "Analysis: completed\nDatasets: 2; relationships: 1; cases: 1\nRecent cases (latest 1 of 1):\n  2026-01-15T00:00:00+00:00 [site=demo] case:0ecd5b5ec3820224 severity=critical\n    relationship conversion (ratio): observed 0.0615385 orders_per_visit vs expected 0.1 orders_per_visit; calibrated point departure\n    Why: At 2026-01-15T00:00:00+00:00, declared relationship conversion decreased. Severity is critical because standardized evidence reached 3.85e+06, at or above the robust extreme threshold 4.5.\n    Check: Did collection completeness, entity scope, or unit semantics change?\n  dataset orders: completed; point-anomaly episodes=0; pattern findings=1; assessments=15\n    dataset:orders:seasonal_naive detection readiness: not_assessed\n      Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably.\n  dataset qualified_visits: completed; point-anomaly episodes=0; pattern findings=1; assessments=15\n    dataset:qualified_visits:seasonal_naive detection readiness: not_assessed\n      Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably.\n  relationship conversion (ratio): completed; point-anomaly episodes=1; pattern findings=2; assessments=16\n    relationship:conversion:seasonal_naive detection readiness: not_assessed\n      Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably.\nDetection readiness checks training/calibration reference quality; alert accuracy is unmeasured.\nCases come from supported point departures, explicit-rule violations, and under adaptive-seasonal-v1 calibrated Nelson/CUSUM location shifts; overlapping location rules are grouped.\nBusiness impact: unresolved. Relationship evidence does not establish cause.\n",
+    "readable_stderr": "",
+    "exit": 0
+  },
+  "unit-cost": {
+    "status": "insufficient_history",
+    "headline": "relationship unit_cost: At 2026-03-04T00:00:00+00:00, declared relationship unit_cost increased. Severity is warning because one source criterion or correlated derived relationship was met.",
+    "findings": [
+      {
+        "id": "case:11afc147768b03b4",
+        "kind": "case",
+        "target_id": "unit_cost",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-04T00:00:00+00:00",
+        "headline": "relationship unit_cost: At 2026-03-04T00:00:00+00:00, declared relationship unit_cost increased. Severity is warning because one source criterion or correlated derived relationship was met.",
+        "maturity": "early",
+        "severity": "warning",
+        "readiness": "not_assessed",
+        "note": "A case is numerical evidence, not an incident or permission to act."
+      },
+      {
+        "id": "candidate:successful_requests:assessment:3:early",
+        "kind": "candidate",
+        "target_id": "successful_requests",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-04T00:00:00+00:00",
+        "headline": "successful_requests: early possible departure at 2026-03-04T00:00:00+00:00; observed 70 versus prior range 90 to 110.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:infrastructure_cost:assessment:2:early",
+        "kind": "candidate",
+        "target_id": "infrastructure_cost",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-03T00:00:00+00:00",
+        "headline": "infrastructure_cost: early possible departure at 2026-03-03T00:00:00+00:00; observed 9 versus prior range 10 to 11.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:successful_requests:assessment:2:early",
+        "kind": "candidate",
+        "target_id": "successful_requests",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-03T00:00:00+00:00",
+        "headline": "successful_requests: early possible departure at 2026-03-03T00:00:00+00:00; observed 90 versus prior range 100 to 110.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "quality:dataset:infrastructure_cost",
+        "kind": "quality",
+        "target_id": "infrastructure_cost",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-04T00:00:00+00:00",
+        "headline": "infrastructure_cost: insufficient history for calibrated detection (4 observations).",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      },
+      {
+        "id": "quality:dataset:successful_requests",
+        "kind": "quality",
+        "target_id": "successful_requests",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-04T00:00:00+00:00",
+        "headline": "successful_requests: insufficient history for calibrated detection (4 observations).",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      },
+      {
+        "id": "quality:relationship:unit_cost",
+        "kind": "quality",
+        "target_id": "unit_cost",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": null,
+        "headline": "unit_cost: insufficient history for calibrated detection (4 observations).",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      }
+    ],
+    "evidence": {
+      "run_id": "4cba02cd-f430-4c97-a397-1741d14700ca",
+      "finding": {
+        "id": "case:11afc147768b03b4",
+        "kind": "case",
+        "target_id": "unit_cost",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-04T00:00:00+00:00",
+        "headline": "relationship unit_cost: At 2026-03-04T00:00:00+00:00, declared relationship unit_cost increased. Severity is warning because one source criterion or correlated derived relationship was met.",
+        "maturity": "early",
+        "severity": "warning",
+        "readiness": "not_assessed",
+        "note": "A case is numerical evidence, not an incident or permission to act."
+      },
+      "record": {
+        "id": "case:11afc147768b03b4",
+        "revision_id": "case:11afc147768b03b4:0ac28abc4309",
+        "entity": {
+          "service": "demo"
+        },
+        "event_time": "2026-03-04T00:00:00+00:00",
+        "detection_time": "2026-03-04T00:00:00+00:00",
+        "source_availability_cutoff": "2026-03-04T00:00:00+00:00",
+        "contributing_dataset_ids": [],
+        "contributing_relationship_ids": [
+          "unit_cost"
+        ],
+        "supporting_evidence": [
+          "unit_cost:assessment:3:early"
+        ],
+        "conflicting_evidence": [],
+        "unavailable_evidence": [],
+        "correlated_evidence_groups": [],
+        "evidence_refs": [
+          "unit_cost:assessment:3:early"
+        ],
+        "maturity": "early",
+        "severity": "warning",
+        "severity_reasons": [
+          "one source criterion or correlated derived relationship was met"
+        ],
+        "explanation": "At 2026-03-04T00:00:00+00:00, declared relationship unit_cost increased. Severity is warning because one source criterion or correlated derived relationship was met.",
+        "action_eligible": true,
+        "notification_eligible": true,
+        "business_impact": "unresolved",
+        "suggested_investigation_questions": [
+          "Did collection completeness, entity scope, or unit semantics change?",
+          "Which reviewed operational or business changes overlap this event time?",
+          "Does the declared relationship remain appropriate for this regime?"
+        ],
+        "non_claims": [
+          "Correlated evidence is not counted as independent confirmation.",
+          "Numerical association does not establish cause.",
+          "Business impact remains unresolved unless supplied externally."
+        ]
+      },
+      "assessments": [
+        {
+          "id": "unit_cost:assessment:3:early",
+          "target_id": "unit_cost",
+          "index": 3,
+          "timestamp": "2026-03-04T00:00:00+00:00",
+          "classification": "criterion_violation",
+          "maturity": "early",
+          "basis": "explicit_rule",
+          "action_eligible": true,
+          "notification_eligible": true,
+          "review_state": "unreviewed",
+          "criterion_met": true,
+          "comparison_population": "observations since the latest missing-value boundary, strictly before this sample",
+          "comparison_samples": 3,
+          "baseline": {
+            "kind": "explicit_rules",
+            "violations": [
+              {
+                "id": "review-above-13c",
+                "kind": "acceptable_range",
+                "minimum": 0.0,
+                "maximum": 0.13
+              }
+            ]
+          },
+          "observed": 0.15714285714285714,
+          "absolute_change": 0.057142857142857134,
+          "relative_change": 0.5714285714285713,
+          "direction": "increase",
+          "evidence_strength": null,
+          "evidence_strength_semantics": "exact comparison with caller-supplied rule boundaries",
+          "assumptions": [
+            "Input order is chronological after preparation.",
+            "Values share the declared target units and entity.",
+            "No interpolation, resampling, or implicit unit conversion was performed."
+          ],
+          "established": "One or more declared numerical criteria were crossed.",
+          "not_established": "A rule crossing does not establish a real-world anomaly, cause, incident, or business impact.",
+          "evidence_refs": []
+        }
+      ],
+      "lineage": [
+        {
+          "index": 3,
+          "timestamp": "2026-03-04T00:00:00+00:00",
+          "value": 0.15714285714285714,
+          "source_dataset_ids": [
+            "infrastructure_cost",
+            "successful_requests"
+          ],
+          "source_indexes": {
+            "infrastructure_cost": 3,
+            "successful_requests": 3
+          },
+          "source_timestamps": {
+            "infrastructure_cost": "2026-03-04T00:00:00+00:00",
+            "successful_requests": "2026-03-04T00:00:00+00:00"
+          },
+          "formula": "infrastructure_cost[t] / successful_requests[t]",
+          "parameters": {},
+          "units": "usd_per_request",
+          "alignment": "exact",
+          "lag": 0,
+          "unavailable_reason": null,
+          "latest_source_cutoff": "2026-03-04T00:00:00+00:00"
+        }
+      ],
+      "readiness": [
+        {
+          "target_id": "unit_cost",
+          "kind": "relationship",
+          "status": "not_assessed",
+          "methods": [
+            {
+              "id": "relationship:unit_cost:seasonal_naive",
+              "status": "not_assessed",
+              "reasons": [
+                "No segment reached calibrated evaluation (method status: insufficient_history)."
+              ],
+              "limitations": [
+                "Reference-only and provisional evidence is non-triggering and does not establish an anomaly.",
+                "Repeated thresholds are exploratory and do not control a family-wise false-alarm rate.",
+                "Consecutive-run patterns describe the point-anomaly stream; they are not an independent probability or incident classification.",
+                "Nelson Rules 2, 5, and 6 are applied only to calibrated residuals around a frozen centerline; they indicate a possible location shift, not a change in the full distribution or a business incident.",
+                "Nelson Rules 3, 4, and 8 describe residual trend, systematic oscillation, and mixture patterns; they are model/process diagnostics, not location-shift claims.",
+                "CUSUM and moving-range thresholds are exploratory and applied to calibrated standardized residuals; they are not probabilities or independently corroborating evidence.",
+                "Classical Nelson, CUSUM, and moving-range false-alarm behavior assumes an adequately estimated stable process; residual autocorrelation, non-normal tails, and a short calibration window can change the alert rate.",
+                "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures.",
+                "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
+                "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; sustained moderate shifts can gradually enter the multi-season baseline.",
+                "At least one manual segment did not reach calibrated evaluation; its available evidence is non-triggering."
+              ]
+            }
+          ],
+          "limitations": [
+            "Arrival history is absent: samples are assumed available at event time.",
+            "No labels supplied: no detection precision, recall, or business impact is claimed.",
+            "Known events and concerns are context only; they do not suppress signals.",
+            "Runtime limit is cooperative between samples.",
+            "The declared relationship is model input, not a discovered or causal relationship.",
+            "Derived and source evidence can be correlated and must not be counted as independent votes.",
+            "No interpolation, resampling, implicit zero, or unit conversion was performed."
+          ]
+        }
+      ],
+      "sample_count": 0,
+      "samples": [],
+      "next_cursor": null,
+      "note": "Evidence establishes numerical criteria only; source context, cause, impact, and action authority require external review."
+    },
+    "lineage_preview": [
+      {
+        "index": 0,
+        "timestamp": "2026-03-01T00:00:00+00:00",
+        "value": 0.1,
+        "source_dataset_ids": [
+          "infrastructure_cost",
+          "successful_requests"
+        ],
+        "source_indexes": {
+          "infrastructure_cost": 0,
+          "successful_requests": 0
+        },
+        "source_timestamps": {
+          "infrastructure_cost": "2026-03-01T00:00:00+00:00",
+          "successful_requests": "2026-03-01T00:00:00+00:00"
+        },
+        "formula": "infrastructure_cost[t] / successful_requests[t]",
+        "parameters": {},
+        "units": "usd_per_request",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-03-01T00:00:00+00:00"
+      },
+      {
+        "index": 1,
+        "timestamp": "2026-03-02T00:00:00+00:00",
+        "value": 0.1,
+        "source_dataset_ids": [
+          "infrastructure_cost",
+          "successful_requests"
+        ],
+        "source_indexes": {
+          "infrastructure_cost": 1,
+          "successful_requests": 1
+        },
+        "source_timestamps": {
+          "infrastructure_cost": "2026-03-02T00:00:00+00:00",
+          "successful_requests": "2026-03-02T00:00:00+00:00"
+        },
+        "formula": "infrastructure_cost[t] / successful_requests[t]",
+        "parameters": {},
+        "units": "usd_per_request",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-03-02T00:00:00+00:00"
+      },
+      {
+        "index": 2,
+        "timestamp": "2026-03-03T00:00:00+00:00",
+        "value": 0.1,
+        "source_dataset_ids": [
+          "infrastructure_cost",
+          "successful_requests"
+        ],
+        "source_indexes": {
+          "infrastructure_cost": 2,
+          "successful_requests": 2
+        },
+        "source_timestamps": {
+          "infrastructure_cost": "2026-03-03T00:00:00+00:00",
+          "successful_requests": "2026-03-03T00:00:00+00:00"
+        },
+        "formula": "infrastructure_cost[t] / successful_requests[t]",
+        "parameters": {},
+        "units": "usd_per_request",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-03-03T00:00:00+00:00"
+      }
+    ],
+    "readable_stdout": "Analysis: insufficient_history\nDatasets: 2; relationships: 1; cases: 1\nRecent cases (latest 1 of 1):\n  2026-03-04T00:00:00+00:00 [service=demo] case:11afc147768b03b4 severity=warning\n    relationship unit_cost (ratio): observed 0.157143 usd_per_request; crossed declared rule(s): review-above-13c (outside [0, 0.13] usd_per_request)\n    Why: At 2026-03-04T00:00:00+00:00, declared relationship unit_cost increased. Severity is warning because one source criterion or correlated derived relationship was met.\n    Check: Did collection completeness, entity scope, or unit semantics change?\n  dataset infrastructure_cost: insufficient_history; point-anomaly episodes=0; pattern findings=0; assessments=4\n    dataset:infrastructure_cost:seasonal_naive detection readiness: not_assessed\n      No segment reached calibrated evaluation (method status: insufficient_history).\n  dataset successful_requests: insufficient_history; point-anomaly episodes=0; pattern findings=0; assessments=4\n    dataset:successful_requests:seasonal_naive detection readiness: not_assessed\n      No segment reached calibrated evaluation (method status: insufficient_history).\n  relationship unit_cost (ratio): insufficient_history; point-anomaly episodes=0; pattern findings=0; assessments=4\n    relationship:unit_cost:seasonal_naive detection readiness: not_assessed\n      No segment reached calibrated evaluation (method status: insufficient_history).\nDetection readiness checks training/calibration reference quality; alert accuracy is unmeasured.\nCases come from supported point departures, explicit-rule violations, and under adaptive-seasonal-v1 calibrated Nelson/CUSUM location shifts; overlapping location rules are grouped.\nBusiness impact: unresolved. Relationship evidence does not establish cause.\n",
+    "readable_stderr": "",
+    "exit": 0,
+    "policy_comparison": {
+      "default": false,
+      "allow_explicit_rules": true
+    }
+  },
+  "lagged-response": {
+    "status": "completed",
+    "headline": "relationship lead_response: At 2026-02-12T00:00:00+00:00, source dataset orders decreased; declared relationship lead_response decreased. Severity is critical because standardized evidence reached 3.8e+09, at or above the robust extreme threshold 4.5.",
+    "findings": [
+      {
+        "id": "case:277eab600e1af193",
+        "kind": "case",
+        "target_id": "lead_response",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "relationship lead_response: At 2026-02-12T00:00:00+00:00, source dataset orders decreased; declared relationship lead_response decreased. Severity is critical because standardized evidence reached 3.8e+09, at or above the robust extreme threshold 4.5.",
+        "maturity": "calibrated",
+        "severity": "critical",
+        "readiness": "not_assessed",
+        "note": "A case is numerical evidence, not an incident or permission to act."
+      },
+      {
+        "id": "episode:dataset:orders:episode-1",
+        "kind": "episode",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "orders: 0 versus expected 29.7647 (decrease) over 2026-02-12T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "A point episode can overlap residual patterns."
+      },
+      {
+        "id": "episode:relationship:lead_response:episode-1",
+        "kind": "episode",
+        "target_id": "lead_response",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "lead_response: -38 versus expected 0 (decrease) over 2026-02-12T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "A point episode can overlap residual patterns."
+      },
+      {
+        "id": "quality:relationship:lead_response",
+        "kind": "quality",
+        "target_id": "lead_response",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": null,
+        "headline": "lead_response: 2 missing/unavailable value(s).",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      },
+      {
+        "id": "candidate:lead_response:assessment:11:early",
+        "kind": "candidate",
+        "target_id": "lead_response",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "lead_response: early possible departure at 2026-02-12T00:00:00+00:00; observed -38 versus prior range 0 to 0.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:orders:assessment:11:early",
+        "kind": "candidate",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "orders: early possible departure at 2026-02-12T00:00:00+00:00; observed 0 versus prior range 20 to 40.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:qualified_leads:assessment:11:early",
+        "kind": "candidate",
+        "target_id": "qualified_leads",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "qualified_leads: early possible departure at 2026-02-12T00:00:00+00:00; observed 21 versus prior range 10 to 20.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "pattern:dataset:orders:anomaly-pattern-1",
+        "kind": "pattern",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "orders: possible location shift (decrease, cusum) over 2026-02-09T00:00:00+00:00 to 2026-02-12T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "pattern:dataset:orders:anomaly-pattern-3",
+        "kind": "pattern",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "orders: possible variation shift (mixed, moving_range) over 2026-02-11T00:00:00+00:00 to 2026-02-12T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "pattern:relationship:lead_response:anomaly-pattern-1",
+        "kind": "pattern",
+        "target_id": "lead_response",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "lead_response: possible location shift (decrease, cusum) over 2026-02-12T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "pattern:relationship:lead_response:anomaly-pattern-2",
+        "kind": "pattern",
+        "target_id": "lead_response",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "lead_response: possible variation shift (mixed, moving_range) over 2026-02-11T00:00:00+00:00 to 2026-02-12T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "pattern:dataset:orders:anomaly-pattern-2",
+        "kind": "pattern",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-09T00:00:00+00:00",
+        "headline": "orders: possible variation shift (mixed, moving_range) over 2026-02-08T00:00:00+00:00 to 2026-02-09T00:00:00+00:00.",
+        "maturity": "calibrated",
+        "readiness": "not_assessed",
+        "note": "Patterns can overlap cases, episodes, and each other."
+      },
+      {
+        "id": "candidate:orders:assessment:7:early",
+        "kind": "candidate",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-08T00:00:00+00:00",
+        "headline": "orders: early possible departure at 2026-02-08T00:00:00+00:00; observed 40 versus prior range 20 to 36.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:orders:assessment:5:early",
+        "kind": "candidate",
+        "target_id": "orders",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-06T00:00:00+00:00",
+        "headline": "orders: early possible departure at 2026-02-06T00:00:00+00:00; observed 36 versus prior range 20 to 30.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:qualified_leads:assessment:5:early",
+        "kind": "candidate",
+        "target_id": "qualified_leads",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-06T00:00:00+00:00",
+        "headline": "qualified_leads: early possible departure at 2026-02-06T00:00:00+00:00; observed 20 versus prior range 10 to 18.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:qualified_leads:assessment:3:early",
+        "kind": "candidate",
+        "target_id": "qualified_leads",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-04T00:00:00+00:00",
+        "headline": "qualified_leads: early possible departure at 2026-02-04T00:00:00+00:00; observed 18 versus prior range 10 to 15.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      }
+    ],
+    "evidence": {
+      "run_id": "ed4737fc-ad5a-42e5-b5fc-d720d3ab9f03",
+      "finding": {
+        "id": "case:277eab600e1af193",
+        "kind": "case",
+        "target_id": "lead_response",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "headline": "relationship lead_response: At 2026-02-12T00:00:00+00:00, source dataset orders decreased; declared relationship lead_response decreased. Severity is critical because standardized evidence reached 3.8e+09, at or above the robust extreme threshold 4.5.",
+        "maturity": "calibrated",
+        "severity": "critical",
+        "readiness": "not_assessed",
+        "note": "A case is numerical evidence, not an incident or permission to act."
+      },
+      "record": {
+        "id": "case:277eab600e1af193",
+        "revision_id": "case:277eab600e1af193:29e2ac2a123a",
+        "entity": {
+          "site": "demo"
+        },
+        "event_time": "2026-02-12T00:00:00+00:00",
+        "detection_time": "2026-02-12T00:00:00+00:00",
+        "source_availability_cutoff": "2026-02-12T00:00:00+00:00",
+        "contributing_dataset_ids": [
+          "orders"
+        ],
+        "contributing_relationship_ids": [
+          "lead_response"
+        ],
+        "supporting_evidence": [
+          "dataset:orders:seasonal_naive:11",
+          "lead_response:assessment:11:relationship:lead_response:seasonal_naive",
+          "orders:assessment:11:dataset:orders:seasonal_naive",
+          "relationship:lead_response:seasonal_naive:11"
+        ],
+        "conflicting_evidence": [],
+        "unavailable_evidence": [],
+        "correlated_evidence_groups": [
+          [
+            "lead_response:assessment:11:relationship:lead_response:seasonal_naive",
+            "orders:assessment:11:dataset:orders:seasonal_naive"
+          ]
+        ],
+        "evidence_refs": [
+          "dataset:orders:seasonal_naive:11",
+          "lead_response:assessment:11:relationship:lead_response:seasonal_naive",
+          "orders:assessment:11:dataset:orders:seasonal_naive",
+          "relationship:lead_response:seasonal_naive:11"
+        ],
+        "maturity": "calibrated",
+        "severity": "critical",
+        "severity_reasons": [
+          "standardized evidence reached 3.8e+09, at or above the robust extreme threshold 4.5"
+        ],
+        "explanation": "At 2026-02-12T00:00:00+00:00, source dataset orders decreased; declared relationship lead_response decreased. Severity is critical because standardized evidence reached 3.8e+09, at or above the robust extreme threshold 4.5.",
+        "action_eligible": false,
+        "notification_eligible": false,
+        "business_impact": "unresolved",
+        "suggested_investigation_questions": [
+          "Did collection completeness, entity scope, or unit semantics change?",
+          "Which reviewed operational or business changes overlap this event time?",
+          "Does the declared relationship remain appropriate for this regime?"
+        ],
+        "non_claims": [
+          "Correlated evidence is not counted as independent confirmation.",
+          "Numerical association does not establish cause.",
+          "Business impact remains unresolved unless supplied externally."
+        ]
+      },
+      "assessments": [
+        {
+          "id": "lead_response:assessment:11:relationship:lead_response:seasonal_naive",
+          "target_id": "lead_response",
+          "index": 11,
+          "timestamp": "2026-02-12T00:00:00+00:00",
+          "classification": "supported_departure",
+          "maturity": "calibrated",
+          "basis": "declared_relationship",
+          "action_eligible": false,
+          "notification_eligible": false,
+          "review_state": "unreviewed",
+          "criterion_met": true,
+          "comparison_population": "frozen calibration residual window",
+          "comparison_samples": 3,
+          "baseline": {
+            "kind": "seasonal_residual",
+            "method": "relationship:lead_response:seasonal_naive",
+            "expected": 0.0,
+            "point_threshold": 3.0
+          },
+          "observed": -38.0,
+          "absolute_change": -38.0,
+          "relative_change": null,
+          "direction": "decrease",
+          "evidence_strength": 3800000000.0,
+          "evidence_strength_semantics": "absolute standardized residual under the frozen baseline; not a probability",
+          "assumptions": [
+            "The declared cadence, seasonal reference, and frozen calibration are appropriate.",
+            "The score is interpreted as model-conditional evidence, not event truth."
+          ],
+          "established": "The configured calibrated numerical criterion was met.",
+          "not_established": "The criterion does not establish a real-world anomaly, cause, incident, or business impact.",
+          "evidence_refs": [
+            "relationship:lead_response:seasonal_naive:11"
+          ]
+        },
+        {
+          "id": "orders:assessment:11:dataset:orders:seasonal_naive",
+          "target_id": "orders",
+          "index": 11,
+          "timestamp": "2026-02-12T00:00:00+00:00",
+          "classification": "supported_departure",
+          "maturity": "calibrated",
+          "basis": "statistical_baseline",
+          "action_eligible": false,
+          "notification_eligible": false,
+          "review_state": "unreviewed",
+          "criterion_met": true,
+          "comparison_population": "frozen calibration residual window",
+          "comparison_samples": 3,
+          "baseline": {
+            "kind": "seasonal_residual",
+            "method": "dataset:orders:seasonal_naive",
+            "expected": 29.764705882352942,
+            "point_threshold": 3.0
+          },
+          "observed": 0.0,
+          "absolute_change": -29.764705882352942,
+          "relative_change": -1.0,
+          "direction": "decrease",
+          "evidence_strength": 6.060246497313577,
+          "evidence_strength_semantics": "absolute standardized residual under the frozen baseline; not a probability",
+          "assumptions": [
+            "The declared cadence, seasonal reference, and frozen calibration are appropriate.",
+            "The score is interpreted as model-conditional evidence, not event truth."
+          ],
+          "established": "The configured calibrated numerical criterion was met.",
+          "not_established": "The criterion does not establish a real-world anomaly, cause, incident, or business impact.",
+          "evidence_refs": [
+            "dataset:orders:seasonal_naive:11"
+          ]
+        }
+      ],
+      "lineage": [
+        {
+          "index": 11,
+          "timestamp": "2026-02-12T00:00:00+00:00",
+          "value": -38.0,
+          "source_dataset_ids": [
+            "orders",
+            "qualified_leads"
+          ],
+          "source_indexes": {
+            "orders": 11,
+            "qualified_leads": 9
+          },
+          "source_timestamps": {
+            "orders": "2026-02-12T00:00:00+00:00",
+            "qualified_leads": "2026-02-10T00:00:00+00:00"
+          },
+          "formula": "orders[t] - 2.0 * qualified_leads[t-2]",
+          "parameters": {
+            "coefficient": 2.0,
+            "coefficient_source": "supplied",
+            "training_size": null,
+            "training_cutoff_index": null
+          },
+          "units": "orders",
+          "alignment": "exact",
+          "lag": 2,
+          "unavailable_reason": null,
+          "latest_source_cutoff": "2026-02-12T00:00:00+00:00"
+        }
+      ],
+      "readiness": [
+        {
+          "target_id": "orders",
+          "kind": "dataset",
+          "status": "not_assessed",
+          "methods": [
+            {
+              "id": "dataset:orders:seasonal_naive",
+              "status": "not_assessed",
+              "reasons": [
+                "Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably."
+              ],
+              "limitations": [
+                "Reference-only and provisional evidence is non-triggering and does not establish an anomaly.",
+                "Repeated thresholds are exploratory and do not control a family-wise false-alarm rate.",
+                "Consecutive-run patterns describe the point-anomaly stream; they are not an independent probability or incident classification.",
+                "Nelson Rules 2, 5, and 6 are applied only to calibrated residuals around a frozen centerline; they indicate a possible location shift, not a change in the full distribution or a business incident.",
+                "Nelson Rules 3, 4, and 8 describe residual trend, systematic oscillation, and mixture patterns; they are model/process diagnostics, not location-shift claims.",
+                "CUSUM and moving-range thresholds are exploratory and applied to calibrated standardized residuals; they are not probabilities or independently corroborating evidence.",
+                "Classical Nelson, CUSUM, and moving-range false-alarm behavior assumes an adequately estimated stable process; residual autocorrelation, non-normal tails, and a short calibration window can change the alert rate.",
+                "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures.",
+                "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
+                "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; sustained moderate shifts can gradually enter the multi-season baseline."
+              ]
+            }
+          ],
+          "limitations": [
+            "Arrival history is absent: samples are assumed available at event time.",
+            "No labels supplied: no detection precision, recall, or business impact is claimed.",
+            "Known events and concerns are context only; they do not suppress signals.",
+            "Runtime limit is cooperative between samples."
+          ]
+        },
+        {
+          "target_id": "lead_response",
+          "kind": "relationship",
+          "status": "not_assessed",
+          "methods": [
+            {
+              "id": "relationship:lead_response:seasonal_naive",
+              "status": "not_assessed",
+              "reasons": [
+                "Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably."
+              ],
+              "limitations": [
+                "Calibration variance is zero or tiny in a segment; scale_floor determines sensitivity, with no probability interpretation.",
+                "Reference-only and provisional evidence is non-triggering and does not establish an anomaly.",
+                "Repeated thresholds are exploratory and do not control a family-wise false-alarm rate.",
+                "Consecutive-run patterns describe the point-anomaly stream; they are not an independent probability or incident classification.",
+                "Nelson Rules 2, 5, and 6 are applied only to calibrated residuals around a frozen centerline; they indicate a possible location shift, not a change in the full distribution or a business incident.",
+                "Nelson Rules 3, 4, and 8 describe residual trend, systematic oscillation, and mixture patterns; they are model/process diagnostics, not location-shift claims.",
+                "CUSUM and moving-range thresholds are exploratory and applied to calibrated standardized residuals; they are not probabilities or independently corroborating evidence.",
+                "Classical Nelson, CUSUM, and moving-range false-alarm behavior assumes an adequately estimated stable process; residual autocorrelation, non-normal tails, and a short calibration window can change the alert rate.",
+                "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures.",
+                "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
+                "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; sustained moderate shifts can gradually enter the multi-season baseline."
+              ]
+            }
+          ],
+          "limitations": [
+            "Arrival history is absent: samples are assumed available at event time.",
+            "No labels supplied: no detection precision, recall, or business impact is claimed.",
+            "Known events and concerns are context only; they do not suppress signals.",
+            "Runtime limit is cooperative between samples.",
+            "The declared relationship is model input, not a discovered or causal relationship.",
+            "Derived and source evidence can be correlated and must not be counted as independent votes.",
+            "No interpolation, resampling, implicit zero, or unit conversion was performed."
+          ]
+        }
+      ],
+      "sample_count": 2,
+      "samples": [
+        {
+          "id": "dataset:orders:seasonal_naive:11",
+          "method": "dataset:orders:seasonal_naive",
+          "index": 11,
+          "timestamp": "2026-02-12T00:00:00+00:00",
+          "training_cutoff": "2026-02-11T00:00:00+00:00",
+          "observed": 0.0,
+          "expected": 29.764705882352942,
+          "residual": -29.764705882352942,
+          "relative_deviation": -1.0,
+          "standardized_residual": -6.060246497313577,
+          "signal_maturity": "calibrated",
+          "calibration_samples": 3,
+          "triggers": [
+            "point"
+          ],
+          "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+          "excluded_from_model": true,
+          "model_value": 29.764705882352942,
+          "exclusion_reason": "extreme_calibrated_residual",
+          "reference_action": "use_expected"
+        },
+        {
+          "id": "relationship:lead_response:seasonal_naive:11",
+          "method": "relationship:lead_response:seasonal_naive",
+          "index": 11,
+          "timestamp": "2026-02-12T00:00:00+00:00",
+          "training_cutoff": "2026-02-11T00:00:00+00:00",
+          "observed": -38.0,
+          "expected": 0.0,
+          "residual": -38.0,
+          "relative_deviation": null,
+          "standardized_residual": -3800000000.0,
+          "signal_maturity": "calibrated",
+          "calibration_samples": 3,
+          "triggers": [
+            "point"
+          ],
+          "score_semantics": "standardized forecast residual using frozen segment calibration; not a probability",
+          "excluded_from_model": true,
+          "model_value": 0.0,
+          "exclusion_reason": "extreme_calibrated_residual",
+          "reference_action": "use_expected"
+        }
+      ],
+      "next_cursor": null,
+      "note": "Evidence establishes numerical criteria only; source context, cause, impact, and action authority require external review."
+    },
+    "lineage_preview": [
+      {
+        "index": 0,
+        "timestamp": "2026-02-01T00:00:00+00:00",
+        "value": null,
+        "source_dataset_ids": [
+          "orders"
+        ],
+        "source_indexes": {
+          "orders": 0
+        },
+        "source_timestamps": {
+          "orders": "2026-02-01T00:00:00+00:00"
+        },
+        "formula": "orders[t] - 2.0 * qualified_leads[t-2]",
+        "parameters": {
+          "coefficient": 2.0,
+          "coefficient_source": "supplied",
+          "training_size": null,
+          "training_cutoff_index": null
+        },
+        "units": "orders",
+        "alignment": "exact",
+        "lag": 2,
+        "unavailable_reason": "lag_reference_unavailable",
+        "latest_source_cutoff": "2026-02-01T00:00:00+00:00"
+      },
+      {
+        "index": 1,
+        "timestamp": "2026-02-02T00:00:00+00:00",
+        "value": null,
+        "source_dataset_ids": [
+          "orders"
+        ],
+        "source_indexes": {
+          "orders": 1
+        },
+        "source_timestamps": {
+          "orders": "2026-02-02T00:00:00+00:00"
+        },
+        "formula": "orders[t] - 2.0 * qualified_leads[t-2]",
+        "parameters": {
+          "coefficient": 2.0,
+          "coefficient_source": "supplied",
+          "training_size": null,
+          "training_cutoff_index": null
+        },
+        "units": "orders",
+        "alignment": "exact",
+        "lag": 2,
+        "unavailable_reason": "lag_reference_unavailable",
+        "latest_source_cutoff": "2026-02-02T00:00:00+00:00"
+      },
+      {
+        "index": 2,
+        "timestamp": "2026-02-03T00:00:00+00:00",
+        "value": 0.0,
+        "source_dataset_ids": [
+          "orders",
+          "qualified_leads"
+        ],
+        "source_indexes": {
+          "orders": 2,
+          "qualified_leads": 0
+        },
+        "source_timestamps": {
+          "orders": "2026-02-03T00:00:00+00:00",
+          "qualified_leads": "2026-02-01T00:00:00+00:00"
+        },
+        "formula": "orders[t] - 2.0 * qualified_leads[t-2]",
+        "parameters": {
+          "coefficient": 2.0,
+          "coefficient_source": "supplied",
+          "training_size": null,
+          "training_cutoff_index": null
+        },
+        "units": "orders",
+        "alignment": "exact",
+        "lag": 2,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-02-03T00:00:00+00:00"
+      }
+    ],
+    "readable_stdout": "Analysis: completed\nDatasets: 2; relationships: 1; cases: 1\nRecent cases (latest 1 of 1):\n  2026-02-12T00:00:00+00:00 [site=demo] case:277eab600e1af193 severity=critical\n    relationship lead_response (lagged_response): observed -38 orders vs expected 0 orders; calibrated point departure\n    dataset orders: observed 0 orders vs expected 29.7647 orders; calibrated point departure\n    Why: At 2026-02-12T00:00:00+00:00, source dataset orders decreased; declared relationship lead_response decreased. Severity is critical because standardized evidence reached 3.8e+09, at or above the robust extreme threshold 4.5.\n    Check: Did collection completeness, entity scope, or unit semantics change?\n  dataset orders: completed; point-anomaly episodes=1; pattern findings=3; assessments=13\n    dataset:orders:seasonal_naive detection readiness: not_assessed\n      Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably.\n  dataset qualified_leads: completed; point-anomaly episodes=0; pattern findings=0; assessments=12\n    dataset:qualified_leads:seasonal_naive detection readiness: not_assessed\n      Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably.\n  relationship lead_response (lagged_response): completed; point-anomaly episodes=1; pattern findings=2; assessments=11\n    relationship:lead_response:seasonal_naive detection readiness: not_assessed\n      Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably.\nDetection readiness checks training/calibration reference quality; alert accuracy is unmeasured.\nCases come from supported point departures, explicit-rule violations, and under adaptive-seasonal-v1 calibrated Nelson/CUSUM location shifts; overlapping location rules are grouped.\nBusiness impact: unresolved. Relationship evidence does not establish cause.\n",
+    "readable_stderr": "",
+    "exit": 0
+  },
+  "incomplete-usage": {
+    "status": "partial",
+    "headline": "confirmed_usage_drop: latest relationship evidence is unavailable.",
+    "findings": [
+      {
+        "id": "quality:relationship:confirmed_usage_drop",
+        "kind": "quality",
+        "target_id": "confirmed_usage_drop",
+        "entity": {
+          "tenant": "demo"
+        },
+        "event_time": null,
+        "headline": "confirmed_usage_drop: latest relationship evidence is unavailable.",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      },
+      {
+        "id": "quality:dataset:ingestion_completeness",
+        "kind": "quality",
+        "target_id": "ingestion_completeness",
+        "entity": {
+          "tenant": "demo"
+        },
+        "event_time": "2026-04-03T00:00:00+00:00",
+        "headline": "ingestion_completeness: 1 incomplete source period(s) were excluded from finalized scoring.",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      },
+      {
+        "id": "candidate:usage_events:assessment:3:early",
+        "kind": "candidate",
+        "target_id": "usage_events",
+        "entity": {
+          "tenant": "demo"
+        },
+        "event_time": "2026-04-04T00:00:00+00:00",
+        "headline": "usage_events: early possible departure at 2026-04-04T00:00:00+00:00; observed 20 versus prior range 98 to 102.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "candidate:usage_events:assessment:2:early",
+        "kind": "candidate",
+        "target_id": "usage_events",
+        "entity": {
+          "tenant": "demo"
+        },
+        "event_time": "2026-04-03T00:00:00+00:00",
+        "headline": "usage_events: early possible departure at 2026-04-03T00:00:00+00:00; observed 98 versus prior range 100 to 102.",
+        "maturity": "early",
+        "readiness": "not_assessed",
+        "note": "This descriptive prior-range comparison is not calibrated and is not a case."
+      },
+      {
+        "id": "quality:dataset:usage_events",
+        "kind": "quality",
+        "target_id": "usage_events",
+        "entity": {
+          "tenant": "demo"
+        },
+        "event_time": "2026-04-04T00:00:00+00:00",
+        "headline": "usage_events: insufficient history for calibrated detection (4 observations).",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      }
+    ],
+    "evidence": {
+      "run_id": "c01732d2-f073-483e-adc7-5a1e8988225f",
+      "finding": {
+        "id": "quality:relationship:confirmed_usage_drop",
+        "kind": "quality",
+        "target_id": "confirmed_usage_drop",
+        "entity": {
+          "tenant": "demo"
+        },
+        "event_time": null,
+        "headline": "confirmed_usage_drop: latest relationship evidence is unavailable.",
+        "maturity": "observation_only",
+        "readiness": "not_assessed",
+        "note": "Unavailable evidence must not be treated as normal."
+      },
+      "record": {
+        "status": "insufficient_evidence",
+        "data_quality": {
+          "status": "insufficient_evidence",
+          "observation_count": 4,
+          "missing_count": 1,
+          "incomplete_count": 0,
+          "regular": null,
+          "latest_evidence_state": "insufficient_evidence",
+          "error": null
+        },
+        "transformations": [],
+        "incomplete_period_count": 0,
+        "incomplete_periods_preview": [],
+        "error": null
+      },
+      "assessments": [],
+      "lineage": [
+        {
+          "index": 3,
+          "timestamp": "2026-04-04T00:00:00+00:00",
+          "value": null,
+          "source_dataset_ids": [
+            "ingestion_completeness",
+            "usage_events"
+          ],
+          "source_indexes": {
+            "usage_events": 3,
+            "ingestion_completeness": 3
+          },
+          "source_timestamps": {
+            "usage_events": "2026-04-04T00:00:00+00:00",
+            "ingestion_completeness": "2026-04-04T00:00:00+00:00"
+          },
+          "formula": "all(usage_events[t] lt 50.0, ingestion_completeness[t] gte 0.99)",
+          "parameters": {},
+          "units": "condition_met",
+          "alignment": "exact",
+          "lag": 0,
+          "unavailable_reason": "missing_or_incomplete_condition_source",
+          "latest_source_cutoff": "2026-04-04T00:00:00+00:00"
+        }
+      ],
+      "readiness": [
+        {
+          "target_id": "confirmed_usage_drop",
+          "kind": "relationship",
+          "status": "not_assessed",
+          "methods": [
+            {
+              "id": "relationship:confirmed_usage_drop:seasonal_naive",
+              "status": "not_assessed",
+              "reasons": [
+                "No segment reached calibrated evaluation (method status: inapplicable)."
+              ],
+              "limitations": [
+                "Reference-only and provisional evidence is non-triggering and does not establish an anomaly.",
+                "Repeated thresholds are exploratory and do not control a family-wise false-alarm rate.",
+                "Consecutive-run patterns describe the point-anomaly stream; they are not an independent probability or incident classification.",
+                "Nelson Rules 2, 5, and 6 are applied only to calibrated residuals around a frozen centerline; they indicate a possible location shift, not a change in the full distribution or a business incident.",
+                "Nelson Rules 3, 4, and 8 describe residual trend, systematic oscillation, and mixture patterns; they are model/process diagnostics, not location-shift claims.",
+                "CUSUM and moving-range thresholds are exploratory and applied to calibrated standardized residuals; they are not probabilities or independently corroborating evidence.",
+                "Classical Nelson, CUSUM, and moving-range false-alarm behavior assumes an adequately estimated stable process; residual autocorrelation, non-normal tails, and a short calibration window can change the alert rate.",
+                "Trend is fitted before calibration and frozen; changes in growth rate can trigger departures.",
+                "Robust fitting protects trend, calibration, and future seasonal references from extreme residuals; it does not establish that an excluded point is erroneous or unimportant.",
+                "An extreme calibrated observation remains visible and scoreable, but its prior expectation replaces it only in future seasonal model references; sustained moderate shifts can gradually enter the multi-season baseline."
+              ]
+            }
+          ],
+          "limitations": [
+            "Arrival history is absent: samples are assumed available at event time.",
+            "No labels supplied: no detection precision, recall, or business impact is claimed.",
+            "Known events and concerns are context only; they do not suppress signals.",
+            "Runtime limit is cooperative between samples.",
+            "The declared relationship is model input, not a discovered or causal relationship.",
+            "Derived and source evidence can be correlated and must not be counted as independent votes.",
+            "No interpolation, resampling, implicit zero, or unit conversion was performed."
+          ]
+        }
+      ],
+      "sample_count": 0,
+      "samples": [],
+      "next_cursor": null,
+      "note": "Evidence establishes numerical criteria only; source context, cause, impact, and action authority require external review."
+    },
+    "lineage_preview": [
+      {
+        "index": 0,
+        "timestamp": "2026-04-01T00:00:00+00:00",
+        "value": 0.0,
+        "source_dataset_ids": [
+          "ingestion_completeness",
+          "usage_events"
+        ],
+        "source_indexes": {
+          "usage_events": 0,
+          "ingestion_completeness": 0
+        },
+        "source_timestamps": {
+          "usage_events": "2026-04-01T00:00:00+00:00",
+          "ingestion_completeness": "2026-04-01T00:00:00+00:00"
+        },
+        "formula": "all(usage_events[t] lt 50.0, ingestion_completeness[t] gte 0.99)",
+        "parameters": {},
+        "units": "condition_met",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-04-01T00:00:00+00:00"
+      },
+      {
+        "index": 1,
+        "timestamp": "2026-04-02T00:00:00+00:00",
+        "value": 0.0,
+        "source_dataset_ids": [
+          "ingestion_completeness",
+          "usage_events"
+        ],
+        "source_indexes": {
+          "usage_events": 1,
+          "ingestion_completeness": 1
+        },
+        "source_timestamps": {
+          "usage_events": "2026-04-02T00:00:00+00:00",
+          "ingestion_completeness": "2026-04-02T00:00:00+00:00"
+        },
+        "formula": "all(usage_events[t] lt 50.0, ingestion_completeness[t] gte 0.99)",
+        "parameters": {},
+        "units": "condition_met",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-04-02T00:00:00+00:00"
+      },
+      {
+        "index": 2,
+        "timestamp": "2026-04-03T00:00:00+00:00",
+        "value": 0.0,
+        "source_dataset_ids": [
+          "ingestion_completeness",
+          "usage_events"
+        ],
+        "source_indexes": {
+          "usage_events": 2,
+          "ingestion_completeness": 2
+        },
+        "source_timestamps": {
+          "usage_events": "2026-04-03T00:00:00+00:00",
+          "ingestion_completeness": "2026-04-03T00:00:00+00:00"
+        },
+        "formula": "all(usage_events[t] lt 50.0, ingestion_completeness[t] gte 0.99)",
+        "parameters": {},
+        "units": "condition_met",
+        "alignment": "exact",
+        "lag": 0,
+        "unavailable_reason": null,
+        "latest_source_cutoff": "2026-04-03T00:00:00+00:00"
+      }
+    ],
+    "readable_stdout": "Analysis: partial\nDatasets: 2; relationships: 1; cases: 0\nRecent cases: none from calibrated point or location-shift departures or explicit rules.\n  dataset ingestion_completeness: insufficient_history; point-anomaly episodes=0; pattern findings=0; assessments=3\n    dataset:ingestion_completeness:seasonal_naive detection readiness: not_assessed\n      No segment reached calibrated evaluation (method status: insufficient_history).\n  dataset usage_events: insufficient_history; point-anomaly episodes=0; pattern findings=0; assessments=4\n    dataset:usage_events:seasonal_naive detection readiness: not_assessed\n      No segment reached calibrated evaluation (method status: insufficient_history).\n  relationship confirmed_usage_drop (joint_condition): insufficient_evidence; point-anomaly episodes=0; pattern findings=0; assessments=3\n    relationship:confirmed_usage_drop:seasonal_naive detection readiness: not_assessed\n      No segment reached calibrated evaluation (method status: inapplicable).\nDetection readiness checks training/calibration reference quality; alert accuracy is unmeasured.\nCases come from supported point departures, explicit-rule violations, and under adaptive-seasonal-v1 calibrated Nelson/CUSUM location shifts; overlapping location rules are grouped.\nBusiness impact: unresolved. Relationship evidence does not establish cause.\n",
+    "readable_stderr": "",
+    "exit": 1
+  },
+  "multi-resolution": {
+    "methods": [
+      "completed_period:seasonal_trend",
+      "intraday:seasonal_trend"
+    ],
+    "partial_aggregate": {
+      "period_status": "incomplete",
+      "start": "2026-03-02T00:00:00+00:00",
+      "end": "2026-03-03T00:00:00+00:00",
+      "observed_through": "2026-03-02T12:00:00+00:00",
+      "completed_subperiods": 12,
+      "expected_subperiods": 24,
+      "aggregate_function": "sum",
+      "observed_aggregate": 1200.0,
+      "incomplete_source_samples": [],
+      "included_in_completed_period_view": false,
+      "intraday_evidence_refs": [
+        "intraday:seasonal_trend:1440",
+        "intraday:seasonal_trend:1441",
+        "intraday:seasonal_trend:1442",
+        "intraday:seasonal_trend:1443",
+        "intraday:seasonal_trend:1444",
+        "intraday:seasonal_trend:1445",
+        "intraday:seasonal_trend:1446",
+        "intraday:seasonal_trend:1447",
+        "intraday:seasonal_trend:1448",
+        "intraday:seasonal_trend:1449",
+        "intraday:seasonal_trend:1450",
+        "intraday:seasonal_trend:1451"
+      ],
+      "intraday_triggered_samples": []
+    }
+  },
+  "positional-season": {
+    "status": "detected",
+    "selected_lag": 7,
+    "selection_window": [
+      0,
+      27
+    ],
+    "ranked_candidates": [
+      {
+        "lag": 7,
+        "correlation": 1.0,
+        "error_ratio": 0.00014422854301712835
+      },
+      {
+        "lag": 14,
+        "correlation": 1.0,
+        "error_ratio": 0.0005769141720685131
+      },
+      {
+        "lag": 21,
+        "correlation": 1.0,
+        "error_ratio": 0.0012980568871541545
+      },
+      {
+        "lag": 23,
+        "correlation": 0.13991612837774142,
+        "error_ratio": 1.704303485556449
+      },
+      {
+        "lag": 16,
+        "correlation": 0.1360502243927724,
+        "error_ratio": 1.7112457846694429
+      }
+    ],
+    "criteria": {
+      "minimum_cycles": 3,
+      "minimum_correlation": 0.6,
+      "maximum_error_ratio": 0.8,
+      "minimum_correlation_gain_over_lag_1": 0.1,
+      "minimum_error_reduction_vs_lag_1": 0.2,
+      "maximum_candidate_lag": 512,
+      "maximum_selection_values": 4096
+    },
+    "confirmation_candidates": [
+      {
+        "lag": 7,
+        "correlation": 1.0,
+        "error_ratio": 0.0032337631268509574
+      },
+      {
+        "lag": 9,
+        "correlation": 0.19584914302149245,
+        "error_ratio": 1.5685843906670678
+      },
+      {
+        "lag": 2,
+        "correlation": 0.1735267907682508,
+        "error_ratio": 1.630400419323131
+      },
+      {
+        "lag": 5,
+        "correlation": 0.043490500581318946,
+        "error_ratio": 1.957890780152528
+      },
+      {
+        "lag": 4,
+        "correlation": -0.0011749268312097757,
+        "error_ratio": 2.056549092154
+      }
+    ],
+    "selected_correlation": 1.0,
+    "selected_error_ratio": 0.0032337631268509574
+  },
+  "mcp-guidance": "Use analyze to assess a canonical request, list_findings to browse its bounded findings, and get_evidence to inspect one finding. Results are cached only for this server session; use the returned run_id. Write user-facing summaries for analysts without statistical training: first say what changed, when, versus the expected level, how reliable the comparison is, and what to check next. Put scores and rule names in supporting detail. Report the run status before interpreting detections. Only calibrated point triggers are point-anomaly flags; observations groups adjacent flags into episodes. anomaly_patterns contains point runs and residual-rule findings, which may overlap and are not independent incidents. Nelson Rules 2, 5, and 6 and CUSUM suggest a possible shift in residual location even with no point flag; they do not establish a change in the full distribution. Describe the rule, interval, direction, first detection index, and material limitations. Report the readiness status and reasons in plain language as a baseline-quality check, not measured alert accuracy. For recurring monitoring, distinguish new findings from overlapping or previously reported evidence using caller-held state. Policy eligibility does not check detection readiness and is not an action recommendation. The server does not schedule runs, deliver alerts, or execute actions. Do not infer cause, business impact, or normality from absent findings.",
+  "cli-json": {
+    "status": "completed",
+    "stderr": ""
+  }
+}

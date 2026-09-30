@@ -1,0 +1,105 @@
+title: Replay action and notification eligibility
+status: implemented
+summary: Callers can apply a different explicit action policy to existing
+  assessments and cases without recomputing numerical analysis.
+intent: Separate an observed criterion from a caller's decision to make it
+  eligible for further action.
+acceptance:
+  - Default policy leaves action and notification eligibility disabled.
+  - Explicit-rule and calibrated-departure eligibility are controlled
+    independently.
+  - Notification eligibility can be allowed for a met criterion without action
+    eligibility, while early candidates remain ineligible.
+  - Replaying policy preserves numerical evidence and stable case IDs, records
+    changed case revisions, and leaves the original result unchanged.
+guidance:
+  - Eligibility does not send notifications, execute actions, check readiness,
+    or confer authority to act.
+  - Monitoring schedules, delivery, reviewed incident state, and deduplication
+    belong to the caller.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review investigation/policy/replay-action-eligibility
+  # run deterministic review only: capabilitykit review investigation/policy/replay-action-eligibility --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review investigation/policy/replay-action-eligibility --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result investigation/policy/replay-action-eligibility --input review.json
+  # -----------------------------
+  depends_on:
+    - investigation/rules/check-declared-numerical-rules
+    - investigation/cases/group-related-evidence
+  implementation:
+    references:
+      - src/anomalyzer/agent.py
+      - src/anomalyzer/cases.py
+      - src/anomalyzer/contracts.py
+      - tests/test_agentic.py
+      - tests/test_capability_behaviors.py
+  verification:
+    automated:
+      - id: independent-notifications
+        description: Replay notification and action choices without changing numerical
+          evidence or the original result.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_policy_replay_separates_action_from_notification
+      - id: calibrated-choice
+        description: Enable calibrated departures only with the corresponding policy choice.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_policy_replay_enables_calibrated_departures_only_when_requested
+      - id: nontriggering-candidates
+        description: Keep descriptive candidates ineligible even under a permissive policy.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_policy_keeps_early_candidates_ineligible
+    manual:
+      - Inspect the unit-cost example under default and allow_explicit_rules
+        policies and compare eligibility with the unchanged numerical violation.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Compared unit-cost default versus allow_explicit_rules policy: action
+        eligibility false/true, with identical relationship lineage and
+        numerical violation."
+    intent_summary: Callers can apply a different explicit action policy to existing
+      assessments and cases without recomputing numerical analysis.
+    criteria:
+      - criterion: Default policy leaves action and notification eligibility disabled.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:329
+          - tests/test_capability_behaviors.py:74
+      - criterion: Explicit-rule and calibrated-departure eligibility are controlled
+          independently.
+        status: covered
+        evidence:
+          - src/anomalyzer/agent.py:47
+          - tests/test_capability_behaviors.py:123
+      - criterion: Notification eligibility can be allowed for a met criterion without
+          action eligibility, while early candidates remain ineligible.
+        status: covered
+        evidence:
+          - src/anomalyzer/agent.py:53
+          - tests/test_capability_behaviors.py:101
+          - tests/test_capability_behaviors.py:134
+      - criterion: Replaying policy preserves numerical evidence and stable case IDs,
+          records changed case revisions, and leaves the original result
+          unchanged.
+        status: covered
+        evidence:
+          - src/anomalyzer/agent.py:42
+          - src/anomalyzer/cases.py:57
+          - src/anomalyzer/cases.py:105
+          - tests/test_capability_behaviors.py:101
+          - tests/test_agentic.py:49
+    done: true
+    input_fingerprint: 08c7a45b5524a87ce26be0618bbce2125c97e0afaf6ed4e085f1720adacf4881
+    mode: quick

@@ -1,0 +1,101 @@
+title: Use a declared season or infer a positional season
+status: implemented
+summary: Callers can supply a season length; ordered values without one can use
+  conservative season inference with a lag-one fallback.
+intent: Make seasonal assumptions explicit and inspectable for data without timestamps.
+acceptance:
+  - An explicit season length is honored and reported as explicit.
+  - A repeating positional series can infer a seasonal lag and report the
+    selection window.
+  - A positional series without a sufficiently stable candidate falls back to
+    lag one and records why.
+  - The reserved calibration and evaluation tail does not determine positional
+    season selection.
+guidance:
+  - Candidate discovery uses the input prefix before the reserved tail and
+    confirms the candidate in an early window. It is not fully prefix-invariant
+    streaming discovery.
+  - Supply season_length explicitly when stable streaming season selection is
+    required.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/expectations/select-season-length
+  # run deterministic review only: capabilitykit review analysis/expectations/select-season-length --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/expectations/select-season-length --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/expectations/select-season-length --input review.json
+  # -----------------------------
+  implementation:
+    references:
+      - src/anomalyzer/seasonality.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_cli.py
+      - tests/test_capability_behaviors.py
+  verification:
+    automated:
+      - id: declared-season
+        description: Honor a separate explicit season setting.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_bare_values_with_separate_settings
+      - id: inference-fallback
+        description: Infer a repeating lag or record lag-one fallback when no season is
+          supported.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_positional_season_inference_and_fallback
+      - id: reserved-tail
+        description: Keep selection unchanged when only the reserved tail changes.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_season_inference_excludes_reserved_tail
+      - id: cli-inference
+        description: Expose the inferred lag and its source for bare JSON values in the CLI.
+        command: python -m pytest -q tests/test_cli.py::test_bare_json_values_cli
+    manual:
+      - Review selection_window and ranked candidates for a positional series
+        before treating its inferred season as an ongoing monitoring assumption.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected positional-season: lag 7, selection window [0,27], ranked
+        candidates, strength criteria, and separate confirmation candidates;
+        domain confirmation remains a stated interpretation limit."
+    intent_summary: Callers can supply a season length; ordered values without one
+      can use conservative season inference with a lag-one fallback.
+    criteria:
+      - criterion: An explicit season length is honored and reported as explicit.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:55
+          - tests/test_analysis.py:234
+      - criterion: A repeating positional series can infer a seasonal lag and report the
+          selection window.
+        status: covered
+        evidence:
+          - src/anomalyzer/seasonality.py:96
+          - tests/test_analysis.py:247
+      - criterion: A positional series without a sufficiently stable candidate falls
+          back to lag one and records why.
+        status: covered
+        evidence:
+          - src/anomalyzer/seasonality.py:79
+          - src/anomalyzer/seasonality.py:84
+          - tests/test_analysis.py:247
+      - criterion: The reserved calibration and evaluation tail does not determine
+          positional season selection.
+        status: covered
+        evidence:
+          - src/anomalyzer/seasonality.py:69
+          - tests/test_capability_behaviors.py:147
+    done: true
+    input_fingerprint: 6d7958456036e98d4b7ed5b3227f0aa7d9c5c0389238e3a526729e810850d695
+    mode: quick

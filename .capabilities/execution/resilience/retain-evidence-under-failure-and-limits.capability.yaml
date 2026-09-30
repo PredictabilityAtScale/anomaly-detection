@@ -1,0 +1,109 @@
+title: Retain useful evidence under failures and resource limits
+status: implemented
+summary: Analysis applies cooperative resource limits and exposes partial or
+  failed results without discarding valid earlier or sibling evidence.
+intent: Make constrained or failed runs understandable instead of silently
+  returning incomplete conclusions.
+acceptance:
+  - A method failure preserves evidence completed before the failure and reports
+    the error.
+  - Runtime budgets are checked cooperatively and produce an explicit stop
+    reason.
+  - CLI byte limits and execution failures produce distinct error exits.
+  - A failed dataset or relationship leaves healthy sibling results available
+    and marks the overall run partial.
+guidance:
+  - Default limits are 10,000 source observations per request, 10 MB CLI input,
+    and 60 seconds cooperative runtime.
+  - Numerical results are deterministic for fixed declared settings; generated
+    run IDs and runtimes vary.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review execution/resilience/retain-evidence-under-failure-and-limits
+  # run deterministic review only: capabilitykit review execution/resilience/retain-evidence-under-failure-and-limits --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review execution/resilience/retain-evidence-under-failure-and-limits --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result execution/resilience/retain-evidence-under-failure-and-limits --input review.json
+  # -----------------------------
+  depends_on:
+    - data/inputs/accept-analysis-requests
+  implementation:
+    references:
+      - src/anomalyzer/budget.py
+      - src/anomalyzer/recipes.py
+      - src/anomalyzer/orchestrator.py
+      - src/anomalyzer/io.py
+      - src/anomalyzer/cli.py
+      - tests/test_analysis.py
+      - tests/test_cli.py
+      - tests/test_capability_behaviors.py
+  verification:
+    automated:
+      - id: method-and-budget
+        description: Retain pre-failure evidence and report a runtime-budget stop.
+        command: python -m pytest -q tests/test_analysis.py::test_failure_and_budget
+      - id: cli-limits
+        description: Enforce byte limits and distinguish execution failure in CLI output
+          and exit status.
+        command: python -m pytest -q
+          tests/test_cli.py::test_size_limit_and_execution_exit
+      - id: partial-siblings
+        description: Preserve healthy analysis when a sibling dataset fails preparation.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_partial_analysis_preserves_healthy_siblings
+    manual:
+      - Inspect run status, stop_reason, and each target's status before relying
+        on a result; confirm limits are presented as cooperative rather than
+        hard process timeouts.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected failure/budget and sibling-failure tests and error handlers:
+        retained evidence through index 44, explicit runtime_budget, and healthy
+        sibling results; budget checks are cooperative."
+    intent_summary: Analysis applies cooperative resource limits and exposes partial
+      or failed results without discarding valid earlier or sibling evidence.
+    criteria:
+      - criterion: A method failure preserves evidence completed before the failure and
+          reports the error.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:400
+          - src/anomalyzer/recipes.py:448
+          - tests/test_analysis.py:509
+      - criterion: Runtime budgets are checked cooperatively and produce an explicit
+          stop reason.
+        status: covered
+        evidence:
+          - src/anomalyzer/budget.py:18
+          - src/anomalyzer/recipes.py:108
+          - src/anomalyzer/recipes.py:508
+          - tests/test_analysis.py:509
+      - criterion: CLI byte limits and execution failures produce distinct error exits.
+        status: covered
+        evidence:
+          - src/anomalyzer/io.py:9
+          - src/anomalyzer/cli.py:429
+          - tests/test_cli.py:108
+      - criterion: A failed dataset or relationship leaves healthy sibling results
+          available and marks the overall run partial.
+        status: covered
+        evidence:
+          - src/anomalyzer/orchestrator.py:125
+          - src/anomalyzer/orchestrator.py:171
+          - src/anomalyzer/orchestrator.py:185
+          - tests/test_capability_behaviors.py:159
+          - tests/test_capability_behaviors.py:30
+    done: true
+    input_fingerprint: e5ec839295ed314966ef2b0775c87e6d4d4d1fb059ab4e8f1d9ad4a6eb9cef09
+    mode: quick

@@ -149,26 +149,23 @@ def build_findings(result):
                 "note": "A case is numerical evidence, not an incident or permission to act.",
                 "_order": order, "_priority": 0,
             })
-    else:
-        dataset = result["resolved_config"]["datasets"][0]
-        target = dataset["id"]
-        for episode in result["observations"]:
+    for kind, target, item in _targets(result):
+        readiness, _ = _readiness(item)
+        for episode in item["observations"]:
             findings.append({
                 "id": f"episode:{episode['id']}", "kind": "episode",
-                "target_id": target, "entity": dataset["entity"],
+                "target_id": target, "entity": definitions[target]["entity"],
                 "event_time": episode["interval"][-1],
                 "headline": (
                     f"{target}: {episode['observed_statistic']:.6g} versus "
                     f"expected {episode['reference']:.6g} "
                     f"({episode['direction']}) over "
                     f"{_interval_text(episode['interval'])}."),
-                "maturity": "calibrated", "readiness": _readiness(result)[0],
+                "maturity": "calibrated", "readiness": readiness,
                 "note": "A point episode can overlap residual patterns.",
                 "_order": max(episode["triggering_samples"]), "_priority": 0,
             })
-    for kind, target, item in _targets(result):
-        readiness, _ = _readiness(item)
-        if result["schema_version"] == "1.1" and item["status"] == "insufficient_history":
+        if result["schema_version"] == "1.1":
             for assessment in item["assessments"]:
                 if assessment["classification"] != "departure_candidate":
                     continue
@@ -185,7 +182,7 @@ def build_findings(result):
                         f"range {baseline['minimum']:.6g} to "
                         f"{baseline['maximum']:.6g}."),
                     "maturity": "early", "readiness": readiness,
-                    "note": "This short-history comparison is not calibrated and is not a case.",
+                    "note": "This descriptive prior-range comparison is not calibrated and is not a case.",
                     "_order": assessment["index"], "_priority": 2,
                 })
         for pattern in item["anomaly_patterns"]:

@@ -1,0 +1,62 @@
+{
+  "capabilityId": "analysis/evidence/calibrate-departures",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\evidence\\calibrate-departures.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Sample evidence distinguishes reference-only, provisional, and calibrated comparisons before permitting statistical point triggers.",
+      "criteria": [
+        {
+          "criterion": "Short series return reference evidence and an insufficient_history status instead of inventing calibrated findings.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:205",
+            "src/anomalyzer/recipes.py:445",
+            "tests/test_analysis.py:141"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Provisional residual scores can be reported but do not trigger point-anomaly episodes.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:210",
+            "tests/test_analysis.py:123"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Completed calibration provides a frozen residual center and sample scale for later standardized residuals.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:231",
+            "src/anomalyzer/recipes.py:307",
+            "tests/test_analysis.py:111"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Evidence records the observed value, expectation, calibration support, and numerical criterion responsible for a trigger.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/contracts.py:104",
+            "src/anomalyzer/recipes.py:350",
+            "src/anomalyzer/recipes.py:388",
+            "tests/test_analysis.py:111"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected spike sample 65: calibrated, 14 calibration samples, observed 135.2, expected 94.875, standardized residual 85.3088, and a point trigger; score semantics explicitly exclude probability."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

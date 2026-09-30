@@ -1,0 +1,62 @@
+{
+  "capabilityId": "analysis/expectations/protect-reference-from-extremes",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\expectations\\protect-reference-from-extremes.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Robust mode limits extreme observations' influence on trend fitting, residual calibration, and later seasonal references.",
+      "criteria": [
+        {
+          "criterion": "Robust seasonal references reduce the influence of an extreme prior matching seasonal value.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/baseline.py:39",
+            "tests/test_analysis.py:25"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Training and calibration diagnostics identify excluded extreme observations.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/trend.py:178",
+            "src/anomalyzer/recipes.py:287",
+            "tests/test_trend.py:65"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "An extreme evaluated sample remains evidence while its expected value is used in future references.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:378",
+            "src/anomalyzer/recipes.py:392",
+            "tests/test_analysis.py:263",
+            "tests/test_trend.py:11"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Callers can choose include mode to retain raw extreme observations and inspect the resulting echo behavior.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:151",
+            "src/anomalyzer/recipes.py:475",
+            "tests/test_cli.py:95"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected spike sample: observed 135.2 remains visible while model_value 94.875 and reference_action use_expected protect future references; reviewed training/calibration exclusions."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

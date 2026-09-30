@@ -8,6 +8,7 @@ import pytest
 
 from anomalyzer import analyze
 from anomalyzer.agent import analyze_relationships, analyze_series
+from anomalyzer.contracts import Settings
 from anomalyzer.mcp import TOOLS, handle
 
 
@@ -282,3 +283,107 @@ def test_mcp_modern_discovery_and_stateless_tool_listing():
     assert listing["result"]["resultType"] == "complete"
     assert listing["result"]["cacheScope"] == "public"
     assert len(listing["result"]["tools"]) == 3
+
+
+@pytest.mark.parametrize("settings", [None, {"trend": "none"},
+                                      Settings(trend="none"),
+                                      {"season_length": 7, "trend": "none"}])
+def test_series_wrapper_preserves_omitted_and_explicit_season_settings(settings):
+    values = [10, 20, 5, 15, 8, 30, 12] * 12
+    direct = analyze(values, settings).model_dump(mode="json")
+    wrapped = analyze_series({"values": values}, settings).model_dump(mode="json")
+    assert wrapped["methods"][0]["parameters"]["season_length"] == 7
+    assert stable_result(wrapped) == stable_result(direct)
+    config = (settings.model_dump(mode="json", exclude_unset=True)
+              if isinstance(settings, Settings) else settings or {})
+    request = {"datasets": [{"values": values}], "config": config}
+    cli = subprocess.run(
+        [sys.executable, "-m", "anomalyzer", "analyze", "-",
+         "--input-format", "json", "--format", "json"],
+        input=json.dumps(request), text=True, capture_output=True, timeout=30)
+    assert cli.returncode == 0, cli.stderr
+    mcp = handle({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                  "params": {"name": "analyze_series", "arguments": {
+                      "dataset": {"values": values}, "settings": config}}})["result"]
+    assert mcp["isError"] is False
+    assert stable_result(direct) == stable_result(json.loads(cli.stdout))
+    assert stable_result(direct) == stable_result(mcp["structuredContent"])
+
+
+def test_schema_11_episode_is_paged_and_has_relationship_evidence():
+    root = Path(__file__).parents[1]
+    request = json.loads((root / "examples/agentic/conversion.json").read_text())
+    summary = handle({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                      "params": {"name": "analyze", "arguments": {"request": request}}}
+                     )["result"]["structuredContent"]
+    findings = []
+    cursor = 0
+    while cursor is not None:
+        page = handle({"jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                       "params": {"name": "list_findings", "arguments": {
+                           "run_id": summary["run_id"], "cursor": cursor, "limit": 1}}}
+                      )["result"]["structuredContent"]
+        findings.extend(page["findings"])
+        cursor = page["next_cursor"]
+    episode = next(item for item in findings if item["kind"] == "episode")
+    assert episode["target_id"] == "conversion"
+    detail = handle({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+                     "params": {"name": "get_evidence", "arguments": {
+                         "run_id": summary["run_id"], "finding_id": episode["id"],
+                         "limit": 1}}})["result"]["structuredContent"]
+    assert detail["record"]["direction"] == "decrease"
+    assert detail["samples"][0]["observed"] == pytest.approx(8 / 130)
+    assert detail["samples"][0]["signal_maturity"] == "calibrated"
+    assert detail["lineage"][0]["source_indexes"] == {
+        "orders": 14, "qualified_visits": 14}
+
+
+def test_inapplicable_method_keeps_descriptive_candidate_visible():
+    request = {
+        "schema_version": "1.1",
+        "datasets": [{"id": "series", "entity": {"account": "example"},
+                      "timestamps": [f"2026-01-0{day}T00:00:00Z" for day in range(1, 6)],
+                      "values": [10, 12, 11, 20, None], "frequency": "1d"}],
+        "config": {"season_length": 1, "training_size": 4,
+                   "calibration_size": 3, "trend": "none"},
+    }
+    summary = handle({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                      "params": {"name": "analyze", "arguments": {"request": request}}}
+                     )["result"]["structuredContent"]
+    assert summary["status"] == "inapplicable"
+    candidate = next(item for item in summary["findings_preview"]
+                     if item["kind"] == "candidate")
+    detail = handle({"jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                     "params": {"name": "get_evidence", "arguments": {
+                         "run_id": summary["run_id"], "finding_id": candidate["id"]}}}
+                    )["result"]["structuredContent"]
+    assert detail["record"]["observed"] == 20
+    assert not detail["record"]["criterion_met"]
+    assert not detail["record"]["action_eligible"]
+    assert not detail["record"]["notification_eligible"]
+
+
+@pytest.mark.parametrize("name", ["list_findings", "get_evidence"])
+def test_paged_tool_inputs_enforce_schema_in_both_protocols(name):
+    summary = handle({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                      "params": {"name": "analyze", "arguments": {"request": {
+                          "datasets": [{"values": [1, 2, 3]}]}}}}
+                     )["result"]["structuredContent"]
+    valid = {"run_id": summary["run_id"]}
+    if name == "get_evidence":
+        valid["finding_id"] = summary["findings_preview"][0]["id"]
+    for modern in (False, True):
+        for invalid in ({**valid, "limit": True}, {**valid, "cursor": True},
+                        {**valid, "unexpected": 1}, {**valid, "run_id": 7},
+                        {**valid, "run_id": "missing"}):
+            params = {"name": name, "arguments": invalid}
+            if modern:
+                params["_meta"] = {"io.modelcontextprotocol/protocolVersion": "2026-07-28"}
+            response = handle({"jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                               "params": params})
+            if modern:
+                assert response["error"]["code"] == -32602
+                assert "result" not in response
+            else:
+                assert response["result"]["isError"] is True
+                assert "structuredContent" not in response["result"]

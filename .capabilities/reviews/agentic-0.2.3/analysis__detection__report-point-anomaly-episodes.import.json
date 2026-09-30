@@ -1,0 +1,63 @@
+{
+  "capabilityId": "analysis/detection/report-point-anomaly-episodes",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\detection\\report-point-anomaly-episodes.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Calibrated point-threshold crossings become inspectable observations, with adjacent crossings grouped into episodes.",
+      "criteria": [
+        {
+          "criterion": "A sufficiently extreme calibrated sample records a point trigger and the expectation it departed from.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:344",
+            "src/anomalyzer/recipes.py:388",
+            "tests/test_analysis.py:441"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Repeated runs of the same fixed request preserve numerical evidence; future samples do not change earlier scoring for declared settings.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/baseline.py:31",
+            "src/anomalyzer/recipes.py:174",
+            "tests/test_analysis.py:441",
+            "tests/test_trend.py:36"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Adjacent point departures form a consecutive-run pattern with the contributing sample positions.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:95",
+            "tests/test_analysis.py:274"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Separated point departures remain separate episodes, and positional episode intervals use integer coordinates.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:12",
+            "src/anomalyzer/evidence.py:23",
+            "tests/test_analysis.py:263",
+            "tests/test_analysis.py:369"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected spike: one episode at sample 65, original observed value retained, and overlapping CUSUM/moving-range findings interpreted separately."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

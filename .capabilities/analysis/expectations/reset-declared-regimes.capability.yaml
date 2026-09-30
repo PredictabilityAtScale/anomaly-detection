@@ -1,0 +1,96 @@
+title: Restart expectations at declared regime boundaries
+status: implemented
+summary: Caller-supplied reset points divide a single-resolution series into
+  independently trained and calibrated regimes.
+intent: Recognize known discontinuities without forcing the previous regime to
+  explain the new one.
+acceptance:
+  - Integer positions and exact observed dates or timestamps can identify reset
+    boundaries.
+  - Each new regime rebuilds its reference, trend, and calibration without
+    crossing earlier boundaries.
+  - Repeated, out-of-range, or unmatched reset points are rejected.
+  - CLI reset options produce the same resolved positions and suppress
+    departures explained by the declared boundaries.
+guidance:
+  - Reset points are explicit caller decisions. Known-event notes and
+    review-state fields do not rebuild regimes.
+  - Multi-resolution analysis does not support reset_points.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/expectations/reset-declared-regimes
+  # run deterministic review only: capabilitykit review analysis/expectations/reset-declared-regimes --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/expectations/reset-declared-regimes --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/expectations/reset-declared-regimes --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/expectations/model-seasonal-level-and-growth
+    - analysis/evidence/calibrate-departures
+  implementation:
+    references:
+      - src/anomalyzer/validation.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_cli.py
+  verification:
+    automated:
+      - id: independent-regimes
+        description: Retrain separate regimes without cross-boundary evidence or patterns.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_manual_resets_retrain_without_crossing_boundaries
+      - id: invalid-boundaries
+        description: Reject invalid or duplicate resolved reset positions.
+        command: python -m pytest -q tests/test_analysis.py::test_invalid_manual_resets
+      - id: cli-boundaries
+        description: Resolve position and date reset flags through the CLI.
+        command: python -m pytest -q tests/test_cli.py::test_manual_reset_cli
+    manual:
+      - Inspect the resolved reset positions and segment diagnostics for
+        examples/steps_reset.json.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected steps_reset: resolved boundaries 50 and 100, completed
+        analysis, no episodes or patterns."
+    intent_summary: Caller-supplied reset points divide a single-resolution series
+      into independently trained and calibrated regimes.
+    criteria:
+      - criterion: Integer positions and exact observed dates or timestamps can identify
+          reset boundaries.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:129
+          - tests/test_analysis.py:381
+      - criterion: Each new regime rebuilds its reference, trend, and calibration
+          without crossing earlier boundaries.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:119
+          - src/anomalyzer/recipes.py:143
+          - tests/test_analysis.py:381
+      - criterion: Repeated, out-of-range, or unmatched reset points are rejected.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:51
+          - src/anomalyzer/validation.py:149
+          - tests/test_analysis.py:413
+      - criterion: CLI reset options produce the same resolved positions and suppress
+          departures explained by the declared boundaries.
+        status: covered
+        evidence:
+          - tests/test_cli.py:82
+          - src/anomalyzer/recipes.py:53
+    done: true
+    input_fingerprint: f52686f8bbd95efb2145b5aed6790344929f2f1128ca0ee4924dc7721419ebab
+    mode: quick

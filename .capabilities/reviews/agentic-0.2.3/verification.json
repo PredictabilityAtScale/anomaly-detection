@@ -1,0 +1,11 @@
+{
+  "cli_version": "0.2.3",
+  "command": ".venv/Scripts/python.exe -m pytest -q",
+  "exit_code": 0,
+  "result": "149 passed in 14.53s",
+  "scope": "Full repository test suite, run by the primary reviewer before semantic reviews.",
+  "initial_capability_check": "26 formatted, validation passed, 26 compiled in memory; 26 ok, 0 needs review, 0 needs action, 0 planned.",
+  "final_capability_check": "26 formatted, validation passed, 26 compiled, 26 ok, 0 needs review, 0 needs action; 0 verification gaps.",
+  "current_fingerprinted_semantic_reviews": 26,
+  "schema_check": "All four published request/result schemas equal their public Python contracts."
+}

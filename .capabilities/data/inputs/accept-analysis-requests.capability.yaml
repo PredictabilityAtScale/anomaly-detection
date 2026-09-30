@@ -1,0 +1,114 @@
+title: Accept numeric series and explicit analysis requests
+status: implemented
+summary: Callers can submit ordered numeric values or versioned requests
+  containing datasets, settings, context, and declared relationships.
+intent: Make the accepted data contract clear before any conclusions are drawn
+  from the numbers.
+acceptance:
+  - Ordered value lists work with separate settings, while schema 1.0 requests
+    describe one dataset.
+  - Schema 1.1 datasets declare a nonempty entity scope and support explicit
+    relationships between named datasets.
+  - Unknown settings, unsupported recipes, nonfinite values, booleans, and
+    numeric strings are rejected.
+  - Published schema 1.0 and 1.1 request and result schemas match the public
+    Python contracts.
+guidance:
+  - Null observations represent missing values, never zero. Limits apply to the
+    request as a whole.
+  - Describe current supported behavior; historical plans do not add accepted
+    inputs.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review data/inputs/accept-analysis-requests
+  # run deterministic review only: capabilitykit review data/inputs/accept-analysis-requests --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review data/inputs/accept-analysis-requests --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result data/inputs/accept-analysis-requests --input review.json
+  # -----------------------------
+  implementation:
+    references:
+      - src/anomalyzer/contracts.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_agentic.py
+      - schemas/request.schema.json
+      - schemas/result.schema.json
+      - schemas/request-1.1.schema.json
+      - schemas/result-1.1.schema.json
+  verification:
+    automated:
+      - id: input-forms
+        description: Analyze a bare list and validate a canonical request and result.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_bare_values_with_separate_settings
+          tests/test_analysis.py::test_constant_and_schema
+      - id: explicit-scope
+        description: Reject schema 1.1 datasets without entity scope.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_schema_11_requires_explicit_entity_scope
+      - id: invalid-inputs
+        description: Reject unsupported settings and nonnumeric or nonfinite observations.
+        command: python -m pytest -q tests/test_analysis.py::test_invalid_config
+          tests/test_analysis.py::test_invalid_values
+      - id: published-schemas
+        description: Compare all four checked-in schemas with their public contracts.
+        command: python -m pytest -q tests/test_analysis.py::test_checked_in_schemas
+          tests/test_agentic.py::test_v11_checked_in_schemas_exist
+    manual:
+      - Review the input examples in README.md and confirm they describe the two
+        supported schema versions and the four-dataset/four-relationship limit.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Read README input/API examples and schema-version limits; independently
+        parsed all four published schemas and asserted equality to their current
+        public contracts.
+    intent_summary: Callers can submit ordered numeric values or versioned requests
+      containing datasets, settings, context, and declared relationships.
+    criteria:
+      - criterion: Ordered value lists work with separate settings, while schema 1.0
+          requests describe one dataset.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:21
+          - src/anomalyzer/contracts.py:96
+          - tests/test_analysis.py:234
+      - criterion: Schema 1.1 datasets declare a nonempty entity scope and support
+          explicit relationships between named datasets.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:240
+          - src/anomalyzer/contracts.py:335
+          - tests/test_agentic.py:192
+      - criterion: Unknown settings, unsupported recipes, nonfinite values, booleans,
+          and numeric strings are rejected.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:7
+          - src/anomalyzer/contracts.py:71
+          - tests/test_analysis.py:526
+          - tests/test_analysis.py:531
+      - criterion: Published schema 1.0 and 1.1 request and result schemas match the
+          public Python contracts.
+        status: covered
+        evidence:
+          - schemas/request.schema.json
+          - schemas/result.schema.json
+          - schemas/request-1.1.schema.json
+          - schemas/result-1.1.schema.json
+          - tests/test_analysis.py:547
+          - tests/test_agentic.py:317
+    done: true
+    input_fingerprint: 16e3c6a350aeaabddac5b7b86979c7977a2f0755a28ecaef16cc4e8cf859eaf0
+    mode: quick

@@ -1,0 +1,117 @@
+title: Investigate findings through compact MCP tools
+status: implemented
+summary: Agents can analyze a request, page through its findings, and retrieve
+  supporting samples, assessments, readiness, and relationship lineage.
+intent: Keep the initial agent response compact while making the supporting
+  evidence inspectable.
+acceptance:
+  - The analyze tool returns a compact headline, finding preview, and run ID for
+    subsequent evidence requests.
+  - list_findings pages through cases, candidates, episodes, patterns, and
+    data-quality findings.
+  - get_evidence exposes the selected finding's numerical support and
+    relationship source lineage.
+  - Unavailable latest evidence and non-triggering early candidates remain
+    visible, while large pattern sample sets are paginated.
+guidance:
+  - Run results are retained only in the bounded server-session cache; missing
+    or evicted run IDs require reanalysis.
+  - Cases, episodes, and residual patterns may overlap.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review interfaces/mcp/investigate-findings-and-evidence
+  # run deterministic review only: capabilitykit review interfaces/mcp/investigate-findings-and-evidence --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review interfaces/mcp/investigate-findings-and-evidence --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result interfaces/mcp/investigate-findings-and-evidence --input review.json
+  # -----------------------------
+  depends_on:
+    - interfaces/python/analyze-through-public-api
+    - investigation/cases/group-related-evidence
+  implementation:
+    references:
+      - src/anomalyzer/mcp.py
+      - src/anomalyzer/mcp_views.py
+      - tests/test_mcp.py
+  verification:
+    automated:
+      - id: case-drilldown
+        description: Analyze, page findings, and inspect exact conversion case values
+          and lineage.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_agent_can_drill_into_relationship_case
+          tests/test_mcp.py::test_schema_11_episode_is_paged_and_has_relationship_evidence
+      - id: unavailable-finding
+        description: Expose a quality finding when latest relationship evidence is
+          unavailable.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_agent_sees_unavailable_latest_evidence
+      - id: early-candidate
+        description: Inspect descriptive candidate evidence without inventing a case.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_short_history_candidate_is_visible_without_a_case
+          tests/test_mcp.py::test_inapplicable_method_keeps_descriptive_candidate_visible
+      - id: sample-pagination
+        description: Page supporting samples for a residual pattern.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_get_evidence_pages_pattern_samples
+    manual:
+      - Follow analyze, list_findings, and get_evidence for the conversion
+        example and check that the headline is supported by the retrieved
+        values.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Followed analyze, list_findings and get_evidence for conversion:
+        observed 8/130 versus expected 0.1, source indexes 14/14 and
+        not_assessed readiness support the compact headline."
+    intent_summary: Agents can analyze a request, page through its findings, and
+      retrieve supporting samples, assessments, readiness, and relationship
+      lineage.
+    criteria:
+      - criterion: The analyze tool returns a compact headline, finding preview, and run
+          ID for subsequent evidence requests.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp.py:170
+          - src/anomalyzer/mcp_views.py:247
+          - tests/test_mcp.py:54
+      - criterion: list_findings pages through cases, candidates, episodes, patterns,
+          and data-quality findings.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp_views.py:132
+          - src/anomalyzer/mcp_views.py:260
+          - tests/test_mcp.py:313
+          - tests/test_mcp.py:108
+      - criterion: get_evidence exposes the selected finding's numerical support and
+          relationship source lineage.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp_views.py:273
+          - src/anomalyzer/mcp_views.py:294
+          - tests/test_mcp.py:54
+          - tests/test_mcp.py:313
+      - criterion: Unavailable latest evidence and non-triggering early candidates
+          remain visible, while large pattern sample sets are paginated.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp_views.py:118
+          - src/anomalyzer/mcp_views.py:169
+          - src/anomalyzer/mcp_views.py:337
+          - tests/test_mcp.py:87
+          - tests/test_mcp.py:137
+          - tests/test_mcp.py:341
+    done: true
+    input_fingerprint: 5419787117c97f061fb77169180fec4987f2c046f1f6edcca85b445ac8d4653a
+    mode: quick

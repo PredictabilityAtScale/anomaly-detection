@@ -1,0 +1,48 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "The default recipe builds an expectation from earlier matching seasonal observations and a training-fitted level, linear, or compound-growth model.",
+  "criteria": [
+    {
+      "criterion": "A supplied season length selects earlier matching seasonal observations for the reference.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/baseline.py:8",
+        "src/anomalyzer/baseline.py:31",
+        "tests/test_analysis.py:21"
+      ]
+    },
+    {
+      "criterion": "Automatic trend selection represents suitable linear and compound growth without flagging ordinary growth as point anomalies.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/trend.py:120",
+        "src/anomalyzer/trend.py:144",
+        "tests/test_trend.py:11"
+      ]
+    },
+    {
+      "criterion": "The fitted trend remains frozen after training within a regime; later changed values do not rewrite that fit.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:162",
+        "tests/test_trend.py:36"
+      ]
+    },
+    {
+      "criterion": "Callers can explicitly select none, linear, or exponential trend, and unsupported trend modes are rejected.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:20",
+        "tests/test_trend.py:49",
+        "tests/test_trend.py:57"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Inspected growth_up and compound: linear/exponential selections respectively, zero point episodes and zero patterns."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

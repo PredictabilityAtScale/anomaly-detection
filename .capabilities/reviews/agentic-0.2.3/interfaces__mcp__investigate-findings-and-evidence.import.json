@@ -1,0 +1,67 @@
+{
+  "capabilityId": "interfaces/mcp/investigate-findings-and-evidence",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\interfaces\\mcp\\investigate-findings-and-evidence.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Agents can analyze a request, page through its findings, and retrieve supporting samples, assessments, readiness, and relationship lineage.",
+      "criteria": [
+        {
+          "criterion": "The analyze tool returns a compact headline, finding preview, and run ID for subsequent evidence requests.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp.py:170",
+            "src/anomalyzer/mcp_views.py:247",
+            "tests/test_mcp.py:54"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "list_findings pages through cases, candidates, episodes, patterns, and data-quality findings.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp_views.py:132",
+            "src/anomalyzer/mcp_views.py:260",
+            "tests/test_mcp.py:313",
+            "tests/test_mcp.py:108"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "get_evidence exposes the selected finding's numerical support and relationship source lineage.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp_views.py:273",
+            "src/anomalyzer/mcp_views.py:294",
+            "tests/test_mcp.py:54",
+            "tests/test_mcp.py:313"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Unavailable latest evidence and non-triggering early candidates remain visible, while large pattern sample sets are paginated.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/mcp_views.py:118",
+            "src/anomalyzer/mcp_views.py:169",
+            "src/anomalyzer/mcp_views.py:337",
+            "tests/test_mcp.py:87",
+            "tests/test_mcp.py:137",
+            "tests/test_mcp.py:341"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Followed analyze, list_findings and get_evidence for conversion: observed 8/130 versus expected 0.1, source indexes 14/14 and not_assessed readiness support the compact headline."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

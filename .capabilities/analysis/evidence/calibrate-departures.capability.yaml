@@ -1,0 +1,103 @@
+title: Separate early references from calibrated departures
+status: implemented
+summary: Sample evidence distinguishes reference-only, provisional, and
+  calibrated comparisons before permitting statistical point triggers.
+intent: Keep useful early evidence while making its level of support visible.
+acceptance:
+  - Short series return reference evidence and an insufficient_history status
+    instead of inventing calibrated findings.
+  - Provisional residual scores can be reported but do not trigger point-anomaly
+    episodes.
+  - Completed calibration provides a frozen residual center and sample scale for
+    later standardized residuals.
+  - Evidence records the observed value, expectation, calibration support, and
+    numerical criterion responsible for a trigger.
+guidance:
+  - Evidence strength is not a probability of an incident.
+  - Calibration and expectations are separate concerns; each declared regime
+    calibrates again.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/evidence/calibrate-departures
+  # run deterministic review only: capabilitykit review analysis/evidence/calibrate-departures --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/evidence/calibrate-departures --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/evidence/calibrate-departures --input review.json
+  # -----------------------------
+  depends_on:
+    - data/inputs/accept-analysis-requests
+  implementation:
+    references:
+      - src/anomalyzer/recipes.py
+      - src/anomalyzer/contracts.py
+      - tests/test_analysis.py
+  verification:
+    automated:
+      - id: short-history
+        description: Keep reference-only evidence for a short series.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_short_series_returns_reference_evidence
+      - id: provisional-evidence
+        description: Report provisional scores without point triggers.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_early_evidence_maturity_and_no_provisional_trigger
+      - id: independent-calibration
+        description: Check a known residual center, sample scale, and standardized score.
+        command: python -m pytest -q tests/test_analysis.py::test_calibration_reference
+      - id: constant-reference
+        description: Handle zero residual variance without spurious episodes.
+        command: python -m pytest -q tests/test_analysis.py::test_constant_and_schema
+    manual:
+      - Inspect a sample's signal_maturity, calibration_samples,
+        standardized_residual, and triggers together before describing a
+        statistical departure.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected spike sample 65: calibrated, 14 calibration samples, observed
+        135.2, expected 94.875, standardized residual 85.3088, and a point
+        trigger; score semantics explicitly exclude probability."
+    intent_summary: Sample evidence distinguishes reference-only, provisional, and
+      calibrated comparisons before permitting statistical point triggers.
+    criteria:
+      - criterion: Short series return reference evidence and an insufficient_history
+          status instead of inventing calibrated findings.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:205
+          - src/anomalyzer/recipes.py:445
+          - tests/test_analysis.py:141
+      - criterion: Provisional residual scores can be reported but do not trigger
+          point-anomaly episodes.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:210
+          - tests/test_analysis.py:123
+      - criterion: Completed calibration provides a frozen residual center and sample
+          scale for later standardized residuals.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:231
+          - src/anomalyzer/recipes.py:307
+          - tests/test_analysis.py:111
+      - criterion: Evidence records the observed value, expectation, calibration
+          support, and numerical criterion responsible for a trigger.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:104
+          - src/anomalyzer/recipes.py:350
+          - src/anomalyzer/recipes.py:388
+          - tests/test_analysis.py:111
+    done: true
+    input_fingerprint: d4f2c65c3f3bf578a416c906a552364261752c7de3d75866732f06442973bd50
+    mode: quick

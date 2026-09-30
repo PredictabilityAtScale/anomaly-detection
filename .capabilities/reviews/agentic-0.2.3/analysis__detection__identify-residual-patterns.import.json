@@ -1,0 +1,61 @@
+{
+  "capabilityId": "analysis/detection/identify-residual-patterns",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\detection\\identify-residual-patterns.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Residual rules identify location shifts, trends, oscillation, mixture patterns, and short-term variation beyond isolated point departures.",
+      "criteria": [
+        {
+          "criterion": "Nelson location rules and CUSUM can identify a sustained residual location shift without any point-threshold crossing.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:118",
+            "src/anomalyzer/evidence.py:189",
+            "tests/test_analysis.py:293"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "CUSUM reports the first detection position, direction, accumulated score, and configured threshold.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:211",
+            "src/anomalyzer/evidence.py:230",
+            "tests/test_analysis.py:350"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Trend, oscillation, and mixture findings retain their specific pattern meanings.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:70",
+            "src/anomalyzer/evidence.py:122",
+            "tests/test_analysis.py:340"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Moving-range findings identify variation changes separately from location changes.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:234",
+            "tests/test_analysis.py:360"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected location_shift_up: zero point episodes and distinct overlapping Nelson/CUSUM/oscillation findings, with rule-specific detection positions."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

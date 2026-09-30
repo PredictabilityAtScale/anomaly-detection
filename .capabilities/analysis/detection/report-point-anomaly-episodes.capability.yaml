@@ -1,0 +1,104 @@
+title: Detect point departures and group adjacent episodes
+status: implemented
+summary: Calibrated point-threshold crossings become inspectable observations,
+  with adjacent crossings grouped into episodes.
+intent: Locate unusual values and keep isolated events distinct from sustained runs.
+acceptance:
+  - A sufficiently extreme calibrated sample records a point trigger and the
+    expectation it departed from.
+  - Repeated runs of the same fixed request preserve numerical evidence; future
+    samples do not change earlier scoring for declared settings.
+  - Adjacent point departures form a consecutive-run pattern with the
+    contributing sample positions.
+  - Separated point departures remain separate episodes, and positional episode
+    intervals use integer coordinates.
+guidance:
+  - Detection is a numerical departure from the selected expectation, not a
+    claim about cause or business impact.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/detection/report-point-anomaly-episodes
+  # run deterministic review only: capabilitykit review analysis/detection/report-point-anomaly-episodes --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/detection/report-point-anomaly-episodes --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/detection/report-point-anomaly-episodes --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/evidence/calibrate-departures
+  implementation:
+    references:
+      - src/anomalyzer/recipes.py
+      - src/anomalyzer/evidence.py
+      - tests/test_analysis.py
+  verification:
+    automated:
+      - id: point-evidence
+        description: Detect an injected spike and retain deterministic earlier numerical
+          evidence.
+        command: python -m pytest -q tests/test_analysis.py::test_spike_and_no_lookahead
+      - id: adjacent-run
+        description: Describe adjacent point triggers and their contributing positions.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_anomaly_stream_detects_consecutive_run
+      - id: isolated-events
+        description: Keep separated anomalies from becoming a consecutive-run pattern.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_isolated_anomalies_do_not_form_second_order_pattern
+      - id: positional-episodes
+        description: Use integer intervals for position-only episode evidence.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_positional_episode_uses_integer_interval
+    manual:
+      - Inspect observations and triggering_samples for examples/spike.json and
+        distinguish episode grouping from pattern findings.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected spike: one episode at sample 65, original observed value
+        retained, and overlapping CUSUM/moving-range findings interpreted
+        separately."
+    intent_summary: Calibrated point-threshold crossings become inspectable
+      observations, with adjacent crossings grouped into episodes.
+    criteria:
+      - criterion: A sufficiently extreme calibrated sample records a point trigger and
+          the expectation it departed from.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:344
+          - src/anomalyzer/recipes.py:388
+          - tests/test_analysis.py:441
+      - criterion: Repeated runs of the same fixed request preserve numerical evidence;
+          future samples do not change earlier scoring for declared settings.
+        status: covered
+        evidence:
+          - src/anomalyzer/baseline.py:31
+          - src/anomalyzer/recipes.py:174
+          - tests/test_analysis.py:441
+          - tests/test_trend.py:36
+      - criterion: Adjacent point departures form a consecutive-run pattern with the
+          contributing sample positions.
+        status: covered
+        evidence:
+          - src/anomalyzer/evidence.py:95
+          - tests/test_analysis.py:274
+      - criterion: Separated point departures remain separate episodes, and positional
+          episode intervals use integer coordinates.
+        status: covered
+        evidence:
+          - src/anomalyzer/evidence.py:12
+          - src/anomalyzer/evidence.py:23
+          - tests/test_analysis.py:263
+          - tests/test_analysis.py:369
+    done: true
+    input_fingerprint: a41a25f4e1bcd7411227d827792576f11a549f3c93a1bb30bfeaabbc118b2766
+    mode: quick

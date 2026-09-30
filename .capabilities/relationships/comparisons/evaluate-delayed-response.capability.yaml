@@ -1,0 +1,107 @@
+title: Evaluate a declared delayed response
+status: implemented
+summary: A lagged-response relationship compares current response with a
+  supplied or training-fitted multiple of an earlier predictor.
+intent: Inspect whether a metric still follows the delayed relationship declared
+  by the caller.
+acceptance:
+  - A supplied lag and coefficient use the predictor at the declared earlier
+    sample position.
+  - Derived values retain response and predictor source indexes and source
+    cutoffs in lineage.
+  - When requested, the coefficient is fitted once from a declared training
+    prefix and remains frozen.
+  - Samples lacking the earlier predictor or awaiting coefficient training
+    remain unavailable.
+guidance:
+  - Lag is measured in samples and is never searched automatically.
+  - Exactly one of coefficient or training_size is required.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review relationships/comparisons/evaluate-delayed-response
+  # run deterministic review only: capabilitykit review relationships/comparisons/evaluate-delayed-response --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review relationships/comparisons/evaluate-delayed-response --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result relationships/comparisons/evaluate-delayed-response --input review.json
+  # -----------------------------
+  depends_on:
+    - relationships/quality/require-compatible-sources
+  implementation:
+    references:
+      - src/anomalyzer/relationships.py
+      - src/anomalyzer/orchestrator.py
+      - tests/test_agentic.py
+      - tests/test_examples.py
+      - examples/agentic/lagged-response.json
+  verification:
+    automated:
+      - id: supplied-response
+        description: Use the declared lag and coefficient with correct predictor indexes.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_lagged_response_uses_supplied_coefficient_and_prior_sample
+      - id: frozen-coefficient
+        description: Keep fitted coefficient and earlier lineage invariant when future
+          samples arrive.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_estimated_lag_coefficient_is_frozen_and_prefix_invariant
+      - id: delayed-example
+        description: Run the checked-in lagged-response demonstration against expected
+          results.
+        command: python -m pytest -q
+          tests/test_examples.py::test_agentic_demo_checks_all_cases
+      - id: pending-training
+        description: Retain unavailable lineage until the full declared training prefix
+          arrives, then freeze its coefficient.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_lag_fit_waits_for_complete_training_prefix
+    manual:
+      - Inspect the lagged-response example's leading unavailable values,
+        coefficient parameters, and first usable derived sample.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected lagged-response leading unavailable values and first usable
+        sample: supplied coefficient 2, lag 2, response index 2/predictor index
+        0 and source cutoff preserved."
+    intent_summary: A lagged-response relationship compares current response with a
+      supplied or training-fitted multiple of an earlier predictor.
+    criteria:
+      - criterion: A supplied lag and coefficient use the predictor at the declared
+          earlier sample position.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:115
+          - tests/test_agentic.py:254
+      - criterion: Derived values retain response and predictor source indexes and
+          source cutoffs in lineage.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:152
+          - tests/test_agentic.py:254
+          - examples/agentic/lagged-response.json
+      - criterion: When requested, the coefficient is fitted once from a declared
+          training prefix and remains frozen.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:47
+          - tests/test_agentic.py:294
+          - tests/test_agentic.py:330
+      - criterion: Samples lacking the earlier predictor or awaiting coefficient
+          training remain unavailable.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:122
+          - tests/test_agentic.py:330
+    done: true
+    input_fingerprint: 24544baae5d5d7d3d4765f0a5dcb7650aaed542ae4cd7162e940764593531529
+    mode: quick

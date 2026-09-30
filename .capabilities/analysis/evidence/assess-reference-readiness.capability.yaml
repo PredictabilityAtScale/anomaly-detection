@@ -1,0 +1,106 @@
+title: Explain whether the reference deserves confidence
+status: implemented
+summary: Readiness diagnostics report supported, caution, or not_assessed based
+  on the training pattern and calibration evidence.
+intent: Expose weak expectations even when no anomaly is detected.
+acceptance:
+  - Repeating seasonal structure with stable calibration can yield supported
+    readiness.
+  - Unstable declared seasonality or a drifting calibration center yields
+    caution without making an otherwise completed run fail.
+  - Insufficient calibration support yields not_assessed, including when the run
+    otherwise completes.
+  - Later evaluation changes do not rewrite the segment's
+    training-and-calibration readiness assessment.
+guidance:
+  - Readiness does not prove real-world effectiveness and is not an automatic
+    action-policy gate.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/evidence/assess-reference-readiness
+  # run deterministic review only: capabilitykit review analysis/evidence/assess-reference-readiness --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/evidence/assess-reference-readiness --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/evidence/assess-reference-readiness --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/evidence/calibrate-departures
+  implementation:
+    references:
+      - src/anomalyzer/readiness.py
+      - src/anomalyzer/recipes.py
+      - tests/test_readiness.py
+  verification:
+    automated:
+      - id: supported-reference
+        description: Support repeated seasonality and preserve readiness under later
+          changes.
+        command: python -m pytest -q
+          tests/test_readiness.py::test_repeating_season_and_trend_support_reference
+      - id: weak-season
+        description: Warn on unstable seasonality even when no findings occur.
+        command: python -m pytest -q
+          tests/test_readiness.py::test_unstable_declared_season_warns_without_calling_series_inapplicable
+          tests/test_readiness.py::test_documented_random_example_has_no_findings_but_warns_on_reference
+      - id: calibration-drift
+        description: Warn when residual calibration drifts despite a repeated training
+          season.
+        command: python -m pytest -q
+          tests/test_readiness.py::test_calibration_drift_warns_even_when_training_season_repeats
+      - id: not-assessed
+        description: Distinguish uncalibrated history and too few calibration samples.
+        command: python -m pytest -q
+          tests/test_readiness.py::test_readiness_is_not_assessed_without_calibrated_evaluation
+          tests/test_readiness.py::test_short_calibration_is_not_assessed_even_when_analysis_completes
+    manual:
+      - Read readiness reasons alongside findings; a lack of findings alone does
+        not establish a trustworthy reference.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Inspected spike readiness caution for residual autocorrelation and
+        conversion not_assessed for three calibration samples; neither absence
+        of findings nor a large score establishes alert accuracy.
+    intent_summary: Readiness diagnostics report supported, caution, or not_assessed
+      based on the training pattern and calibration evidence.
+    criteria:
+      - criterion: Repeating seasonal structure with stable calibration can yield
+          supported readiness.
+        status: covered
+        evidence:
+          - src/anomalyzer/readiness.py:128
+          - tests/test_readiness.py:8
+      - criterion: Unstable declared seasonality or a drifting calibration center yields
+          caution without making an otherwise completed run fail.
+        status: covered
+        evidence:
+          - src/anomalyzer/readiness.py:113
+          - src/anomalyzer/readiness.py:122
+          - tests/test_readiness.py:28
+          - tests/test_readiness.py:41
+      - criterion: Insufficient calibration support yields not_assessed, including when
+          the run otherwise completes.
+        status: covered
+        evidence:
+          - src/anomalyzer/readiness.py:77
+          - tests/test_readiness.py:56
+          - tests/test_readiness.py:63
+      - criterion: Later evaluation changes do not rewrite the segment's
+          training-and-calibration readiness assessment.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:327
+          - tests/test_readiness.py:8
+    done: true
+    input_fingerprint: 0a8bbcea6f441608888821c413f12a182c4729d2725608bab004755b17f567a9
+    mode: quick

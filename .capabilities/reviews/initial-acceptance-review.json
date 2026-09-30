@@ -1,0 +1,1578 @@
+{
+  "reviews": [
+    {
+      "capability_id": "analysis/detection/identify-residual-patterns",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Identify accumulating residual changes and distinguish location, trend, oscillation, mixture, and variation evidence.",
+        "criteria": [
+          {
+            "criterion": "Nelson location rules and CUSUM can identify a sustained residual location shift without any point-threshold crossing.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/evidence.py:118",
+              "src/anomalyzer/evidence.py:189",
+              "tests/test_analysis.py:293"
+            ],
+            "notes": "Tests assert no point triggers or episodes and exact upward/downward detection positions for Nelson rules and CUSUM."
+          },
+          {
+            "criterion": "CUSUM reports the first detection position, direction, accumulated score, and configured threshold.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/evidence.py:200",
+              "src/anomalyzer/evidence.py:230",
+              "tests/test_analysis.py:350"
+            ],
+            "notes": "The known accumulation detects at index 16 and reports peak CUSUM approximately 6, threshold 5, and increase direction."
+          },
+          {
+            "criterion": "Trend, oscillation, and mixture findings retain their specific pattern meanings.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/evidence.py:70",
+              "src/anomalyzer/evidence.py:122",
+              "src/anomalyzer/evidence.py:133",
+              "tests/test_analysis.py:340"
+            ],
+            "notes": "Separate predicates and descriptions preserve the three meanings and explicitly limit location/distribution claims."
+          },
+          {
+            "criterion": "Moving-range findings identify variation changes separately from location changes.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/evidence.py:234",
+              "src/anomalyzer/evidence.py:248",
+              "tests/test_analysis.py:360"
+            ],
+            "notes": "Adjacent standardized-residual differences produce variation_shift findings; the test checks magnitude, detection index, and interpretation."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          ".venv/Scripts/python.exe -B examples/run_demo.py succeeded.",
+          "Manually analyzed examples/location_shift_up.json: zero episodes, four overlapping location findings, and a separate oscillation finding; inspected descriptions and readiness cautions."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/detection/report-point-anomaly-episodes",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Expose calibrated point departures and group adjacent crossings into inspectable episodes.",
+        "criteria": [
+          {
+            "criterion": "A sufficiently extreme calibrated sample records a point trigger and the expectation it departed from.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:344",
+              "src/anomalyzer/recipes.py:388",
+              "tests/test_analysis.py:441"
+            ],
+            "notes": "The injected spike retains its observed value, expectation, standardized residual, and point trigger."
+          },
+          {
+            "criterion": "Repeated runs of the same fixed request preserve numerical evidence; future samples do not change earlier scoring for declared settings.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:143",
+              "src/anomalyzer/recipes.py:174",
+              "tests/test_analysis.py:441",
+              "tests/test_trend.py:28"
+            ],
+            "notes": "Assertions establish repeatability and unchanged earlier evidence under later evaluation changes with fixed seasonal settings. Automatic positional season discovery has the separately documented streaming limitation."
+          },
+          {
+            "criterion": "Adjacent point departures form a consecutive-run pattern with the contributing sample positions.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/evidence.py:94",
+              "src/anomalyzer/evidence.py:104",
+              "tests/test_analysis.py:274"
+            ],
+            "notes": "The test checks one three-sample run, exact contributing positions, direction, and first detection."
+          },
+          {
+            "criterion": "Separated point departures remain separate episodes, and positional episode intervals use integer coordinates.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/evidence.py:12",
+              "src/anomalyzer/evidence.py:23",
+              "tests/test_analysis.py:263",
+              "tests/test_analysis.py:369"
+            ],
+            "notes": "Separated spikes produce two episodes without a consecutive-run pattern; positional evidence produces interval [9, 9]."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually inspected examples/spike.json analysis: one episode with triggering_samples [65], supported by calibrated sample 65; CUSUM and moving-range findings remain separate overlapping evidence."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/evidence/assess-reference-readiness",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Report whether training and calibration support confidence in the selected reference.",
+        "criteria": [
+          {
+            "criterion": "Repeating seasonal structure with stable calibration can yield supported readiness.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/readiness.py:39",
+              "src/anomalyzer/readiness.py:128",
+              "tests/test_readiness.py:8"
+            ],
+            "notes": "Assertions establish repeated seasonality, strong calibration improvement, and supported readiness."
+          },
+          {
+            "criterion": "Unstable declared seasonality or a drifting calibration center yields caution without making an otherwise completed run fail.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/readiness.py:113",
+              "src/anomalyzer/readiness.py:122",
+              "tests/test_readiness.py:28",
+              "tests/test_readiness.py:41"
+            ],
+            "notes": "Completed analyses retain caution reasons for weak seasonal repetition or calibration-center drift."
+          },
+          {
+            "criterion": "Insufficient calibration support yields not_assessed, including when the run otherwise completes.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/readiness.py:77",
+              "src/anomalyzer/readiness.py:142",
+              "tests/test_readiness.py:56",
+              "tests/test_readiness.py:63"
+            ],
+            "notes": "Both uncalibrated history and a completed run with three calibration samples return not_assessed."
+          },
+          {
+            "criterion": "Later evaluation changes do not rewrite the segment's training-and-calibration readiness assessment.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:327",
+              "src/anomalyzer/readiness.py:63",
+              "tests/test_readiness.py:21"
+            ],
+            "notes": "Readiness reads training/calibration inputs once; tests compare identical segment and aggregate assessments after a later shift."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all six declared readiness selectors passed.",
+          "Manually compared readiness reasons with findings for growth_up, compound, location_shift_up, and spike examples. Clean growth still carried calibration-autocorrelation caution, confirming that absent findings do not establish reference quality."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/evidence/calibrate-departures",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Retain early numerical comparisons while permitting point triggers only after calibration completes.",
+        "criteria": [
+          {
+            "criterion": "Short series return reference evidence and an insufficient_history status instead of inventing calibrated findings.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:205",
+              "src/anomalyzer/recipes.py:445",
+              "tests/test_analysis.py:141"
+            ],
+            "notes": "The short-series test checks three reference-only samples, absent standardized scores, and no triggers."
+          },
+          {
+            "criterion": "Provisional residual scores can be reported but do not trigger point-anomaly episodes.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:210",
+              "src/anomalyzer/recipes.py:225",
+              "tests/test_analysis.py:123"
+            ],
+            "notes": "A provisional score of 2 exceeds the configured point threshold of 1 but produces no trigger or episode."
+          },
+          {
+            "criterion": "Completed calibration provides a frozen residual center and sample scale for later standardized residuals.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:231",
+              "src/anomalyzer/recipes.py:307",
+              "src/anomalyzer/recipes.py:344",
+              "tests/test_analysis.py:111"
+            ],
+            "notes": "Calibration uses retained residual mean and sample standard deviation once per regime; the independent numerical example produces the expected standardized score."
+          },
+          {
+            "criterion": "Evidence records the observed value, expectation, calibration support, and numerical criterion responsible for a trigger.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:104",
+              "src/anomalyzer/recipes.py:350",
+              "src/anomalyzer/recipes.py:388",
+              "tests/test_analysis.py:115"
+            ],
+            "notes": "Sample fields retain the comparison and support; the point threshold is inspectable in the enclosing method parameters."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually inspected spike sample 65: calibrated maturity, 14 calibration samples, observed 135.2, expected approximately 94.875, standardized residual approximately 85.309, and point trigger with non-probability semantics."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/expectations/adapt-to-changing-growth",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Update expectations from a bounded preceding window while preserving frozen calibration and limiting isolated contamination.",
+        "criteria": [
+          {
+            "criterion": "Each rolling expectation uses only observations before the sample being scored.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/baseline.py:61",
+              "src/anomalyzer/baseline.py:69",
+              "src/anomalyzer/recipes.py:143",
+              "tests/test_analysis.py:48"
+            ],
+            "notes": "All rolling-reference positions precede the scored index. The independent expectation remains unchanged after future values are appended."
+          },
+          {
+            "criterion": "Persistent growth changes can be followed more closely than by the frozen default recipe.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/baseline.py:63",
+              "src/anomalyzer/recipes.py:361",
+              "tests/test_analysis.py:58"
+            ],
+            "notes": "The test requires adaptive held-out MAE below half the frozen recipe's MAE and a close final expectation."
+          },
+          {
+            "criterion": "An isolated extreme value is held out of future model references rather than creating a seasonal echo.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:361",
+              "src/anomalyzer/recipes.py:378",
+              "tests/test_analysis.py:81"
+            ],
+            "notes": "The isolated spike is excluded from model references; its next seasonal expectation closely matches the control. Persistent third misses are admitted as guidance explicitly permits."
+          },
+          {
+            "criterion": "Conflicting trend choices and slope lookbacks exceeding the adaptive window are rejected.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:40",
+              "tests/test_analysis.py:104"
+            ],
+            "notes": "Both incompatible explicit trend selection and excessive slope lookback raise specific validation errors."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually analyzed changing-growth values and inspected window 56, slope lookback 24, seasonal weight 0.8, frozen calibration center/scale, and final one-step evidence."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/expectations/model-seasonal-level-and-growth",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Build seasonal scoring expectations with a training-fitted level, linear, or compound-growth adjustment.",
+        "criteria": [
+          {
+            "criterion": "A supplied season length selects earlier matching seasonal observations for the reference.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/baseline.py:8",
+              "src/anomalyzer/baseline.py:31",
+              "src/anomalyzer/recipes.py:151",
+              "tests/test_analysis.py:20"
+            ],
+            "notes": "Independent lag values and robust matching-phase assertions establish the seasonal reference calculation."
+          },
+          {
+            "criterion": "Automatic trend selection represents suitable linear and compound growth without flagging ordinary growth as point anomalies.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/trend.py:120",
+              "src/anomalyzer/trend.py:144",
+              "tests/test_trend.py:9"
+            ],
+            "notes": "Positive and negative linear/exponential cases select the expected model, match post-training expectations, and produce no ordinary-growth episodes."
+          },
+          {
+            "criterion": "The fitted trend remains frozen after training within a regime; later changed values do not rewrite that fit.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:162",
+              "src/anomalyzer/recipes.py:174",
+              "tests/test_trend.py:36"
+            ],
+            "notes": "Trend fitting occurs at the training boundary; the test asserts identical trend diagnostics and earlier evidence after later observations change."
+          },
+          {
+            "criterion": "Callers can explicitly select none, linear, or exponential trend, and unsupported trend modes are rejected.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:20",
+              "src/anomalyzer/trend.py:87",
+              "tests/test_trend.py:42",
+              "tests/test_trend.py:57"
+            ],
+            "notes": "Tests exercise disabled, linear, exponential, and invalid quadratic modes, including disclosed short-history fallback."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all five declared selectors passed.",
+          ".venv/Scripts/python.exe -B examples/run_demo.py succeeded.",
+          "Manually compared growth_up and compound results: selected linear/exponential trends, zero episodes, and final expectations close to observed values."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/expectations/protect-reference-from-extremes",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Reduce extreme observations' influence on fitting and future references while retaining their original evidence.",
+        "criteria": [
+          {
+            "criterion": "Robust seasonal references reduce the influence of an extreme prior matching seasonal value.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/baseline.py:31",
+              "src/anomalyzer/baseline.py:39",
+              "tests/test_analysis.py:25",
+              "tests/test_analysis.py:43"
+            ],
+            "notes": "Assertions check a independently computed weighted reference and invariance when an already-trimmed high value becomes more extreme."
+          },
+          {
+            "criterion": "Training and calibration diagnostics identify excluded extreme observations.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/robust.py:31",
+              "src/anomalyzer/trend.py:178",
+              "src/anomalyzer/recipes.py:420",
+              "tests/test_trend.py:65"
+            ],
+            "notes": "Tests identify exact training/calibration exclusions and compare their influence on trend selection and residual scale."
+          },
+          {
+            "criterion": "An extreme evaluated sample remains evidence while its expected value is used in future references.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:378",
+              "src/anomalyzer/recipes.py:388",
+              "tests/test_trend.py:24"
+            ],
+            "notes": "The observed departure and trigger survive; only reference_values receives the prior expectation, preventing the next seasonal echo."
+          },
+          {
+            "criterion": "Callers can choose include mode to retain raw extreme observations and inspect the resulting echo behavior.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:21",
+              "src/anomalyzer/recipes.py:155",
+              "src/anomalyzer/recipes.py:386",
+              "tests/test_cli.py:95"
+            ],
+            "notes": "CLI assertions distinguish robust triggers {65} from include-mode triggers {65, 72}."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually inspected spike sample 65 and its sample-72 echo: the original extreme value remained visible, reference_action was use_expected, and the later sample did not trigger."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/expectations/reset-declared-regimes",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Restart reference building, trend fitting, and calibration at explicit caller-declared boundaries.",
+        "criteria": [
+          {
+            "criterion": "Integer positions and exact observed dates or timestamps can identify reset boundaries.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:129",
+              "src/anomalyzer/validation.py:138",
+              "src/anomalyzer/validation.py:144",
+              "tests/test_analysis.py:398"
+            ],
+            "notes": "Positions and observed dates are exercised end to end; timestamp normalization and exact matching are implemented directly."
+          },
+          {
+            "criterion": "Each new regime rebuilds its reference, trend, and calibration without crossing earlier boundaries.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:119",
+              "src/anomalyzer/recipes.py:123",
+              "src/anomalyzer/recipes.py:175",
+              "tests/test_analysis.py:381"
+            ],
+            "notes": "Each segment initializes separate state and passes its own start to forecasts. Tests verify three calibrated regimes and no cross-boundary evidence or findings."
+          },
+          {
+            "criterion": "Repeated, out-of-range, or unmatched reset points are rejected.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:49",
+              "src/anomalyzer/validation.py:140",
+              "src/anomalyzer/validation.py:149",
+              "tests/test_analysis.py:412"
+            ],
+            "notes": "Validation rejects literal duplicates and different declarations resolving to the same position, invalid positions, and unmatched dates/timestamps."
+          },
+          {
+            "criterion": "CLI reset options produce the same resolved positions and suppress departures explained by the declared boundaries.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cli.py:125",
+              "src/anomalyzer/cli.py:254",
+              "tests/test_cli.py:82"
+            ],
+            "notes": "CLI assertions establish positions [50, 100] and removal of the unmarked-regime episodes."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all three declared selectors passed.",
+          "Manually inspected steps_reset: resolved boundaries 50 and 100, three independently calibrated segments with linear/linear/exponential trends, and no episodes or patterns."
+        ],
+        "remaining_gaps": [
+          "Exact timestamp resets are implemented but the declared regression tests exercise positions and dates. Add one offset-bearing exact-timestamp reset assertion."
+        ],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/expectations/select-season-length",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Honor an explicit season or conservatively infer a positional lag with an explained fallback.",
+        "criteria": [
+          {
+            "criterion": "An explicit season length is honored and reported as explicit.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:55",
+              "tests/test_analysis.py:234"
+            ],
+            "notes": "Explicit field presence bypasses inference, and the test checks the reported source."
+          },
+          {
+            "criterion": "A repeating positional series can infer a seasonal lag and report the selection window.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/seasonality.py:47",
+              "src/anomalyzer/seasonality.py:96",
+              "tests/test_analysis.py:247"
+            ],
+            "notes": "The repeating seven-position series selects lag 7 and reports confirmation window [0, 27]."
+          },
+          {
+            "criterion": "A positional series without a sufficiently stable candidate falls back to lag one and records why.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/seasonality.py:79",
+              "src/anomalyzer/seasonality.py:84",
+              "src/anomalyzer/seasonality.py:93",
+              "tests/test_analysis.py:256"
+            ],
+            "notes": "Candidate-strength and early-confirmation failures return lag 1 with a reason; the quadratic example verifies fallback."
+          },
+          {
+            "criterion": "The reserved calibration and evaluation tail does not determine positional season selection.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/seasonality.py:69",
+              "src/anomalyzer/seasonality.py:82",
+              "tests/test_capability_behaviors.py:147"
+            ],
+            "notes": "Discovery excludes calibration_size plus one reserved sample. Changing that tail preserves the complete inference diagnostics; arbitrary appended-prefix invariance is explicitly outside the guidance."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually inspected positional inference diagnostics, ranked candidates, early confirmation candidates, lag 7, and selection_window [0, 27]."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "analysis/resolution/monitor-within-unfinished-days",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Provide native subperiod evidence alongside completed fixed-day aggregates and an explicitly unfinished trailing period.",
+        "criteria": [
+          {
+            "criterion": "Callers can select sum, mean, or last aggregation for completed and partial periods.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:539",
+              "src/anomalyzer/recipes.py:618",
+              "src/anomalyzer/recipes.py:647",
+              "tests/test_capability_behaviors.py:175"
+            ],
+            "notes": "Parameterized assertions check independently known completed and partial values for all three aggregation choices."
+          },
+          {
+            "criterion": "Regular timestamped sub-day samples produce distinct native and completed-period analysis views.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:660",
+              "src/anomalyzer/recipes.py:673",
+              "tests/test_analysis.py:170"
+            ],
+            "notes": "Separate datasets, configurations, and namespaces preserve the two correlated views."
+          },
+          {
+            "criterion": "A trailing partial aggregate reports observed progress and links its native evidence while remaining outside the completed-period series.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:639",
+              "src/anomalyzer/recipes.py:683",
+              "tests/test_analysis.py:187"
+            ],
+            "notes": "The marker contains finalized progress, observed aggregate, native evidence references, and an explicit exclusion flag."
+          },
+          {
+            "criterion": "An explicitly unfinished source sample is excluded from both analysis views.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:44",
+              "src/anomalyzer/recipes.py:564",
+              "src/anomalyzer/recipes.py:674",
+              "tests/test_analysis.py:200"
+            ],
+            "notes": "Both child datasets use prepared finalized observations; tests verify counts and retention of the excluded original value."
+          },
+          {
+            "criterion": "A source cadence that does not evenly divide 24 hours is rejected.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:572",
+              "tests/test_analysis.py:221"
+            ],
+            "notes": "A five-hour cadence raises the specific dividing-cadence error."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually inspected an hourly analysis: completed_period and intraday namespaces, partial sum 78, progress 12/24, twelve native evidence references, and exclusion from completed-period scoring.",
+          "Inspected fixed-duration periodization and schema-1.0/reset restrictions against the guidance."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "data/inputs/accept-analysis-requests",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Validate numeric series and versioned requests before analyzing single datasets or explicitly declared relationships.",
+        "criteria": [
+          {
+            "criterion": "Ordered value lists work with separate settings, while schema 1.0 requests describe one dataset.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:21",
+              "src/anomalyzer/contracts.py:96",
+              "tests/test_analysis.py:234",
+              "tests/test_analysis.py:429"
+            ],
+            "notes": "Bare-list settings are validated; schema 1.0 limits datasets to exactly one."
+          },
+          {
+            "criterion": "Schema 1.1 datasets declare a nonempty entity scope and support explicit relationships between named datasets.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:240",
+              "src/anomalyzer/contracts.py:335",
+              "src/anomalyzer/contracts.py:345",
+              "tests/test_agentic.py:192"
+            ],
+            "notes": "Entity scope is required, relationship kinds are discriminated, and references must name distinct known datasets."
+          },
+          {
+            "criterion": "Unknown settings, unsupported recipes, nonfinite values, booleans, and numeric strings are rejected.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:7",
+              "src/anomalyzer/contracts.py:12",
+              "src/anomalyzer/contracts.py:69",
+              "tests/test_analysis.py:525",
+              "tests/test_analysis.py:531"
+            ],
+            "notes": "Assertions reject each listed category; missing null values remain a separate accepted representation."
+          },
+          {
+            "criterion": "Published schema 1.0 and 1.1 request and result schemas match the public Python contracts.",
+            "status": "covered",
+            "evidence": [
+              "schemas/request.schema.json:362",
+              "schemas/result.schema.json:441",
+              "schemas/request-1.1.schema.json:931",
+              "schemas/result-1.1.schema.json:1120",
+              "tests/test_analysis.py:547",
+              "tests/test_agentic.py:317"
+            ],
+            "notes": "Tests and independent inspection compare each complete published schema with its contract-generated schema. Python cross-field validators supplement JSON Schema constraints."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all seven declared selectors passed.",
+          "Independently parsed all four published schema files, inspected their definitions/required fields, and asserted exact equality to the public contracts after removing $schema.",
+          "Reviewed README.md:264 and README.md:768 input/API examples, both schema versions, and four-dataset/four-relationship limits."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "data/quality/exclude-incomplete-periods",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Retain declared unfinished observations as quality evidence while excluding them from finalized scoring.",
+        "criteria": [
+          {
+            "criterion": "Incomplete observations form a trailing suffix after chronological preparation.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:44",
+              "src/anomalyzer/validation.py:83",
+              "src/anomalyzer/validation.py:110",
+              "tests/test_analysis.py:162"
+            ],
+            "notes": "Suffix validation runs after timestamp preparation and rejects a completed observation following an incomplete one."
+          },
+          {
+            "criterion": "The observed values and timestamps of unfinished periods remain available in data quality output.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:50",
+              "src/anomalyzer/validation.py:114",
+              "tests/test_analysis.py:150"
+            ],
+            "notes": "Quality records retain original source index, normalized timestamp, observed value, and incomplete status."
+          },
+          {
+            "criterion": "Incomplete source samples are excluded from expectations, calibration, point scoring, and completed aggregates.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:53",
+              "src/anomalyzer/recipes.py:52",
+              "src/anomalyzer/recipes.py:564",
+              "tests/test_analysis.py:150",
+              "tests/test_analysis.py:200"
+            ],
+            "notes": "Only finalized prepared values enter either scoring path; assertions verify the last scored sample and both multi-resolution counts."
+          },
+          {
+            "criterion": "A relationship with an unavailable latest source reports that unavailability rather than normal behavior.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/alignment.py:35",
+              "src/anomalyzer/relationships.py:171",
+              "src/anomalyzer/orchestrator.py:150",
+              "tests/test_mcp.py:86"
+            ],
+            "notes": "Incomplete aligned sources become unavailable values, and latest relationship state/status plus MCP headline explain the lack of evidence."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually analyzed incomplete-usage: headline stated latest relationship evidence was unavailable; the original incomplete completeness value 0.2 and its timestamp remained in quality output."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "data/quality/prepare-timestamped-series",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Normalize and order timestamps, explain duplicate handling, and apply event-time cutoffs before cadence checks.",
+        "criteria": [
+          {
+            "criterion": "Timestamped datasets provide both timestamps and frequency; positional datasets provide neither.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:76",
+              "src/anomalyzer/validation.py:55",
+              "tests/test_analysis.py:418"
+            ],
+            "notes": "Partial coordinate metadata and positional as_of are rejected."
+          },
+          {
+            "criterion": "Local timestamps require a timezone, and ambiguous or nonexistent daylight-saving times require an explicit offset.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:8",
+              "src/anomalyzer/validation.py:15",
+              "tests/test_analysis.py:500"
+            ],
+            "notes": "UTC round trips detect ambiguous/nonexistent local times; valid local time normalizes to the expected UTC hour."
+          },
+          {
+            "criterion": "Duplicate timestamps are rejected unless an aggregation policy is supplied; duplicate counts and transformations remain visible.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:87",
+              "src/anomalyzer/validation.py:94",
+              "src/anomalyzer/validation.py:103",
+              "tests/test_analysis.py:478"
+            ],
+            "notes": "Explicit mean/sum handling retains duplicate counts and transformation descriptions. Nulls propagate rather than becoming zero."
+          },
+          {
+            "criterion": "An as_of cutoff excludes later observations, and cadence is checked as a fixed elapsed duration.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/validation.py:105",
+              "src/anomalyzer/validation.py:111",
+              "tests/test_analysis.py:491",
+              "tests/test_mcp.py:190"
+            ],
+            "notes": "Filtering is inclusive through as_of; cadence compares UTC elapsed timedeltas, including fixed seven-day weeks."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all five declared selectors passed.",
+          "Manually analyzed an unsorted duplicate-bearing request with as_of: inspected UTC window, sorted/mean-aggregation/cutoff transformations, duplicate_count 1, excluded sample count, and preserved resolved context."
+        ],
+        "remaining_gaps": [
+          "The declared duplicate/cutoff test does not assert sorting transformations or duplicate-null propagation. Add focused assertions for unsorted input and null-bearing mean/sum groups; sorting was also checked manually."
+        ],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "execution/resilience/retain-evidence-under-failure-and-limits",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Expose failures and cooperative stops while retaining earlier or healthy sibling evidence.",
+        "criteria": [
+          {
+            "criterion": "A method failure preserves evidence completed before the failure and reports the error.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/recipes.py:400",
+              "src/anomalyzer/recipes.py:450",
+              "src/anomalyzer/recipes.py:487",
+              "tests/test_analysis.py:509"
+            ],
+            "notes": "An injected reference failure at index 45 leaves evidence through index 44, reports the error, and returns partial."
+          },
+          {
+            "criterion": "Runtime budgets are checked cooperatively and produce an explicit stop reason.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/budget.py:18",
+              "src/anomalyzer/recipes.py:108",
+              "src/anomalyzer/recipes.py:508",
+              "src/anomalyzer/orchestrator.py:212",
+              "tests/test_analysis.py:522"
+            ],
+            "notes": "Sample/target checks produce budget_exceeded and runtime_budget; these are cooperative checks rather than hard process timeouts."
+          },
+          {
+            "criterion": "CLI byte limits and execution failures produce distinct error exits.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/io.py:9",
+              "src/anomalyzer/cli.py:429",
+              "src/anomalyzer/cli.py:430",
+              "tests/test_cli.py:108"
+            ],
+            "notes": "Code and successful read-only probes establish exit 2 for byte-limit invalid input and exit 1 for budget failure. The declared temporary-file pytest test could not set up."
+          },
+          {
+            "criterion": "A failed dataset or relationship leaves healthy sibling results available and marks the overall run partial.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/orchestrator.py:125",
+              "src/anomalyzer/orchestrator.py:171",
+              "src/anomalyzer/orchestrator.py:185",
+              "tests/test_capability_behaviors.py:159",
+              "tests/test_agentic.py:242"
+            ],
+            "notes": "Independent failure handling retains healthy dataset evidence and relationship-specific errors."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; test_failure_and_budget and test_partial_analysis_preserves_healthy_siblings passed.",
+          "Successful in-memory CLI probes against examples/spike.json checked byte-limit exit 2 and runtime-budget exit 1 with runtime_budget output.",
+          "Manually inspected budget-exceeded method status/error and a partial conversion run retaining completed orders while qualified_visits and its relationship failed; reviewed cooperative-limit wording in README.md:861."
+        ],
+        "remaining_gaps": [
+          "tests/test_cli.py::test_size_limit_and_execution_exit could not set up because the read-only sandbox provides no writable temporary directory. Rerun that selector where temporary test files are permitted; supplemental read-only probes succeeded."
+        ],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "interfaces/cli/analyze-files-and-streams",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Analyze local JSON/CSV files or streams with explicit configuration precedence, output protection, and useful exit codes.",
+        "criteria": [
+          {
+            "criterion": "The methods command lists supported analysis recipes and residual detectors.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cli.py:426",
+              "src/anomalyzer/registry.py:15",
+              "src/anomalyzer/registry.py:78",
+              "tests/test_cli.py:27"
+            ],
+            "notes": "JSON method discovery lists all three recipes and all ten detectors; tests check the complete sets."
+          },
+          {
+            "criterion": "Equivalent file and stdin JSON inputs produce equivalent request fingerprints and analysis semantics.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/io.py:9",
+              "src/anomalyzer/cli.py:239",
+              "tests/test_cli.py:13",
+              "tests/test_mcp.py:162"
+            ],
+            "notes": "A successful supplemental file/stdin probe with the checked-in spike request compared identical fingerprints and complete numerical evidence."
+          },
+          {
+            "criterion": "CSV supports positional or timestamped selected values, treats empty cells as missing, and rejects varying unmapped entity columns.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/io.py:33",
+              "src/anomalyzer/io.py:56",
+              "src/anomalyzer/io.py:60",
+              "tests/test_cli.py:58"
+            ],
+            "notes": "Successful in-memory CSV assertions exercised timestamped null cells, positional values, and rejection of varying entity metadata."
+          },
+          {
+            "criterion": "Settings resolve in embedded-request, settings-file, then CLI-flag precedence; bare JSON values can use CLI configuration.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cli.py:225",
+              "src/anomalyzer/cli.py:242",
+              "src/anomalyzer/cli.py:253",
+              "tests/test_cli.py:51",
+              "tests/test_cli.py:71"
+            ],
+            "notes": "The merge implements the declared precedence. Bare values passed through the CLI; a supplemental probe checked flag-over-embedded precedence. The file-precedence pytest fixture could not run."
+          },
+          {
+            "criterion": "Output files require explicit overwrite permission, and invalid input is distinguished from execution failure by exit status.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/io.py:69",
+              "src/anomalyzer/cli.py:424",
+              "src/anomalyzer/cli.py:429",
+              "tests/test_cli.py:41",
+              "tests/test_cli.py:108"
+            ],
+            "notes": "Exclusive creation protects files unless overwrite is supplied. A read-only probe confirmed refusal of an existing output and distinct invalid-input/budget exits; overwrite writing was not executed."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; runnable declared CLI selectors and interface-parity tests passed.",
+          "Successful in-memory subprocess/assertion inspection compared checked-in spike file/stdin results, checked exits 2/1, verified existing-output refusal, and exercised CSV parsing without file writes.",
+          "Manually inspected readable conversion/unit-cost stdout, JSON spike stdout, empty stderr on success, and stderr diagnostics for invalid input."
+        ],
+        "remaining_gaps": [
+          "Four declared CLI tests could not set up: test_stdin_file_equivalence, test_output_protection, test_csv_and_precedence, and test_size_limit_and_execution_exit. The read-only sandbox has no writable temporary directory.",
+          "Supplemental read-only probes cover most blocked behavior; overwrite success and the settings-file precedence fixture still require rerunning the original selectors in a writable test environment."
+        ],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "interfaces/cli/explain-findings-in-readable-output",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Explain numerical findings, references, rule boundaries, and readiness in readable local output.",
+        "criteria": [
+          {
+            "criterion": "Point-anomaly episode counts and residual-pattern findings are labeled separately.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cli.py:347",
+              "src/anomalyzer/cli.py:373",
+              "src/anomalyzer/cli.py:405",
+              "tests/test_cli.py:143"
+            ],
+            "notes": "Readable tests distinguish zero-episode residual shifts from a spike episode and retain the overlap warning."
+          },
+          {
+            "criterion": "Relationship cases identify entity scope, observed and expected values, declared units, and investigation questions.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cli.py:291",
+              "src/anomalyzer/cli.py:305",
+              "src/anomalyzer/cli.py:331",
+              "tests/test_cli.py:117",
+              "examples/agentic/conversion.json:17"
+            ],
+            "notes": "Conversion output identifies site=demo, observed/expected orders_per_visit, the relationship, and a collection-completeness investigation question."
+          },
+          {
+            "criterion": "Explicit numerical rules are named with their boundaries instead of appearing as statistical anomaly claims.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cli.py:318",
+              "src/anomalyzer/cli.py:328",
+              "tests/test_cli.py:134",
+              "examples/agentic/unit-cost.json:7"
+            ],
+            "notes": "Unit-cost output names review-above-13c and its [0, 0.13] boundary as a declared rule crossing."
+          },
+          {
+            "criterion": "Readiness status remains visible, including when it was not assessed.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cli.py:353",
+              "src/anomalyzer/cli.py:365",
+              "src/anomalyzer/cli.py:399",
+              "tests/test_cli.py:140"
+            ],
+            "notes": "Readable output includes not_assessed and its supporting reasons without claiming measured alert accuracy."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all three declared selectors passed.",
+          "Manually ran and read conversion and unit-cost CLI output, checking units, comparison values, declared boundaries, readiness reasons, investigation questions, and unresolved business impact."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "interfaces/mcp/connect-read-only-local-server",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Expose local analysis and investigation through discoverable read-only MCP tools.",
+        "criteria": [
+          {
+            "criterion": "Tool discovery advertises analyze, list_findings, and get_evidence as read-only with input and output schemas.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/mcp.py:52",
+              "src/anomalyzer/mcp.py:80",
+              "src/anomalyzer/mcp.py:108",
+              "tests/test_mcp.py:26"
+            ],
+            "notes": "Discovery advertises exactly three annotated tools with input/output schemas; compatibility names remain callable but unadvertised."
+          },
+          {
+            "criterion": "Legacy initialization and modern stateless discovery return supported protocol metadata and interpretation guidance.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/mcp.py:27",
+              "src/anomalyzer/mcp.py:240",
+              "src/anomalyzer/mcp.py:247",
+              "tests/test_mcp.py:247",
+              "tests/test_mcp.py:267"
+            ],
+            "notes": "Assertions check legacy stdio initialization, modern discovery envelopes/version metadata, stateless listing, and interpretation instructions."
+          },
+          {
+            "criterion": "Analysis tool calls return structured content together with compact text.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/mcp.py:170",
+              "src/anomalyzer/mcp.py:177",
+              "tests/test_mcp.py:38"
+            ],
+            "notes": "Analysis returns structured summary fields and a short textual response with a session run ID."
+          },
+          {
+            "criterion": "Invalid tool input and unknown session run IDs return tool errors rather than fabricated results.",
+            "status": "partial",
+            "evidence": [
+              "src/anomalyzer/mcp.py:164",
+              "src/anomalyzer/mcp.py:186",
+              "src/anomalyzer/mcp.py:264",
+              "src/anomalyzer/mcp_views.py:263",
+              "tests/test_mcp.py:234"
+            ],
+            "notes": "Malformed analyze requests and missing runs correctly error. Paging tools do not enforce their advertised argument schemas: a live-run call with limit=true and an unexpected property succeeded. Add strict paging argument contracts and reject unknown keys/boolean integers before dispatch."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all five declared selectors passed.",
+          "Manually reviewed SERVER_INSTRUCTIONS, discovery schemas, session cache behavior, pyproject.toml:39 entrypoint declaration, and successful module-based stdio startup tests.",
+          "Successful in-memory probes inspected a modern unknown-run error and demonstrated acceptance of schema-invalid paging arguments."
+        ],
+        "remaining_gaps": [
+          "Implement and test strict list_findings/get_evidence input validation, including unknown properties, boolean cursor/limit values, and malformed identifier types.",
+          ".venv/Scripts/anomalyzer-mcp.exe was absent. Module-based startup passed, but the manual installed-console launch could not be verified; install the declared entrypoint and repeat that check."
+        ],
+        "done": false
+      }
+    },
+    {
+      "capability_id": "interfaces/mcp/investigate-findings-and-evidence",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Provide compact findings followed by paginated numerical evidence and relationship lineage.",
+        "criteria": [
+          {
+            "criterion": "The analyze tool returns a compact headline, finding preview, and run ID for subsequent evidence requests.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/mcp.py:177",
+              "src/anomalyzer/mcp_views.py:250",
+              "tests/test_mcp.py:38",
+              "tests/test_mcp.py:53"
+            ],
+            "notes": "The summary includes a three-finding preview, session run ID, counts, readiness, and a supported headline."
+          },
+          {
+            "criterion": "list_findings pages through cases, candidates, episodes, patterns, and data-quality findings.",
+            "status": "partial",
+            "evidence": [
+              "src/anomalyzer/mcp_views.py:135",
+              "src/anomalyzer/mcp_views.py:152",
+              "src/anomalyzer/mcp_views.py:169",
+              "src/anomalyzer/mcp_views.py:263",
+              "tests/test_mcp.py:53"
+            ],
+            "notes": "Pagination works, but episode construction is confined to schema 1.0. Conversion has a schema-1.1 relationship episode that never appears in findings. Generate episode findings for every target, retaining target-namespaced IDs, and add a schema-1.1 pagination assertion."
+          },
+          {
+            "criterion": "get_evidence exposes the selected finding's numerical support and relationship source lineage.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/mcp_views.py:288",
+              "src/anomalyzer/mcp_views.py:298",
+              "src/anomalyzer/mcp_views.py:335",
+              "tests/test_mcp.py:73"
+            ],
+            "notes": "Conversion drilldown checks exact observed/expected values, source indexes, readiness, and supporting sample count."
+          },
+          {
+            "criterion": "Unavailable latest evidence and non-triggering early candidates remain visible, while large pattern sample sets are paginated.",
+            "status": "partial",
+            "evidence": [
+              "src/anomalyzer/mcp_views.py:118",
+              "src/anomalyzer/mcp_views.py:171",
+              "src/anomalyzer/mcp_views.py:339",
+              "tests/test_mcp.py:86",
+              "tests/test_mcp.py:107",
+              "tests/test_mcp.py:136"
+            ],
+            "notes": "Latest unavailability and pattern pagination work. Candidate findings require target status insufficient_history, so [10,12,11,20,null] retains an early candidate in assessments but exposes only quality because the target is inapplicable. Select relevant non-triggering early assessments independently of overall target status."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually followed analyze/list_findings/get_evidence for conversion and checked observed 8/130, expected 0.1, and both source indexes 14 against the headline.",
+          "Successful in-memory probes demonstrated the omitted schema-1.1 episode and hidden gap-containing short-history candidate."
+        ],
+        "remaining_gaps": [
+          "Expose schema-1.1 dataset/relationship episodes in build_findings and add an episode listing/drilldown regression test.",
+          "Expose relevant early candidates for short inapplicable/partial targets instead of filtering solely by insufficient_history; add the trailing-null counterexample.",
+          "Cache bounds and eviction are implemented at src/anomalyzer/mcp.py:143 but the declared tests do not exercise eviction/reanalysis behavior."
+        ],
+        "done": false
+      }
+    },
+    {
+      "capability_id": "interfaces/python/analyze-through-public-api",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Expose validated local analysis through public Python functions with consistent interface semantics.",
+        "criteria": [
+          {
+            "criterion": "analyze accepts bare ordered values with separate validated settings and dispatches canonical schema 1.0 or 1.1 requests.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/__init__.py:2",
+              "src/anomalyzer/recipes.py:21",
+              "src/anomalyzer/recipes.py:30",
+              "tests/test_analysis.py:234",
+              "tests/test_mcp.py:162"
+            ],
+            "notes": "Bare settings retain explicitly supplied fields; versioned requests dispatch through the shared engines."
+          },
+          {
+            "criterion": "analyze_series preserves supplied settings and event-time context for a single dataset.",
+            "status": "partial",
+            "evidence": [
+              "src/anomalyzer/agent.py:19",
+              "src/anomalyzer/agent.py:23",
+              "src/anomalyzer/recipes.py:55",
+              "tests/test_mcp.py:190"
+            ],
+            "notes": "Timestamped settings/context preservation passes. Dataset-form analyze_series dumps every setting default, turning an omitted season_length into explicit lag 1. A seven-position repeating dataset inferred lag 7 through analyze but used lag 1 through analyze_series. Serialize Settings with exclude_unset=True and add a positional-facade regression test."
+          },
+          {
+            "criterion": "analyze_relationships preserves the declared multi-dataset relationship semantics.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/agent.py:27",
+              "src/anomalyzer/orchestrator.py:85",
+              "tests/test_mcp.py:216"
+            ],
+            "notes": "The facade validates schema 1.1 and delegates unchanged declarations; full semantic parity is asserted."
+          },
+          {
+            "criterion": "Equivalent requests retain numerical results across Python, CLI, and full-result MCP compatibility calls apart from run IDs and runtime.",
+            "status": "partial",
+            "evidence": [
+              "src/anomalyzer/mcp.py:201",
+              "src/anomalyzer/mcp.py:203",
+              "src/anomalyzer/agent.py:23",
+              "tests/test_mcp.py:162",
+              "tests/test_mcp.py:190"
+            ],
+            "notes": "Canonical request and explicitly configured timestamped parity pass. Equivalent positional Dataset facade/compatibility calls lose omitted-season semantics, whereas canonical analyze/CLI preserve inference. Preserve field-set information and extend parity tests to omitted positional settings."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Reviewed README.md:810 public API examples and validated model/JSON access.",
+          "Successful in-memory comparison of the same positional dataset with trend=none returned (7, inferred) through analyze and (1, explicit) through analyze_series."
+        ],
+        "remaining_gaps": [
+          "At src/anomalyzer/agent.py:23, preserve explicitly supplied Settings fields using exclude_unset=True rather than making every default explicit.",
+          "Add omitted-season positional Dataset parity coverage across analyze, analyze_series, CLI, and the full-result MCP analyze_series compatibility call."
+        ],
+        "done": false
+      }
+    },
+    {
+      "capability_id": "investigation/assessments/describe-early-changes",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Provide causal descriptive observations and candidates before calibrated detection is available.",
+        "criteria": [
+          {
+            "criterion": "The first observation records a value, the second records a change, and later departures from the prior range can be candidates.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/early.py:73",
+              "src/anomalyzer/early.py:84",
+              "src/anomalyzer/early.py:96",
+              "tests/test_agentic.py:35"
+            ],
+            "notes": "Assertions establish observation/change/change/departure_candidate for [10,12,11,20]."
+          },
+          {
+            "criterion": "Descriptive assessments use preceding observations and remain unchanged when future samples are appended.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/early.py:50",
+              "src/anomalyzer/early.py:130",
+              "src/anomalyzer/early.py:141",
+              "tests/test_agentic.py:43"
+            ],
+            "notes": "Each assessment precedes the prior-history update; tests compare complete serialized assessments for every prefix."
+          },
+          {
+            "criterion": "Missing values break the comparison history, and zero previous values do not create relative-change evidence.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/early.py:53",
+              "src/anomalyzer/early.py:58",
+              "tests/test_capability_behaviors.py:87"
+            ],
+            "notes": "The zero comparison has no relative change; after a missing value, comparison samples reset to zero."
+          },
+          {
+            "criterion": "Early candidates remain non-triggering and ineligible for action even under a permissive policy.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/early.py:105",
+              "src/anomalyzer/early.py:121",
+              "src/anomalyzer/agent.py:46",
+              "tests/test_capability_behaviors.py:134"
+            ],
+            "notes": "Candidates have criterion_met=false and remain action/notification-ineligible after policy replay, without creating cases."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually inspected the [10,12,11,20] candidate: preceding comparison population, three comparison samples, prior range 10..12, early maturity, non-triggering eligibility, established comparison, and explicit unsupported anomaly/cause claims."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "investigation/cases/group-related-evidence",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Group qualifying evidence by entity and event time without treating derived metrics as independent confirmation.",
+        "criteria": [
+          {
+            "criterion": "Evidence for different declared entities remains in separate cases even at the same event time.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cases.py:42",
+              "src/anomalyzer/cases.py:57",
+              "tests/test_agentic.py:69"
+            ],
+            "notes": "Entity participates in grouping and stable identity; the test requires separate cases and distinct IDs at the same time."
+          },
+          {
+            "criterion": "Criteria met in multiple source datasets can raise numerical severity and identify the contributing sources.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cases.py:72",
+              "src/anomalyzer/cases.py:81",
+              "src/anomalyzer/cases.py:121",
+              "tests/test_agentic.py:85"
+            ],
+            "notes": "Two qualifying source datasets produce critical numerical severity and named source explanations."
+          },
+          {
+            "criterion": "A derived relationship adds context without counting as an additional independent source for severity.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/cases.py:73",
+              "src/anomalyzer/cases.py:99",
+              "src/anomalyzer/cases.py:125",
+              "tests/test_agentic.py:100"
+            ],
+            "notes": "The independent-source count includes dataset criteria only. Derived evidence remains explanatory and can still meet the separately declared magnitude rule."
+          },
+          {
+            "criterion": "Adaptive location-shift rules can create an early grouped case without a point trigger, using only evidence available at detection.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/orchestrator.py:115",
+              "src/anomalyzer/early.py:232",
+              "src/anomalyzer/early.py:243",
+              "tests/test_agentic.py:122",
+              "tests/test_agentic.py:146"
+            ],
+            "notes": "Tests require one moderate-shift case without point triggers and restrict assessment references/strength to samples at or before first detection."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all five declared selectors passed.",
+          "Manually inspected unit-cost and conversion cases, contributing targets, assessment/sample references, explanations, severity reasons, investigation questions, and unresolved business impact; distinguished their cases from point episodes."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "investigation/policy/replay-action-eligibility",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Replay explicit eligibility policy over existing evidence without recomputing analysis or mutating the original result.",
+        "criteria": [
+          {
+            "criterion": "Default policy leaves action and notification eligibility disabled.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:329",
+              "src/anomalyzer/early.py:121",
+              "tests/test_agentic.py:49",
+              "tests/test_capability_behaviors.py:114"
+            ],
+            "notes": "Default flags disable both eligibility types, including after replay resets policy."
+          },
+          {
+            "criterion": "Explicit-rule and calibrated-departure eligibility are controlled independently.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/agent.py:46",
+              "tests/test_capability_behaviors.py:108",
+              "tests/test_capability_behaviors.py:123"
+            ],
+            "notes": "Explicit-only permission does not enable a calibrated departure; the matching calibrated choice does."
+          },
+          {
+            "criterion": "Notification eligibility can be allowed for a met criterion without action eligibility, while early candidates remain ineligible.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/agent.py:51",
+              "tests/test_capability_behaviors.py:101",
+              "tests/test_capability_behaviors.py:134"
+            ],
+            "notes": "Notification-only replay enables a met rule while keeping action disabled; permissive settings still cannot enable candidates."
+          },
+          {
+            "criterion": "Replaying policy preserves numerical evidence and stable case IDs, records changed case revisions, and leaves the original result unchanged.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/agent.py:41",
+              "src/anomalyzer/agent.py:56",
+              "src/anomalyzer/cases.py:105",
+              "tests/test_capability_behaviors.py:106"
+            ],
+            "notes": "Assertions compare unchanged original serialization, methods, evidence references, stable IDs, and eligibility-dependent revision changes."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all three declared selectors passed.",
+          "Manually analyzed unit-cost with default policy and replayed allow_explicit_rules: observed value/rule crossing and case ID remained the same; eligibility and revision changed. Inspected implementation to confirm replay performs no numerical analysis or operational action."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "investigation/rules/check-declared-numerical-rules",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Evaluate exact caller-declared range/change rules with explicit evidence and policy-controlled eligibility.",
+        "criteria": [
+          {
+            "criterion": "Values outside an inclusive acceptable range are violations, while values on the boundary are accepted.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/contracts.py:209",
+              "src/anomalyzer/early.py:22",
+              "tests/test_capability_behaviors.py:66"
+            ],
+            "notes": "Boundary values 10 and 20 are accepted; 9 and 21 violate the declared range."
+          },
+          {
+            "criterion": "Absolute and relative changes must exceed their declared maximum to violate a rule.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/early.py:25",
+              "src/anomalyzer/early.py:29",
+              "tests/test_capability_behaviors.py:69"
+            ],
+            "notes": "Parameterized tests distinguish equality to the threshold from strict exceedance for both change rules."
+          },
+          {
+            "criterion": "Relative-change checks require a nonzero previous value and do not bridge missing observations.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/early.py:29",
+              "src/anomalyzer/early.py:53",
+              "tests/test_capability_behaviors.py:87"
+            ],
+            "notes": "Zero/missing predecessors suppress relative comparisons, and missing values reset comparison history."
+          },
+          {
+            "criterion": "Violations identify the exact declared rule and remain action-ineligible unless policy explicitly permits them.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/early.py:34",
+              "src/anomalyzer/early.py:68",
+              "src/anomalyzer/early.py:121",
+              "tests/test_agentic.py:49",
+              "tests/test_cli.py:134"
+            ],
+            "notes": "Violation records retain rule ID/kind/bounds; default eligibility is false and replay requires explicit permission."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually read unit-cost violation evidence and CLI output: review-above-13c crossed [0,0.13] at observed 0.157143 usd_per_request, described as a declared rule rather than calibrated detection."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "relationships/comparisons/compare-declared-metrics",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Compute explicitly declared metric comparisons with unavailable-value reasons and source lineage.",
+        "criteria": [
+          {
+            "criterion": "Ratios retain the computed value, formula, and original source indexes for each sample.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/alignment.py:26",
+              "src/anomalyzer/relationships.py:81",
+              "src/anomalyzer/relationships.py:148",
+              "tests/test_agentic.py:211"
+            ],
+            "notes": "Assertions check exact ratio values, formula, and both original source indexes."
+          },
+          {
+            "criterion": "Differences, supplied-scale residuals, and all/any threshold conditions produce the declared derived values.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/relationships.py:94",
+              "src/anomalyzer/relationships.py:103",
+              "src/anomalyzer/relationships.py:130",
+              "tests/test_agentic.py:266"
+            ],
+            "notes": "Parameterized assertions independently specify difference, normalized residual, all-condition, and any-condition outputs."
+          },
+          {
+            "criterion": "Missing sources and zero denominators remain unavailable with a reason rather than becoming zero.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/relationships.py:86",
+              "src/anomalyzer/relationships.py:138",
+              "tests/test_agentic.py:226"
+            ],
+            "notes": "Lineage retains null values with missing_source_value/zero_denominator reasons. Explicit zero_denominator=error intentionally fails instead, as documented."
+          },
+          {
+            "criterion": "Derived series can be analyzed with the frozen or adaptive single-resolution recipe.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/orchestrator.py:87",
+              "src/anomalyzer/orchestrator.py:133",
+              "tests/test_agentic.py:171",
+              "tests/test_examples.py:17"
+            ],
+            "notes": "Both supported recipes dispatch derived datasets through the shared single-resolution engine."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          ".venv/Scripts/python.exe -B examples/run_agentic_demo.py succeeded.",
+          "Manually inspected conversion: relationship observed 8/130 versus expected 0.1, exact source lineage at index 14, and zero source point episodes despite the relationship departure; reviewed caller-declaration and noncausal limits."
+        ],
+        "remaining_gaps": [],
+        "done": true
+      }
+    },
+    {
+      "capability_id": "relationships/comparisons/evaluate-delayed-response",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Compare current responses with an explicitly lagged predictor using a supplied or training-fitted coefficient.",
+        "criteria": [
+          {
+            "criterion": "A supplied lag and coefficient use the predictor at the declared earlier sample position.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/relationships.py:112",
+              "src/anomalyzer/relationships.py:123",
+              "tests/test_agentic.py:254",
+              "examples/agentic/lagged-response.json:7"
+            ],
+            "notes": "The lag-2, coefficient-2 example uses predictor index 0 for response index 2 and produces the independently expected residual."
+          },
+          {
+            "criterion": "Derived values retain response and predictor source indexes and source cutoffs in lineage.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/relationships.py:122",
+              "src/anomalyzer/relationships.py:148",
+              "src/anomalyzer/relationships.py:152",
+              "tests/test_agentic.py:262"
+            ],
+            "notes": "Usable comparisons retain both original indexes, timestamps, formula/parameters, lag, and latest source cutoff; leading unavailable samples retain only existing sources."
+          },
+          {
+            "criterion": "When requested, the coefficient is fitted once from a declared training prefix and remains frozen.",
+            "status": "partial",
+            "evidence": [
+              "src/anomalyzer/relationships.py:47",
+              "src/anomalyzer/relationships.py:51",
+              "src/anomalyzer/relationships.py:59",
+              "tests/test_agentic.py:294"
+            ],
+            "notes": "Completed-prefix fitting remains frozen and passes the existing test. However, min(len(times), training_size+lag) permits fitting a truncated prefix: with lag 2/training_size 3, four samples already publish an estimated coefficient. Appending the fifth sample changed earlier lineage parameters from 2 to approximately 3.919. Wait for the complete declared prefix before fitting or publishing fitted parameters."
+          },
+          {
+            "criterion": "Samples lacking the earlier predictor or awaiting coefficient training remain unavailable.",
+            "status": "partial",
+            "evidence": [
+              "src/anomalyzer/relationships.py:57",
+              "src/anomalyzer/relationships.py:118",
+              "src/anomalyzer/relationships.py:124",
+              "src/anomalyzer/orchestrator.py:171",
+              "tests/test_agentic.py:254"
+            ],
+            "notes": "Supplied-lag leading samples and masked training-prefix samples are unavailable. With too few fitting pairs, derive raises before constructing lineage, returning failed with no per-sample unavailability. Return leading/training unavailability until training completes; reserve fitting failure for a completed but unidentifiable training prefix."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all three declared selectors passed.",
+          ".venv/Scripts/python.exe -B examples/run_agentic_demo.py succeeded.",
+          "Manually inspected lagged-response leading unavailable samples and first usable sample: response index 2, predictor index 0, lag 2, supplied coefficient 2, and exact source timestamps.",
+          "Successful in-memory probes inspected lag-2/training-size-3 prefixes of lengths 3..6: length 3 failed without lineage, length 4 prematurely exposed fitted parameters, and extending the incomplete prefix changed earlier lineage parameters."
+        ],
+        "remaining_gaps": [
+          "Defer estimated-coefficient fitting until all declared training positions have arrived; preserve unavailable lineage while waiting.",
+          "Add prefix-length tests before lag availability, with fewer than two fitting pairs, and immediately before/at training completion, using a nonconstant final training response to detect premature fitting."
+        ],
+        "done": false
+      }
+    },
+    {
+      "capability_id": "relationships/quality/require-compatible-sources",
+      "review": {
+        "source": "coding-agent",
+        "intent_summary": "Require explicit source compatibility and preserve valid sibling evidence when a declared comparison fails.",
+        "criteria": [
+          {
+            "criterion": "Related datasets use identical normalized timestamps, the same declared cadence, and matching entity metadata.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/alignment.py:42",
+              "src/anomalyzer/alignment.py:46",
+              "src/anomalyzer/alignment.py:49",
+              "tests/test_capability_behaviors.py:23"
+            ],
+            "notes": "Parameterized assertions require specific errors for timestamp, cadence, and entity mismatches."
+          },
+          {
+            "criterion": "Relationship sources are timestamped and have unique timestamps; implicit resampling and duplicate aggregation are not accepted for lineage.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/alignment.py:23",
+              "src/anomalyzer/alignment.py:44",
+              "tests/test_capability_behaviors.py:42"
+            ],
+            "notes": "Positional sources fail exact alignment; even an explicit duplicate-mean setting is rejected for relationship source lineage."
+          },
+          {
+            "criterion": "Difference relationships require identical declared source units and matching output units.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/relationships.py:41",
+              "src/anomalyzer/relationships.py:45",
+              "tests/test_agentic.py:242",
+              "tests/test_agentic.py:285"
+            ],
+            "notes": "Source and output unit checks are explicit. Tests cover mismatched source units and successful matching units."
+          },
+          {
+            "criterion": "An invalid relationship is reported as failed while valid sibling dataset results remain available.",
+            "status": "covered",
+            "evidence": [
+              "src/anomalyzer/orchestrator.py:171",
+              "src/anomalyzer/orchestrator.py:185",
+              "tests/test_agentic.py:242",
+              "tests/test_capability_behaviors.py:53",
+              "tests/test_capability_behaviors.py:159"
+            ],
+            "notes": "Relationship errors remain target-specific, healthy dataset results survive, and the overall mixed run is partial."
+          }
+        ],
+        "verification_evidence": [
+          "With PYTHONDONTWRITEBYTECODE=1, .venv/Scripts/python.exe -m pytest -v -p no:cacheprovider --capture=sys -k 'not test_stdin_file_equivalence and not test_output_protection and not test_csv_and_precedence and not test_size_limit_and_execution_exit' succeeded: 134 passed, 4 deselected; all four declared selectors passed.",
+          "Manually inspected a conversion request with an invalid source timestamp: orders remained completed, qualified_visits retained its preparation error, conversion failed with a missing-source error, and the overall result was partial; reviewed the source error before interpreting relationship failure."
+        ],
+        "remaining_gaps": [
+          "The output-unit equality branch is implemented, but the declared unit test exercises differing source units. Add a test with identical source units and a mismatched relationship output unit."
+        ],
+        "done": true
+      }
+    }
+  ],
+  "summary": "Reviewed all 26 generated bundles and actual capability YAMLs, all 38 unique declared references, related paths, guidance, and manual steps. All 106 criteria have one assessment: 99 covered, 7 partial; 22 reviews done, 4 incomplete. The successful combined pytest run had 134 passed and 4 deselected; those four CLI tests could not set up in the read-only sandbox. Both example scripts passed. Confirmed gaps concern MCP argument validation/finding visibility, positional Python-facade parity, and premature lag-coefficient fitting. No repository files, Git state, configuration, capability statuses, or viewers were changed."
+}

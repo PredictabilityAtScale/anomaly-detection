@@ -1,0 +1,117 @@
+title: Analyze subperiods alongside completed daily aggregates
+status: implemented
+summary: Multi-resolution analysis keeps native finalized subperiod evidence and
+  completed fixed 24-hour aggregates, with a separate marker for the unfinished
+  day.
+intent: Expose changes at the supplied sample cadence before a chart's daily
+  total is complete.
+acceptance:
+  - Callers can select sum, mean, or last aggregation for completed and partial
+    periods.
+  - Regular timestamped sub-day samples produce distinct native and
+    completed-period analysis views.
+  - A trailing partial aggregate reports observed progress and links its native
+    evidence while remaining outside the completed-period series.
+  - An explicitly unfinished source sample is excluded from both analysis views.
+  - A source cadence that does not evenly divide 24 hours is rejected.
+guidance:
+  - Periods are fixed 24-hour windows, not daylight-saving-aware local calendar
+    days.
+  - Native and daily views share source observations and are correlated.
+  - This recipe supports schema 1.0 and does not support reset_points.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/resolution/monitor-within-unfinished-days
+  # run deterministic review only: capabilitykit review analysis/resolution/monitor-within-unfinished-days --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/resolution/monitor-within-unfinished-days --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/resolution/monitor-within-unfinished-days --input review.json
+  # -----------------------------
+  depends_on:
+    - data/quality/exclude-incomplete-periods
+    - analysis/expectations/model-seasonal-level-and-growth
+  implementation:
+    references:
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_capability_behaviors.py
+  verification:
+    automated:
+      - id: selected-aggregation
+        description: Check sum, mean, and last for completed days and trailing partial
+          aggregates.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_multi_resolution_uses_selected_aggregation
+      - id: two-views
+        description: Return completed days, native evidence, and a linked trailing
+          partial-day marker.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_multi_resolution_marks_current_period_and_keeps_two_views
+      - id: unfinished-source
+        description: Exclude a marked incomplete source sample from both views.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_multi_resolution_marks_partial_source_sample_after_full_days
+      - id: dividing-cadence
+        description: Reject subperiod durations that do not evenly divide a day.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_multi_resolution_rejects_non_dividing_frequency
+    manual:
+      - Inspect the partial aggregate's observed_aggregate and
+        intraday_evidence_refs together with the two method namespaces.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected multi-resolution: separate completed_period/intraday
+        namespaces; trailing 12/24 finalized samples aggregate to 1200 and link
+        12 intraday evidence records, excluded from completed-period scoring."
+    intent_summary: Multi-resolution analysis keeps native finalized subperiod
+      evidence and completed fixed 24-hour aggregates, with a separate marker
+      for the unfinished day.
+    criteria:
+      - criterion: Callers can select sum, mean, or last aggregation for completed and
+          partial periods.
+        status: covered
+        evidence:
+          - src/anomalyzer/contracts.py:18
+          - src/anomalyzer/recipes.py:539
+          - tests/test_capability_behaviors.py:178
+      - criterion: Regular timestamped sub-day samples produce distinct native and
+          completed-period analysis views.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:617
+          - src/anomalyzer/recipes.py:667
+          - src/anomalyzer/recipes.py:680
+          - tests/test_analysis.py:170
+      - criterion: A trailing partial aggregate reports observed progress and links its
+          native evidence while remaining outside the completed-period series.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:639
+          - src/anomalyzer/recipes.py:690
+          - tests/test_analysis.py:170
+      - criterion: An explicitly unfinished source sample is excluded from both analysis
+          views.
+        status: covered
+        evidence:
+          - src/anomalyzer/validation.py:44
+          - src/anomalyzer/recipes.py:564
+          - tests/test_analysis.py:200
+      - criterion: A source cadence that does not evenly divide 24 hours is rejected.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:572
+          - tests/test_analysis.py:221
+    done: true
+    input_fingerprint: 895b6b1bc98a2040b37d11415de33429c6239c093d72b74963087069591517c8
+    mode: quick

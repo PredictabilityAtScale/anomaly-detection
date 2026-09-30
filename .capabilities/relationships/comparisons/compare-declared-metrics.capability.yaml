@@ -1,0 +1,111 @@
+title: Compare rates, gaps, supplied expectations, and joint conditions
+status: implemented
+summary: Explicit relationships produce ratio, difference, normalized-residual,
+  and joint-condition series with source-level lineage.
+intent: Reveal changes between metrics that individual source values may not expose.
+acceptance:
+  - Ratios retain the computed value, formula, and original source indexes for
+    each sample.
+  - Differences, supplied-scale residuals, and all/any threshold conditions
+    produce the declared derived values.
+  - Missing sources and zero denominators remain unavailable with a reason
+    rather than becoming zero.
+  - Derived series can be analyzed with the frozen or adaptive single-resolution
+    recipe.
+guidance:
+  - Relationships are caller-supplied declarations, not discovered or causal
+    relationships.
+  - A difference requires identical declared units; a normalized residual
+    requires a positive supplied scale.
+  - A joint condition is a declared 0/1 comparison, not statistical proof.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review relationships/comparisons/compare-declared-metrics
+  # run deterministic review only: capabilitykit review relationships/comparisons/compare-declared-metrics --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review relationships/comparisons/compare-declared-metrics --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result relationships/comparisons/compare-declared-metrics --input review.json
+  # -----------------------------
+  depends_on:
+    - relationships/quality/require-compatible-sources
+    - analysis/evidence/calibrate-departures
+  implementation:
+    references:
+      - src/anomalyzer/relationships.py
+      - src/anomalyzer/orchestrator.py
+      - src/anomalyzer/contracts.py
+      - tests/test_agentic.py
+      - tests/test_examples.py
+  verification:
+    automated:
+      - id: ratio-lineage
+        description: Explain a changing rate with the exact source indexes and formula.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_ratio_lineage_and_early_relationship_departure
+      - id: other-comparisons
+        description: Check declared differences, normalized residuals, and combined
+          conditions.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_remaining_relationship_primitives
+      - id: unavailable-values
+        description: Keep zero-denominator and missing-source observations unavailable.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_missing_and_zero_denominator_are_unavailable_not_zero
+      - id: adaptive-relationship
+        description: Use the adaptive recipe for a declared relationship.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_adaptive_recipe_runs_for_declared_relationships
+    manual:
+      - Inspect examples/agentic/conversion.json and distinguish its
+        relationship departure from the individual source metrics.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected conversion drilldown: relationship departure 8/130 versus
+        expected 0.1 while source datasets have no point episodes; lineage
+        preserves formula and source positions."
+    intent_summary: Explicit relationships produce ratio, difference,
+      normalized-residual, and joint-condition series with source-level lineage.
+    criteria:
+      - criterion: Ratios retain the computed value, formula, and original source
+          indexes for each sample.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:84
+          - src/anomalyzer/relationships.py:152
+          - tests/test_agentic.py:211
+      - criterion: Differences, supplied-scale residuals, and all/any threshold
+          conditions produce the declared derived values.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:97
+          - src/anomalyzer/relationships.py:134
+          - tests/test_agentic.py:285
+      - criterion: Missing sources and zero denominators remain unavailable with a
+          reason rather than becoming zero.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:89
+          - src/anomalyzer/relationships.py:142
+          - tests/test_agentic.py:226
+      - criterion: Derived series can be analyzed with the frozen or adaptive
+          single-resolution recipe.
+        status: covered
+        evidence:
+          - src/anomalyzer/orchestrator.py:87
+          - src/anomalyzer/orchestrator.py:135
+          - tests/test_agentic.py:171
+          - tests/test_examples.py:17
+    done: true
+    input_fingerprint: 26a19a069c071e7bcaac0ef34a415a5d56dacbba0b8f48440b701fba30ace420
+    mode: quick

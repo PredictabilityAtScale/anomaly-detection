@@ -1,0 +1,48 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Readiness diagnostics report supported, caution, or not_assessed based on the training pattern and calibration evidence.",
+  "criteria": [
+    {
+      "criterion": "Repeating seasonal structure with stable calibration can yield supported readiness.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:128",
+        "tests/test_readiness.py:8"
+      ]
+    },
+    {
+      "criterion": "Unstable declared seasonality or a drifting calibration center yields caution without making an otherwise completed run fail.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:113",
+        "src/anomalyzer/readiness.py:122",
+        "tests/test_readiness.py:28",
+        "tests/test_readiness.py:41"
+      ]
+    },
+    {
+      "criterion": "Insufficient calibration support yields not_assessed, including when the run otherwise completes.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:77",
+        "tests/test_readiness.py:56",
+        "tests/test_readiness.py:63"
+      ]
+    },
+    {
+      "criterion": "Later evaluation changes do not rewrite the segment's training-and-calibration readiness assessment.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:327",
+        "tests/test_readiness.py:8"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Inspected spike readiness caution for residual autocorrelation and conversion not_assessed for three calibration samples; neither absence of findings nor a large score establishes alert accuracy."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

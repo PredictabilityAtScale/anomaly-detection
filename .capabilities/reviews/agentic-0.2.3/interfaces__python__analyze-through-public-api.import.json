@@ -1,0 +1,62 @@
+{
+  "capabilityId": "interfaces/python/analyze-through-public-api",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\interfaces\\python\\analyze-through-public-api.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "The public Python API accepts series or canonical requests and returns the same numerical analysis used by the CLI and MCP compatibility interfaces.",
+      "criteria": [
+        {
+          "criterion": "analyze accepts bare ordered values with separate validated settings and dispatches canonical schema 1.0 or 1.1 requests.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/__init__.py:3",
+            "src/anomalyzer/recipes.py:21",
+            "tests/test_analysis.py:234"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "analyze_series preserves supplied settings and event-time context for a single dataset.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/agent.py:11",
+            "tests/test_mcp.py:191",
+            "tests/test_mcp.py:291"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "analyze_relationships preserves the declared multi-dataset relationship semantics.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/agent.py:27",
+            "tests/test_mcp.py:217"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Equivalent requests retain numerical results across Python, CLI, and full-result MCP compatibility calls apart from run IDs and runtime.",
+          "status": "covered",
+          "evidence": [
+            "tests/test_mcp.py:163",
+            "tests/test_mcp.py:191",
+            "tests/test_mcp.py:217",
+            "src/anomalyzer/__main__.py:1"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Read README Python facade examples, model_dump_json usage and settings/context semantics; inspected parity tests across Python, CLI and full-result MCP calls."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

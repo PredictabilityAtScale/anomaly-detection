@@ -20,7 +20,7 @@ def analyze_series(dataset: Dataset | dict | list[float | None],
     config = Settings.model_validate(settings or {})
     context = Context.model_validate(context or {})
     return analyze({"datasets": [validated.model_dump(mode="json")],
-                    "config": config.model_dump(mode="json"),
+                    "config": config.model_dump(mode="json", exclude_unset=True),
                     "context": context.model_dump(mode="json")})
 
 

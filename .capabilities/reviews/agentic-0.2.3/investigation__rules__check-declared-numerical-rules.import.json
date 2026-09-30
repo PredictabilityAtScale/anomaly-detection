@@ -1,0 +1,62 @@
+{
+  "capabilityId": "investigation/rules/check-declared-numerical-rules",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\investigation\\rules\\check-declared-numerical-rules.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Acceptable ranges and maximum absolute or relative changes identify explicit criterion violations, including before calibration.",
+      "criteria": [
+        {
+          "criterion": "Values outside an inclusive acceptable range are violations, while values on the boundary are accepted.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/early.py:22",
+            "src/anomalyzer/contracts.py:209",
+            "tests/test_capability_behaviors.py:74"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Absolute and relative changes must exceed their declared maximum to violate a rule.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/early.py:25",
+            "tests/test_capability_behaviors.py:74"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Relative-change checks require a nonzero previous value and do not bridge missing observations.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/early.py:29",
+            "src/anomalyzer/early.py:53",
+            "tests/test_capability_behaviors.py:87"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Violations identify the exact declared rule and remain action-ineligible unless policy explicitly permits them.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/early.py:34",
+            "src/anomalyzer/early.py:121",
+            "tests/test_agentic.py:49",
+            "tests/test_cli.py:134"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Read unit-cost stdout and drilldown: review-above-13c outside [0,0.13] is a caller-declared numerical criterion, with explicit non-claims about cause and incidents."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

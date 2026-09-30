@@ -1,0 +1,50 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Short histories yield observations, changes, and departure candidates with explicit comparison populations and limits.",
+  "criteria": [
+    {
+      "criterion": "The first observation records a value, the second records a change, and later departures from the prior range can be candidates.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:73",
+        "src/anomalyzer/early.py:96",
+        "tests/test_agentic.py:35"
+      ]
+    },
+    {
+      "criterion": "Descriptive assessments use preceding observations and remain unchanged when future samples are appended.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:50",
+        "src/anomalyzer/early.py:141",
+        "tests/test_agentic.py:35"
+      ]
+    },
+    {
+      "criterion": "Missing values break the comparison history, and zero previous values do not create relative-change evidence.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:53",
+        "src/anomalyzer/early.py:58",
+        "tests/test_capability_behaviors.py:87"
+      ]
+    },
+    {
+      "criterion": "Early candidates remain non-triggering and ineligible for action even under a permissive policy.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:105",
+        "src/anomalyzer/cases.py:35",
+        "tests/test_capability_behaviors.py:134",
+        "tests/test_mcp.py:341"
+      ]
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+    ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+    "Read candidate comparison population, early maturity, established/not_established text and MCP candidate tests; candidates have criterion_met false and never authorize action."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

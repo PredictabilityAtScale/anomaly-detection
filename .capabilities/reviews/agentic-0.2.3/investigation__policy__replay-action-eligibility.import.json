@@ -1,0 +1,62 @@
+{
+  "capabilityId": "investigation/policy/replay-action-eligibility",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\investigation\\policy\\replay-action-eligibility.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Callers can apply a different explicit action policy to existing assessments and cases without recomputing numerical analysis.",
+      "criteria": [
+        {
+          "criterion": "Default policy leaves action and notification eligibility disabled.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/contracts.py:329",
+            "tests/test_capability_behaviors.py:74"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Explicit-rule and calibrated-departure eligibility are controlled independently.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/agent.py:47",
+            "tests/test_capability_behaviors.py:123"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Notification eligibility can be allowed for a met criterion without action eligibility, while early candidates remain ineligible.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/agent.py:53",
+            "tests/test_capability_behaviors.py:101",
+            "tests/test_capability_behaviors.py:134"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Replaying policy preserves numerical evidence and stable case IDs, records changed case revisions, and leaves the original result unchanged.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/agent.py:42",
+            "src/anomalyzer/cases.py:57",
+            "src/anomalyzer/cases.py:105",
+            "tests/test_capability_behaviors.py:101",
+            "tests/test_agentic.py:49"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Compared unit-cost default versus allow_explicit_rules policy: action eligibility false/true, with identical relationship lineage and numerical violation."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "capabilityId": "investigation/cases/group-related-evidence",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\investigation\\cases\\group-related-evidence.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Qualifying assessments are grouped by event time and entity into cases with explanations, evidence references, and numerical severity.",
+      "criteria": [
+        {
+          "criterion": "Evidence for different declared entities remains in separate cases even at the same event time.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cases.py:42",
+            "tests/test_agentic.py:69"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Criteria met in multiple source datasets can raise numerical severity and identify the contributing sources.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cases.py:72",
+            "tests/test_agentic.py:85"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "A derived relationship adds context without counting as an additional independent source for severity.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cases.py:72",
+            "src/anomalyzer/cases.py:116",
+            "tests/test_agentic.py:100"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Adaptive location-shift rules can create an early grouped case without a point trigger, using only evidence available at detection.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/early.py:193",
+            "src/anomalyzer/early.py:237",
+            "src/anomalyzer/orchestrator.py:115",
+            "tests/test_agentic.py:122",
+            "tests/test_agentic.py:146"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected conversion case contributors, explanation, evidence references and investigation questions; correlated source/derived support is grouped without adding a source vote."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

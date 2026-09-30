@@ -1,0 +1,60 @@
+{
+  "capabilityId": "analysis/expectations/reset-declared-regimes",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\expectations\\reset-declared-regimes.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Caller-supplied reset points divide a single-resolution series into independently trained and calibrated regimes.",
+      "criteria": [
+        {
+          "criterion": "Integer positions and exact observed dates or timestamps can identify reset boundaries.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/validation.py:129",
+            "tests/test_analysis.py:381"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Each new regime rebuilds its reference, trend, and calibration without crossing earlier boundaries.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:119",
+            "src/anomalyzer/recipes.py:143",
+            "tests/test_analysis.py:381"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Repeated, out-of-range, or unmatched reset points are rejected.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/contracts.py:51",
+            "src/anomalyzer/validation.py:149",
+            "tests/test_analysis.py:413"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "CLI reset options produce the same resolved positions and suppress departures explained by the declared boundaries.",
+          "status": "covered",
+          "evidence": [
+            "tests/test_cli.py:82",
+            "src/anomalyzer/recipes.py:53"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected steps_reset: resolved boundaries 50 and 100, completed analysis, no episodes or patterns."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

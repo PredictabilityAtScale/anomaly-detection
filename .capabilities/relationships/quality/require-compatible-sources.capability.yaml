@@ -1,0 +1,110 @@
+title: Require compatible relationship sources
+status: implemented
+summary: Declared relationships require exact UTC timestamp alignment, shared
+  cadence and entity scope, and compatible declared units.
+intent: Prevent comparisons between mismatched populations or periods from
+  creating misleading evidence.
+acceptance:
+  - Related datasets use identical normalized timestamps, the same declared
+    cadence, and matching entity metadata.
+  - Relationship sources are timestamped and have unique timestamps; implicit
+    resampling and duplicate aggregation are not accepted for lineage.
+  - Difference relationships require identical declared source units and
+    matching output units.
+  - An invalid relationship is reported as failed while valid sibling dataset
+    results remain available.
+guidance:
+  - A failed or unavailable relationship does not establish that its metric is
+    normal.
+  - No implicit timestamp matching, interpolation, unit conversion, or
+    zero-filling occurs.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review relationships/quality/require-compatible-sources
+  # run deterministic review only: capabilitykit review relationships/quality/require-compatible-sources --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review relationships/quality/require-compatible-sources --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result relationships/quality/require-compatible-sources --input review.json
+  # -----------------------------
+  depends_on:
+    - data/quality/prepare-timestamped-series
+  implementation:
+    references:
+      - src/anomalyzer/alignment.py
+      - src/anomalyzer/relationships.py
+      - src/anomalyzer/orchestrator.py
+      - src/anomalyzer/contracts.py
+      - tests/test_agentic.py
+      - tests/test_capability_behaviors.py
+  verification:
+    automated:
+      - id: exact-alignment
+        description: Reject mismatched timestamps, cadence, entity, duplicates, and
+          positional relationship sources.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_relationship_requires_exact_source_alignment
+      - id: compatible-units
+        description: Report a difference unit mismatch without suppressing sibling results.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_alignment_unit_and_partial_failure_are_specific
+      - id: unambiguous-declaration
+        description: Reject fields that do not belong to the selected relationship kind.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_contract_rejects_ambiguous_relationship_fields
+      - id: healthy-siblings
+        description: Retain a healthy dataset's evidence when another dataset fails
+          preparation.
+        command: python -m pytest -q
+          tests/test_capability_behaviors.py::test_partial_analysis_preserves_healthy_siblings
+    manual:
+      - Read both target-level statuses and errors before interpreting a partial
+        run; check source dataset errors when a relationship source failed.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Read target errors/statuses and exact-alignment tests:
+        timestamp/cadence/entity/unit mismatch or failed source yields a failed
+        relationship while a healthy sibling remains available."
+    intent_summary: Declared relationships require exact UTC timestamp alignment,
+      shared cadence and entity scope, and compatible declared units.
+    criteria:
+      - criterion: Related datasets use identical normalized timestamps, the same
+          declared cadence, and matching entity metadata.
+        status: covered
+        evidence:
+          - src/anomalyzer/alignment.py:42
+          - tests/test_capability_behaviors.py:30
+      - criterion: Relationship sources are timestamped and have unique timestamps;
+          implicit resampling and duplicate aggregation are not accepted for
+          lineage.
+        status: covered
+        evidence:
+          - src/anomalyzer/alignment.py:23
+          - src/anomalyzer/alignment.py:44
+          - tests/test_capability_behaviors.py:30
+      - criterion: Difference relationships require identical declared source units and
+          matching output units.
+        status: covered
+        evidence:
+          - src/anomalyzer/relationships.py:41
+          - tests/test_agentic.py:242
+      - criterion: An invalid relationship is reported as failed while valid sibling
+          dataset results remain available.
+        status: covered
+        evidence:
+          - src/anomalyzer/orchestrator.py:171
+          - tests/test_capability_behaviors.py:30
+          - tests/test_capability_behaviors.py:159
+    done: true
+    input_fingerprint: b04746ff18d9c476d0d9933401e0a14c9125eed538bd3a797feaf6f0beebec8c
+    mode: quick

@@ -67,6 +67,21 @@ and no relationships. Both use the same analysis core through CLI, Python, and
 MCP. The multi-resolution recipe currently supports schema 1.0 only and does
 not support `reset_points`; both other recipes support explicit resets.
 
+## Capability maps
+
+The CapabilityKit maps describe Anomalyzer's observable behavior, acceptance
+criteria, implementation evidence, and dependencies.
+
+- [Interactive dependency map](.capabilities/dependency-viewer.html): explore
+  dependencies and inspect each capability's acceptance coverage.
+- [Interactive capability map](.capabilities/story-map-viewer.html): browse
+  capabilities and their review evidence.
+
+Open the HTML files from a local checkout in your browser to use the interactive
+viewers. The dependency graph below provides an embedded preview.
+
+[![Anomalyzer capability dependency graph](.capabilities/dependency-graph.svg)](.capabilities/dependency-viewer.html)
+
 ## The progression
 
 An anomaly is only a departure from an expectation. The useful detector grows by

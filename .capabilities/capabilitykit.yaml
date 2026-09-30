@@ -1,0 +1,18 @@
+schema_version: "0.1"
+project:
+  name: Anomalyzer
+  description: Local time-series analysis with inspectable anomaly and relationship evidence.
+source:
+  include:
+    - "**/*.capability.yaml"
+  exclude:
+    - dist/**
+validation:
+  require_acceptance: true
+  require_verification: true
+  allow_verification_gaps: true
+  require_implementation_references_for_status:
+    - implemented
+    - verified
+output:
+  path: .capabilities/dist/capabilities.json

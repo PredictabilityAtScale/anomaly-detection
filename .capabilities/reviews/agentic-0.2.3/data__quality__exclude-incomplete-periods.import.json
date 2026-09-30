@@ -1,0 +1,62 @@
+{
+  "capabilityId": "data/quality/exclude-incomplete-periods",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\data\\quality\\exclude-incomplete-periods.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Explicitly incomplete trailing observations are reported as data quality evidence and excluded from completed-series analysis.",
+      "criteria": [
+        {
+          "criterion": "Incomplete observations form a trailing suffix after chronological preparation.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/validation.py:44",
+            "tests/test_analysis.py:162"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "The observed values and timestamps of unfinished periods remain available in data quality output.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/validation.py:50",
+            "src/anomalyzer/validation.py:114",
+            "tests/test_analysis.py:150"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Incomplete source samples are excluded from expectations, calibration, point scoring, and completed aggregates.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/validation.py:53",
+            "src/anomalyzer/recipes.py:564",
+            "tests/test_analysis.py:150",
+            "tests/test_analysis.py:200"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "A relationship with an unavailable latest source reports that unavailability rather than normal behavior.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/alignment.py:35",
+            "src/anomalyzer/orchestrator.py:150",
+            "tests/test_mcp.py:87"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Primary Codex agent inspected every declared implementation reference and compared acceptance criteria with current source and test assertions; this is a fresh semantic review, completed in the existing session.",
+        ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s; .capabilities/reviews/agentic-0.2.3/verification.json.",
+        "Inspected incomplete-usage MCP drilldown: partial run and latest relationship evidence unavailable, with explicit unavailable lineage instead of a normality claim."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

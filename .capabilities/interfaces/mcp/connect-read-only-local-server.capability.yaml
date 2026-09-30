@@ -1,0 +1,107 @@
+title: Connect a client to the read-only local MCP server
+status: implemented
+summary: The local stdio MCP server advertises three read-only investigation
+  tools with schemas and interpretation guidance.
+intent: Allow agent clients to discover and call the analysis tools using a
+  clear local protocol contract.
+acceptance:
+  - Tool discovery advertises analyze, list_findings, and get_evidence as
+    read-only with input and output schemas.
+  - Legacy initialization and modern stateless discovery return supported
+    protocol metadata and interpretation guidance.
+  - Analysis tool calls return structured content together with compact text.
+  - Invalid tool input and unknown session run IDs return structured errors
+    rather than fabricated results.
+guidance:
+  - Compatibility tool names remain callable but are not advertised.
+  - Legacy clients receive isError tool results; modern clients receive JSON-RPC
+    invalid-input errors.
+  - The server provides analysis and evidence inspection; the caller owns
+    monitoring and operational workflows.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review interfaces/mcp/connect-read-only-local-server
+  # run deterministic review only: capabilitykit review interfaces/mcp/connect-read-only-local-server --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review interfaces/mcp/connect-read-only-local-server --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result interfaces/mcp/connect-read-only-local-server --input review.json
+  # -----------------------------
+  depends_on:
+    - interfaces/mcp/investigate-findings-and-evidence
+  implementation:
+    references:
+      - src/anomalyzer/mcp.py
+      - src/anomalyzer/mcp_views.py
+      - tests/test_mcp.py
+      - pyproject.toml
+  verification:
+    automated:
+      - id: tool-discovery
+        description: Advertise the three read-only tools and their schema contracts.
+        command: python -m pytest -q tests/test_mcp.py::test_mcp_lists_read_only_tools
+      - id: connection-protocols
+        description: Support legacy stdio initialization and modern stateless discovery.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_mcp_stdio_legacy_handshake_and_tool_listing
+          tests/test_mcp.py::test_mcp_modern_discovery_and_stateless_tool_listing
+      - id: structured-content
+        description: Return a compact analysis response with structured content and run ID.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_mcp_tool_call_returns_structured_content
+      - id: invalid-calls
+        description: Reject malformed input and unknown session run IDs in both protocols.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_mcp_invalid_tool_input_is_a_tool_error
+          tests/test_mcp.py::test_paged_tool_inputs_enforce_schema_in_both_protocols
+    manual:
+      - Review discovery's interpretation guidance and confirm the client can
+        start anomalyzer-mcp in the installed Python environment.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - Read protocol discovery instructions and pyproject console entrypoint;
+        full-suite stdio test starts the server in the installed Python
+        environment and verifies handshake/tool listing.
+    intent_summary: The local stdio MCP server advertises three read-only
+      investigation tools with schemas and interpretation guidance.
+    criteria:
+      - criterion: Tool discovery advertises analyze, list_findings, and get_evidence as
+          read-only with input and output schemas.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp.py:63
+          - tests/test_mcp.py:27
+      - criterion: Legacy initialization and modern stateless discovery return supported
+          protocol metadata and interpretation guidance.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp.py:228
+          - tests/test_mcp.py:248
+          - tests/test_mcp.py:268
+      - criterion: Analysis tool calls return structured content together with compact
+          text.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp.py:162
+          - tests/test_mcp.py:39
+      - criterion: Invalid tool input and unknown session run IDs return structured
+          errors rather than fabricated results.
+        status: covered
+        evidence:
+          - src/anomalyzer/mcp.py:156
+          - src/anomalyzer/mcp.py:257
+          - tests/test_mcp.py:235
+          - tests/test_mcp.py:367
+    done: true
+    input_fingerprint: ea91fe1e98370b7c7849bc2e818226993694313f1469a5b3b5d61a7b5cf17ecf
+    mode: quick

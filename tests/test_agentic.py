@@ -275,6 +275,11 @@ def test_lagged_response_uses_supplied_coefficient_and_prior_sample():
               {"dataset": "a", "operator": "gte", "threshold": 10},
               {"dataset": "b", "operator": "lte", "threshold": 4}],
           "combine": "all", "units": "condition_met"}, [1, 1, 0]),
+        ({"id": "joint", "kind": "joint_condition",
+          "conditions": [
+              {"dataset": "a", "operator": "gt", "threshold": 11},
+              {"dataset": "b", "operator": "lte", "threshold": 2}],
+          "combine": "any", "units": "condition_met"}, [1, 0, 1]),
     ],
 )
 def test_remaining_relationship_primitives(relationship, expected):
@@ -319,3 +324,32 @@ def test_v11_checked_in_schemas_exist():
         schema = json.loads(path.read_text())
         schema.pop("$schema")
         assert schema == contract.model_json_schema()
+
+
+@pytest.mark.parametrize("length", [1, 3, 4])
+def test_lag_fit_waits_for_complete_training_prefix(length):
+    values = {"orders": [0, 0, 20, 40, 100, 80, 100],
+              "leads": [10, 20, 30, 40, 50, 60, 70]}
+    relationship = {"id": "response", "kind": "lagged_response",
+                    "response": "orders", "predictor": "leads", "lag": 2,
+                    "training_size": 3, "units": "orders"}
+    pending = analyze(request({key: value[:length] for key, value in values.items()},
+                              [relationship])).relationship_results[0]
+    assert pending.status == "insufficient_evidence"
+    assert pending.error is None
+    assert len(pending.lineage) == length
+    assert all(point.value is None for point in pending.lineage)
+    assert pending.data_quality["parameters"]["coefficient"] is None
+    assert pending.data_quality["parameters"]["coefficient_source"] == "pending_training"
+    assert all(point.unavailable_reason in (
+        "lag_reference_unavailable", "coefficient_training_prefix") for point in pending.lineage)
+    if length > 2:
+        assert pending.lineage[-1].source_indexes == {"orders": length - 1,
+                                                     "leads": length - 3}
+    trained = analyze(request({key: value[:5] for key, value in values.items()},
+                              [relationship])).relationship_results[0]
+    extended = analyze(request(values, [relationship])).relationship_results[0]
+    assert trained.data_quality["parameters"]["coefficient"] == pytest.approx(20 / 7)
+    assert trained.data_quality["parameters"] == extended.data_quality["parameters"]
+    assert [point.model_dump() for point in trained.lineage] == [
+        point.model_dump() for point in extended.lineage[:5]]

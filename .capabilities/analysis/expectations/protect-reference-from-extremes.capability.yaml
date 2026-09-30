@@ -1,0 +1,106 @@
+title: Protect future references from extreme observations
+status: implemented
+summary: Robust mode limits extreme observations' influence on trend fitting,
+  residual calibration, and later seasonal references.
+intent: Keep one incident from inflating the reference or appearing again as a
+  seasonal echo.
+acceptance:
+  - Robust seasonal references reduce the influence of an extreme prior matching
+    seasonal value.
+  - Training and calibration diagnostics identify excluded extreme observations.
+  - An extreme evaluated sample remains evidence while its expected value is
+    used in future references.
+  - Callers can choose include mode to retain raw extreme observations and
+    inspect the resulting echo behavior.
+guidance:
+  - Protection keeps the observed evidence; it does not delete observations or
+    certify that a departure was an incident.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/expectations/protect-reference-from-extremes
+  # run deterministic review only: capabilitykit review analysis/expectations/protect-reference-from-extremes --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/expectations/protect-reference-from-extremes --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/expectations/protect-reference-from-extremes --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/expectations/model-seasonal-level-and-growth
+  implementation:
+    references:
+      - src/anomalyzer/robust.py
+      - src/anomalyzer/baseline.py
+      - src/anomalyzer/trend.py
+      - src/anomalyzer/recipes.py
+      - tests/test_analysis.py
+      - tests/test_trend.py
+      - tests/test_cli.py
+  verification:
+    automated:
+      - id: robust-reference
+        description: Limit an extreme weekly reference and use earlier references at lag
+          one.
+        command: python -m pytest -q
+          tests/test_analysis.py::test_robust_weekly_reference_limits_one_high_week
+          tests/test_analysis.py::test_robust_lag_one_uses_prior_seasonal_values
+      - id: training-calibration
+        description: Record training and calibration exclusions and retain a useful
+          growth fit.
+        command: python -m pytest -q
+          tests/test_trend.py::test_robust_training_fit_and_calibration_exclusions
+      - id: include-choice
+        description: Compare robust and include modes through the CLI and show their
+          differing triggers.
+        command: python -m pytest -q tests/test_cli.py::test_outlier_handling_cli
+    manual:
+      - Inspect excluded_from_model, reference_action, and outlier-handling
+        diagnostics alongside the original observed value.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent inspected every declared implementation reference
+        and compared acceptance criteria with current source and test
+        assertions; this is a fresh semantic review, completed in the existing
+        session.
+      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
+        .capabilities/reviews/agentic-0.2.3/verification.json."
+      - "Inspected spike sample: observed 135.2 remains visible while
+        model_value 94.875 and reference_action use_expected protect future
+        references; reviewed training/calibration exclusions."
+    intent_summary: Robust mode limits extreme observations' influence on trend
+      fitting, residual calibration, and later seasonal references.
+    criteria:
+      - criterion: Robust seasonal references reduce the influence of an extreme prior
+          matching seasonal value.
+        status: covered
+        evidence:
+          - src/anomalyzer/baseline.py:39
+          - tests/test_analysis.py:25
+      - criterion: Training and calibration diagnostics identify excluded extreme
+          observations.
+        status: covered
+        evidence:
+          - src/anomalyzer/trend.py:178
+          - src/anomalyzer/recipes.py:287
+          - tests/test_trend.py:65
+      - criterion: An extreme evaluated sample remains evidence while its expected value
+          is used in future references.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:378
+          - src/anomalyzer/recipes.py:392
+          - tests/test_analysis.py:263
+          - tests/test_trend.py:11
+      - criterion: Callers can choose include mode to retain raw extreme observations
+          and inspect the resulting echo behavior.
+        status: covered
+        evidence:
+          - src/anomalyzer/recipes.py:151
+          - src/anomalyzer/recipes.py:475
+          - tests/test_cli.py:95
+    done: true
+    input_fingerprint: 5544b7928fac26fb07181596844784bbce2087a07ac8b57772e14b774a209222
+    mode: quick
