@@ -51,6 +51,128 @@ behavior, spikes, drops, growth, sustained shifts, and explicit regime resets.
 The [agentic evidence examples](examples/agentic/README.md) cover ratios, lagged
 responses, explicit policy rules, and incomplete-data gating.
 
+## Use the anomaly-detection skill
+
+The [anomaly-detection skill](.agents/skills/anomaly-detection/SKILL.md) lets an
+agent run Anomalyzer and explain its structured evidence in ordinary language.
+Open a local agent session at this repository's root with the skill available,
+and install the CLI using the [quick start](#quick-start). The skill looks for
+`anomalyzer` on `PATH`, then the repository's `.venv` executable, then
+`python -m anomalyzer`. If none works, it reports the missing prerequisite;
+it does not install packages automatically.
+
+Copy the prompts below into the agent chat. They explicitly invoke
+`$anomaly-detection`; in another Agent Skills host, select or ask for the
+`anomaly-detection` skill. These examples use checked-in synthetic fixtures
+and reproducible detector results, not production incidents.
+
+### Explain an isolated spike
+
+```text
+Use $anomaly-detection to analyze examples/spike.csv. The time column is
+timestamp, the value column is calls, the cadence is 1d, and the seasonal lag
+is 7 samples. Explain what changed, when, and how the observed value compares
+with its expectation. Tell me whether the baseline is trustworthy and what
+to investigate next. Return a concise text report.
+```
+
+The point trigger is March 7, 2026 (sample 65): **135.2 calls against an
+expectation of about 94.875**. The default robust history prevents a second
+point trigger one week later. Reference readiness is `caution`, so the report
+should explain its reasons and qualify the comparison. It should distinguish
+the point episode from overlapping residual patterns rather than count them
+as separate incidents.
+
+To analyze your own CSV, replace the path and column names and supply its actual
+cadence and known seasonal lag. Keep one entity and unit per series; missing
+values remain missing. For several related metrics, prepare a schema-1.1 JSON
+request with explicit relationships, as in the conversion example below.
+
+### Find a sustained change without an extreme point
+
+```text
+Use $anomaly-detection to analyze examples/location_shift_up.json with the
+settings already in the request. Check for a sustained upward change even if
+no individual point triggers. Explain the first detection, overlapping pattern
+evidence, and baseline limitations. Do not infer a reset point.
+```
+
+This example has **zero point flags**. The possible upward location shift
+first signals through Nelson Rule 5 at sample 61, followed by CUSUM at 62,
+Rule 6 at 63, and Rule 2 at 68. These rules describe overlapping evidence of
+the same sustained behavior. The report should retain the request's lag of
+30, disclose `caution` readiness, and avoid treating detection as a confirmed
+incident or a reviewed new regime. See [chapter 7](#7-detect-a-sustained-location-shift).
+
+### Check whether orders keep pace with visits
+
+```text
+Use $anomaly-detection to analyze examples/agentic/conversion.json. Compare
+orders, qualified visits, and the declared orders / qualified_visits ratio.
+Explain any relationship departure, show the source values behind it, and
+distinguish numerical evidence from possible causes.
+```
+
+At sample 14 (January 15), **8 orders / 130 qualified visits = 6.15% conversion**,
+against the relationship's 10% expectation. The ratio has a point trigger;
+neither source metric has one. This short fixture has three calibration
+residuals and readiness is `not_assessed`. A useful report preserves that
+limitation and proposes investigation questions without asserting a checkout
+failure. See [chapter 12](#12-look-between-the-metrics).
+
+### Investigate an explicit rule with short history
+
+```text
+Use $anomaly-detection to analyze examples/agentic/unit-cost.json. Explain the
+unit-cost rule, the values that crossed it, and the supplied policy's eligibility
+decision. Distinguish an exact rule violation from a calibrated anomaly and
+from permission to take operational action.
+```
+
+On March 4 (sample 3), **$11 / 70 successful requests = about $0.157 per request**,
+above the caller's $0.13 maximum. The result reports `insufficient_history`
+for statistical detection but retains the exact `criterion_violation`.
+The supplied policy makes that finding action-eligible; this does not establish
+cause or impact, or authorize the agent to change a service.
+
+### Check incomplete data before interpreting a drop
+
+```text
+Use $anomaly-detection to analyze examples/agentic/incomplete-usage.json.
+Check whether the apparent usage drop has complete supporting inputs. Explain
+what evidence remains available, what is unavailable, and what to check next.
+```
+
+Usage falls to 20 events on April 4, but that day's ingestion-completeness
+sample is explicitly `incomplete`. The declared joint relationship is
+unavailable with reason `missing_or_incomplete_condition_source`; the overall
+run is `partial` (CLI exit 1). The usage series still supplies an early
+`departure_candidate`, which is not a calibrated trigger. The report should
+recommend checking ingestion and avoid declaring either normal health or a
+confirmed usage collapse.
+
+### Ask for a chart when you want one
+
+The skill returns text by default. After the spike analysis, request a small
+chart explicitly:
+
+```text
+Chart the spike result as a quick inline plot. Show observed and available
+expected values, training/calibration shading, and triggered point markers.
+```
+
+For a more detailed figure:
+
+```text
+Create a publication-quality interactive figure for the spike result with
+hover details, a residual panel, pattern lanes, and visible readiness limitations.
+```
+
+Chart features depend on the host. The skill uses the host's visualization
+capability when available; its dependency-free static SVG fallback supports
+a single dataset. The numerical analysis and text explanation remain useful
+when visualization is unavailable.
+
 ## Choose the question, then the recipe
 
 | Question | Implemented capability | Where to start |
@@ -87,7 +209,7 @@ The story map splits the current product into eight deliverable lanes:
 | **Related-metric analysis** | Align declared sources and investigate conversion, unit cost, metric gaps, and delayed responses. |
 | **Evidence and review policy** | Interpret early evidence and baseline quality, investigate cases, retain partial results, and review eligibility under stated rules. |
 | **Python integration** | Embed the same validated analysis in a local application. |
-| **Anomaly detection Skill** | Ask an agent for an evidence-grounded explanation and optionally a chart. |
+| **Anomaly detection Skill** | [Ask an agent for an evidence-grounded explanation and optionally a chart](#use-the-anomaly-detection-skill). |
 | **Read-only MCP server** | Connect an agent to local analysis and drill into findings and evidence. |
 
 Start with **Basic CLI anomaly detection**, then choose the analysis extensions
@@ -750,7 +872,7 @@ not transfer automatically; use chronological replay, including
 `pattern_counts` and `first_detection_by_rule`, to compare detection delay and
 alert burden before operational use. No pattern automatically resets the model.
 
-Regenerate the nine progression PNGs and both rule references with
+Regenerate the twelve progression PNGs and both rule references with
 `.venv/Scripts/python examples/render_readme_progression.py` (or the equivalent
 `.venv/bin/python` command on Unix). The renderer has one figure function and output entry for each illustrated
 chapter, plus the two detector references. It requires an installed Chromium
