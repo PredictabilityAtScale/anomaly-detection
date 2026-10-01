@@ -68,7 +68,8 @@ threshold fields, and descriptions. They demonstrate mechanics rather than
 calibrated real-world false-alarm rates.
 
 The checked-in charts under `docs/images/` show the trend, seasonality,
-change-point, location-shift, robust-outlier, and reviewed-regime cases. Regenerate them with
+change-point, location-shift, robust-outlier, reviewed-regime, reference-readiness,
+multi-resolution, and conversion-relationship cases. Regenerate them with
 `.venv/Scripts/python examples/render_readme_progression.py` after regenerating
 the examples. Historical expectations come directly from detector evidence;
 the charts do not extend them into periods where no causal expectation exists.

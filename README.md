@@ -113,7 +113,7 @@ An anomaly is only a departure from an expectation. The useful detector grows by
 making that expectation more realistic, one assumption at a time. The progression
 starts with trend and seasonality, adds protection and review, then carries the
 evidence into incomplete periods, relationships, and agent investigation.
-The nine figures use synthetic data and real detector output; most build on the
+The twelve figures use synthetic data and real detector output; most build on the
 checked-in examples. They demonstrate mechanics, not real-world accuracy.
 
 ### 1. Start with the trend
@@ -276,6 +276,8 @@ constant training median. Zero findings in one random draw do not establish
 normality or a reliable alert rate. See [detection readiness](#detection-readiness)
 for how this assessment is calculated.
 
+![A random series with zero findings but caution readiness, and higher calibration error for its seasonal reference than for a constant training median](docs/images/anomaly-progression-10-reference-readiness.png)
+
 ### 11. Monitor before the day is finished
 
 A daily chart should not force an application to wait until midnight to inspect
@@ -293,6 +295,13 @@ These two views share observations and provide correlated evidence.
 See [incomplete periods and multi-resolution analysis](#incomplete-periods-and-multi-resolution-analysis)
 for the request format and fixed UTC-period semantics.
 
+The figure shows a synthetic hourly spike in the 09:00 UTC sample. At noon,
+12 finalized hours have evidence, while the unfinished daily sum remains visible
+and excluded from completed-day analysis. The two views share the same data;
+they are not independent confirmation.
+
+![An hourly spike detected during an unfinished day, with the partial daily total kept outside completed-day analysis](docs/images/anomaly-progression-11-multi-resolution.png)
+
 ### 12. Look between the metrics
 
 Individual metrics can each look ordinary while their relationship changes.
@@ -300,6 +309,12 @@ In the [conversion example](examples/agentic/conversion.json), neither orders
 nor qualified visits has a point trigger, but `orders / qualified_visits` does
 at sample 14. The useful question has moved from “are these volumes unusual?”
 to “are orders keeping pace with qualified visits?”
+
+![Aligned visits, orders, and conversion charts: neither source metric has a point trigger, but conversion falls from 10 percent to 6.15 percent and triggers at sample 14](docs/images/anomaly-progression-12-relationships.png)
+
+This compact example has three calibration residuals. Its numerical criterion
+triggers, but reference readiness is `not_assessed`; the figure demonstrates the
+declared ratio calculation and detector behavior rather than a reliable alert rate.
 
 Schema 1.1 accepts up to four named datasets and four explicit relationships.
 Every dataset declares a non-empty `entity` mapping; cases for different entities

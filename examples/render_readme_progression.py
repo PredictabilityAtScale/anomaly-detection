@@ -14,9 +14,11 @@ import html
 import json
 import math
 import os
+import random
 import shutil
 import subprocess
 import tempfile
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from anomalyzer import analyze
@@ -132,7 +134,7 @@ def bounds(*series):
 
 def chart(svg, values, overlays, x, y, width, height, *, y_bounds=None,
           shade_until=41, flags=(), injected=(), echoes=(), ticks=None,
-          label=None, boundaries=()):
+          label=None, boundaries=(), y_tick_format=None):
     count = len(values)
     all_values = [values] + [series for _, series, *_ in overlays]
     low, high = y_bounds or bounds(*all_values)
@@ -145,7 +147,8 @@ def chart(svg, values, overlays, x, y, width, height, *, y_bounds=None,
         value = low + (high - low) * step / 4
         yy = sy(value)
         svg.line(x, yy, x + width, yy)
-        svg.text(x - 12, yy + 6, f"{value:.0f}", 15, MUTED, anchor="end")
+        tick = y_tick_format(value) if y_tick_format else f"{value:.0f}"
+        svg.text(x - 12, yy + 6, tick, 15, MUTED, anchor="end")
     svg.line(x, y, x, y + height, AXIS)
     svg.line(x, y + height, x + width, y + height, AXIS)
     if label:
@@ -625,6 +628,202 @@ def figure_extended_rule_reference():
     return svg.finish()
 
 
+def figure_readiness():
+    rng = random.Random(2)
+    values = [100 + rng.gauss(0, 10) for _ in range(90)]
+    result = analyze(values, {"season_length": 7})
+    method = result.methods[0]
+    readiness = method.diagnostics["segments"][0]["detection_readiness"]
+    calibration = readiness["calibration"]
+    expected = {row["index"]: row["expected"] for row in method.evidence}
+    flags = {row["index"] for row in method.evidence if row["triggers"]}
+    assert readiness["status"] == "caution"
+    assert not result.observations and not result.anomaly_patterns and not flags
+
+    svg = Svg()
+    header(svg, "10", "Check whether the reference deserves trust",
+           "Zero findings can coexist with a weak reference. Assess its training and calibration separately.")
+    chart(svg, values,
+          [(NAVY, expected_series(expected, len(values)), 2, "7 5", 0.9)],
+          90, 180, 680, 245, shade_until=27,
+          ticks=[(0, "0"), (27, "27"), (41, "41"), (65, "65"), (89, "89")],
+          label="Random series with a declared lag of 7  ·  value")
+    svg.text(430, 467, "Sample index (zero-based)", 15, MUTED, anchor="middle")
+    # Training ends at 27; calibration ends at 41. Later values do not assess readiness.
+    for start, end, label, color in (
+            (0, 27, "training", AXIS), (28, 41, "calibration", GOLD),
+            (42, 89, "evaluation", BLUE)):
+        x1, x2 = 90 + start / 89 * 680, 90 + end / 89 * 680
+        svg.line(x1, 139, x2, 139, color, 4)
+        svg.text((x1 + x2) / 2, 132, label, 13, MUTED, anchor="middle")
+
+    svg.rect(815, 145, 325, 322, "#fff7e8", "none", 8)
+    svg.text(838, 180, "Reference readiness: caution", 20, ORANGE, 700)
+    svg.text(838, 220, f"Point-anomaly episodes: {len(result.observations)}", 18, INK, 700)
+    svg.text(838, 250, f"Pattern findings: {len(result.anomaly_patterns)}", 18, INK, 700)
+    svg.text(838, 292, "Declared season: weak / unstable", 16, MUTED)
+    svg.text(838, 322, "Selected trend: none", 16, MUTED)
+    svg.text(838, 366, "Only earlier training and", 18, INK)
+    svg.text(838, 392, "calibration assess readiness.", 18, INK)
+    svg.text(838, 434, "No findings does not prove normality.", 16, ORANGE, 700)
+
+    svg.text(90, 500, f"Calibration mean absolute error  ·  same {calibration['samples']} samples  ·  lower is better", 18, INK, 700)
+    maximum = max(calibration["model_mae"], calibration["training_level_mae"]) * 1.2
+    for yy, label, value, color in (
+            (526, "Seasonal reference", calibration["model_mae"], GOLD),
+            (566, "Constant training median", calibration["training_level_mae"], NAVY)):
+        svg.text(300, yy + 19, label, 16, MUTED, anchor="end")
+        svg.rect(320, yy, value / maximum * 415, 25, color)
+        svg.text(330 + value / maximum * 415, yy + 19, f"{value:.2f}", 16, INK, 700)
+    legend(svg, [("line", BLUE, "observed"), ("dash", NAVY, "causal seasonal expectation")], y=632)
+    svg.text(1135, 658, "Fixed synthetic draw · reference quality is not detection accuracy", 14, MUTED, anchor="end")
+    return svg.finish()
+
+
+def figure_multi_resolution():
+    rng = random.Random(11)
+    day_start, count = 60 * 24, 60 * 24 + 12
+    weekly = [0, 5, -3, 4, 1, -6, -4]
+    values = [100 + 12 * math.sin(2 * math.pi * (index % 24) / 24)
+              + weekly[(index // 24) % 7] + rng.gauss(0, 1.5)
+              for index in range(count)]
+    values[day_start + 9] += 45
+    origin = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    request = {
+        "datasets": [{"id": "calls", "values": values, "frequency": "1h", "units": "calls",
+                      "timestamps": [(origin + timedelta(hours=index)).isoformat()
+                                     for index in range(count)]}],
+        "config": {"recipe": "multi-resolution-v1", "aggregate_function": "sum"},
+    }
+    result = analyze(request)
+    daily, hourly = result.methods
+    partial = result.data_quality["incomplete_period"]
+    today = [row for row in hourly.evidence if row["index"] >= day_start]
+    triggered = [row for row in today if row["triggers"]]
+    daily_rows = daily.evidence[-6:]
+    assert result.status == "completed"
+    assert [row["index"] - day_start for row in triggered] == [9]
+    assert partial["completed_subperiods"] == 12
+    assert partial["included_in_completed_period_view"] is False
+    assert daily_rows[-1]["index"] == 59
+
+    svg = Svg()
+    header(svg, "11", "Monitor before the day is finished",
+           "At 12:00 UTC, score the 12 finalized hours; keep the unfinished daily total outside the daily detector.")
+    x, y, width, height = 100, 180, 670, 185
+    sx = lambda hour: x + hour / 24 * width
+    sy = lambda value: y + height - (value - 70) / 100 * height
+    svg.rect(sx(12), y, sx(24) - sx(12), height, SHADE)
+    svg.text(x, 153, "March 2  ·  calls per finalized hour", 18, INK, 700)
+    for value in (70, 95, 120, 145, 170):
+        svg.line(x, sy(value), x + width, sy(value))
+        svg.text(x - 12, sy(value) + 5, value, 15, MUTED, anchor="end")
+    svg.line(x, y, x, y + height, AXIS)
+    svg.line(x, y + height, x + width, y + height, AXIS)
+    svg.polyline([(sx(row["index"] - day_start), sy(row["expected"])) for row in today],
+                 NAVY, 2.5, "7 5")
+    svg.polyline([(sx(row["index"] - day_start), sy(row["observed"])) for row in today], BLUE, 2.5)
+    for row in today:
+        svg.circle(sx(row["index"] - day_start), sy(row["observed"]),
+                   5 if row["triggers"] else 3, RED if row["triggers"] else BLUE)
+    svg.line(sx(12), y, sx(12), y + height, AXIS, 2, "5 5")
+    svg.text(sx(18), 258, "Not yet finalized", 18, MUTED, anchor="middle")
+    for hour in (0, 6, 12, 18, 24):
+        svg.text(sx(hour), y + height + 24, f"{hour:02}:00", 15, MUTED, anchor="middle")
+    svg.rect(820, 145, 320, 247, "#f4f7fa", "none", 8)
+    svg.text(842, 180, "Hourly view: evidence now", 20, NAVY, 700)
+    svg.text(842, 221, "09:00 hour: point trigger", 18, RED, 700)
+    svg.text(842, 250, f"{len(today)} finalized hourly evidence records", 16, MUTED)
+    svg.text(842, 291, f"{partial['completed_subperiods']} of {partial['expected_subperiods']} hours complete", 18, INK, 700)
+    svg.text(842, 323, f"Partial sum: {partial['observed_aggregate']:,.0f} calls", 18, INK)
+    svg.text(842, 366, "Partial total is visible, unscored.", 16, MUTED)
+
+    svg.text(x, 426, "Calls per fixed 24-hour period  ·  last 6 complete days + today's partial sum", 18, INK, 700)
+    base, bar_height = 570, 120
+    daily_max = 3000
+    for value in (0, 1500, 3000):
+        yy = base - value / daily_max * bar_height
+        svg.line(x, yy, x + width, yy)
+        svg.text(x - 12, yy + 5, f"{value:,}", 15, MUTED, anchor="end")
+    svg.line(x, base - bar_height, x, base, AXIS)
+    svg.line(x, base, x + width, base, AXIS)
+    for offset, row in enumerate(daily_rows):
+        xx = x + 25 + offset * 91
+        bh = row["observed"] / daily_max * bar_height
+        svg.rect(xx, base - bh, 48, bh, BLUE)
+        label = datetime.fromisoformat(row["timestamp"]).strftime("%b %d")
+        svg.text(xx + 24, base + 22, label, 14, MUTED, anchor="middle")
+    xx = x + 25 + 6 * 91
+    bh = partial["observed_aggregate"] / daily_max * bar_height
+    svg.rect(xx, base - bh, 48, bh, "#fff7e8", GOLD)
+    svg.line(xx - 20, base - bar_height, xx - 20, base, GOLD, 2, "4 4")
+    svg.text(xx + 24, base - bh - 10, "partial", 14, GOLD, 700, "middle")
+    svg.text(xx + 24, base + 22, "Mar 02", 14, GOLD, anchor="middle")
+    svg.rect(820, 424, 320, 176, "#f4f7fa", "none", 8)
+    svg.text(842, 458, "Daily view: completed days", 20, NAVY, 700)
+    complete_count = result.data_quality["views"]["completed_period"]["observation_count"]
+    svg.text(842, 491, f"{complete_count} complete days in analysis", 18, INK)
+    svg.text(842, 528, "Today stays out until complete.", 16, GOLD, 700)
+    svg.text(842, 565, "No false drop from a partial total.", 16, MUTED)
+    legend(svg, [("line", BLUE, "observed"), ("dash", NAVY, "hourly expectation"),
+                 ("dot", RED, "hourly trigger")], y=632)
+    svg.text(1135, 658, "Synthetic data · fixed UTC periods · both views share observations, so evidence is correlated", 14, MUTED, anchor="end")
+    return svg.finish()
+
+
+def figure_relationship():
+    request = read_request("agentic/conversion")
+    result = analyze(request)
+    sources = {item["id"]: item for item in request["datasets"]}
+    source_results = {item.dataset_id: item for item in result.dataset_results}
+    relationship = result.relationship_results[0]
+    ratios = [point.value for point in relationship.lineage]
+    last = relationship.lineage[-1]
+    flags = {row["index"] for row in relationship.methods[0].evidence if row["triggers"]}
+    assert flags == {14}
+    assert not any(row["triggers"] for item in result.dataset_results
+                   for method in item.methods for row in method.evidence)
+
+    svg = Svg()
+    header(svg, "12", "Look between the metrics",
+           "Orders and qualified visits have no point trigger; the declared conversion relationship does.")
+    for dataset_id, yy, y_bounds, label in (
+            ("qualified_visits", 170, (0, 160), "Qualified visits  ·  visits/day"),
+            ("orders", 340, (0, 16), "Orders  ·  orders/day")):
+        values = sources[dataset_id]["values"]
+        expected = {row["index"]: row["expected"]
+                    for row in source_results[dataset_id].methods[0].evidence}
+        chart(svg, values,
+              [(NAVY, expected_series(expected, len(values)), 2, "7 5", 0.9)],
+              95, yy, 740, 100, y_bounds=y_bounds, shade_until=6, ticks=[], label=label)
+        svg.circle(835, yy + 100 - values[-1] / y_bounds[1] * 100, 4, BLUE)
+    expected = {row["index"]: row["expected"] for row in relationship.methods[0].evidence}
+    chart(svg, ratios,
+          [(NAVY, expected_series(expected, len(ratios)), 2, "7 5", 1)],
+          95, 510, 740, 100, y_bounds=(0.04, 0.12), shade_until=6, flags=flags,
+          ticks=[(0, "Jan 1"), (7, "Jan 8"), (14, "Jan 15 · sample 14")],
+          label="Conversion  ·  orders / qualified visits",
+          y_tick_format=lambda value: f"{value:.0%}")
+
+    visits, orders = sources["qualified_visits"]["values"][-1], sources["orders"]["values"][-1]
+    for yy, label, value, detail in (
+            (148, "Qualified visits", str(visits), "No point trigger"),
+            (318, "Orders", str(orders), "No point trigger"),
+            (488, "Declared conversion", f"{last.value:.2%}", "Point trigger at sample 14")):
+        svg.rect(880, yy, 260, 133, "#fff7e8" if yy == 488 else "#f4f7fa", "none", 8)
+        svg.text(900, yy + 30, label, 18, INK, 700)
+        svg.text(900, yy + 68, value, 28, RED if yy == 488 else NAVY, 700)
+        svg.text(900, yy + 100, detail, 16, RED if yy == 488 else MUTED)
+    svg.text(898, 461, f"{orders} orders / {visits} visits = {last.value:.2%}", 16, INK, 700)
+    legend(svg, [("line", BLUE, "observed"), ("dash", NAVY, "causal expectation")], y=300)
+    svg.text(560, 300, "Separate count scales; dates align", 14, MUTED)
+    reference = expected[last.index]
+    change = (last.value - reference) * 100
+    svg.text(95, 469, f"Expected conversion: {reference:.0%}  ·  latest departure: {change:+.2f} percentage points", 16, RED, 700)
+    svg.text(60, 658, "Synthetic short-calibration example · gray: training + calibration · reference readiness: not_assessed (3 residuals)", 14, MUTED)
+    return svg.finish()
+
+
 def find_browser():
     override = os.environ.get("ANOMALYZER_BROWSER")
     candidates = [
@@ -678,6 +877,9 @@ def main():
         "anomaly-progression-07-location-shift": figure_six(),
         "anomaly-progression-08-robust-outliers": figure_seven(),
         "anomaly-progression-09-reviewed-regime": figure_eight(),
+        "anomaly-progression-10-reference-readiness": figure_readiness(),
+        "anomaly-progression-11-multi-resolution": figure_multi_resolution(),
+        "anomaly-progression-12-relationships": figure_relationship(),
         "nelson-rules-reference": figure_rule_reference(),
         "residual-detectors-reference": figure_extended_rule_reference(),
     }
