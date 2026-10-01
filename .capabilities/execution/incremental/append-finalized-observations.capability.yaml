@@ -1,0 +1,31 @@
+title: Update evidence when the next observations arrive
+status: planned
+summary: Append finalized observations to supported analysis state and return
+  new evidence without reanalyzing unchanged history.
+intent: Reduce repeated work for caller-managed monitoring while preserving
+  causal scoring and continuity of sustained-pattern evidence.
+acceptance:
+  - Callers append observations after the stored cutoff using unchanged source
+    identity and settings; backdated changes require an explicit revision
+    workflow.
+  - Supported explicitly configured recipes produce the same numerical evidence
+    as full batch analysis of the combined history, including cross-chunk
+    patterns.
+  - Retrying an identified append batch does not duplicate samples or findings;
+    failed appends leave the prior committed state available.
+  - Outputs identify newly available evidence, current cutoff, remaining support
+    limitations, and resource-limit stops without silently skipping
+    observations.
+guidance:
+  - Start with explicit season lengths; input-prefix season discovery is not
+    currently guaranteed to be invariant when the history grows.
+  - Proposed automated checks cover chunk-versus-batch equivalence, cross-chunk
+    CUSUM, idempotent retry, and failed-append state preservation.
+  - Manual review should follow a sustained change across several append batches
+    and confirm detection timing and provisional evidence remain understandable.
+planning:
+  story_map:
+    backbone: Keep evidence current as observations arrive
+    step: Analyze the next finalized samples
+    release: Future - Continuous analysis
+    order: 20

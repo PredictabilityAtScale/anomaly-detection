@@ -1,0 +1,29 @@
+title: Distinguish changing performance from a changing population mix
+status: planned
+summary: Decompose a declared aggregate rate change into within-cohort rate and
+  cohort-weight changes using explicit aligned counts and a comparison period.
+intent: Explain aggregate conversion movements that can occur even when
+  individual cohorts' performance is stable or improving.
+acceptance:
+  - Callers supply disjoint cohort numerators and denominators for explicit
+    reference and comparison periods; invalid counts or overlap are rejected.
+  - The report preserves aggregate and cohort rates, population weights, and the
+    declared decomposition formula and reference-period convention.
+  - Rate and mix components reconcile to the aggregate change within stated
+    tolerance; interaction allocation is visible rather than hidden.
+  - Empty, missing, new, or disappearing cohorts retain explicit support limits;
+    unavailable components are not filled with zero or presented as causes.
+guidance:
+  - Decomposition is descriptive accounting; it does not estimate an
+    intervention effect or establish that the comparison populations are
+    causally equivalent.
+  - Proposed automated checks cover stable rates with changing mix, stable mix
+    with changing rates, offsetting cohort rates, and new or empty cohorts.
+  - Manual review should inspect a Simpson's-paradox example and confirm the
+    aggregate movement and cohort evidence can both be understood correctly.
+planning:
+  story_map:
+    backbone: Investigate changes across populations
+    step: Separate performance changes from population mix
+    release: Future - Cohort investigation
+    order: 30

@@ -18,7 +18,8 @@
   <main>
     <h1>Anomalyzer capability maps</h1>
     <p>What changed, compared with what should have happened, and what can we conclude?</p>
-    <p>Start with the story map to explore eight deliverable lanes. Open a capability
+    <p>Start with the story map to explore eight current deliverable lanes and six
+      future lanes containing 18 planned stories. Open a capability
       to inspect its behavior, acceptance criteria, supporting evidence, and limits.</p>
     <ul>
       <li><a href="story-map-viewer.html">Interactive deliverable story map</a> —
@@ -26,6 +27,7 @@
       <li><a href="dependency-viewer.html">Interactive dependency map</a> —
         explore dependencies and inspect acceptance coverage.</li>
     </ul>
+    <h2>Current deliverables</h2>
     <ol>
       <li>Basic CLI anomaly detection: analyze a local series and read its findings.</li>
       <li>Trend and seasonal analysis: refine the expectation and find sustained changes.</li>
@@ -36,8 +38,26 @@
       <li>Anomaly detection Skill: get a guided explanation and optional chart.</li>
       <li>Read-only MCP server: let an agent inspect local findings and evidence.</li>
     </ol>
+    <h2>Future direction — planned, unimplemented</h2>
+    <p>Each future lane has three ordered stories. Their acceptance criteria and
+      proposed verification scenarios describe intended behavior; implementation
+      and review evidence will be added as the work is delivered.</p>
+    <ol>
+      <li>Historical evaluation: replay cutoffs, measure reviewed-incident timing,
+        and compare settings on held-out history.</li>
+      <li>Calendar and data readiness: use local calendar periods, check source
+        freshness, and compare related metrics before a period closes.</li>
+      <li>Business-aware expectations: represent multiple seasonal cycles,
+        account for rate volume, and review possible new baselines.</li>
+      <li>Continuous analysis: resume state, append finalized samples, and retain
+        an evidence history when data is corrected.</li>
+      <li>Cohort investigation: separate entity histories, locate additive
+        contributors, and distinguish performance changes from population mix.</li>
+      <li>Investigation memory: preserve reviewed outcomes, export inspectable
+        evidence bundles, and find comparable reviewed cases.</li>
+    </ol>
     <p>Each capability has one primary lane; dependencies show shared prerequisites.
-      These lanes describe current deliverables, not scheduled releases.
+      Future lanes are proposals without release dates or delivery commitments.
       The caller owns notification delivery and operational actions.</p>
     <p class="note">Coverage reflects saved capability reviews. It does not
       measure detection accuracy on real-world data.</p>

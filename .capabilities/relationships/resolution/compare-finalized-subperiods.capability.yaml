@@ -1,0 +1,30 @@
+title: Inspect related metrics before the business period closes
+status: planned
+summary: Extend declared related-metric analysis to compatible finalized
+  subperiods and completed calendar or fixed-duration aggregates.
+intent: Detect conversion or unit-cost changes during a period while keeping
+  partial progress separate from completed-period comparisons.
+acceptance:
+  - Callers select related datasets with identical native boundaries, entity
+    scope, declared aggregation semantics, and compatible period definitions.
+  - Finalized subperiod relationships retain each source value and original
+    source index; unavailable or incomplete sources yield explicit
+    unavailability.
+  - Completed aggregate ratios use aggregated numerators and denominators; a
+    ratio of totals is not silently replaced by an average of individual ratios.
+  - Open-period progress remains separate from completed-period evidence and
+    identifies coverage; correlated resolutions do not count as independent
+    corroboration.
+guidance:
+  - Initial support should use explicit relationships and compatible boundaries;
+    cross-cadence joining or automatic resampling needs a separate contract.
+  - Proposed automated checks cover ratio-of-totals arithmetic, missing sources,
+    mismatched period boundaries, and open-period evidence separation.
+  - Manual review should inspect a conversion decline within an unfinished day
+    and verify the explanation separates native evidence from partial totals.
+planning:
+  story_map:
+    backbone: Monitor the periods my business uses
+    step: Compare related metrics while the period is open
+    release: Future - Calendar and data readiness
+    order: 30

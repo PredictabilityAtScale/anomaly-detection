@@ -1,0 +1,31 @@
+title: Find earlier reviewed cases with comparable evidence
+status: planned
+summary: Search caller-selected local case records using explicit entity,
+  metric, pattern, and review filters and show why returned cases are
+  comparable.
+intent: Give investigators useful precedent while keeping similarity separate
+  from a diagnosis of the current change.
+acceptance:
+  - Search is bounded to caller-selected records and explicit compatibility
+    filters; it does not scan unrelated local files or require a model API.
+  - Results expose the matched attributes, material differences, evidence
+    versions, and review dispositions behind the comparison.
+  - Missing context, incompatible units, and insufficient baseline support are
+    visible and cannot be silently ranked as equivalent evidence.
+  - Retrieval leaves the current result and policy unchanged and returns an
+    explicit no-comparable-case result when the supplied population has no
+    match.
+guidance:
+  - Similar historical evidence does not establish the same cause or authorize
+    repeating a past response; caller-selected records may be incomplete or
+    biased.
+  - Proposed automated checks cover compatibility filtering, bounded corpus
+    access, missing comparison context, and no-match behavior.
+  - Manual review should compare superficially similar cases with different
+    outcomes and confirm precedent is presented as investigation context.
+planning:
+  story_map:
+    backbone: Reuse what an investigation teaches us
+    step: Inspect comparable reviewed history
+    release: Future - Investigation memory
+    order: 30

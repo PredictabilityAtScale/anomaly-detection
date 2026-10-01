@@ -215,8 +215,9 @@ The story map splits the current product into eight deliverable lanes:
 Start with **Basic CLI anomaly detection**, then choose the analysis extensions
 or integration surface needed for your workflow. Capabilities have one primary
 lane; dependencies show shared prerequisites across lanes. CapabilityKit calls
-these planning slices `releases`; they describe implemented deliverables, not
-version dates or promised future features. Capability titles name user outcomes;
+these planning slices `releases`; the eight lanes above describe implemented
+deliverables. Additional `Future - ...` lanes contain proposed work marked
+`planned`, without release dates or delivery commitments. Capability titles name user outcomes;
 summaries and acceptance criteria describe the precise behavior and its limits.
 Review policy determines eligibility; the caller owns notification delivery and
 operational actions. The Skill supplies agent instructions, while chart features
@@ -228,6 +229,38 @@ locally: open [.capabilities/story-map-viewer.html](.capabilities/story-map-view
 or [.capabilities/dependency-viewer.html](.capabilities/dependency-viewer.html) from a checkout.
 
 [![Anomalyzer capability dependency graph](.capabilities/dependency-preview.svg)](https://predictabilityatscale.github.io/anomaly-detection/dependency-viewer.html)
+
+### Future direction
+
+The story map also includes **18 unimplemented stories across six future lanes**.
+Each story has a behavior contract, four acceptance criteria, proposed automated
+coverage scenarios, and one manual review focus. Verification scenarios are
+planning guidance: implementation references, runnable checks, and saved review
+evidence will be added when the behavior is implemented. The planned stories
+therefore have explicit missing-verification signals in CapabilityKit.
+
+| Future lane | Ordered user stories |
+| --- | --- |
+| **Historical evaluation** | Replay the evidence available at each historical cutoff; measure detection timing against reviewed incidents; compare settings on held-out history. |
+| **Calendar and data readiness** | Compare local calendar days and weeks; identify late or missing updates; inspect related metrics within unfinished periods. |
+| **Business-aware expectations** | Model daily and weekly cycles together; interpret count-based rates using supporting volume; review proposed baseline changes before accepting a reset. |
+| **Continuous analysis** | Save and restore local analysis state; append finalized samples; reconcile late or corrected data with a visible evidence history. |
+| **Cohort investigation** | Analyze bounded entity batches separately; locate additive contributors to a total change; separate within-cohort rate changes from population mix. |
+| **Investigation memory** | Record reviewed outcomes beside original evidence; export portable investigation bundles; retrieve comparable reviewed cases with explicit matching reasons. |
+
+Suggested delivery starts with **Historical evaluation** so later changes can be
+judged on representative replay. **Calendar and data readiness** addresses whether
+comparisons use the right periods and current sources; **Business-aware
+expectations** then improves the reference for those comparisons. **Continuous
+analysis** carries the evidence forward between caller-managed runs. **Cohort
+investigation** broadens diagnosis, while **Investigation memory** preserves what
+reviewers learn. These are proposed priorities; within each lane, story order
+shows the progression toward a reviewable user outcome.
+
+The direction keeps Anomalyzer local and evidence-focused. Calling applications
+continue to own schedules, notification delivery, access control, and operational
+actions. Proposed change points and similar historical cases help investigation;
+they do not automatically reset a baseline or establish a cause.
 
 ## The progression
 

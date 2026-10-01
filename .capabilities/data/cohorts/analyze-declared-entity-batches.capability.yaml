@@ -1,0 +1,30 @@
+title: Analyze many entities without mixing their histories
+status: planned
+summary: Run a bounded batch of explicitly partitioned entity series and expose
+  per-entity findings, support, and failures in one reviewable result.
+intent: Help callers inspect customers, regions, or services without collapsing
+  their distinct baselines into one misleading series.
+acceptance:
+  - Callers declare entity keys, metric units, cadence, and a batch resource
+    budget; each entity receives a separate validated analysis request.
+  - Training, calibration, relationships, and cases do not cross entity
+    boundaries unless a separate explicit aggregate comparison is requested.
+  - The result preserves each entity's findings, insufficient-history state,
+    data quality, and failure status; one failure leaves healthy entities
+    available.
+  - Results report the evaluated population and raw finding counts without
+    implying that many simultaneous tests establish a confirmed incident.
+guidance:
+  - Batch orchestration should preserve existing per-request contracts rather
+    than silently lifting schema limits; multiple-testing limits stay visible.
+  - Proposed automated checks cover partition isolation, batch-versus-single
+    equivalence, one-entity failure, and shared resource-budget exhaustion.
+  - Manual review should inspect a mixed batch of healthy, changed, and sparse
+    entities and confirm the summary does not equate missing support with
+    health.
+planning:
+  story_map:
+    backbone: Investigate changes across populations
+    step: Keep each entity's evidence separate
+    release: Future - Cohort investigation
+    order: 10

@@ -1,0 +1,30 @@
+title: Share an investigation that can be inspected later
+status: planned
+summary: Export a local portable investigation bundle containing selected
+  evidence, analysis provenance, limitations, and supplied review records.
+intent: Make an investigation reviewable beyond a transient MCP session or an
+  agent explanation without requiring a hosted service.
+acceptance:
+  - Callers explicitly select runs or cases and an output destination; existing
+    output requires explicit overwrite permission.
+  - Bundles contain a manifest, settings and engine versions, source
+    fingerprints, selected numerical evidence, readiness, execution status, and
+    lineage.
+  - A readable local report links to included structured evidence and clearly
+    distinguishes observations, statistical findings, and caller review
+    judgments.
+  - Source observations and context are included only by explicit selection;
+    omitted data and resulting limits on independent reproduction are disclosed.
+guidance:
+  - Fingerprints identify included provenance; they do not prove source truth. A
+    portable report must make privacy scope and reproduction limits inspectable.
+  - Proposed automated checks cover manifest consistency, partial-run export,
+    omitted-source disclosure, and overwrite protection.
+  - Manual review should open a bundle outside the original session and confirm
+    a reviewer can trace one finding and see exactly what cannot be reproduced.
+planning:
+  story_map:
+    backbone: Reuse what an investigation teaches us
+    step: Preserve a portable evidence record
+    release: Future - Investigation memory
+    order: 20

@@ -1,0 +1,29 @@
+title: Interpret rate changes with their supporting volume
+status: planned
+summary: Analyze explicitly declared success-count and eligible-count rates with
+  denominator-aware evidence and a stated count-model assumption.
+intent: Distinguish a sparse conversion swing from a well-supported change
+  without losing the numerator and denominator behind the rate.
+acceptance:
+  - Callers declare aligned success and eligible counts; non-integer, negative,
+    or success-above-eligible inputs are rejected for the bounded-count model.
+  - Evidence retains numerator, denominator, rate, and the declared reference
+    population rather than reporting a percentage alone.
+  - Zero denominators remain unavailable, and low support is explicitly marked;
+    intervals remain within the valid zero-to-one rate domain.
+  - Statistical rate departures identify the model and support used and remain
+    distinct from exact caller-supplied rate-limit violations.
+guidance:
+  - Independence and stable exposure are modeling assumptions; clustered events,
+    overdispersion, or changing populations require explicit limitations.
+  - Proposed automated checks cover zero denominators, tiny counts,
+    zero-or-all-success boundaries, and equal rates at different volumes.
+  - Manual review should compare sparse and high-volume conversion changes and
+    confirm the explanation discloses assumptions without inventing incident
+    probability.
+planning:
+  story_map:
+    backbone: Make expectations fit the process
+    step: Judge rates using their exposure
+    release: Future - Business-aware expectations
+    order: 20

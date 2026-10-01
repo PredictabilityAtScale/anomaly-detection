@@ -1,0 +1,30 @@
+title: Know when missing updates weaken the conclusion
+status: planned
+summary: Evaluate caller-declared update deadlines and allowed lateness
+  separately from value anomalies and propagate stale-source limitations to
+  dependent evidence.
+intent: Prevent an old or absent observation from being interpreted as current
+  healthy behavior or a confirmed business change.
+acceptance:
+  - Callers supply an evaluation time, expected update schedule, timezone when
+    relevant, and allowed lateness for each source.
+  - Results distinguish current, late, missing, and not-assessed freshness and
+    expose the last observed update and the deadline used.
+  - A stale source leaves its historical numerical evidence available while
+    marking dependent current relationship conclusions as stale or unavailable.
+  - Re-evaluating freshness at another supplied time preserves historical
+    numerical evidence and records the changed freshness decision.
+guidance:
+  - Freshness depends on declared collection expectations; it does not prove
+    source completeness and does not start a scheduler or send a notification.
+  - Proposed automated checks cover exact deadlines, allowed lateness, absent
+    source updates, and stale-source propagation to relationships.
+  - Manual review should compare a stale feed with a true metric drop and
+    confirm the report distinguishes collection uncertainty from numerical
+    departure.
+planning:
+  story_map:
+    backbone: Monitor the periods my business uses
+    step: Check whether the sources are current
+    release: Future - Calendar and data readiness
+    order: 20

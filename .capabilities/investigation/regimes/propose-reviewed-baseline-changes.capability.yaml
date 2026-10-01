@@ -1,0 +1,31 @@
+title: Review a possible new baseline before accepting it
+status: planned
+summary: Propose baseline-change candidates from sustained evidence and compare
+  existing and proposed regimes before a caller explicitly accepts a reset.
+intent: Help distinguish an unresolved departure from a reviewed process change
+  without automatically normalizing away an incident.
+acceptance:
+  - A proposal records the candidate boundary, first detection time, supporting
+    observations, and limitations; estimated onset is distinct from detection
+    time.
+  - Producing a proposal leaves the active regime and original findings
+    unchanged.
+  - A preview shows old and proposed baselines, calibration support, and
+    findings affected by the reset, including insufficient history after the
+    boundary.
+  - Only an explicit caller acceptance produces a new request with a declared
+    reset; rejected proposals remain inspectable and have no numerical effect.
+guidance:
+  - A proposed boundary is not a confirmed cause or a retrospectively available
+    detection; adaptive reference updates remain a separate behavior.
+  - Proposed automated checks cover unchanged active results, short new regimes,
+    rejected proposals, and accepted explicit-reset equivalence.
+  - Manual review should inspect a persistent outage-like drop and a known
+    launch and confirm neither becomes ordinary behavior merely because it
+    persists.
+planning:
+  story_map:
+    backbone: Make expectations fit the process
+    step: Review a proposed regime transition
+    release: Future - Business-aware expectations
+    order: 30

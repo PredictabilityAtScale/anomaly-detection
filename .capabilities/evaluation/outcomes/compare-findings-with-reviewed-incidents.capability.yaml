@@ -1,0 +1,30 @@
+title: Measure detection timing against reviewed incidents
+status: planned
+summary: Match historical findings to caller-reviewed incident intervals and
+  report detection timing and unmatched findings under explicit matching rules.
+intent: Help owners judge usefulness on representative history rather than
+  treating synthetic examples or trigger counts as detection accuracy.
+acceptance:
+  - Reviewed labels declare entity, incident interval, and matching tolerance;
+    invalid intervals and ambiguous matches are surfaced for review.
+  - Reports distinguish matched incidents, missed labeled incidents, duplicate
+    findings, unmatched findings, and periods without reviewed labels.
+  - Timing reports distinguish the incident's supplied start from the first
+    available candidate, calibrated detection, and policy-eligible evidence.
+  - Precision or recall is reported only for an explicitly reviewed evaluation
+    population, with its counts and matching rules; unlabeled periods stay
+    unknown.
+guidance:
+  - Detection timing does not measure response effectiveness or establish that
+    an unmatched finding was false; incident labels are caller judgments.
+  - Proposed automated checks cover boundary matching, ambiguous overlaps,
+    incomplete label coverage, and separate candidate versus eligibility timing.
+  - Manual review should inspect a matched and an unmatched episode and confirm
+    the reported timing and accuracy limits agree with the supplied label
+    coverage.
+planning:
+  story_map:
+    backbone: Evaluate a monitor before relying on it
+    step: Compare detection with reviewed outcomes
+    release: Future - Historical evaluation
+    order: 20

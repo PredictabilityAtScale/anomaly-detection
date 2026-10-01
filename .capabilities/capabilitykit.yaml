@@ -13,6 +13,12 @@ planning:
     - Python integration
     - Anomaly detection Skill
     - Read-only MCP server
+    - Future - Historical evaluation
+    - Future - Calendar and data readiness
+    - Future - Business-aware expectations
+    - Future - Continuous analysis
+    - Future - Cohort investigation
+    - Future - Investigation memory
 source:
   include:
     - "**/*.capability.yaml"

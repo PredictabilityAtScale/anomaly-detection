@@ -1,0 +1,31 @@
+title: Resume local analysis after a restart
+status: planned
+summary: Export and restore versioned local analysis state with enough
+  provenance to continue supported recipes without losing calibration or pattern
+  history.
+intent: Let calling applications maintain continuity across process restarts
+  while preserving reproducible evidence.
+acceptance:
+  - A snapshot records its state format, engine version, supported recipe,
+    settings, source identity, last finalized position, and numerical
+    provenance.
+  - Restore checks integrity and compatibility and rejects corrupt, unsupported,
+    or mismatched state with a structured reason.
+  - Restoring a supported state and continuing yields the same numerical
+    evidence and detection positions as uninterrupted processing of the same
+    observations.
+  - Export requires an explicit caller destination and protects existing files;
+    state retention and deletion remain caller-controlled.
+guidance:
+  - Stored observations and context can contain sensitive data; document exactly
+    what a snapshot contains and avoid automatic persistence.
+  - Proposed automated checks cover restart equivalence, corrupt snapshots,
+    version or settings mismatch, and output overwrite protection.
+  - Manual review should inspect a snapshot and resumed explanation and confirm
+    their provenance and retained-data scope are clear to an application owner.
+planning:
+  story_map:
+    backbone: Keep evidence current as observations arrive
+    step: Preserve state across restarts
+    release: Future - Continuous analysis
+    order: 10

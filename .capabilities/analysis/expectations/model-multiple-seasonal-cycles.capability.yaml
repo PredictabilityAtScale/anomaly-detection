@@ -1,0 +1,29 @@
+title: Account for daily and weekly patterns together
+status: planned
+summary: Build an inspectable expectation from a bounded set of caller-declared
+  seasonal cycles instead of forcing one cycle to explain every repeating
+  pattern.
+intent: Reduce departures caused by ordinary combinations such as hour-of-day
+  and weekday behavior while retaining evidence of unusual changes.
+acceptance:
+  - Callers explicitly declare supported seasonal cycles and their elapsed or
+    calendar meaning; duplicate or incompatible cycle definitions are rejected.
+  - Expectations use only earlier observations and expose the contribution and
+    available history of each modeled cycle.
+  - Insufficient support for a requested cycle produces an explicit limitation
+    or declared fallback rather than a silently fitted component.
+  - Calibration remains separated from expectation fitting, and an isolated
+    extreme sample retains evidence without silently contaminating every cycle.
+guidance:
+  - Begin with a bounded daily-and-weekly use case; overlapping cycles share
+    information and cannot be treated as independent evidence.
+  - Proposed automated checks cover combined ordinary cycles, future isolation,
+    unsupported cycle history, and extreme-value influence across cycles.
+  - Manual review should inspect a weekday morning spike and verify the baseline
+    explains ordinary calendar variation without explaining away the spike.
+planning:
+  story_map:
+    backbone: Make expectations fit the process
+    step: Represent more than one repeating cycle
+    release: Future - Business-aware expectations
+    order: 10

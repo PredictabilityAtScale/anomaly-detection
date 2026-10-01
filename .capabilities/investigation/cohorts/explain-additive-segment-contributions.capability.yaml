@@ -1,0 +1,32 @@
+title: Find which segments contribute to an aggregate change
+status: planned
+summary: Decompose an aggregate departure into contributions from
+  caller-declared disjoint additive segments with compatible periods and units.
+intent: Direct investigation toward the parts of a total that changed while
+  keeping arithmetic contribution distinct from causal explanation.
+acceptance:
+  - Callers declare an additive total and disjoint segments with the same unit,
+    boundaries, and entity scope; incompatible or overlapping segments are
+    rejected.
+  - Reports show observed segment changes against the declared comparison
+    reference and reconcile their sum to the total change within stated
+    tolerance.
+  - Missing or uncovered segments appear as an explicit remainder or unavailable
+    decomposition; contribution shares are unavailable for a zero total change.
+  - Segment ranking retains absolute signed contributions and baseline support;
+    an arithmetic contributor is not automatically labeled anomalous or causal.
+guidance:
+  - Ratios and overlapping customer groups are not additive totals; separate
+    segment expectations must not be assumed to sum to a fitted total
+    expectation.
+  - Proposed automated checks cover exact reconciliation, offsetting segment
+    changes, missing segments, and zero total departure.
+  - Manual review should inspect a regional decline with an offsetting increase
+    and confirm the explanation preserves signed contributions and evidence
+    limits.
+planning:
+  story_map:
+    backbone: Investigate changes across populations
+    step: Locate contributors to a total change
+    release: Future - Cohort investigation
+    order: 20

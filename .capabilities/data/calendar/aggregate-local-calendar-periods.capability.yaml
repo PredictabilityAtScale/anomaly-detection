@@ -1,0 +1,29 @@
+title: Compare days and weeks in my business timezone
+status: planned
+summary: Aggregate completed local calendar days or weeks using an explicit
+  timezone and report the actual boundaries and supporting observations.
+intent: Align business-period comparisons with the calendar people use,
+  including daylight-saving transitions.
+acceptance:
+  - Callers select local-day or local-week aggregation, an IANA timezone, a
+    week-start rule when needed, and sum, mean, or last semantics.
+  - Periods report UTC boundaries and local labels; daylight-saving days can
+    contain 23 or 25 hours without being forced into fixed 24-hour windows.
+  - Completeness is determined from the declared native cadence and source
+    completeness; missing slots and unfinished periods remain explicit.
+  - Existing fixed-duration analysis remains reproducible, and ambiguous local
+    input timestamps still require caller disambiguation.
+guidance:
+  - Calendar grouping needs a distinct contract from fixed elapsed cadence; it
+    must not silently reinterpret existing frequency or aggregation settings.
+  - Proposed automated checks cover spring transitions, fall transitions, week
+    boundaries, and missing native slots in a calendar period.
+  - Manual review should inspect a daylight-saving week and confirm local
+    labels, observed coverage, and completed-versus-open comparisons are
+    understandable.
+planning:
+  story_map:
+    backbone: Monitor the periods my business uses
+    step: Declare local calendar boundaries
+    release: Future - Calendar and data readiness
+    order: 10

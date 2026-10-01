@@ -1,0 +1,29 @@
+title: See how late or corrected data changes the evidence
+status: planned
+summary: Accept explicit source revisions, recompute affected analysis and
+  relationships, and retain the differences from previously published evidence.
+intent: Let callers correct history without silently overwriting what earlier
+  analysis actually showed.
+acceptance:
+  - A revision identifies the source, affected timestamps or positions, prior
+    source version, replacement data, and declared completeness changes.
+  - Reanalysis includes downstream reference, calibration, pattern, and
+    relationship effects rather than changing only the corrected sample.
+  - Results preserve prior and new evidence versions and identify findings that
+    were added, changed, or withdrawn with traceable source lineage.
+  - Invalid or conflicting revisions leave the previous state available;
+    unchanged inputs preserve numerical evidence and unrelated source results.
+guidance:
+  - A corrected event-time result does not replace the record of what was known
+    earlier; callers control retention and any notification about a revision.
+  - Proposed automated checks cover late completion, corrected calibration data,
+    downstream relationship changes, and conflicting source versions.
+  - Manual review should inspect a drop withdrawn after ingestion completes and
+    confirm both the original limitation and the revision explanation are
+    retained.
+planning:
+  story_map:
+    backbone: Keep evidence current as observations arrive
+    step: Reconcile revisions without losing history
+    release: Future - Continuous analysis
+    order: 30

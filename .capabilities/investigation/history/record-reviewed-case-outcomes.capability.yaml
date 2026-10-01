@@ -1,0 +1,32 @@
+title: Keep reviewed outcomes beside the original evidence
+status: planned
+summary: Attach caller-authored review decisions, context, and observed outcomes
+  to versioned case evidence without rewriting numerical findings.
+intent: Build an inspectable record of which findings mattered and what
+  reviewers learned for later replay and investigation.
+acceptance:
+  - A review record identifies the case and evidence version, reviewer-supplied
+    identity, review time, disposition, and supporting notes or references.
+  - Records distinguish confirmed incidents, expected changes, data issues,
+    dismissed concerns, and unresolved cases without requiring a causal label.
+  - Corrections create an attributable review revision while retaining the
+    earlier decision and original numerical evidence.
+  - Review export distinguishes analyst judgment from detector output;
+    annotation alone does not change calibration, eligibility, or regime
+    boundaries.
+guidance:
+  - Caller-supplied reviewer identity is attribution, not built-in
+    authentication; storage, access control, response execution, and incident
+    ownership stay with callers.
+  - Proposed automated checks cover evidence-version linking, unresolved
+    reviews, revision retention, and unchanged numerical evidence after
+    annotation.
+  - Manual review should inspect a disputed case with two review revisions and
+    confirm judgments, uncertainties, and original findings remain
+    distinguishable.
+planning:
+  story_map:
+    backbone: Reuse what an investigation teaches us
+    step: Record the reviewed outcome
+    release: Future - Investigation memory
+    order: 10

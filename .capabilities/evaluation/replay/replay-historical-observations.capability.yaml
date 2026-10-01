@@ -1,0 +1,30 @@
+title: Replay history as it would have arrived
+status: planned
+summary: Replay a supplied history through explicit observation cutoffs and
+  retain the evidence available at each cutoff.
+intent: Establish when a change could first have been seen without using later
+  observations to improve earlier results.
+acceptance:
+  - Callers supply a history, fixed analysis settings, and ordered replay
+    cutoffs; every replay result records its cutoff and configuration.
+  - Each cutoff excludes later observations from season selection, training,
+    calibration, relationship fitting, and evaluation.
+  - Incomplete, missing, and insufficient-history states remain visible at each
+    cutoff rather than being replaced by the final run's evidence.
+  - Repeating a replay preserves numerical evidence and first-detection timing
+    apart from generated IDs and runtime; stopped replays retain completed
+    steps.
+guidance:
+  - Event-time replay does not reconstruct arrival-time availability unless the
+    caller supplies versioned arrival history.
+  - Proposed automated checks cover future-tail isolation, short-history
+    cutoffs, deterministic repeated replay, and interrupted replay retention.
+  - Manual review should inspect one change from its first available observation
+    through calibration and confirm the explanation uses only then-known
+    evidence.
+planning:
+  story_map:
+    backbone: Evaluate a monitor before relying on it
+    step: Reconstruct the evidence available at the time
+    release: Future - Historical evaluation
+    order: 10

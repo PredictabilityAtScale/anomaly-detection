@@ -1,0 +1,30 @@
+title: Choose settings using held-out historical evidence
+status: planned
+summary: Compare a bounded caller-supplied set of recipes, thresholds, and
+  policies on the same historical replay and a separate evaluation interval.
+intent: Make the tradeoff between earlier detection and unnecessary
+  investigation inspectable before a caller adopts new settings.
+acceptance:
+  - Callers declare candidate configurations, a selection interval, and a later
+    non-overlapping evaluation interval; overlapping intervals are rejected.
+  - Candidate reports use the same cutoffs, data, label coverage, and matching
+    rules and expose failed or inapplicable candidates.
+  - Comparisons report finding volume, reviewed-incident coverage, detection
+    delay, and policy eligibility without merging overlapping evidence as
+    independent wins.
+  - The output preserves every candidate's settings and evaluation provenance;
+    adopting a configuration requires an explicit caller decision.
+guidance:
+  - Bounded comparison is not unrestricted parameter search; held-out results
+    describe the supplied history and do not guarantee future effectiveness.
+  - Proposed automated checks cover split isolation, comparable replay inputs,
+    failed candidate retention, and unchanged active settings after comparison.
+  - Manual review should compare an earlier but noisier configuration with a
+    quieter one and confirm the tradeoff is visible without an unsupported
+    winner.
+planning:
+  story_map:
+    backbone: Evaluate a monitor before relying on it
+    step: Review the tradeoff before adopting settings
+    release: Future - Historical evaluation
+    order: 30
