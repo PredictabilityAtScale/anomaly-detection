@@ -1,0 +1,57 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "The reusable anomaly-detection Skill guides an agent through local Anomalyzer analysis and a concise explanation grounded in structured evidence.",
+  "criteria": [
+    {
+      "criterion": "The Skill directs analysis through the installed Anomalyzer CLI, with executable fallback paths and structured JSON output, rather than a newly invented detector.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/SKILL.md:13",
+        ".agents/skills/anomaly-detection/SKILL.md:41",
+        "tests/test_cli.py:13"
+      ],
+      "notes": "Executable resolution and JSON commands are explicit. Manual conversion and spike CLI runs use the installed numerical engine."
+    },
+    {
+      "criterion": "The Skill instructs callers to preserve missing data, select one entity and unit, and explicitly declare compatible sources for related-metric analysis.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/SKILL.md:24",
+        ".agents/skills/anomaly-detection/SKILL.md:32",
+        "tests/test_cli.py:51",
+        "tests/test_agentic.py:211"
+      ],
+      "notes": "Instructions preserve scope, units, missingness, declared relationships, and exact alignment; existing runtime checks establish these prerequisites."
+    },
+    {
+      "criterion": "The default response instructions lead with changes and observed-versus-expected values, then explain readiness, evidence maturity, overlapping findings, and material limitations without inventing confidence percentages or causes.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/SKILL.md:65",
+        ".agents/skills/anomaly-detection/SKILL.md:101",
+        ".agents/skills/anomaly-detection/SKILL.md:134",
+        ".agents/skills/anomaly-detection/agents/openai.yaml:4"
+      ],
+      "notes": "The supplied instructions lead with plain-language changes and then qualify maturity/readiness/overlap. This establishes instructional content, not measured agent compliance."
+    },
+    {
+      "criterion": "The Skill describes MCP analyze, list_findings, and get_evidence as an optional evidence workflow and makes session lifetime, read-only access, and caller-owned notification and action delivery explicit.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/SKILL.md:54",
+        ".agents/skills/anomaly-detection/SKILL.md:174",
+        "src/anomalyzer/mcp.py:169",
+        "tests/test_mcp.py:54"
+      ],
+      "notes": "The documented three-tool workflow matches executed conversion drilldown, with session-only run IDs and explicit read-only/caller-owned delivery limits."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json.",
+    "Skill criteria covering agent instructions are supported by the written guidance and demonstrated tool workflow; cross-host agent compliance and real-world detection accuracy are not asserted."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

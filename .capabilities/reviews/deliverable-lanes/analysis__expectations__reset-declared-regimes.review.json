@@ -1,0 +1,51 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Caller-supplied reset points divide a single-resolution series into independently trained and calibrated regimes.",
+  "criteria": [
+    {
+      "criterion": "Integer positions and exact observed dates or timestamps can identify reset boundaries.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:129",
+        "tests/test_analysis.py:381"
+      ],
+      "notes": "Positions and observed dates are exercised end to end; timestamp normalization and exact matching are implemented directly."
+    },
+    {
+      "criterion": "Each new regime rebuilds its reference, trend, and calibration without crossing earlier boundaries.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:119",
+        "src/anomalyzer/recipes.py:143",
+        "tests/test_analysis.py:381"
+      ],
+      "notes": "Each segment initializes separate state and passes its own start to forecasts. Tests verify three calibrated regimes and no cross-boundary evidence or findings."
+    },
+    {
+      "criterion": "Repeated, out-of-range, or unmatched reset points are rejected.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:51",
+        "src/anomalyzer/validation.py:149",
+        "tests/test_analysis.py:413"
+      ],
+      "notes": "Validation rejects literal duplicates and different declarations resolving to the same position, invalid positions, and unmatched dates/timestamps."
+    },
+    {
+      "criterion": "CLI reset options produce the same resolved positions and suppress departures explained by the declared boundaries.",
+      "status": "covered",
+      "evidence": [
+        "tests/test_cli.py:82",
+        "src/anomalyzer/recipes.py:53"
+      ],
+      "notes": "CLI assertions establish positions [50, 100] and removal of the unmarked-regime episodes."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

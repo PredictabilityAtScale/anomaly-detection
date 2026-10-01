@@ -20,9 +20,9 @@ guidance:
   - A joint condition is a declared 0/1 comparison, not statistical proof.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Define the comparison
-    release: Understand a change
+    backbone: Investigate relationships I declare
+    step: Compare ratios and metric gaps
+    release: Related-metric analysis
     order: 20
 #
 #
@@ -71,15 +71,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Inspected conversion drilldown: relationship departure 8/130 versus
-        expected 0.1 while source datasets have no point episodes; lineage
-        preserves formula and source positions."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Explicit relationships produce ratio, difference,
       normalized-residual, and joint-condition series with source-level lineage.
     criteria:
@@ -90,6 +89,8 @@ agent:
           - src/anomalyzer/relationships.py:84
           - src/anomalyzer/relationships.py:152
           - tests/test_agentic.py:211
+        notes: Assertions check exact ratio values, formula, and both original source
+          indexes.
       - criterion: Differences, supplied-scale residuals, and all/any threshold
           conditions produce the declared derived values.
         status: covered
@@ -97,6 +98,8 @@ agent:
           - src/anomalyzer/relationships.py:97
           - src/anomalyzer/relationships.py:134
           - tests/test_agentic.py:285
+        notes: Parameterized assertions independently specify difference, normalized
+          residual, all-condition, and any-condition outputs.
       - criterion: Missing sources and zero denominators remain unavailable with a
           reason rather than becoming zero.
         status: covered
@@ -104,6 +107,9 @@ agent:
           - src/anomalyzer/relationships.py:89
           - src/anomalyzer/relationships.py:142
           - tests/test_agentic.py:226
+        notes: Lineage retains null values with missing_source_value/zero_denominator
+          reasons. Explicit zero_denominator=error intentionally fails instead,
+          as documented.
       - criterion: Derived series can be analyzed with the frozen or adaptive
           single-resolution recipe.
         status: covered
@@ -112,6 +118,8 @@ agent:
           - src/anomalyzer/orchestrator.py:135
           - tests/test_agentic.py:171
           - tests/test_examples.py:17
+        notes: Both supported recipes dispatch derived datasets through the shared
+          single-resolution engine.
     done: true
-    input_fingerprint: 26a19a069c071e7bcaac0ef34a415a5d56dacbba0b8f48440b701fba30ace420
+    input_fingerprint: 7fa8f7ffdc0d852ad961b3e1753761d1bd3b00b87b8c001a957ec19e26d068b9
     mode: quick

@@ -1,0 +1,50 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "The adaptive recipe updates each expectation from a bounded window of earlier observations while retaining frozen residual calibration.",
+  "criteria": [
+    {
+      "criterion": "Each rolling expectation uses only observations before the sample being scored.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/baseline.py:61",
+        "tests/test_analysis.py:48"
+      ],
+      "notes": "All rolling-reference positions precede the scored index. The independent expectation remains unchanged after future values are appended."
+    },
+    {
+      "criterion": "Persistent growth changes can be followed more closely than by the frozen default recipe.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:145",
+        "src/anomalyzer/recipes.py:370",
+        "tests/test_analysis.py:58"
+      ],
+      "notes": "The test requires adaptive held-out MAE below half the frozen recipe's MAE and a close final expectation."
+    },
+    {
+      "criterion": "An isolated extreme value is held out of future model references rather than creating a seasonal echo.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:378",
+        "tests/test_analysis.py:81"
+      ],
+      "notes": "The isolated spike is excluded from model references; its next seasonal expectation closely matches the control. Persistent third misses are admitted as guidance explicitly permits."
+    },
+    {
+      "criterion": "Conflicting trend choices and slope lookbacks exceeding the adaptive window are rejected.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:41",
+        "tests/test_analysis.py:104"
+      ],
+      "notes": "Both incompatible explicit trend selection and excessive slope lookback raise specific validation errors."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

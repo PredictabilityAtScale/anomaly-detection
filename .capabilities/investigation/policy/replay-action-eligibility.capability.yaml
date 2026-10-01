@@ -19,9 +19,9 @@ guidance:
     belong to the caller.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Apply my review policy
-    release: Understand a change
+    backbone: Decide how much to rely on a finding
+    step: Review action eligibility
+    release: Evidence and review policy
     order: 60
 #
 #
@@ -66,15 +66,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Compared unit-cost default versus allow_explicit_rules policy: action
-        eligibility false/true, with identical relationship lineage and
-        numerical violation."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Callers can apply a different explicit action policy to existing
       assessments and cases without recomputing numerical analysis.
     criteria:
@@ -83,12 +82,16 @@ agent:
         evidence:
           - src/anomalyzer/contracts.py:329
           - tests/test_capability_behaviors.py:74
+        notes: Default flags disable both eligibility types, including after replay
+          resets policy.
       - criterion: Explicit-rule and calibrated-departure eligibility are controlled
           independently.
         status: covered
         evidence:
           - src/anomalyzer/agent.py:47
           - tests/test_capability_behaviors.py:123
+        notes: Explicit-only permission does not enable a calibrated departure; the
+          matching calibrated choice does.
       - criterion: Notification eligibility can be allowed for a met criterion without
           action eligibility, while early candidates remain ineligible.
         status: covered
@@ -96,6 +99,8 @@ agent:
           - src/anomalyzer/agent.py:53
           - tests/test_capability_behaviors.py:101
           - tests/test_capability_behaviors.py:134
+        notes: Notification-only replay enables a met rule while keeping action
+          disabled; permissive settings still cannot enable candidates.
       - criterion: Replaying policy preserves numerical evidence and stable case IDs,
           records changed case revisions, and leaves the original result
           unchanged.
@@ -106,6 +111,8 @@ agent:
           - src/anomalyzer/cases.py:105
           - tests/test_capability_behaviors.py:101
           - tests/test_agentic.py:49
+        notes: Assertions compare unchanged original serialization, methods, evidence
+          references, stable IDs, and eligibility-dependent revision changes.
     done: true
-    input_fingerprint: 08c7a45b5524a87ce26be0618bbce2125c97e0afaf6ed4e085f1720adacf4881
+    input_fingerprint: ee67bcc1ec1380b8d84a0556d838d648ae6cef3f4f9b9e34e1b71e90eb00aeae
     mode: quick

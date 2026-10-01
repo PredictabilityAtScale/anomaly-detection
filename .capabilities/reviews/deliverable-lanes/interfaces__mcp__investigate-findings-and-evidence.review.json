@@ -1,0 +1,58 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Agents can analyze a request, page through its findings, and retrieve supporting samples, assessments, readiness, and relationship lineage.",
+  "criteria": [
+    {
+      "criterion": "The analyze tool returns a compact headline, finding preview, and run ID for subsequent evidence requests.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp.py:170",
+        "src/anomalyzer/mcp_views.py:247",
+        "tests/test_mcp.py:54"
+      ],
+      "notes": "The conversion manual call returns a relationship headline, preview, counts, readiness, and session-scoped run ID."
+    },
+    {
+      "criterion": "list_findings pages through cases, candidates, episodes, patterns, and data-quality findings.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp_views.py:132",
+        "src/anomalyzer/mcp_views.py:260",
+        "tests/test_mcp.py:313",
+        "tests/test_mcp.py:108"
+      ],
+      "notes": "Cases, early candidates, episodes, patterns, and quality findings feed a bounded page; relationship episode regression verifies schema 1.1 pagination."
+    },
+    {
+      "criterion": "get_evidence exposes the selected finding's numerical support and relationship source lineage.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp_views.py:273",
+        "src/anomalyzer/mcp_views.py:294",
+        "tests/test_mcp.py:54",
+        "tests/test_mcp.py:313"
+      ],
+      "notes": "Manual drilldown returns observed 8/130 versus expected 0.1 and source indexes orders=14 and qualified_visits=14."
+    },
+    {
+      "criterion": "Unavailable latest evidence and non-triggering early candidates remain visible, while large pattern sample sets are paginated.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp_views.py:118",
+        "src/anomalyzer/mcp_views.py:169",
+        "src/anomalyzer/mcp_views.py:337",
+        "tests/test_mcp.py:87",
+        "tests/test_mcp.py:137",
+        "tests/test_mcp.py:341"
+      ],
+      "notes": "Passing tests retain short-history and inapplicable-method candidates plus unavailable latest evidence, while pattern samples are paginated."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

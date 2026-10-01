@@ -1,0 +1,53 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Callers can apply a different explicit action policy to existing assessments and cases without recomputing numerical analysis.",
+  "criteria": [
+    {
+      "criterion": "Default policy leaves action and notification eligibility disabled.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:329",
+        "tests/test_capability_behaviors.py:74"
+      ],
+      "notes": "Default flags disable both eligibility types, including after replay resets policy."
+    },
+    {
+      "criterion": "Explicit-rule and calibrated-departure eligibility are controlled independently.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/agent.py:47",
+        "tests/test_capability_behaviors.py:123"
+      ],
+      "notes": "Explicit-only permission does not enable a calibrated departure; the matching calibrated choice does."
+    },
+    {
+      "criterion": "Notification eligibility can be allowed for a met criterion without action eligibility, while early candidates remain ineligible.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/agent.py:53",
+        "tests/test_capability_behaviors.py:101",
+        "tests/test_capability_behaviors.py:134"
+      ],
+      "notes": "Notification-only replay enables a met rule while keeping action disabled; permissive settings still cannot enable candidates."
+    },
+    {
+      "criterion": "Replaying policy preserves numerical evidence and stable case IDs, records changed case revisions, and leaves the original result unchanged.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/agent.py:42",
+        "src/anomalyzer/cases.py:57",
+        "src/anomalyzer/cases.py:105",
+        "tests/test_capability_behaviors.py:101",
+        "tests/test_agentic.py:49"
+      ],
+      "notes": "Assertions compare unchanged original serialization, methods, evidence references, stable IDs, and eligibility-dependent revision changes."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

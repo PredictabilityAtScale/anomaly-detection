@@ -17,9 +17,9 @@ guidance:
     completeness.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Supply comparable data
-    release: Understand a change
+    backbone: Monitor while periods are still open
+    step: Keep unfinished data visible
+    release: Incomplete-period monitoring
     order: 10
 #
 #
@@ -64,15 +64,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Inspected incomplete-usage MCP drilldown: partial run and latest
-        relationship evidence unavailable, with explicit unavailable lineage
-        instead of a normality claim."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Explicitly incomplete trailing observations are reported as data
       quality evidence and excluded from completed-series analysis.
     criteria:
@@ -82,6 +81,8 @@ agent:
         evidence:
           - src/anomalyzer/validation.py:44
           - tests/test_analysis.py:162
+        notes: Suffix validation runs after timestamp preparation and rejects a
+          completed observation following an incomplete one.
       - criterion: The observed values and timestamps of unfinished periods remain
           available in data quality output.
         status: covered
@@ -89,6 +90,8 @@ agent:
           - src/anomalyzer/validation.py:50
           - src/anomalyzer/validation.py:114
           - tests/test_analysis.py:150
+        notes: Quality records retain original source index, normalized timestamp,
+          observed value, and incomplete status.
       - criterion: Incomplete source samples are excluded from expectations,
           calibration, point scoring, and completed aggregates.
         status: covered
@@ -97,6 +100,8 @@ agent:
           - src/anomalyzer/recipes.py:564
           - tests/test_analysis.py:150
           - tests/test_analysis.py:200
+        notes: Only finalized prepared values enter either scoring path; assertions
+          verify the last scored sample and both multi-resolution counts.
       - criterion: A relationship with an unavailable latest source reports that
           unavailability rather than normal behavior.
         status: covered
@@ -104,6 +109,9 @@ agent:
           - src/anomalyzer/alignment.py:35
           - src/anomalyzer/orchestrator.py:150
           - tests/test_mcp.py:87
+        notes: Incomplete aligned sources become unavailable values, and latest
+          relationship state/status plus MCP headline explain the lack of
+          evidence.
     done: true
-    input_fingerprint: cfbbb238edfc93aaf5b13a03c47f209023dc9a945afc7e06ba30d642893e2ea1
+    input_fingerprint: d82ee816fe89a25232e2589587d31bcadfa81be4188a0e1531f4fbfdf0ebcb5e
     mode: quick

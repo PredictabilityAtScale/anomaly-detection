@@ -1,0 +1,52 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Readiness diagnostics report supported, caution, or not_assessed based on the training pattern and calibration evidence.",
+  "criteria": [
+    {
+      "criterion": "Repeating seasonal structure with stable calibration can yield supported readiness.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:128",
+        "tests/test_readiness.py:8"
+      ],
+      "notes": "Assertions establish repeated seasonality, strong calibration improvement, and supported readiness."
+    },
+    {
+      "criterion": "Unstable declared seasonality or a drifting calibration center yields caution without making an otherwise completed run fail.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:113",
+        "src/anomalyzer/readiness.py:122",
+        "tests/test_readiness.py:28",
+        "tests/test_readiness.py:41"
+      ],
+      "notes": "Completed analyses retain caution reasons for weak seasonal repetition or calibration-center drift."
+    },
+    {
+      "criterion": "Insufficient calibration support yields not_assessed, including when the run otherwise completes.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:77",
+        "tests/test_readiness.py:56",
+        "tests/test_readiness.py:63"
+      ],
+      "notes": "Both uncalibrated history and a completed run with three calibration samples return not_assessed."
+    },
+    {
+      "criterion": "Later evaluation changes do not rewrite the segment's training-and-calibration readiness assessment.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:327",
+        "tests/test_readiness.py:8"
+      ],
+      "notes": "Readiness reads training/calibration inputs once; tests compare identical segment and aggregate assessments after a later shift."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

@@ -72,19 +72,33 @@ not support `reset_points`; both other recipes support explicit resets.
 The CapabilityKit maps describe Anomalyzer's observable behavior, acceptance
 criteria, implementation evidence, and dependencies.
 
-- [Interactive story map](https://predictabilityatscale.github.io/anomaly-detection/story-map-viewer.html): follow
-  the journey from comparable data to findings, supporting evidence, and review policy.
+- [Interactive story map](https://predictabilityatscale.github.io/anomaly-detection/story-map-viewer.html): explore
+  deliverable lanes and the user outcomes within each one.
 - [Interactive dependency map](https://predictabilityatscale.github.io/anomaly-detection/dependency-viewer.html): explore
   behavior dependencies and inspect each capability's acceptance coverage.
 
-Start with the **Understand a change** story map: supply comparable data, define
-the comparison, find changes, inspect findings, assess evidence support, and
-apply your review policy. A separate **Use analysis in my workflow** activity
-covers command-line, Python, and read-only agent access. Capability titles name
-user outcomes; summaries and acceptance criteria describe the precise behavior
-and its limits. The map describes the current product, not a promise of future
-releases. Review policy determines eligibility; the caller owns notification
-delivery and operational actions.
+The story map splits the current product into eight deliverable lanes:
+
+| Lane | Reviewable outcome |
+| --- | --- |
+| **Basic CLI anomaly detection** | Supply a series, establish evidence support, find spikes and drops, and read the result from files or stdin. |
+| **Trend and seasonal analysis** | Refine ordinary growth and repeating cycles, protect comparisons, follow evolving growth, and identify sustained changes. |
+| **Incomplete-period monitoring** | Keep unfinished periods visible while comparing finalized subperiods. |
+| **Related-metric analysis** | Align declared sources and investigate conversion, unit cost, metric gaps, and delayed responses. |
+| **Evidence and review policy** | Interpret early evidence and baseline quality, investigate cases, retain partial results, and review eligibility under stated rules. |
+| **Python integration** | Embed the same validated analysis in a local application. |
+| **Anomaly detection Skill** | Ask an agent for an evidence-grounded explanation and optionally a chart. |
+| **Read-only MCP server** | Connect an agent to local analysis and drill into findings and evidence. |
+
+Start with **Basic CLI anomaly detection**, then choose the analysis extensions
+or integration surface needed for your workflow. Capabilities have one primary
+lane; dependencies show shared prerequisites across lanes. CapabilityKit calls
+these planning slices `releases`; they describe implemented deliverables, not
+version dates or promised future features. Capability titles name user outcomes;
+summaries and acceptance criteria describe the precise behavior and its limits.
+Review policy determines eligibility; the caller owns notification delivery and
+operational actions. The Skill supplies agent instructions, while chart features
+depend on the host and its static fallback supports one dataset.
 
 The static preview below links to the hosted interactive dependency map. Coverage
 reflects saved capability reviews, not detection accuracy. The viewers also work

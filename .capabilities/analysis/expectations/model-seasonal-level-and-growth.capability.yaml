@@ -16,10 +16,10 @@ guidance:
   - Expectations support scoring; they are not a standalone forecasting API.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Define the comparison
-    release: Understand a change
-    order: 20
+    backbone: Refine what ordinary behavior means
+    step: Account for growth and seasonality
+    release: Trend and seasonal analysis
+    order: 10
 #
 #
 agent:
@@ -67,14 +67,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Inspected growth_up and compound: linear/exponential selections
-        respectively, zero point episodes and zero patterns."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: The default recipe builds an expectation from earlier matching
       seasonal observations and a training-fitted level, linear, or
       compound-growth model.
@@ -86,6 +86,8 @@ agent:
           - src/anomalyzer/baseline.py:8
           - src/anomalyzer/baseline.py:31
           - tests/test_analysis.py:21
+        notes: Independent lag values and robust matching-phase assertions establish the
+          seasonal reference calculation.
       - criterion: Automatic trend selection represents suitable linear and compound
           growth without flagging ordinary growth as point anomalies.
         status: covered
@@ -93,12 +95,18 @@ agent:
           - src/anomalyzer/trend.py:120
           - src/anomalyzer/trend.py:144
           - tests/test_trend.py:11
+        notes: Positive and negative linear/exponential cases select the expected model,
+          match post-training expectations, and produce no ordinary-growth
+          episodes.
       - criterion: The fitted trend remains frozen after training within a regime; later
           changed values do not rewrite that fit.
         status: covered
         evidence:
           - src/anomalyzer/recipes.py:162
           - tests/test_trend.py:36
+        notes: Trend fitting occurs at the training boundary; the test asserts identical
+          trend diagnostics and earlier evidence after later observations
+          change.
       - criterion: Callers can explicitly select none, linear, or exponential trend, and
           unsupported trend modes are rejected.
         status: covered
@@ -106,6 +114,8 @@ agent:
           - src/anomalyzer/contracts.py:20
           - tests/test_trend.py:49
           - tests/test_trend.py:57
+        notes: Tests exercise disabled, linear, exponential, and invalid quadratic
+          modes, including disclosed short-history fallback.
     done: true
-    input_fingerprint: 6457b655a192216bfaf19b7cf1161c9fb5dce02d244314a793d3dc3892d5d5b3
+    input_fingerprint: 8e9a0361b02b7d3f651366e5fa0675cccb3949e44de448d2ae0d43e6710bd408
     mode: quick

@@ -19,10 +19,10 @@ guidance:
   - Cases, episodes, and residual patterns may overlap.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Inspect findings
-    release: Understand a change
-    order: 40
+    backbone: Give an agent access to local evidence
+    step: Drill into findings and evidence
+    release: Read-only MCP server
+    order: 20
 #
 #
 agent:
@@ -72,15 +72,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Followed analyze, list_findings and get_evidence for conversion:
-        observed 8/130 versus expected 0.1, source indexes 14/14 and
-        not_assessed readiness support the compact headline."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Agents can analyze a request, page through its findings, and
       retrieve supporting samples, assessments, readiness, and relationship
       lineage.
@@ -92,6 +91,8 @@ agent:
           - src/anomalyzer/mcp.py:170
           - src/anomalyzer/mcp_views.py:247
           - tests/test_mcp.py:54
+        notes: The conversion manual call returns a relationship headline, preview,
+          counts, readiness, and session-scoped run ID.
       - criterion: list_findings pages through cases, candidates, episodes, patterns,
           and data-quality findings.
         status: covered
@@ -100,6 +101,9 @@ agent:
           - src/anomalyzer/mcp_views.py:260
           - tests/test_mcp.py:313
           - tests/test_mcp.py:108
+        notes: Cases, early candidates, episodes, patterns, and quality findings feed a
+          bounded page; relationship episode regression verifies schema 1.1
+          pagination.
       - criterion: get_evidence exposes the selected finding's numerical support and
           relationship source lineage.
         status: covered
@@ -108,6 +112,8 @@ agent:
           - src/anomalyzer/mcp_views.py:294
           - tests/test_mcp.py:54
           - tests/test_mcp.py:313
+        notes: Manual drilldown returns observed 8/130 versus expected 0.1 and source
+          indexes orders=14 and qualified_visits=14.
       - criterion: Unavailable latest evidence and non-triggering early candidates
           remain visible, while large pattern sample sets are paginated.
         status: covered
@@ -118,6 +124,8 @@ agent:
           - tests/test_mcp.py:87
           - tests/test_mcp.py:137
           - tests/test_mcp.py:341
+        notes: Passing tests retain short-history and inapplicable-method candidates
+          plus unavailable latest evidence, while pattern samples are paginated.
     done: true
-    input_fingerprint: 5419787117c97f061fb77169180fec4987f2c046f1f6edcca85b445ac8d4653a
+    input_fingerprint: a09b0003780bcd2f9ccf8e3d8ff58b3147c118760b984757d7027b5810fd9bef
     mode: quick

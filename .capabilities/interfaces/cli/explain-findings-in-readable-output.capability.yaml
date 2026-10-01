@@ -17,10 +17,10 @@ guidance:
     drilldown into JSON.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Inspect findings
-    release: Understand a change
-    order: 40
+    backbone: Analyze a local series
+    step: Read the findings
+    release: Basic CLI anomaly detection
+    order: 60
 #
 #
 agent:
@@ -63,15 +63,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Read conversion and unit-cost stdout: entity/unit labels, observed
-        versus expected conversion, named 0.13 unit-cost boundary, investigation
-        questions and not_assessed readiness remain clear."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Readable CLI output distinguishes point episodes, pattern
       findings, cases, explicit rule violations, and reference readiness.
     criteria:
@@ -82,6 +81,8 @@ agent:
           - src/anomalyzer/cli.py:347
           - src/anomalyzer/cli.py:405
           - tests/test_cli.py:143
+        notes: Readable tests distinguish zero-episode residual shifts from a spike
+          episode and retain the overlap warning.
       - criterion: Relationship cases identify entity scope, observed and expected
           values, declared units, and investigation questions.
         status: covered
@@ -91,6 +92,9 @@ agent:
           - src/anomalyzer/cli.py:331
           - tests/test_cli.py:117
           - examples/agentic/conversion.json
+        notes: Conversion output identifies site=demo, observed/expected
+          orders_per_visit, the relationship, and a collection-completeness
+          investigation question.
       - criterion: Explicit numerical rules are named with their boundaries instead of
           appearing as statistical anomaly claims.
         status: covered
@@ -98,12 +102,16 @@ agent:
           - src/anomalyzer/cli.py:318
           - tests/test_cli.py:134
           - examples/agentic/unit-cost.json
+        notes: Unit-cost output names review-above-13c and its [0, 0.13] boundary as a
+          declared rule crossing.
       - criterion: Readiness status remains visible, including when it was not assessed.
         status: covered
         evidence:
           - src/anomalyzer/cli.py:352
           - src/anomalyzer/cli.py:399
           - tests/test_cli.py:134
+        notes: Readable output includes not_assessed and its supporting reasons without
+          claiming measured alert accuracy.
     done: true
-    input_fingerprint: d56f02d9d917bbc1b20ee9d5fa90a43a3d66d351fa1410743eea8916c829cc64
+    input_fingerprint: 98108868b000972fd9b3c3f082846fbd3f3b08c399ef7ed424c23245d6935fef
     mode: quick

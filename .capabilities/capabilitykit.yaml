@@ -1,10 +1,18 @@
 schema_version: "0.1"
 project:
   name: Anomalyzer
-  description: Local time-series analysis with inspectable anomaly and relationship evidence.
+  description: Local time-series analysis with inspectable anomaly and
+    relationship evidence.
 planning:
   releases:
-    - Understand a change
+    - Basic CLI anomaly detection
+    - Trend and seasonal analysis
+    - Incomplete-period monitoring
+    - Related-metric analysis
+    - Evidence and review policy
+    - Python integration
+    - Anomaly detection Skill
+    - Read-only MCP server
 source:
   include:
     - "**/*.capability.yaml"

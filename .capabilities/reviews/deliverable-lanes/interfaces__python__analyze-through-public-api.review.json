@@ -1,0 +1,53 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "The public Python API accepts series or canonical requests and returns the same numerical analysis used by the CLI and MCP compatibility interfaces.",
+  "criteria": [
+    {
+      "criterion": "analyze accepts bare ordered values with separate validated settings and dispatches canonical schema 1.0 or 1.1 requests.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/__init__.py:3",
+        "src/anomalyzer/recipes.py:21",
+        "tests/test_analysis.py:234"
+      ],
+      "notes": "Bare values and separate settings validate before dispatch; canonical schema 1.0 and 1.1 requests use their respective contracts."
+    },
+    {
+      "criterion": "analyze_series preserves supplied settings and event-time context for a single dataset.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/agent.py:11",
+        "tests/test_mcp.py:191",
+        "tests/test_mcp.py:291"
+      ],
+      "notes": "Field-set handling preserves omitted versus explicit settings and context in the single-series wrapper, verified across dictionary and Settings inputs."
+    },
+    {
+      "criterion": "analyze_relationships preserves the declared multi-dataset relationship semantics.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/agent.py:27",
+        "tests/test_mcp.py:217"
+      ],
+      "notes": "Declared relationships validate and use the shared engine without changing units, lineage, or primitive semantics."
+    },
+    {
+      "criterion": "Equivalent requests retain numerical results across Python, CLI, and full-result MCP compatibility calls apart from run IDs and runtime.",
+      "status": "covered",
+      "evidence": [
+        "tests/test_mcp.py:163",
+        "tests/test_mcp.py:191",
+        "tests/test_mcp.py:217",
+        "src/anomalyzer/__main__.py:1"
+      ],
+      "notes": "Passing real CLI subprocess, Python, and full-result MCP parity tests compare stable numerical results apart from identity and runtime."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

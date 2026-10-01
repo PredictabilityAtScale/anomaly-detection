@@ -1,0 +1,56 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Analysis applies cooperative resource limits and exposes partial or failed results without discarding valid earlier or sibling evidence.",
+  "criteria": [
+    {
+      "criterion": "A method failure preserves evidence completed before the failure and reports the error.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:400",
+        "src/anomalyzer/recipes.py:448",
+        "tests/test_analysis.py:509"
+      ],
+      "notes": "The failure regression preserves evidence through index 44 and reports the injected error at index 45."
+    },
+    {
+      "criterion": "Runtime budgets are checked cooperatively and produce an explicit stop reason.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/budget.py:18",
+        "src/anomalyzer/recipes.py:108",
+        "src/anomalyzer/recipes.py:508",
+        "tests/test_analysis.py:509"
+      ],
+      "notes": "Cooperative target/sample checks expose runtime_budget and budget_exceeded; this is not a hard process timeout."
+    },
+    {
+      "criterion": "CLI byte limits and execution failures produce distinct error exits.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/io.py:9",
+        "src/anomalyzer/cli.py:429",
+        "tests/test_cli.py:108"
+      ],
+      "notes": "The full suite executed the byte-limit and execution-exit regression successfully; invalid input exits 2 and execution failure exits 1."
+    },
+    {
+      "criterion": "A failed dataset or relationship leaves healthy sibling results available and marks the overall run partial.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/orchestrator.py:125",
+        "src/anomalyzer/orchestrator.py:171",
+        "src/anomalyzer/orchestrator.py:185",
+        "tests/test_capability_behaviors.py:159",
+        "tests/test_capability_behaviors.py:30"
+      ],
+      "notes": "Healthy dataset evidence survives target-specific failure; inspected incomplete-usage reports partial with no invented healthy relationship."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

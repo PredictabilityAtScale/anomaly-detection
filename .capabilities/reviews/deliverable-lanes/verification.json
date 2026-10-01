@@ -1,0 +1,193 @@
+{
+  "reviewed_at": "2026-10-01T01:09:34.720379+00:00",
+  "command": ".venv/Scripts/python.exe -m pytest -q",
+  "exit_code": 0,
+  "passed": 154,
+  "duration_seconds": 13.98,
+  "stdout_summary": "154 passed in 13.98s",
+  "additional_checks": [
+    "All four published JSON schemas compared equal to their Python contracts.",
+    "Five Skill chart regressions passed independently before the full suite.",
+    "Executed CLI readable/JSON examples, policy replay, time preparation, open-day analysis, and MCP evidence drilldown; see manual-checks.json.",
+    "Visually inspected the spike fallback SVG: observed/expected lines, one trigger, calls axis, and training/calibration shading."
+  ],
+  "inspected_reference_count": 44,
+  "references": [
+    {
+      "path": ".agents/skills/anomaly-detection/SKILL.md",
+      "sha256": "8ae8e0272142f5e5bb53b7184f1cd44bba54e7c220e91bef4dc149e8f0281ebf"
+    },
+    {
+      "path": ".agents/skills/anomaly-detection/agents/openai.yaml",
+      "sha256": "bd49068e8be5917609a70b3ca9c0e9701dd604cfdfe4125b05a970808ba19d8e"
+    },
+    {
+      "path": ".agents/skills/anomaly-detection/references/visualization.md",
+      "sha256": "db40d1fe86f9c8c58625c6f7df3a71f1a80a87bbb286d999e22c78e2204664aa"
+    },
+    {
+      "path": ".agents/skills/anomaly-detection/scripts/quick_chart.py",
+      "sha256": "409498d79818aac5b163fa1edafd4bb7706311fbab601c42daee02134d2182fd"
+    },
+    {
+      "path": "examples/agentic/conversion.json",
+      "sha256": "c354ca5efb61a3ae12b93681cd20f6b94c65abad7705f72ac545db9486651e36"
+    },
+    {
+      "path": "examples/agentic/lagged-response.json",
+      "sha256": "c9a3cc75500e245ff33b4f3bb5374456ead9d87057a6b3609bfcf02e23372763"
+    },
+    {
+      "path": "examples/agentic/unit-cost.json",
+      "sha256": "ed97020f7f71ac4c11345970191b5b10608150b745c0b47f5859bcdd25209484"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "f60cd598cfc76d0fb152888844b115fc65d3a0e270ca49a92895d136daaa6fab"
+    },
+    {
+      "path": "schemas/request-1.1.schema.json",
+      "sha256": "d8879225e5c5e140d7de04e95b7b1d976132d076b63ce2a9855475dbccde7a69"
+    },
+    {
+      "path": "schemas/request.schema.json",
+      "sha256": "6aae52c833d4c30aa96b212307a0c1b32382eea1c2f358f4bc2cea07caf32eaf"
+    },
+    {
+      "path": "schemas/result-1.1.schema.json",
+      "sha256": "482def03539b98d842afe6728dba9150ae893abd2b3aaa6b9267e29272895bee"
+    },
+    {
+      "path": "schemas/result.schema.json",
+      "sha256": "9ab4d9e4a30476375b0d26ba2af459ce846ff14a715c2e66ce09173bc0f71b5a"
+    },
+    {
+      "path": "src/anomalyzer/__init__.py",
+      "sha256": "9f1bd0571a9ad89810cf929ba7eed4a37c57df97d24e7e50a5cb79ee5d987033"
+    },
+    {
+      "path": "src/anomalyzer/__main__.py",
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    {
+      "path": "src/anomalyzer/agent.py",
+      "sha256": "ed5e565293945d876c4e0172d8eb609a6128b96fd28cb023bafcf6b468c763e6"
+    },
+    {
+      "path": "src/anomalyzer/alignment.py",
+      "sha256": "1f50174c390049340db301dcc0eec8abc72db354bf36d4123e715e25b242c408"
+    },
+    {
+      "path": "src/anomalyzer/baseline.py",
+      "sha256": "944b16daccb7664d0965729eef2ebd9f32e196f1c20f35a63a9e55d125969244"
+    },
+    {
+      "path": "src/anomalyzer/budget.py",
+      "sha256": "66e192d18c1a7891034cfbe72c7d2050c3f378383451a13b5e3924dde6b0a19f"
+    },
+    {
+      "path": "src/anomalyzer/cases.py",
+      "sha256": "2174b6332d66c17ae0f72e5ef14b3d5a1e76e9e570ce6f1a0e04187200c072c6"
+    },
+    {
+      "path": "src/anomalyzer/cli.py",
+      "sha256": "5badb1558f07633e118cce9989fee8784feebe57ae322024fe53a519df3d9c7c"
+    },
+    {
+      "path": "src/anomalyzer/contracts.py",
+      "sha256": "976f44749bef11f8082011ca3aaf387bffdc62510ffe9a57ca2f460d1a83dfaa"
+    },
+    {
+      "path": "src/anomalyzer/early.py",
+      "sha256": "3b215e4af3b9d4c38c094a9ea2d4a14d3a7f8d03c90811778fcf2d94b21af26f"
+    },
+    {
+      "path": "src/anomalyzer/evidence.py",
+      "sha256": "97e4b01a20c12222b3166b19fb4d1d6b91a7ccca17a34caa69a06d604149ff24"
+    },
+    {
+      "path": "src/anomalyzer/io.py",
+      "sha256": "60c4a00f0398c508ff5ed027f0e7a3486dd2f2084fd54a72173a326a058890a8"
+    },
+    {
+      "path": "src/anomalyzer/mcp.py",
+      "sha256": "2da9002c0b091f407c0109ec04bf527f79f1f346e69d2bc8ba7e3624009107e5"
+    },
+    {
+      "path": "src/anomalyzer/mcp_views.py",
+      "sha256": "b0b249b6933c599002db4886d304af84c19070b0eb0ce2e292ca620ed42d503d"
+    },
+    {
+      "path": "src/anomalyzer/orchestrator.py",
+      "sha256": "4b32a510e8d219045505af3615dc14ab5b58bff7ed31e9499a4983deeca9ea9d"
+    },
+    {
+      "path": "src/anomalyzer/readiness.py",
+      "sha256": "1fbc2b54f1dc378c67b15354db73291e3e80e0669f6d92eec5a829f46619f5b4"
+    },
+    {
+      "path": "src/anomalyzer/recipes.py",
+      "sha256": "9aee43b8d4c4100aec5ce37393df19a1c6b50e6045f63dba91cc4c79310a1fcb"
+    },
+    {
+      "path": "src/anomalyzer/registry.py",
+      "sha256": "48eb809a28d209815230e5252549689e645b49dc1c49ac6ad1ad2007a8a92bac"
+    },
+    {
+      "path": "src/anomalyzer/relationships.py",
+      "sha256": "ef0ed9181b131d96f83b541f277ee2ba681e437a015333e307ac84b3fd897ade"
+    },
+    {
+      "path": "src/anomalyzer/robust.py",
+      "sha256": "02e8d341e10835cae11e3f082ba56903880fd9b6f9f4c23893cff499bc0c7dc7"
+    },
+    {
+      "path": "src/anomalyzer/seasonality.py",
+      "sha256": "802547936c24cba57e0d9826e265cb3786edf38596cba3d78dbdbb8d5d8cf419"
+    },
+    {
+      "path": "src/anomalyzer/trend.py",
+      "sha256": "0fe6b6b7dcc7ad52d5395ee0a56998839dc78681c07ea9726d6498c81b3e4ca7"
+    },
+    {
+      "path": "src/anomalyzer/validation.py",
+      "sha256": "4de43db7c6d74b25e1e430e5d6ef0b0e3582b236b4ab7bcc9c732100126743d0"
+    },
+    {
+      "path": "tests/test_agentic.py",
+      "sha256": "4eea46bce0dc7be2e1c7e3e0e7ce3c26f4590f34c6b2ad0516c34bc6355ec352"
+    },
+    {
+      "path": "tests/test_analysis.py",
+      "sha256": "51c1374a4aaf0dadcbf7b67d33b60ad8e34cc5561e35bc1031182b9144bbe9de"
+    },
+    {
+      "path": "tests/test_capability_behaviors.py",
+      "sha256": "0e32f6a62d3f3af0bf17621ee90d1f00d513bd9ab308603b19cea9678d6db724"
+    },
+    {
+      "path": "tests/test_cli.py",
+      "sha256": "8737cfc65369d7a1c9a39215c6ff20343bf353d5e98e9d1908862432b2ec6cc8"
+    },
+    {
+      "path": "tests/test_examples.py",
+      "sha256": "cbdd8bb4f623747618e86047e28d21b6c66af5c2bb19519d13750fcd2b79df3a"
+    },
+    {
+      "path": "tests/test_mcp.py",
+      "sha256": "493e291d006ca2ec0eb3e8b06cfda27b5827d1f16da9453ef22c69dbce4076a3"
+    },
+    {
+      "path": "tests/test_readiness.py",
+      "sha256": "599fc95f63f51311d74c4bbde1c701a6e54002d97572981c9402f44115a1b6f3"
+    },
+    {
+      "path": "tests/test_skill_chart.py",
+      "sha256": "a2800c8bd2934c17d545009906e9adb3d59b856b0886d3e3f2d4ba6820546238"
+    },
+    {
+      "path": "tests/test_trend.py",
+      "sha256": "6c57fc462c71ceaee66777b4d79f8dedd4a180889357ac4f70b5bf1843f394ee"
+    }
+  ]
+}

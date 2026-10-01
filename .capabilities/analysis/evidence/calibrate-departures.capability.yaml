@@ -18,10 +18,10 @@ guidance:
     calibrates again.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Assess evidence support
-    release: Understand a change
-    order: 50
+    backbone: Analyze a local series
+    step: Establish evidence support
+    release: Basic CLI anomaly detection
+    order: 30
 #
 #
 agent:
@@ -64,15 +64,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Inspected spike sample 65: calibrated, 14 calibration samples, observed
-        135.2, expected 94.875, standardized residual 85.3088, and a point
-        trigger; score semantics explicitly exclude probability."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Sample evidence distinguishes reference-only, provisional, and
       calibrated comparisons before permitting statistical point triggers.
     criteria:
@@ -83,12 +82,16 @@ agent:
           - src/anomalyzer/recipes.py:205
           - src/anomalyzer/recipes.py:445
           - tests/test_analysis.py:141
+        notes: The short-series test checks three reference-only samples, absent
+          standardized scores, and no triggers.
       - criterion: Provisional residual scores can be reported but do not trigger
           point-anomaly episodes.
         status: covered
         evidence:
           - src/anomalyzer/recipes.py:210
           - tests/test_analysis.py:123
+        notes: A provisional score of 2 exceeds the configured point threshold of 1 but
+          produces no trigger or episode.
       - criterion: Completed calibration provides a frozen residual center and sample
           scale for later standardized residuals.
         status: covered
@@ -96,6 +99,9 @@ agent:
           - src/anomalyzer/recipes.py:231
           - src/anomalyzer/recipes.py:307
           - tests/test_analysis.py:111
+        notes: Calibration uses retained residual mean and sample standard deviation
+          once per regime; the independent numerical example produces the
+          expected standardized score.
       - criterion: Evidence records the observed value, expectation, calibration
           support, and numerical criterion responsible for a trigger.
         status: covered
@@ -104,6 +110,8 @@ agent:
           - src/anomalyzer/recipes.py:350
           - src/anomalyzer/recipes.py:388
           - tests/test_analysis.py:111
+        notes: Sample fields retain the comparison and support; the point threshold is
+          inspectable in the enclosing method parameters.
     done: true
-    input_fingerprint: d4f2c65c3f3bf578a416c906a552364261752c7de3d75866732f06442973bd50
+    input_fingerprint: ccdc1b2e92f3e647d5a9e6127cc3c4b10bf0da8f1f78af3efb805daa9b1e4305
     mode: quick

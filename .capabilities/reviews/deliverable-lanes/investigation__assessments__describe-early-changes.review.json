@@ -1,0 +1,54 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Short histories yield observations, changes, and departure candidates with explicit comparison populations and limits.",
+  "criteria": [
+    {
+      "criterion": "The first observation records a value, the second records a change, and later departures from the prior range can be candidates.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:73",
+        "src/anomalyzer/early.py:96",
+        "tests/test_agentic.py:35"
+      ],
+      "notes": "Assertions establish observation/change/change/departure_candidate for [10,12,11,20]."
+    },
+    {
+      "criterion": "Descriptive assessments use preceding observations and remain unchanged when future samples are appended.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:50",
+        "src/anomalyzer/early.py:141",
+        "tests/test_agentic.py:35"
+      ],
+      "notes": "Each assessment precedes the prior-history update; tests compare complete serialized assessments for every prefix."
+    },
+    {
+      "criterion": "Missing values break the comparison history, and zero previous values do not create relative-change evidence.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:53",
+        "src/anomalyzer/early.py:58",
+        "tests/test_capability_behaviors.py:87"
+      ],
+      "notes": "The zero comparison has no relative change; after a missing value, comparison samples reset to zero."
+    },
+    {
+      "criterion": "Early candidates remain non-triggering and ineligible for action even under a permissive policy.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:105",
+        "src/anomalyzer/cases.py:35",
+        "tests/test_capability_behaviors.py:134",
+        "tests/test_mcp.py:341"
+      ],
+      "notes": "Candidates have criterion_met=false and remain action/notification-ineligible after policy replay, without creating cases."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

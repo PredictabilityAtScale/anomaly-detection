@@ -18,10 +18,10 @@ guidance:
   - Multi-resolution analysis does not support reset_points.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Define the comparison
-    release: Understand a change
-    order: 20
+    backbone: Refine what ordinary behavior means
+    step: Restart after a reviewed change
+    release: Trend and seasonal analysis
+    order: 50
 #
 #
 agent:
@@ -61,14 +61,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Inspected steps_reset: resolved boundaries 50 and 100, completed
-        analysis, no episodes or patterns."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Caller-supplied reset points divide a single-resolution series
       into independently trained and calibrated regimes.
     criteria:
@@ -78,6 +78,8 @@ agent:
         evidence:
           - src/anomalyzer/validation.py:129
           - tests/test_analysis.py:381
+        notes: Positions and observed dates are exercised end to end; timestamp
+          normalization and exact matching are implemented directly.
       - criterion: Each new regime rebuilds its reference, trend, and calibration
           without crossing earlier boundaries.
         status: covered
@@ -85,18 +87,26 @@ agent:
           - src/anomalyzer/recipes.py:119
           - src/anomalyzer/recipes.py:143
           - tests/test_analysis.py:381
+        notes: Each segment initializes separate state and passes its own start to
+          forecasts. Tests verify three calibrated regimes and no cross-boundary
+          evidence or findings.
       - criterion: Repeated, out-of-range, or unmatched reset points are rejected.
         status: covered
         evidence:
           - src/anomalyzer/contracts.py:51
           - src/anomalyzer/validation.py:149
           - tests/test_analysis.py:413
+        notes: Validation rejects literal duplicates and different declarations
+          resolving to the same position, invalid positions, and unmatched
+          dates/timestamps.
       - criterion: CLI reset options produce the same resolved positions and suppress
           departures explained by the declared boundaries.
         status: covered
         evidence:
           - tests/test_cli.py:82
           - src/anomalyzer/recipes.py:53
+        notes: CLI assertions establish positions [50, 100] and removal of the
+          unmarked-regime episodes.
     done: true
-    input_fingerprint: f52686f8bbd95efb2145b5aed6790344929f2f1128ca0ee4924dc7721419ebab
+    input_fingerprint: 067063f972c5b70d990d6cb0125892731a97a7f482698d7b331a1a30229ac223
     mode: quick

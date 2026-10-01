@@ -1,0 +1,51 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Declared relationships require exact UTC timestamp alignment, shared cadence and entity scope, and compatible declared units.",
+  "criteria": [
+    {
+      "criterion": "Related datasets use identical normalized timestamps, the same declared cadence, and matching entity metadata.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/alignment.py:42",
+        "tests/test_capability_behaviors.py:30"
+      ],
+      "notes": "Parameterized assertions require specific errors for timestamp, cadence, and entity mismatches."
+    },
+    {
+      "criterion": "Relationship sources are timestamped and have unique timestamps; implicit resampling and duplicate aggregation are not accepted for lineage.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/alignment.py:23",
+        "src/anomalyzer/alignment.py:44",
+        "tests/test_capability_behaviors.py:30"
+      ],
+      "notes": "Positional sources fail exact alignment; even an explicit duplicate-mean setting is rejected for relationship source lineage."
+    },
+    {
+      "criterion": "Difference relationships require identical declared source units and matching output units.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:41",
+        "tests/test_agentic.py:242"
+      ],
+      "notes": "Source and output unit checks are explicit. Tests cover mismatched source units and successful matching units."
+    },
+    {
+      "criterion": "An invalid relationship is reported as failed while valid sibling dataset results remain available.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/orchestrator.py:171",
+        "tests/test_capability_behaviors.py:30",
+        "tests/test_capability_behaviors.py:159"
+      ],
+      "notes": "Relationship errors remain target-specific, healthy dataset results survive, and the overall mixed run is partial."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

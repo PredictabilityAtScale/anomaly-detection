@@ -18,10 +18,10 @@ guidance:
   - Exactly one of coefficient or training_size is required.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Define the comparison
-    release: Understand a change
-    order: 20
+    backbone: Investigate relationships I declare
+    step: Check delayed responses
+    release: Related-metric analysis
+    order: 30
 #
 #
 agent:
@@ -70,15 +70,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Inspected lagged-response leading unavailable values and first usable
-        sample: supplied coefficient 2, lag 2, response index 2/predictor index
-        0 and source cutoff preserved."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: A lagged-response relationship compares current response with a
       supplied or training-fitted multiple of an earlier predictor.
     criteria:
@@ -88,6 +87,8 @@ agent:
         evidence:
           - src/anomalyzer/relationships.py:115
           - tests/test_agentic.py:254
+        notes: Supplied lag/coefficient uses the declared earlier predictor position and
+          preserves the expected response residual.
       - criterion: Derived values retain response and predictor source indexes and
           source cutoffs in lineage.
         status: covered
@@ -95,6 +96,8 @@ agent:
           - src/anomalyzer/relationships.py:152
           - tests/test_agentic.py:254
           - examples/agentic/lagged-response.json
+        notes: Available and pending lineage retains existing source indexes and
+          timestamp cutoffs; missing predictors do not become zero.
       - criterion: When requested, the coefficient is fitted once from a declared
           training prefix and remains frozen.
         status: covered
@@ -102,12 +105,16 @@ agent:
           - src/anomalyzer/relationships.py:47
           - tests/test_agentic.py:294
           - tests/test_agentic.py:330
+        notes: The coefficient is fitted once after the complete declared prefix; the
+          independent 20/7 result and prefix-invariance assertions pass.
       - criterion: Samples lacking the earlier predictor or awaiting coefficient
           training remain unavailable.
         status: covered
         evidence:
           - src/anomalyzer/relationships.py:122
           - tests/test_agentic.py:330
+        notes: Short prefixes retain null derived values and explicit unavailable
+          reasons, while an unidentifiable completed fit has a visible error.
     done: true
-    input_fingerprint: 24544baae5d5d7d3d4765f0a5dcb7650aaed542ae4cd7162e940764593531529
+    input_fingerprint: fc4516ef6ab903dfa4918268d97049aff04fbf9556620ccb8259ff830ba85785
     mode: quick

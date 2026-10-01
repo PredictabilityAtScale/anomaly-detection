@@ -18,10 +18,10 @@ guidance:
     incident.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Find changes
-    release: Understand a change
-    order: 30
+    backbone: Decide how much to rely on a finding
+    step: Inspect early evidence
+    release: Evidence and review policy
+    order: 10
 #
 #
 agent:
@@ -68,15 +68,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - Read candidate comparison population, early maturity,
-        established/not_established text and MCP candidate tests; candidates
-        have criterion_met false and never authorize action.
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Short histories yield observations, changes, and departure
       candidates with explicit comparison populations and limits.
     criteria:
@@ -87,6 +86,8 @@ agent:
           - src/anomalyzer/early.py:73
           - src/anomalyzer/early.py:96
           - tests/test_agentic.py:35
+        notes: Assertions establish observation/change/change/departure_candidate for
+          [10,12,11,20].
       - criterion: Descriptive assessments use preceding observations and remain
           unchanged when future samples are appended.
         status: covered
@@ -94,6 +95,8 @@ agent:
           - src/anomalyzer/early.py:50
           - src/anomalyzer/early.py:141
           - tests/test_agentic.py:35
+        notes: Each assessment precedes the prior-history update; tests compare complete
+          serialized assessments for every prefix.
       - criterion: Missing values break the comparison history, and zero previous values
           do not create relative-change evidence.
         status: covered
@@ -101,6 +104,8 @@ agent:
           - src/anomalyzer/early.py:53
           - src/anomalyzer/early.py:58
           - tests/test_capability_behaviors.py:87
+        notes: The zero comparison has no relative change; after a missing value,
+          comparison samples reset to zero.
       - criterion: Early candidates remain non-triggering and ineligible for action even
           under a permissive policy.
         status: covered
@@ -109,6 +114,9 @@ agent:
           - src/anomalyzer/cases.py:35
           - tests/test_capability_behaviors.py:134
           - tests/test_mcp.py:341
+        notes: Candidates have criterion_met=false and remain
+          action/notification-ineligible after policy replay, without creating
+          cases.
     done: true
-    input_fingerprint: 2b61eb3747e18d9f9b5cdbbd490a15da725571544e693d7c16f31ca48f3d0ce3
+    input_fingerprint: debdeeeaea559950f53461a4298cb9c2e3a1681f83a43e8a981ed9b51968a4d0
     mode: quick

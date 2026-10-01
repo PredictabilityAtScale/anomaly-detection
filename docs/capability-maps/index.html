@@ -18,23 +18,26 @@
   <main>
     <h1>Anomalyzer capability maps</h1>
     <p>What changed, compared with what should have happened, and what can we conclude?</p>
-    <p>Start with the story map to follow an investigation. Open a capability
+    <p>Start with the story map to explore eight deliverable lanes. Open a capability
       to inspect its behavior, acceptance criteria, supporting evidence, and limits.</p>
     <ul>
-      <li><a href="story-map-viewer.html">Understand a change: interactive story map</a> —
-        follow the user journey and choose how to use analysis in your workflow.</li>
+      <li><a href="story-map-viewer.html">Interactive deliverable story map</a> —
+        choose an analysis extension or a way to use the product.</li>
       <li><a href="dependency-viewer.html">Interactive dependency map</a> —
         explore dependencies and inspect acceptance coverage.</li>
     </ul>
     <ol>
-      <li>Supply comparable data.</li>
-      <li>Define the comparison, including expected patterns or related metrics.</li>
-      <li>Find changes, including early signals and changes within unfinished days.</li>
-      <li>Inspect findings and trace their supporting evidence.</li>
-      <li>Assess how much the history and expected baseline support a finding.</li>
-      <li>Apply your review policy to action and notification eligibility.</li>
+      <li>Basic CLI anomaly detection: analyze a local series and read its findings.</li>
+      <li>Trend and seasonal analysis: refine the expectation and find sustained changes.</li>
+      <li>Incomplete-period monitoring: compare finalized data while periods remain open.</li>
+      <li>Related-metric analysis: inspect declared ratios, gaps, and delayed responses.</li>
+      <li>Evidence and review policy: judge support and review eligibility.</li>
+      <li>Python integration: embed validated analysis in an application.</li>
+      <li>Anomaly detection Skill: get a guided explanation and optional chart.</li>
+      <li>Read-only MCP server: let an agent inspect local findings and evidence.</li>
     </ol>
-    <p>Use analysis through the command line, Python, or read-only agent tools.
+    <p>Each capability has one primary lane; dependencies show shared prerequisites.
+      These lanes describe current deliverables, not scheduled releases.
       The caller owns notification delivery and operational actions.</p>
     <p class="note">Coverage reflects saved capability reviews. It does not
       measure detection accuracy on real-world data.</p>

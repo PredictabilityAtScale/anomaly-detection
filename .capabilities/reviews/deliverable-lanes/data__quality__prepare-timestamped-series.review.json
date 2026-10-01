@@ -1,0 +1,52 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Timestamped observations are normalized to UTC, ordered, and checked against their declared cadence before analysis.",
+  "criteria": [
+    {
+      "criterion": "Timestamped datasets provide both timestamps and frequency; positional datasets provide neither.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:77",
+        "tests/test_analysis.py:418"
+      ],
+      "notes": "Partial coordinate metadata and positional as_of are rejected."
+    },
+    {
+      "criterion": "Local timestamps require a timezone, and ambiguous or nonexistent daylight-saving times require an explicit offset.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:8",
+        "tests/test_analysis.py:500"
+      ],
+      "notes": "UTC round trips detect ambiguous/nonexistent local times; valid local time normalizes to the expected UTC hour."
+    },
+    {
+      "criterion": "Duplicate timestamps are rejected unless an aggregation policy is supplied; duplicate counts and transformations remain visible.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:87",
+        "src/anomalyzer/validation.py:103",
+        "tests/test_analysis.py:478"
+      ],
+      "notes": "Explicit mean/sum handling retains duplicate counts and transformation descriptions. Nulls propagate rather than becoming zero."
+    },
+    {
+      "criterion": "An as_of cutoff excludes later observations, and cadence is checked as a fixed elapsed duration.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:105",
+        "src/anomalyzer/validation.py:111",
+        "tests/test_analysis.py:491",
+        "tests/test_mcp.py:191"
+      ],
+      "notes": "Filtering is inclusive through as_of; cadence compares UTC elapsed timedeltas, including fixed seven-day weeks."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

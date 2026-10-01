@@ -1,0 +1,141 @@
+title: See the evidence in a chart when I ask for one
+status: implemented
+summary: The anomaly-detection Skill offers an explicitly requested quick chart
+  or a detailed figure specification after structured analysis completes.
+intent: Make findings easier to inspect visually while preserving their evidence
+  meaning and the user's requested level of detail.
+acceptance:
+  - The Skill defaults to text and requires an explicit visualization request;
+    quick charts and publication-quality figures have separate instructions.
+  - The dependency-free quick chart fallback renders one resolved dataset's
+    observed values and available expectations, marks only triggered evidence,
+    and labels training, calibration, units, and reviewed reset boundaries.
+  - The fallback rejects unsupported multi-dataset results and protects an
+    existing output file unless overwrite is explicitly requested.
+  - Detailed figure instructions preserve source indices,
+    provisional-versus-calibrated evidence, pattern detection timing, and
+    incomplete or failed run status, without presenting scores as probabilities
+    or flags as proven causes.
+guidance:
+  - Native chart rendering and interactive figure features depend on the agent
+    host; the checked-in fallback produces a static SVG for a single dataset.
+  - A chart explains structured analysis; it does not replace the detector
+    result.
+planning:
+  story_map:
+    backbone: Ask an agent to investigate a change
+    step: Inspect a requested chart
+    release: Anomaly detection Skill
+    order: 20
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review interfaces/skill/visualize-analysis-on-request
+  # run deterministic review only: capabilitykit review interfaces/skill/visualize-analysis-on-request --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review interfaces/skill/visualize-analysis-on-request --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result interfaces/skill/visualize-analysis-on-request --input review.json
+  # -----------------------------
+  depends_on:
+    - interfaces/cli/analyze-files-and-streams
+  implementation:
+    references:
+      - .agents/skills/anomaly-detection/SKILL.md
+      - .agents/skills/anomaly-detection/scripts/quick_chart.py
+      - .agents/skills/anomaly-detection/references/visualization.md
+      - tests/test_skill_chart.py
+  verification:
+    automated:
+      - id: observed-evidence
+        description: Render real observed and expected data and only actual point triggers.
+        command: python -m pytest -q
+          tests/test_skill_chart.py::test_quick_chart_preserves_real_point_evidence
+      - id: maturity-and-resets
+        description: Keep provisional evidence non-triggering and label reviewed regimes.
+        command: python -m pytest -q
+          tests/test_skill_chart.py::test_provisional_scores_are_not_charted_as_triggers
+          tests/test_skill_chart.py::test_quick_chart_marks_reviewed_resets
+      - id: unsupported-scope
+        description: Reject a multi-dataset result rather than mixing units.
+        command: python -m pytest -q
+          tests/test_skill_chart.py::test_quick_chart_rejects_multiple_datasets
+      - id: output-protection
+        description: Require an explicit overwrite for existing charts.
+        command: python -m pytest -q
+          tests/test_skill_chart.py::test_chart_cli_requires_explicit_overwrite
+    manual:
+      - Inspect a spike fallback chart and the detailed figure instructions;
+        verify that axes, initialization context, trigger markers, and
+        interpretation limits are clear, and that the Skill requests a chart
+        only when the user asks.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
+      - Skill criteria covering agent instructions are supported by the written
+        guidance and demonstrated tool workflow; cross-host agent compliance and
+        real-world detection accuracy are not asserted.
+    intent_summary: The anomaly-detection Skill offers an explicitly requested quick
+      chart or a detailed figure specification after structured analysis
+      completes.
+    criteria:
+      - criterion: The Skill defaults to text and requires an explicit visualization
+          request; quick charts and publication-quality figures have separate
+          instructions.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/SKILL.md:65
+          - .agents/skills/anomaly-detection/SKILL.md:189
+          - .agents/skills/anomaly-detection/SKILL.md:226
+        notes: The Skill explicitly requires a visual request after analysis and
+          separates quick versus detailed rendering instructions.
+      - criterion: The dependency-free quick chart fallback renders one resolved
+          dataset's observed values and available expectations, marks only
+          triggered evidence, and labels training, calibration, units, and
+          reviewed reset boundaries.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/scripts/quick_chart.py:81
+          - .agents/skills/anomaly-detection/scripts/quick_chart.py:59
+          - tests/test_skill_chart.py:28
+          - tests/test_skill_chart.py:43
+          - tests/test_skill_chart.py:54
+        notes: Real-result tests establish observed/expected lines, trigger-only
+          markers, provisional non-triggering, units, initialization shading,
+          and reset boundaries; the spike chart was inspected visually.
+      - criterion: The fallback rejects unsupported multi-dataset results and protects
+          an existing output file unless overwrite is explicitly requested.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/scripts/quick_chart.py:85
+          - .agents/skills/anomaly-detection/scripts/quick_chart.py:251
+          - tests/test_skill_chart.py:63
+          - tests/test_skill_chart.py:68
+        notes: Multiple resolved datasets raise a specific error. The CLI test preserves
+          an existing chart and replaces it only with explicit overwrite.
+      - criterion: Detailed figure instructions preserve source indices,
+          provisional-versus-calibrated evidence, pattern detection timing, and
+          incomplete or failed run status, without presenting scores as
+          probabilities or flags as proven causes.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/references/visualization.md:31
+          - .agents/skills/anomaly-detection/references/visualization.md:37
+          - .agents/skills/anomaly-detection/references/visualization.md:45
+          - .agents/skills/anomaly-detection/references/visualization.md:86
+        notes: Detailed instructions require index alignment, maturity distinctions,
+          first detection timing, visible unavailable status, and qualified
+          causal claims; native interactive rendering remains host-dependent.
+    done: true
+    input_fingerprint: 2780b6c3e363f89a30a0709772c0a46a9a96f1567fabb27e63934a3ca80dc982
+    mode: quick

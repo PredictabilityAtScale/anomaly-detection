@@ -1,0 +1,52 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Residual rules identify location shifts, trends, oscillation, mixture patterns, and short-term variation beyond isolated point departures.",
+  "criteria": [
+    {
+      "criterion": "Nelson location rules and CUSUM can identify a sustained residual location shift without any point-threshold crossing.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/evidence.py:118",
+        "src/anomalyzer/evidence.py:189",
+        "tests/test_analysis.py:293"
+      ],
+      "notes": "Tests assert no point triggers or episodes and exact upward/downward detection positions for Nelson rules and CUSUM."
+    },
+    {
+      "criterion": "CUSUM reports the first detection position, direction, accumulated score, and configured threshold.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/evidence.py:211",
+        "src/anomalyzer/evidence.py:230",
+        "tests/test_analysis.py:350"
+      ],
+      "notes": "The known accumulation detects at index 16 and reports peak CUSUM approximately 6, threshold 5, and increase direction."
+    },
+    {
+      "criterion": "Trend, oscillation, and mixture findings retain their specific pattern meanings.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/evidence.py:70",
+        "src/anomalyzer/evidence.py:122",
+        "tests/test_analysis.py:340"
+      ],
+      "notes": "Separate predicates and descriptions preserve the three meanings and explicitly limit location/distribution claims."
+    },
+    {
+      "criterion": "Moving-range findings identify variation changes separately from location changes.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/evidence.py:234",
+        "tests/test_analysis.py:360"
+      ],
+      "notes": "Adjacent standardized-residual differences produce variation_shift findings; the test checks magnitude, detection index, and interpretation."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent re-inspected declared implementation references and criterion evidence in the current session after the outcome-title and deliverable-lane refactor.",
+    ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s; .capabilities/reviews/deliverable-lanes/verification.json.",
+    "Executed and inspected CLI examples, time preparation, policy replay, open-day monitoring, and MCP conversion evidence drilldown; .capabilities/reviews/deliverable-lanes/manual-checks.json."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

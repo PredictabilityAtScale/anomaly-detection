@@ -1,0 +1,142 @@
+title: Ask an agent to explain unusual changes in my metrics
+status: implemented
+summary: The reusable anomaly-detection Skill guides an agent through local
+  Anomalyzer analysis and a concise explanation grounded in structured evidence.
+intent: Make the analysis usable through an agent while keeping data handling
+  and interpretation limits explicit.
+acceptance:
+  - The Skill directs analysis through the installed Anomalyzer CLI, with
+    executable fallback paths and structured JSON output, rather than a newly
+    invented detector.
+  - The Skill instructs callers to preserve missing data, select one entity and
+    unit, and explicitly declare compatible sources for related-metric analysis.
+  - The default response instructions lead with changes and
+    observed-versus-expected values, then explain readiness, evidence maturity,
+    overlapping findings, and material limitations without inventing confidence
+    percentages or causes.
+  - The Skill describes MCP analyze, list_findings, and get_evidence as an
+    optional evidence workflow and makes session lifetime, read-only access, and
+    caller-owned notification and action delivery explicit.
+guidance:
+  - This contract covers the supplied instructions and demonstrated analysis
+    workflow; it does not guarantee that every agent host follows the
+    instructions.
+  - Synthetic examples demonstrate mechanics, not real-world detection accuracy.
+planning:
+  story_map:
+    backbone: Ask an agent to investigate a change
+    step: Get an evidence-grounded explanation
+    release: Anomaly detection Skill
+    order: 10
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review interfaces/skill/guide-anomaly-investigation
+  # run deterministic review only: capabilitykit review interfaces/skill/guide-anomaly-investigation --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review interfaces/skill/guide-anomaly-investigation --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result interfaces/skill/guide-anomaly-investigation --input review.json
+  # -----------------------------
+  depends_on:
+    - interfaces/cli/analyze-files-and-streams
+    - interfaces/mcp/investigate-findings-and-evidence
+  implementation:
+    references:
+      - .agents/skills/anomaly-detection/SKILL.md
+      - .agents/skills/anomaly-detection/agents/openai.yaml
+      - src/anomalyzer/cli.py
+      - src/anomalyzer/mcp.py
+      - tests/test_cli.py
+      - tests/test_agentic.py
+      - tests/test_mcp.py
+  verification:
+    automated:
+      - id: structured-cli
+        description: Exercise the documented structured CLI workflow and preserve
+          incomplete-history evidence.
+        command: python -m pytest -q tests/test_cli.py::test_stdin_file_equivalence
+          tests/test_cli.py::test_bare_json_values_cli
+      - id: declared-relationships
+        description: Check explicit ratio semantics and unavailable source evidence.
+        command: python -m pytest -q
+          tests/test_agentic.py::test_ratio_lineage_and_early_relationship_departure
+      - id: mcp-drilldown
+        description: Follow compact analysis to a finding and its source evidence.
+        command: python -m pytest -q
+          tests/test_mcp.py::test_agent_can_drill_into_relationship_case
+    manual:
+      - Follow the conversion example through the CLI and MCP drilldown; compare
+        the Skill instructions with actual evidence and check that its proposed
+        text separates calibrated findings, early candidates, readiness, and
+        caller-owned actions.
+  review:
+    depth: verified
+    source: coding-agent
+    evidence:
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
+      - Skill criteria covering agent instructions are supported by the written
+        guidance and demonstrated tool workflow; cross-host agent compliance and
+        real-world detection accuracy are not asserted.
+    intent_summary: The reusable anomaly-detection Skill guides an agent through
+      local Anomalyzer analysis and a concise explanation grounded in structured
+      evidence.
+    criteria:
+      - criterion: The Skill directs analysis through the installed Anomalyzer CLI, with
+          executable fallback paths and structured JSON output, rather than a
+          newly invented detector.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/SKILL.md:13
+          - .agents/skills/anomaly-detection/SKILL.md:41
+          - tests/test_cli.py:13
+        notes: Executable resolution and JSON commands are explicit. Manual conversion
+          and spike CLI runs use the installed numerical engine.
+      - criterion: The Skill instructs callers to preserve missing data, select one
+          entity and unit, and explicitly declare compatible sources for
+          related-metric analysis.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/SKILL.md:24
+          - .agents/skills/anomaly-detection/SKILL.md:32
+          - tests/test_cli.py:51
+          - tests/test_agentic.py:211
+        notes: Instructions preserve scope, units, missingness, declared relationships,
+          and exact alignment; existing runtime checks establish these
+          prerequisites.
+      - criterion: The default response instructions lead with changes and
+          observed-versus-expected values, then explain readiness, evidence
+          maturity, overlapping findings, and material limitations without
+          inventing confidence percentages or causes.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/SKILL.md:65
+          - .agents/skills/anomaly-detection/SKILL.md:101
+          - .agents/skills/anomaly-detection/SKILL.md:134
+          - .agents/skills/anomaly-detection/agents/openai.yaml:4
+        notes: The supplied instructions lead with plain-language changes and then
+          qualify maturity/readiness/overlap. This establishes instructional
+          content, not measured agent compliance.
+      - criterion: The Skill describes MCP analyze, list_findings, and get_evidence as
+          an optional evidence workflow and makes session lifetime, read-only
+          access, and caller-owned notification and action delivery explicit.
+        status: covered
+        evidence:
+          - .agents/skills/anomaly-detection/SKILL.md:54
+          - .agents/skills/anomaly-detection/SKILL.md:174
+          - src/anomalyzer/mcp.py:169
+          - tests/test_mcp.py:54
+        notes: The documented three-tool workflow matches executed conversion drilldown,
+          with session-only run IDs and explicit read-only/caller-owned delivery
+          limits.
+    done: true
+    input_fingerprint: 751723214aa340b1227ec347c22f130749fcdbfd49327c21b4c27ef68d7f0341
+    mode: quick

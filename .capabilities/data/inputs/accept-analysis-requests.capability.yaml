@@ -20,9 +20,9 @@ guidance:
     inputs.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Supply comparable data
-    release: Understand a change
+    backbone: Analyze a local series
+    step: Supply a numeric series
+    release: Basic CLI anomaly detection
     order: 10
 #
 #
@@ -71,15 +71,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - Read README input/API examples and schema-version limits; independently
-        parsed all four published schemas and asserted equality to their current
-        public contracts.
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Callers can submit ordered numeric values or versioned requests
       containing datasets, settings, context, and declared relationships.
     criteria:
@@ -90,6 +89,8 @@ agent:
           - src/anomalyzer/recipes.py:21
           - src/anomalyzer/contracts.py:96
           - tests/test_analysis.py:234
+        notes: Bare-list settings are validated; schema 1.0 limits datasets to exactly
+          one.
       - criterion: Schema 1.1 datasets declare a nonempty entity scope and support
           explicit relationships between named datasets.
         status: covered
@@ -97,6 +98,8 @@ agent:
           - src/anomalyzer/contracts.py:240
           - src/anomalyzer/contracts.py:335
           - tests/test_agentic.py:192
+        notes: Entity scope is required, relationship kinds are discriminated, and
+          references must name distinct known datasets.
       - criterion: Unknown settings, unsupported recipes, nonfinite values, booleans,
           and numeric strings are rejected.
         status: covered
@@ -105,6 +108,8 @@ agent:
           - src/anomalyzer/contracts.py:71
           - tests/test_analysis.py:526
           - tests/test_analysis.py:531
+        notes: Assertions reject each listed category; missing null values remain a
+          separate accepted representation.
       - criterion: Published schema 1.0 and 1.1 request and result schemas match the
           public Python contracts.
         status: covered
@@ -115,6 +120,9 @@ agent:
           - schemas/result-1.1.schema.json
           - tests/test_analysis.py:547
           - tests/test_agentic.py:317
+        notes: Tests and independent inspection compare each complete published schema
+          with its contract-generated schema. Python cross-field validators
+          supplement JSON Schema constraints.
     done: true
-    input_fingerprint: 16e3c6a350aeaabddac5b7b86979c7977a2f0755a28ecaef16cc4e8cf859eaf0
+    input_fingerprint: 3546cd8f436812ff11c9352a855926677b55cc6287e40f6a5041bd613173e5b4
     mode: quick

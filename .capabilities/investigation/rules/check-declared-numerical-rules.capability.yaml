@@ -18,9 +18,9 @@ guidance:
     impact.
 planning:
   story_map:
-    backbone: Investigate a change
-    step: Find changes
-    release: Understand a change
+    backbone: Decide how much to rely on a finding
+    step: Apply my stated limits
+    release: Evidence and review policy
     order: 30
 #
 #
@@ -69,15 +69,14 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent inspected every declared implementation reference
-        and compared acceptance criteria with current source and test
-        assertions; this is a fresh semantic review, completed in the existing
-        session.
-      - ".venv/Scripts/python.exe -m pytest -q succeeded: 149 passed in 14.53s;
-        .capabilities/reviews/agentic-0.2.3/verification.json."
-      - "Read unit-cost stdout and drilldown: review-above-13c outside [0,0.13]
-        is a caller-declared numerical criterion, with explicit non-claims about
-        cause and incidents."
+      - Primary Codex agent re-inspected declared implementation references and
+        criterion evidence in the current session after the outcome-title and
+        deliverable-lane refactor.
+      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
+        .capabilities/reviews/deliverable-lanes/verification.json."
+      - Executed and inspected CLI examples, time preparation, policy replay,
+        open-day monitoring, and MCP conversion evidence drilldown;
+        .capabilities/reviews/deliverable-lanes/manual-checks.json.
     intent_summary: Acceptable ranges and maximum absolute or relative changes
       identify explicit criterion violations, including before calibration.
     criteria:
@@ -88,12 +87,16 @@ agent:
           - src/anomalyzer/early.py:22
           - src/anomalyzer/contracts.py:209
           - tests/test_capability_behaviors.py:74
+        notes: Boundary values 10 and 20 are accepted; 9 and 21 violate the declared
+          range.
       - criterion: Absolute and relative changes must exceed their declared maximum to
           violate a rule.
         status: covered
         evidence:
           - src/anomalyzer/early.py:25
           - tests/test_capability_behaviors.py:74
+        notes: Parameterized tests distinguish equality to the threshold from strict
+          exceedance for both change rules.
       - criterion: Relative-change checks require a nonzero previous value and do not
           bridge missing observations.
         status: covered
@@ -101,6 +104,8 @@ agent:
           - src/anomalyzer/early.py:29
           - src/anomalyzer/early.py:53
           - tests/test_capability_behaviors.py:87
+        notes: Zero/missing predecessors suppress relative comparisons, and missing
+          values reset comparison history.
       - criterion: Violations identify the exact declared rule and remain
           action-ineligible unless policy explicitly permits them.
         status: covered
@@ -109,6 +114,8 @@ agent:
           - src/anomalyzer/early.py:121
           - tests/test_agentic.py:49
           - tests/test_cli.py:134
+        notes: Violation records retain rule ID/kind/bounds; default eligibility is
+          false and replay requires explicit permission.
     done: true
-    input_fingerprint: cfaf57c3735cf5a978003aebe8d85e4716c8e9f705c2f5647e579da6ebe18d92
+    input_fingerprint: 60d24e84faee9c1e2ae8f9337d17334b37c89305093404da2e84c51526111d0b
     mode: quick
