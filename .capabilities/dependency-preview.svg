@@ -113,289 +113,289 @@
       <path class="link committed" d="M1255.4,298.7 Q1219.4,449.0 1317.1,568.7" />
     </g>
     <g id="nodes">
-      <g class="node full" data-capability="analysis/evidence/calibrate-departures" transform="translate(387.4 432.2)">
-        <title>Separate early references from calibrated departures</title>
+      <g class="node partial" data-capability="analysis/evidence/calibrate-departures" transform="translate(387.4 432.2)">
+        <title>Understand how much history supports a finding</title>
         <circle class="node-halo" r="76" />
         <circle class="node-ring" r="68" />
         <circle class="node-core" r="58" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Separate early</tspan>
-          <tspan x="0" dy="14">references ...</tspan>
+          <tspan x="0" dy="-3">Understand how</tspan>
+          <tspan x="0" dy="14">much histor...</tspan>
         </text>
         <text class="meta" y="56">analysis/evidence</text>
       </g>
-      <g class="node full" data-capability="data/inputs/accept-analysis-requests" transform="translate(633.4 361.4)">
-        <title>Accept numeric series and explicit analysis requests</title>
+      <g class="node partial" data-capability="data/inputs/accept-analysis-requests" transform="translate(633.4 361.4)">
+        <title>Bring my metrics into an analysis</title>
         <circle class="node-halo" r="71" />
         <circle class="node-ring" r="63" />
         <circle class="node-core" r="53" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Accept numeric series</tspan>
-          <tspan x="0" dy="14">and ...</tspan>
+          <tspan x="0" dy="-3">Bring my metrics</tspan>
+          <tspan x="0" dy="14">into an a...</tspan>
         </text>
         <text class="meta" y="51">data/inputs</text>
       </g>
-      <g class="node full" data-capability="analysis/expectations/model-seasonal-level-and-growth" transform="translate(314.6 233.0)">
-        <title>Establish expectations for seasonal levels and growth</title>
+      <g class="node partial" data-capability="analysis/expectations/model-seasonal-level-and-growth" transform="translate(314.6 233.0)">
+        <title>Account for ordinary seasonal patterns and growth</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
         <circle class="node-core" r="43" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Establish expectations</tspan>
-          <tspan x="0" dy="14">for...</tspan>
+          <tspan x="0" dy="-3">Account for</tspan>
+          <tspan x="0" dy="14">ordinary seaso...</tspan>
         </text>
         <text class="meta" y="41">analysis/expectations</text>
       </g>
-      <g class="node full" data-capability="investigation/cases/group-related-evidence" transform="translate(997.6 259.4)">
-        <title>Group qualifying evidence into scoped investigation cases</title>
+      <g class="node partial" data-capability="investigation/cases/group-related-evidence" transform="translate(997.6 259.4)">
+        <title>Investigate related findings together</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
         <circle class="node-core" r="43" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Group qualifying</tspan>
-          <tspan x="0" dy="14">evidence ...</tspan>
+          <tspan x="0" dy="-3">Investigate related</tspan>
+          <tspan x="0" dy="14">findin...</tspan>
         </text>
         <text class="meta" y="41">investigation/cases</text>
       </g>
-      <g class="node full" data-capability="data/quality/prepare-timestamped-series" transform="translate(662.0 166.0)">
-        <title>Prepare timestamps, duplicates, and event-time cutoffs</title>
+      <g class="node partial" data-capability="data/quality/prepare-timestamped-series" transform="translate(662.0 166.0)">
+        <title>Analyze observations in the right time order</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
         <circle class="node-core" r="38" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Prepare timestamps,</tspan>
-          <tspan x="0" dy="14">duplic...</tspan>
+          <tspan x="0" dy="-3">Analyze observations</tspan>
+          <tspan x="0" dy="14">in th...</tspan>
         </text>
         <text class="meta" y="36">data/quality</text>
       </g>
-      <g class="node full" data-capability="interfaces/python/analyze-through-public-api" transform="translate(839.4 166.0)">
-        <title>Analyze data through the public Python API</title>
+      <g class="node partial" data-capability="interfaces/python/analyze-through-public-api" transform="translate(839.4 166.0)">
+        <title>Embed local analysis in my application</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
         <circle class="node-core" r="38" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Analyze data through</tspan>
-          <tspan x="0" dy="14">the p...</tspan>
+          <tspan x="0" dy="-3">Embed local analysis</tspan>
+          <tspan x="0" dy="14">in my...</tspan>
         </text>
         <text class="meta" y="36">interfaces/python</text>
       </g>
-      <g class="node full" data-capability="investigation/assessments/describe-early-changes" transform="translate(1132.8 384.1)">
-        <title>Describe early changes before calibration</title>
+      <g class="node partial" data-capability="investigation/assessments/describe-early-changes" transform="translate(1132.8 384.1)">
+        <title>Spot early changes with a short history</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
         <circle class="node-core" r="38" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Describe early</tspan>
-          <tspan x="0" dy="14">changes bef...</tspan>
+          <tspan x="0" dy="-3">Spot early changes</tspan>
+          <tspan x="0" dy="14">with a ...</tspan>
         </text>
         <text class="meta" y="36">investigation/assessments</text>
       </g>
-      <g class="node full" data-capability="relationships/quality/require-compatible-sources" transform="translate(1243.2 245.1)">
-        <title>Require compatible relationship sources</title>
+      <g class="node partial" data-capability="relationships/quality/require-compatible-sources" transform="translate(1243.2 245.1)">
+        <title>Compare the same entity and time period</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
         <circle class="node-core" r="38" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Require compatible</tspan>
-          <tspan x="0" dy="14">relatio...</tspan>
+          <tspan x="0" dy="-3">Compare the same</tspan>
+          <tspan x="0" dy="14">entity an...</tspan>
         </text>
         <text class="meta" y="36">relationships/quality</text>
       </g>
-      <g class="node full" data-capability="analysis/detection/identify-residual-patterns" transform="translate(501.2 225.0)">
-        <title>Identify sustained shifts and other residual patterns</title>
+      <g class="node partial" data-capability="analysis/detection/identify-residual-patterns" transform="translate(501.2 225.0)">
+        <title>Spot sustained shifts and changing patterns</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
         <circle class="node-core" r="33" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Identify sustained</tspan>
-          <tspan x="0" dy="14">shifts ...</tspan>
+          <tspan x="0" dy="-3">Spot sustained shifts</tspan>
+          <tspan x="0" dy="14">and ...</tspan>
         </text>
         <text class="meta" y="31">analysis/detection</text>
       </g>
-      <g class="node full" data-capability="data/quality/exclude-incomplete-periods" transform="translate(554.9 534.4)">
-        <title>Keep unfinished periods visible without scoring them</title>
+      <g class="node partial" data-capability="data/quality/exclude-incomplete-periods" transform="translate(554.9 534.4)">
+        <title>Avoid mistaking unfinished periods for drops</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
         <circle class="node-core" r="33" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Keep unfinished</tspan>
-          <tspan x="0" dy="14">periods vi...</tspan>
+          <tspan x="0" dy="-3">Avoid mistaking</tspan>
+          <tspan x="0" dy="14">unfinished...</tspan>
         </text>
         <text class="meta" y="31">data/quality</text>
       </g>
-      <g class="node full" data-capability="interfaces/cli/analyze-files-and-streams" transform="translate(773.0 494.0)">
-        <title>Analyze files and streams from the command line</title>
+      <g class="node partial" data-capability="interfaces/cli/analyze-files-and-streams" transform="translate(773.0 494.0)">
+        <title>Analyze local files from the command line</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
         <circle class="node-core" r="33" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Analyze files and</tspan>
-          <tspan x="0" dy="14">streams ...</tspan>
+          <tspan x="0" dy="-3">Analyze local files</tspan>
+          <tspan x="0" dy="14">from t...</tspan>
         </text>
         <text class="meta" y="31">interfaces/cli</text>
       </g>
-      <g class="node full" data-capability="interfaces/mcp/investigate-findings-and-evidence" transform="translate(821.7 336.3)">
-        <title>Investigate findings through compact MCP tools</title>
+      <g class="node partial" data-capability="interfaces/mcp/investigate-findings-and-evidence" transform="translate(821.7 336.3)">
+        <title>Let an agent inspect the evidence behind a finding</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
         <circle class="node-core" r="33" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Investigate findings</tspan>
-          <tspan x="0" dy="14">throu...</tspan>
+          <tspan x="0" dy="-3">Let an agent</tspan>
+          <tspan x="0" dy="14">inspect the e...</tspan>
         </text>
         <text class="meta" y="31">interfaces/mcp</text>
       </g>
-      <g class="node full" data-capability="investigation/rules/check-declared-numerical-rules" transform="translate(956.1 432.0)">
-        <title>Check caller-declared numerical rules</title>
+      <g class="node partial" data-capability="investigation/rules/check-declared-numerical-rules" transform="translate(956.1 432.0)">
+        <title>Find values that break my stated limits</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
         <circle class="node-core" r="33" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Check caller-declared</tspan>
-          <tspan x="0" dy="14">nume...</tspan>
+          <tspan x="0" dy="-3">Find values that</tspan>
+          <tspan x="0" dy="14">break my ...</tspan>
         </text>
         <text class="meta" y="31">investigation/rules</text>
       </g>
-      <g class="node full" data-capability="analysis/detection/report-point-anomaly-episodes" transform="translate(159.9 812.6)">
-        <title>Detect point departures and group adjacent episodes</title>
+      <g class="node partial" data-capability="analysis/detection/report-point-anomaly-episodes" transform="translate(159.9 812.6)">
+        <title>Find unusual spikes and drops</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Detect point</tspan>
-          <tspan x="0" dy="14">departures an...</tspan>
+          <tspan x="0" dy="-3">Find unusual spikes</tspan>
+          <tspan x="0" dy="14">and dr...</tspan>
         </text>
         <text class="meta" y="26">analysis/detection</text>
       </g>
-      <g class="node full" data-capability="analysis/evidence/assess-reference-readiness" transform="translate(112.7 156.3)">
-        <title>Explain whether the reference deserves confidence</title>
+      <g class="node partial" data-capability="analysis/evidence/assess-reference-readiness" transform="translate(112.7 156.3)">
+        <title>Know when the expected baseline is weak</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Explain whether</tspan>
-          <tspan x="0" dy="14">the refere...</tspan>
+          <tspan x="0" dy="-3">Know when the</tspan>
+          <tspan x="0" dy="14">expected bas...</tspan>
         </text>
         <text class="meta" y="26">analysis/evidence</text>
       </g>
-      <g class="node full" data-capability="analysis/expectations/adapt-to-changing-growth" transform="translate(112.0 663.5)">
-        <title>Update expectations as recent growth changes</title>
+      <g class="node partial" data-capability="analysis/expectations/adapt-to-changing-growth" transform="translate(112.0 663.5)">
+        <title>Follow evolving growth while exposing unusual values</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Update expectations</tspan>
-          <tspan x="0" dy="14">as rec...</tspan>
+          <tspan x="0" dy="-3">Follow evolving</tspan>
+          <tspan x="0" dy="14">growth whi...</tspan>
         </text>
         <text class="meta" y="26">analysis/expectations</text>
       </g>
-      <g class="node full" data-capability="analysis/expectations/protect-reference-from-extremes" transform="translate(402.8 621.6)">
-        <title>Protect future references from extreme observations</title>
+      <g class="node partial" data-capability="analysis/expectations/protect-reference-from-extremes" transform="translate(402.8 621.6)">
+        <title>Limit how extreme values distort later comparisons</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Protect future</tspan>
-          <tspan x="0" dy="14">references ...</tspan>
+          <tspan x="0" dy="-3">Limit how extreme</tspan>
+          <tspan x="0" dy="14">values d...</tspan>
         </text>
         <text class="meta" y="26">analysis/expectations</text>
       </g>
-      <g class="node full" data-capability="analysis/expectations/reset-declared-regimes" transform="translate(112.0 447.9)">
-        <title>Restart expectations at declared regime boundaries</title>
+      <g class="node partial" data-capability="analysis/expectations/reset-declared-regimes" transform="translate(112.0 447.9)">
+        <title>Compare against a new baseline after a known change</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Restart expectations</tspan>
-          <tspan x="0" dy="14">at de...</tspan>
+          <tspan x="0" dy="-3">Compare against a</tspan>
+          <tspan x="0" dy="14">new base...</tspan>
         </text>
         <text class="meta" y="26">analysis/expectations</text>
       </g>
-      <g class="node full" data-capability="analysis/expectations/select-season-length" transform="translate(438.1 791.1)">
-        <title>Use a declared season or infer a positional season</title>
+      <g class="node partial" data-capability="analysis/expectations/select-season-length" transform="translate(438.1 791.1)">
+        <title>Choose the repeating cycle for a fair comparison</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Use a declared</tspan>
-          <tspan x="0" dy="14">season or i...</tspan>
+          <tspan x="0" dy="-3">Choose the</tspan>
+          <tspan x="0" dy="14">repeating cycle...</tspan>
         </text>
         <text class="meta" y="26">analysis/expectations</text>
       </g>
-      <g class="node full" data-capability="analysis/resolution/monitor-within-unfinished-days" transform="translate(240.6 552.9)">
-        <title>Analyze subperiods alongside completed daily aggregates</title>
+      <g class="node partial" data-capability="analysis/resolution/monitor-within-unfinished-days" transform="translate(240.6 552.9)">
+        <title>See changes before the day is complete</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Analyze subperiods</tspan>
-          <tspan x="0" dy="14">alongsi...</tspan>
+          <tspan x="0" dy="-3">See changes before</tspan>
+          <tspan x="0" dy="14">the day...</tspan>
         </text>
         <text class="meta" y="26">analysis/resolution</text>
       </g>
-      <g class="node full" data-capability="execution/resilience/retain-evidence-under-failure-and-limits" transform="translate(642.9 717.8)">
-        <title>Retain useful evidence under failures and resource limits</title>
+      <g class="node partial" data-capability="execution/resilience/retain-evidence-under-failure-and-limits" transform="translate(642.9 717.8)">
+        <title>Keep useful evidence when analysis cannot finish</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Retain useful</tspan>
-          <tspan x="0" dy="14">evidence und...</tspan>
+          <tspan x="0" dy="-3">Keep useful evidence</tspan>
+          <tspan x="0" dy="14">when ...</tspan>
         </text>
         <text class="meta" y="26">execution/resilience</text>
       </g>
-      <g class="node full" data-capability="interfaces/cli/explain-findings-in-readable-output" transform="translate(834.7 758.5)">
-        <title>Explain evidence in readable CLI output</title>
+      <g class="node partial" data-capability="interfaces/cli/explain-findings-in-readable-output" transform="translate(834.7 758.5)">
+        <title>Understand findings in a readable summary</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Explain evidence</tspan>
-          <tspan x="0" dy="14">in readab...</tspan>
+          <tspan x="0" dy="-3">Understand findings in</tspan>
+          <tspan x="0" dy="14">a r...</tspan>
         </text>
         <text class="meta" y="26">interfaces/cli</text>
       </g>
-      <g class="node full" data-capability="interfaces/mcp/connect-read-only-local-server" transform="translate(891.3 616.9)">
-        <title>Connect a client to the read-only local MCP server</title>
+      <g class="node partial" data-capability="interfaces/mcp/connect-read-only-local-server" transform="translate(891.3 616.9)">
+        <title>Give an agent read-only access to local analysis</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Connect a client</tspan>
-          <tspan x="0" dy="14">to the re...</tspan>
+          <tspan x="0" dy="-3">Give an agent</tspan>
+          <tspan x="0" dy="14">read-only ac...</tspan>
         </text>
         <text class="meta" y="26">interfaces/mcp</text>
       </g>
-      <g class="node full" data-capability="investigation/policy/replay-action-eligibility" transform="translate(1066.1 718.6)">
-        <title>Replay action and notification eligibility</title>
+      <g class="node partial" data-capability="investigation/policy/replay-action-eligibility" transform="translate(1066.1 718.6)">
+        <title>Change action eligibility without rerunning analysis</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Replay action</tspan>
-          <tspan x="0" dy="14">and notifica...</tspan>
+          <tspan x="0" dy="-3">Change action</tspan>
+          <tspan x="0" dy="14">eligibility ...</tspan>
         </text>
         <text class="meta" y="26">investigation/policy</text>
       </g>
-      <g class="node full" data-capability="relationships/comparisons/compare-declared-metrics" transform="translate(1036.1 569.1)">
-        <title>Compare rates, gaps, supplied expectations, and joint conditions</title>
+      <g class="node partial" data-capability="relationships/comparisons/compare-declared-metrics" transform="translate(1036.1 569.1)">
+        <title>Find changes in conversion, unit cost, and metric gaps</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Compare rates,</tspan>
-          <tspan x="0" dy="14">gaps, suppl...</tspan>
+          <tspan x="0" dy="-3">Find changes</tspan>
+          <tspan x="0" dy="14">in conversion...</tspan>
         </text>
         <text class="meta" y="26">relationships/comparisons</text>
       </g>
-      <g class="node full" data-capability="relationships/comparisons/evaluate-delayed-response" transform="translate(1328.0 616.5)">
-        <title>Evaluate a declared delayed response</title>
+      <g class="node partial" data-capability="relationships/comparisons/evaluate-delayed-response" transform="translate(1328.0 616.5)">
+        <title>Check whether a metric follows its expected delayed response</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
         <circle class="node-core" r="28" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Evaluate a</tspan>
-          <tspan x="0" dy="14">declared delaye...</tspan>
+          <tspan x="0" dy="-3">Check whether a</tspan>
+          <tspan x="0" dy="14">metric fol...</tspan>
         </text>
         <text class="meta" y="26">relationships/comparisons</text>
       </g>

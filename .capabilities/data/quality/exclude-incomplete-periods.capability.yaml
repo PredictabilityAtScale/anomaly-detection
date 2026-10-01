@@ -1,4 +1,4 @@
-title: Keep unfinished periods visible without scoring them
+title: Avoid mistaking unfinished periods for drops
 status: implemented
 summary: Explicitly incomplete trailing observations are reported as data
   quality evidence and excluded from completed-series analysis.
@@ -15,6 +15,12 @@ acceptance:
 guidance:
   - Completeness is declared by the caller; the engine does not infer collection
     completeness.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Supply comparable data
+    release: Understand a change
+    order: 10
 #
 #
 agent:

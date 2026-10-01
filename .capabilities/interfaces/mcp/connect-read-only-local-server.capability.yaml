@@ -1,4 +1,4 @@
-title: Connect a client to the read-only local MCP server
+title: Give an agent read-only access to local analysis
 status: implemented
 summary: The local stdio MCP server advertises three read-only investigation
   tools with schemas and interpretation guidance.
@@ -18,6 +18,12 @@ guidance:
     invalid-input errors.
   - The server provides analysis and evidence inspection; the caller owns
     monitoring and operational workflows.
+planning:
+  story_map:
+    backbone: Use analysis in my workflow
+    step: Choose a way to use analysis
+    release: Understand a change
+    order: 70
 #
 #
 agent:

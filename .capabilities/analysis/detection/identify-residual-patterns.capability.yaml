@@ -1,4 +1,4 @@
-title: Identify sustained shifts and other residual patterns
+title: Spot sustained shifts and changing patterns
 status: implemented
 summary: Residual rules identify location shifts, trends, oscillation, mixture
   patterns, and short-term variation beyond isolated point departures.
@@ -16,6 +16,12 @@ guidance:
   - Pattern findings may overlap and are not independent confirmations.
   - A residual location shift does not establish a change in the full
     distribution.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Find changes
+    release: Understand a change
+    order: 30
 #
 #
 agent:

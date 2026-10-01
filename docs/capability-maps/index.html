@@ -17,14 +17,25 @@
 <body>
   <main>
     <h1>Anomalyzer capability maps</h1>
-    <p>Explore observable behavior, acceptance criteria, implementation evidence,
-      and declared dependencies.</p>
+    <p>What changed, compared with what should have happened, and what can we conclude?</p>
+    <p>Start with the story map to follow an investigation. Open a capability
+      to inspect its behavior, acceptance criteria, supporting evidence, and limits.</p>
     <ul>
+      <li><a href="story-map-viewer.html">Understand a change: interactive story map</a> —
+        follow the user journey and choose how to use analysis in your workflow.</li>
       <li><a href="dependency-viewer.html">Interactive dependency map</a> —
         explore dependencies and inspect acceptance coverage.</li>
-      <li><a href="story-map-viewer.html">Interactive capability map</a> —
-        browse capabilities and their review evidence.</li>
     </ul>
+    <ol>
+      <li>Supply comparable data.</li>
+      <li>Define the comparison, including expected patterns or related metrics.</li>
+      <li>Find changes, including early signals and changes within unfinished days.</li>
+      <li>Inspect findings and trace their supporting evidence.</li>
+      <li>Assess how much the history and expected baseline support a finding.</li>
+      <li>Apply your review policy to action and notification eligibility.</li>
+    </ol>
+    <p>Use analysis through the command line, Python, or read-only agent tools.
+      The caller owns notification delivery and operational actions.</p>
     <p class="note">Coverage reflects saved capability reviews. It does not
       measure detection accuracy on real-world data.</p>
     <a href="dependency-viewer.html"><img src="dependency-preview.svg"

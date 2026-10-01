@@ -1,4 +1,4 @@
-title: Replay action and notification eligibility
+title: Change action eligibility without rerunning analysis
 status: implemented
 summary: Callers can apply a different explicit action policy to existing
   assessments and cases without recomputing numerical analysis.
@@ -17,6 +17,12 @@ guidance:
     or confer authority to act.
   - Monitoring schedules, delivery, reviewed incident state, and deduplication
     belong to the caller.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Apply my review policy
+    release: Understand a change
+    order: 60
 #
 #
 agent:

@@ -1,4 +1,4 @@
-title: Evaluate a declared delayed response
+title: Check whether a metric follows its expected delayed response
 status: implemented
 summary: A lagged-response relationship compares current response with a
   supplied or training-fitted multiple of an earlier predictor.
@@ -16,6 +16,12 @@ acceptance:
 guidance:
   - Lag is measured in samples and is never searched automatically.
   - Exactly one of coefficient or training_size is required.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Define the comparison
+    release: Understand a change
+    order: 20
 #
 #
 agent:

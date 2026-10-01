@@ -1,4 +1,4 @@
-title: Describe early changes before calibration
+title: Spot early changes with a short history
 status: implemented
 summary: Short histories yield observations, changes, and departure candidates
   with explicit comparison populations and limits.
@@ -16,6 +16,12 @@ acceptance:
 guidance:
   - An early candidate does not establish an anomaly, stable baseline, cause, or
     incident.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Find changes
+    release: Understand a change
+    order: 30
 #
 #
 agent:

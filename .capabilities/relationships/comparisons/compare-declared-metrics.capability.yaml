@@ -1,4 +1,4 @@
-title: Compare rates, gaps, supplied expectations, and joint conditions
+title: Find changes in conversion, unit cost, and metric gaps
 status: implemented
 summary: Explicit relationships produce ratio, difference, normalized-residual,
   and joint-condition series with source-level lineage.
@@ -18,6 +18,12 @@ guidance:
   - A difference requires identical declared units; a normalized residual
     requires a positive supplied scale.
   - A joint condition is a declared 0/1 comparison, not statistical proof.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Define the comparison
+    release: Understand a change
+    order: 20
 #
 #
 agent:

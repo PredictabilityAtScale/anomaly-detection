@@ -1,4 +1,4 @@
-title: Prepare timestamps, duplicates, and event-time cutoffs
+title: Analyze observations in the right time order
 status: implemented
 summary: Timestamped observations are normalized to UTC, ordered, and checked
   against their declared cadence before analysis.
@@ -15,6 +15,12 @@ acceptance:
 guidance:
   - No interpolation, imputation, resampling, or unit conversion occurs.
   - Duplicate null values propagate through aggregation.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Supply comparable data
+    release: Understand a change
+    order: 10
 #
 #
 agent:

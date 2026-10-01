@@ -72,15 +72,24 @@ not support `reset_points`; both other recipes support explicit resets.
 The CapabilityKit maps describe Anomalyzer's observable behavior, acceptance
 criteria, implementation evidence, and dependencies.
 
+- [Interactive story map](https://predictabilityatscale.github.io/anomaly-detection/story-map-viewer.html): follow
+  the journey from comparable data to findings, supporting evidence, and review policy.
 - [Interactive dependency map](https://predictabilityatscale.github.io/anomaly-detection/dependency-viewer.html): explore
-  dependencies and inspect each capability's acceptance coverage.
-- [Interactive capability map](https://predictabilityatscale.github.io/anomaly-detection/story-map-viewer.html): browse
-  capabilities and their review evidence.
+  behavior dependencies and inspect each capability's acceptance coverage.
+
+Start with the **Understand a change** story map: supply comparable data, define
+the comparison, find changes, inspect findings, assess evidence support, and
+apply your review policy. A separate **Use analysis in my workflow** activity
+covers command-line, Python, and read-only agent access. Capability titles name
+user outcomes; summaries and acceptance criteria describe the precise behavior
+and its limits. The map describes the current product, not a promise of future
+releases. Review policy determines eligibility; the caller owns notification
+delivery and operational actions.
 
 The static preview below links to the hosted interactive dependency map. Coverage
 reflects saved capability reviews, not detection accuracy. The viewers also work
-locally: open [.capabilities/dependency-viewer.html](.capabilities/dependency-viewer.html)
-or [.capabilities/story-map-viewer.html](.capabilities/story-map-viewer.html) from a checkout.
+locally: open [.capabilities/story-map-viewer.html](.capabilities/story-map-viewer.html)
+or [.capabilities/dependency-viewer.html](.capabilities/dependency-viewer.html) from a checkout.
 
 [![Anomalyzer capability dependency graph](.capabilities/dependency-preview.svg)](https://predictabilityatscale.github.io/anomaly-detection/dependency-viewer.html)
 

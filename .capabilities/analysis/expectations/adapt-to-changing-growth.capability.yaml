@@ -1,4 +1,4 @@
-title: Update expectations as recent growth changes
+title: Follow evolving growth while exposing unusual values
 status: implemented
 summary: The adaptive recipe updates each expectation from a bounded window of
   earlier observations while retaining frozen residual calibration.
@@ -15,6 +15,12 @@ acceptance:
 guidance:
   - A persistent third extreme miss in one direction may be admitted to the
     rolling reference; this is not a manual regime reset.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Define the comparison
+    release: Understand a change
+    order: 20
 #
 #
 agent:

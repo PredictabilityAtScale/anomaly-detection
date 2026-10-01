@@ -1,4 +1,4 @@
-title: Analyze files and streams from the command line
+title: Analyze local files from the command line
 status: implemented
 summary: The CLI analyzes CSV, JSON requests, and bare JSON values from files or
   stdin, with configurable settings and protected output files.
@@ -18,6 +18,12 @@ guidance:
   - Exit 0 includes completed analysis with anomalies, insufficient history, or
     inapplicability; exit 2 means invalid input, and exit 1 means execution
     failure or partial execution.
+planning:
+  story_map:
+    backbone: Use analysis in my workflow
+    step: Choose a way to use analysis
+    release: Understand a change
+    order: 70
 #
 #
 agent:

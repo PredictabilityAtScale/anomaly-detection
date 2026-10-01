@@ -2,6 +2,9 @@ schema_version: "0.1"
 project:
   name: Anomalyzer
   description: Local time-series analysis with inspectable anomaly and relationship evidence.
+planning:
+  releases:
+    - Understand a change
 source:
   include:
     - "**/*.capability.yaml"

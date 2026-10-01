@@ -1,4 +1,4 @@
-title: Protect future references from extreme observations
+title: Limit how extreme values distort later comparisons
 status: implemented
 summary: Robust mode limits extreme observations' influence on trend fitting,
   residual calibration, and later seasonal references.
@@ -15,6 +15,12 @@ acceptance:
 guidance:
   - Protection keeps the observed evidence; it does not delete observations or
     certify that a departure was an incident.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Define the comparison
+    release: Understand a change
+    order: 20
 #
 #
 agent:

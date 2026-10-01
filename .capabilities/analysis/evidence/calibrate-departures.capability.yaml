@@ -1,4 +1,4 @@
-title: Separate early references from calibrated departures
+title: Understand how much history supports a finding
 status: implemented
 summary: Sample evidence distinguishes reference-only, provisional, and
   calibrated comparisons before permitting statistical point triggers.
@@ -16,6 +16,12 @@ guidance:
   - Evidence strength is not a probability of an incident.
   - Calibration and expectations are separate concerns; each declared regime
     calibrates again.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Assess evidence support
+    release: Understand a change
+    order: 50
 #
 #
 agent:

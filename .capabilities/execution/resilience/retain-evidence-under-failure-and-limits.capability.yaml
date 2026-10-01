@@ -1,4 +1,4 @@
-title: Retain useful evidence under failures and resource limits
+title: Keep useful evidence when analysis cannot finish
 status: implemented
 summary: Analysis applies cooperative resource limits and exposes partial or
   failed results without discarding valid earlier or sibling evidence.
@@ -17,6 +17,12 @@ guidance:
     and 60 seconds cooperative runtime.
   - Numerical results are deterministic for fixed declared settings; generated
     run IDs and runtimes vary.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Assess evidence support
+    release: Understand a change
+    order: 50
 #
 #
 agent:

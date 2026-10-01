@@ -1,4 +1,4 @@
-title: Analyze subperiods alongside completed daily aggregates
+title: See changes before the day is complete
 status: implemented
 summary: Multi-resolution analysis keeps native finalized subperiod evidence and
   completed fixed 24-hour aggregates, with a separate marker for the unfinished
@@ -19,6 +19,12 @@ guidance:
     days.
   - Native and daily views share source observations and are correlated.
   - This recipe supports schema 1.0 and does not support reset_points.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Find changes
+    release: Understand a change
+    order: 30
 #
 #
 agent:

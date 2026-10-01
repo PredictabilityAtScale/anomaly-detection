@@ -1,4 +1,4 @@
-title: Detect point departures and group adjacent episodes
+title: Find unusual spikes and drops
 status: implemented
 summary: Calibrated point-threshold crossings become inspectable observations,
   with adjacent crossings grouped into episodes.
@@ -15,6 +15,12 @@ acceptance:
 guidance:
   - Detection is a numerical departure from the selected expectation, not a
     claim about cause or business impact.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Find changes
+    release: Understand a change
+    order: 30
 #
 #
 agent:

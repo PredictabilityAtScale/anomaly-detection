@@ -1,4 +1,4 @@
-title: Explain evidence in readable CLI output
+title: Understand findings in a readable summary
 status: implemented
 summary: Readable CLI output distinguishes point episodes, pattern findings,
   cases, explicit rule violations, and reference readiness.
@@ -15,6 +15,12 @@ acceptance:
 guidance:
   - Readable summaries should retain the evidence's claim limits and allow
     drilldown into JSON.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Inspect findings
+    release: Understand a change
+    order: 40
 #
 #
 agent:

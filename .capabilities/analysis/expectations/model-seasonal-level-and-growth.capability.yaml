@@ -1,4 +1,4 @@
-title: Establish expectations for seasonal levels and growth
+title: Account for ordinary seasonal patterns and growth
 status: implemented
 summary: The default recipe builds an expectation from earlier matching seasonal
   observations and a training-fitted level, linear, or compound-growth model.
@@ -14,6 +14,12 @@ acceptance:
     unsupported trend modes are rejected.
 guidance:
   - Expectations support scoring; they are not a standalone forecasting API.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Define the comparison
+    release: Understand a change
+    order: 20
 #
 #
 agent:

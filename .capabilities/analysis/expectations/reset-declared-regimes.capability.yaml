@@ -1,4 +1,4 @@
-title: Restart expectations at declared regime boundaries
+title: Compare against a new baseline after a known change
 status: implemented
 summary: Caller-supplied reset points divide a single-resolution series into
   independently trained and calibrated regimes.
@@ -16,6 +16,12 @@ guidance:
   - Reset points are explicit caller decisions. Known-event notes and
     review-state fields do not rebuild regimes.
   - Multi-resolution analysis does not support reset_points.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Define the comparison
+    release: Understand a change
+    order: 20
 #
 #
 agent:

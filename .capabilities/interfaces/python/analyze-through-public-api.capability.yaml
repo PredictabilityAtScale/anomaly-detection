@@ -1,4 +1,4 @@
-title: Analyze data through the public Python API
+title: Embed local analysis in my application
 status: implemented
 summary: The public Python API accepts series or canonical requests and returns
   the same numerical analysis used by the CLI and MCP compatibility interfaces.
@@ -16,6 +16,12 @@ acceptance:
 guidance:
   - All interfaces use local analysis; there is no hosted service or model API
     requirement.
+planning:
+  story_map:
+    backbone: Use analysis in my workflow
+    step: Choose a way to use analysis
+    release: Understand a change
+    order: 70
 #
 #
 agent:

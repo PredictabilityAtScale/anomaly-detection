@@ -1,4 +1,4 @@
-title: Explain whether the reference deserves confidence
+title: Know when the expected baseline is weak
 status: implemented
 summary: Readiness diagnostics report supported, caution, or not_assessed based
   on the training pattern and calibration evidence.
@@ -15,6 +15,12 @@ acceptance:
 guidance:
   - Readiness does not prove real-world effectiveness and is not an automatic
     action-policy gate.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Assess evidence support
+    release: Understand a change
+    order: 50
 #
 #
 agent:

@@ -1,4 +1,4 @@
-title: Require compatible relationship sources
+title: Compare the same entity and time period
 status: implemented
 summary: Declared relationships require exact UTC timestamp alignment, shared
   cadence and entity scope, and compatible declared units.
@@ -18,6 +18,12 @@ guidance:
     normal.
   - No implicit timestamp matching, interpolation, unit conversion, or
     zero-filling occurs.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Supply comparable data
+    release: Understand a change
+    order: 10
 #
 #
 agent:

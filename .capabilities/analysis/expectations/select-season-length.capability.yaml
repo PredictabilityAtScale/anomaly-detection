@@ -1,4 +1,4 @@
-title: Use a declared season or infer a positional season
+title: Choose the repeating cycle for a fair comparison
 status: implemented
 summary: Callers can supply a season length; ordered values without one can use
   conservative season inference with a lag-one fallback.
@@ -17,6 +17,12 @@ guidance:
     streaming discovery.
   - Supply season_length explicitly when stable streaming season selection is
     required.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Define the comparison
+    release: Understand a change
+    order: 20
 #
 #
 agent:

@@ -1,4 +1,4 @@
-title: Check caller-declared numerical rules
+title: Find values that break my stated limits
 status: implemented
 summary: Acceptable ranges and maximum absolute or relative changes identify
   explicit criterion violations, including before calibration.
@@ -16,6 +16,12 @@ acceptance:
 guidance:
   - An exact rule crossing does not establish cause, an incident, or business
     impact.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Find changes
+    release: Understand a change
+    order: 30
 #
 #
 agent:

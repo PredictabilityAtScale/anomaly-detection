@@ -1,4 +1,4 @@
-title: Accept numeric series and explicit analysis requests
+title: Bring my metrics into an analysis
 status: implemented
 summary: Callers can submit ordered numeric values or versioned requests
   containing datasets, settings, context, and declared relationships.
@@ -18,6 +18,12 @@ guidance:
     request as a whole.
   - Describe current supported behavior; historical plans do not add accepted
     inputs.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Supply comparable data
+    release: Understand a change
+    order: 10
 #
 #
 agent:

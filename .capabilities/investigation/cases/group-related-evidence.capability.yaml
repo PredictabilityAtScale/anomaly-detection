@@ -1,4 +1,4 @@
-title: Group qualifying evidence into scoped investigation cases
+title: Investigate related findings together
 status: implemented
 summary: Qualifying assessments are grouped by event time and entity into cases
   with explanations, evidence references, and numerical severity.
@@ -18,6 +18,12 @@ guidance:
     validated incident impact.
   - Diagnostic trend, oscillation, mixture, and variation findings remain
     distinct from adaptive location-shift cases.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Inspect findings
+    release: Understand a change
+    order: 40
 #
 #
 agent:

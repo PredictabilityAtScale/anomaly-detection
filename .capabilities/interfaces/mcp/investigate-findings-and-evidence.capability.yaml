@@ -1,4 +1,4 @@
-title: Investigate findings through compact MCP tools
+title: Let an agent inspect the evidence behind a finding
 status: implemented
 summary: Agents can analyze a request, page through its findings, and retrieve
   supporting samples, assessments, readiness, and relationship lineage.
@@ -17,6 +17,12 @@ guidance:
   - Run results are retained only in the bounded server-session cache; missing
     or evicted run IDs require reanalysis.
   - Cases, episodes, and residual patterns may overlap.
+planning:
+  story_map:
+    backbone: Investigate a change
+    step: Inspect findings
+    release: Understand a change
+    order: 40
 #
 #
 agent:
