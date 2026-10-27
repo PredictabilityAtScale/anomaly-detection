@@ -147,6 +147,18 @@
           ],
           "title": "Timestamp"
         },
+        "event_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Id"
+        },
         "classification": {
           "enum": [
             "observation",
@@ -355,6 +367,18 @@
             }
           ],
           "title": "Event Time"
+        },
+        "event_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Id"
         },
         "detection_time": {
           "anyOf": [
@@ -897,6 +921,20 @@
             "type": "array"
           },
           "title": "Source Input Indexes",
+          "type": "object"
+        },
+        "source_event_ids": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Event Ids",
+          "type": "object"
+        },
+        "source_original_timestamps": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Original Timestamps",
           "type": "object"
         }
       },

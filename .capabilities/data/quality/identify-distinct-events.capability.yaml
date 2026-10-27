@@ -1,0 +1,363 @@
+title: Inspect distinct events sharing an original timestamp
+status: implemented
+summary: Callers supply stable logical event IDs so distinct comparable calls at
+  one timestamp retain separate values and evidence without inventing
+  chronology.
+intent: Make real per-call evidence consumable while protecting references,
+  replay and pattern interpretation from retry duplication and arbitrary tie
+  order.
+acceptance:
+  - Identified event-index sources retain every distinct event and its original
+    time, reject repeated logical IDs and preserve calendar and legacy
+    semantics.
+  - Without a trusted sequence, whole timestamp cohorts share prior-time point
+    references and ties cannot establish change, Nelson or CUSUM continuity.
+  - Explicit trusted sequence metadata establishes a validated event order, not
+    independence, elapsed cadence or operational authority.
+  - Event-specific evidence and case identities survive deterministic replay;
+    availability and identified corrections retain as-of provenance and bounded
+    results.
+guidance:
+  - Callers own identity authenticity, retry deduplication, compatible
+    populations and any assertion of trustworthy sequence. Sorting an ID
+    establishes no cause.
+  - Cases and overlapping findings are inspectable numerical evidence;
+    applications own incident deduplication, business severity and
+    notifications.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review data/quality/identify-distinct-events
+  # run deterministic review only: capabilitykit review data/quality/identify-distinct-events --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review data/quality/identify-distinct-events --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result data/quality/identify-distinct-events --input review.json
+  # -----------------------------
+  depends_on:
+    - data/inputs/accept-analysis-requests
+    - data/quality/analyze-sparse-observations
+    - analysis/detection/identify-residual-patterns
+  implementation:
+    references:
+      - src/anomalyzer/contracts.py
+      - src/anomalyzer/events.py
+      - src/anomalyzer/sparse.py
+      - src/anomalyzer/orchestrator.py
+      - src/anomalyzer/alignment.py
+      - src/anomalyzer/relationships.py
+      - src/anomalyzer/cases.py
+      - src/anomalyzer/mcp_views.py
+      - tests/test_events.py
+      - docs/sparse-data.md
+      - examples/sparse_examples.py
+      - examples/render_readme_progression.py
+  verification:
+    automated:
+      - id: identity-and-retries
+        description: Retain distinct tied calls and reject duplicate logical identities.
+        command: python -m pytest -q tests/test_events.py -k "identity or repeat or
+          distinct or reordering"
+      - id: honest-order
+        description: Keep point/range evidence and require actual declared order for
+          tied sequences.
+        command: python -m pytest -q tests/test_events.py -k "cohort or ties or trusted
+          or reset or lag"
+      - id: reproducible-replay
+        description: Preserve prefix, as-of, addressed corrections and case revisions.
+        command: python -m pytest -q tests/test_events.py -k "prefix or asof or
+          correction or revision or reference"
+      - id: public-consumers
+        description: Validate schemas, Python, CLI, MCP retrieval and bounded response
+          growth.
+        command: python -m pytest -q tests/test_events.py -k "python_schema or bounded"
+    manual:
+      - Inspect progression figures 23–24 and the API guide for exact original
+        times, layout versus trusted order, retry responsibility and overlapping
+        evidence limits.
+  review:
+    depth: partial
+    source: deterministic-assessment
+    intent_summary: Implementation evidence synchronized from deterministic
+      assessment for data/quality/identify-distinct-events.
+    done: false
+    criteria:
+      - criterion: Identified event-index sources retain every distinct event and its
+          original time, reject repeated logical IDs and preserve calendar and
+          legacy semantics.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:81
+          - src/anomalyzer/contracts.py:118
+          - src/anomalyzer/contracts.py:192
+          - src/anomalyzer/contracts.py:193
+          - src/anomalyzer/contracts.py:241
+          - src/anomalyzer/events.py:1
+          - src/anomalyzer/events.py:14
+          - src/anomalyzer/events.py:22
+          - src/anomalyzer/events.py:23
+          - src/anomalyzer/events.py:26
+          - src/anomalyzer/sparse.py:4
+          - src/anomalyzer/sparse.py:23
+          - src/anomalyzer/sparse.py:46
+          - src/anomalyzer/sparse.py:60
+          - src/anomalyzer/sparse.py:62
+          - src/anomalyzer/orchestrator.py:21
+          - src/anomalyzer/orchestrator.py:84
+          - src/anomalyzer/orchestrator.py:90
+          - src/anomalyzer/orchestrator.py:94
+          - src/anomalyzer/orchestrator.py:100
+          - src/anomalyzer/alignment.py:14
+          - src/anomalyzer/alignment.py:33
+          - src/anomalyzer/alignment.py:46
+          - src/anomalyzer/alignment.py:47
+          - src/anomalyzer/alignment.py:48
+          - src/anomalyzer/relationships.py:7
+          - src/anomalyzer/relationships.py:19
+          - src/anomalyzer/relationships.py:33
+          - src/anomalyzer/relationships.py:34
+          - src/anomalyzer/relationships.py:35
+          - src/anomalyzer/cases.py:16
+          - src/anomalyzer/cases.py:18
+          - src/anomalyzer/cases.py:20
+          - src/anomalyzer/cases.py:22
+          - src/anomalyzer/cases.py:24
+          - src/anomalyzer/mcp_views.py:68
+          - src/anomalyzer/mcp_views.py:71
+          - src/anomalyzer/mcp_views.py:76
+          - src/anomalyzer/mcp_views.py:77
+          - src/anomalyzer/mcp_views.py:89
+          - tests/test_events.py:1
+          - tests/test_events.py:22
+          - tests/test_events.py:24
+          - tests/test_events.py:25
+          - tests/test_events.py:41
+          - docs/sparse-data.md:49
+          - docs/sparse-data.md:72
+          - docs/sparse-data.md:73
+          - docs/sparse-data.md:76
+          - docs/sparse-data.md:82
+          - examples/sparse_examples.py:36
+          - examples/sparse_examples.py:57
+          - examples/sparse_examples.py:65
+          - examples/sparse_examples.py:66
+          - examples/sparse_examples.py:69
+          - examples/render_readme_progression.py:141
+          - examples/render_readme_progression.py:301
+          - examples/render_readme_progression.py:303
+          - examples/render_readme_progression.py:373
+          - examples/render_readme_progression.py:413
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Without a trusted sequence, whole timestamp cohorts share prior-time
+          point references and ties cannot establish change, Nelson or CUSUM
+          continuity.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:54
+          - src/anomalyzer/contracts.py:145
+          - src/anomalyzer/contracts.py:246
+          - src/anomalyzer/contracts.py:255
+          - src/anomalyzer/contracts.py:256
+          - src/anomalyzer/events.py:26
+          - src/anomalyzer/events.py:27
+          - src/anomalyzer/events.py:28
+          - src/anomalyzer/events.py:37
+          - src/anomalyzer/events.py:46
+          - src/anomalyzer/sparse.py:1
+          - src/anomalyzer/sparse.py:23
+          - src/anomalyzer/sparse.py:49
+          - src/anomalyzer/sparse.py:54
+          - src/anomalyzer/sparse.py:60
+          - src/anomalyzer/orchestrator.py:11
+          - src/anomalyzer/orchestrator.py:39
+          - src/anomalyzer/orchestrator.py:130
+          - src/anomalyzer/orchestrator.py:144
+          - src/anomalyzer/orchestrator.py:170
+          - src/anomalyzer/alignment.py:62
+          - src/anomalyzer/relationships.py:38
+          - src/anomalyzer/relationships.py:44
+          - src/anomalyzer/relationships.py:164
+          - src/anomalyzer/relationships.py:166
+          - src/anomalyzer/relationships.py:168
+          - src/anomalyzer/cases.py:11
+          - src/anomalyzer/cases.py:25
+          - src/anomalyzer/cases.py:31
+          - src/anomalyzer/cases.py:44
+          - src/anomalyzer/mcp_views.py:76
+          - src/anomalyzer/mcp_views.py:188
+          - src/anomalyzer/mcp_views.py:304
+          - src/anomalyzer/mcp_views.py:322
+          - src/anomalyzer/mcp_views.py:326
+          - tests/test_events.py:18
+          - tests/test_events.py:23
+          - tests/test_events.py:30
+          - tests/test_events.py:47
+          - tests/test_events.py:56
+          - docs/sparse-data.md:30
+          - docs/sparse-data.md:87
+          - docs/sparse-data.md:92
+          - docs/sparse-data.md:105
+          - docs/sparse-data.md:110
+          - examples/sparse_examples.py:65
+          - examples/sparse_examples.py:67
+          - examples/sparse_examples.py:74
+          - examples/sparse_examples.py:81
+          - examples/sparse_examples.py:83
+          - examples/render_readme_progression.py:346
+          - examples/render_readme_progression.py:349
+          - examples/render_readme_progression.py:352
+          - examples/render_readme_progression.py:477
+          - examples/render_readme_progression.py:542
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Explicit trusted sequence metadata establishes a validated event
+          order, not independence, elapsed cadence or operational authority.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:246
+          - src/anomalyzer/contracts.py:255
+          - src/anomalyzer/contracts.py:256
+          - src/anomalyzer/contracts.py:268
+          - src/anomalyzer/contracts.py:296
+          - src/anomalyzer/events.py:1
+          - src/anomalyzer/events.py:50
+          - src/anomalyzer/events.py:71
+          - src/anomalyzer/events.py:80
+          - src/anomalyzer/events.py:84
+          - src/anomalyzer/sparse.py:46
+          - src/anomalyzer/sparse.py:62
+          - src/anomalyzer/sparse.py:93
+          - src/anomalyzer/sparse.py:170
+          - src/anomalyzer/sparse.py:182
+          - src/anomalyzer/orchestrator.py:24
+          - src/anomalyzer/orchestrator.py:142
+          - src/anomalyzer/orchestrator.py:193
+          - src/anomalyzer/orchestrator.py:209
+          - src/anomalyzer/orchestrator.py:213
+          - src/anomalyzer/alignment.py:64
+          - src/anomalyzer/alignment.py:66
+          - src/anomalyzer/alignment.py:68
+          - src/anomalyzer/relationships.py:38
+          - src/anomalyzer/relationships.py:198
+          - src/anomalyzer/relationships.py:205
+          - src/anomalyzer/cases.py:59
+          - src/anomalyzer/cases.py:62
+          - src/anomalyzer/cases.py:115
+          - src/anomalyzer/cases.py:118
+          - src/anomalyzer/mcp_views.py:76
+          - src/anomalyzer/mcp_views.py:152
+          - src/anomalyzer/mcp_views.py:380
+          - src/anomalyzer/mcp_views.py:385
+          - tests/test_events.py:29
+          - tests/test_events.py:30
+          - tests/test_events.py:80
+          - tests/test_events.py:81
+          - tests/test_events.py:121
+          - docs/sparse-data.md:117
+          - docs/sparse-data.md:135
+          - docs/sparse-data.md:136
+          - docs/sparse-data.md:137
+          - docs/sparse-data.md:138
+          - examples/sparse_examples.py:87
+          - examples/sparse_examples.py:88
+          - examples/sparse_examples.py:89
+          - examples/render_readme_progression.py:918
+          - examples/render_readme_progression.py:921
+          - examples/render_readme_progression.py:1024
+          - examples/render_readme_progression.py:1037
+          - examples/render_readme_progression.py:1038
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Event-specific evidence and case identities survive deterministic
+          replay; availability and identified corrections retain as-of
+          provenance and bounded results.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:308
+          - src/anomalyzer/contracts.py:315
+          - src/anomalyzer/contracts.py:319
+          - src/anomalyzer/contracts.py:596
+          - src/anomalyzer/contracts.py:597
+          - src/anomalyzer/events.py:1
+          - src/anomalyzer/events.py:14
+          - src/anomalyzer/events.py:100
+          - src/anomalyzer/events.py:102
+          - src/anomalyzer/events.py:165
+          - src/anomalyzer/sparse.py:182
+          - src/anomalyzer/sparse.py:194
+          - src/anomalyzer/sparse.py:195
+          - src/anomalyzer/sparse.py:202
+          - src/anomalyzer/sparse.py:333
+          - src/anomalyzer/orchestrator.py:122
+          - src/anomalyzer/orchestrator.py:143
+          - src/anomalyzer/orchestrator.py:155
+          - src/anomalyzer/orchestrator.py:162
+          - src/anomalyzer/orchestrator.py:164
+          - src/anomalyzer/alignment.py:63
+          - src/anomalyzer/alignment.py:66
+          - src/anomalyzer/relationships.py:35
+          - src/anomalyzer/relationships.py:198
+          - src/anomalyzer/relationships.py:203
+          - src/anomalyzer/relationships.py:205
+          - src/anomalyzer/cases.py:29
+          - src/anomalyzer/cases.py:30
+          - src/anomalyzer/cases.py:33
+          - src/anomalyzer/cases.py:37
+          - src/anomalyzer/cases.py:62
+          - src/anomalyzer/mcp_views.py:12
+          - src/anomalyzer/mcp_views.py:14
+          - src/anomalyzer/mcp_views.py:76
+          - src/anomalyzer/mcp_views.py:77
+          - src/anomalyzer/mcp_views.py:88
+          - tests/test_events.py:1
+          - tests/test_events.py:12
+          - tests/test_events.py:36
+          - tests/test_events.py:49
+          - tests/test_events.py:51
+          - docs/sparse-data.md:36
+          - docs/sparse-data.md:96
+          - docs/sparse-data.md:99
+          - docs/sparse-data.md:110
+          - docs/sparse-data.md:114
+          - examples/sparse_examples.py:39
+          - examples/sparse_examples.py:72
+          - examples/sparse_examples.py:73
+          - examples/sparse_examples.py:77
+          - examples/sparse_examples.py:80
+          - examples/render_readme_progression.py:3
+          - examples/render_readme_progression.py:781
+          - examples/render_readme_progression.py:782
+          - examples/render_readme_progression.py:787
+          - examples/render_readme_progression.py:798
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+    gaps:
+      - Identified event-index sources retain every distinct event and its
+        original time, reject repeated logical IDs and preserve calendar and
+        legacy semantics. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Without a trusted sequence, whole timestamp cohorts share prior-time
+        point references and ties cannot establish change, Nelson or CUSUM
+        continuity. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Explicit trusted sequence metadata establishes a validated event order,
+        not independence, elapsed cadence or operational authority. Review the
+        cited evidence. If it is correct, save agent.review evidence or make the
+        criterion/reference wording more explicit.
+      - Event-specific evidence and case identities survive deterministic
+        replay; availability and identified corrections retain as-of provenance
+        and bounded results. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.

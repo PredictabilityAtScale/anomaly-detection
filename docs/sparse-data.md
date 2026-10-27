@@ -1,16 +1,16 @@
-# Sparse observations in Anomalyzer 0.2
+# Sparse observations in Anomalyzer 0.3
 
 An empty hour does not tell us whether nothing happened or collection failed.
 Schema 1.1 therefore preserves missing values by default. An expectation can be
 shown separately; it is never inserted as an observed measurement. Schema 1.0
 keeps its existing complete-series behavior and unchanged schemas.
 Schema 1.1 gains optional source and result fields. Upgrade strict schema-1.1
-producers/readers together to 0.2; an older strict result model is not promised to
+producers/readers together to 0.3 for the extended identity contract; an older strict result model is not promised to
 accept the new metadata. Complete legacy requests remain accepted. Record the
 package version and method `profile_revision` with Guard's own profile revision.
 
 The numbered [README progression](../README.md#14-choose-what-an-empty-period-means)
-continues with chapters 14–22. Fixtures live in [examples/sparse](../examples/sparse/).
+continues with chapters 14–24. Fixtures live in [examples/sparse](../examples/sparse/).
 Run `python examples/generate.py`, `python examples/run_demo.py` and
 `python examples/render_readme_progression.py --only-sparse` to reproduce them.
 The examples demonstrate mechanics, not measured abuse accuracy.
@@ -107,8 +107,124 @@ retains its unique-source requirement. With an explicit `data_policy`, complete,
 unrevisioned calendar duplicates can follow the declared `duplicate_policy`
 (`sum` or `mean`); original values/indexes remain in `duplicate_sources`. Nulls
 propagate. Duplicates involving incomplete coverage or revision metadata are
-rejected. Event-index timestamps must be unique; ties are refused rather than
-assigned invented times or counted as multiple independent events.
+rejected. Event-index timestamps without `event_ids` must be unique; identified
+events follow the separate contract below. Calendar duplicate policies do not
+deduplicate logical events.
+
+## Stable event identities since 0.3.0
+
+Schema 1.1 adds the optional **`event-identity-v1`** contract. It is selected by
+aligned `DatasetV11.event_ids` on an explicitly declared event-index source:
+
+```python
+from anomalyzer import analyze_series, DataPolicy, DatasetV11, SampleRevision
+
+calls = DatasetV11(
+    id="call-cost", entity={"application": "synthetic"}, units="dollars_per_call",
+    timestamps=["2026-01-01T09:00:10.789Z", "2026-01-01T09:00:10.789Z"],
+    values=[0.80, 0.12], event_ids=["call-A", "call-B"],
+    data_policy=DataPolicy(observation_basis="event_index"),
+    rules=[{"id": "illustrative-cap", "kind": "acceptable_range", "minimum": 0, "maximum": 0.20}],
+)
+result = analyze_series(calls, {"season_length": 1, "trend": "none"})
+assert result.cases[0].event_id == "call-A"  # range rule; no learned baseline yet
+```
+
+| Field | Contract |
+| --- | --- |
+| `event_ids` | Optional array aligned with original values/timestamps; every ID is a unique, case-sensitive string of 1–128 characters with no surrounding whitespace or line breaks. IDs require explicit event-index policy, original timestamps and no frequency. |
+| `data_policy.event_order` | `"timestamp"` by default. Sort by normalized time then exact ID for deterministic layout; equal-time ID order is **not** temporal order. |
+| `event_sequence` | Optional aligned array of unique strict integers in 0…9223372036854775807. Requires `event_order="trusted_sequence"` and IDs. Ordinals must agree with nondecreasing original timestamps. Gaps in ordinals are allowed and do not represent missing events or elapsed time. |
+| `SampleRevision.event_id` | Required for every revision of an identified source. It addresses an existing ID at exactly the same original timestamp. A revision changes value/coverage, never event identity, time or sequence. |
+
+The caller owns ID authenticity and namespace, retry deduplication and the
+comparability of measurements across customer/application/model/workload scope.
+The library cannot detect two aliases for the same call, prove a supplied ID is
+authentic, or establish independence from distinct IDs. Two deliveries of one
+logical event must keep one ID. Duplicate IDs in a request are rejected even if
+the delivered bytes match; deduplicate upstream. Across datasets, use the same ID
+only for measurements of the same logical event in the same declared entity.
+
+Without trusted sequence, a timestamp cohort cannot train or calibrate its own
+members. The engine admits the **whole eligible cohort** to the current training
+or calibration stage, so actual counts can exceed the configured minimum. A later
+timestamp uses the resulting frozen reference. All evaluation calls at the same
+time receive point comparisons against the same prior-time reference. Calibration
+cohorts are reference-only; this profile does not invent provisional within-cohort
+scores. `profile_revision="identified-events-v1"` and
+`data_quality.event_identity_contract="event-identity-v1"` record those semantics.
+
+An unordered tied cohort breaks change rules and descriptive prior populations
+before each tied member and immediately afterwards. Per-event range rules and
+appropriate point evidence remain usable. Tied members are excluded from Nelson,
+CUSUM, moving-range and adjacent-point runs; the remaining sequences break at
+their positions. Identified sequence patterns require at least two ordered
+evaluation points, so a lone large residual cannot masquerade as an accumulated
+sequence. Point episodes are per event and can overlap its case and range evidence.
+
+Only assert an actual trusted sequence when the source establishes event order:
+
+```python
+ordered = calls.model_copy(update={
+    "event_sequence": [410, 411],
+    "data_policy": DataPolicy(observation_basis="event_index", event_order="trusted_sequence"),
+})
+```
+
+This allows order-based references and sequence checks even when clock timestamps
+tie. It does not establish causation, statistical independence or elapsed rates.
+An integer reset may split trusted sequence; an unordered timestamp reset starts
+the whole cohort and a positional reset inside it is rejected. `reference_gaps="restart"`
+starts after an incomplete cohort rather than splitting its unordered members.
+
+Availability filters events **before** their coordinate/reference is constructed.
+Unannotated arrivals remain event-time snapshots, not known delivery history.
+Revisions must arrive strictly after the initial observation's supplied availability
+(or event time when absent); event/availability pairs and revision IDs are unique
+per logical event. The latest eligible revision wins independently of input order:
+
+```python
+correction = SampleRevision(event_id="call-A", timestamp=calls.timestamps[0],
+    value=0.85, available_at="2026-01-01T09:01:00Z", revision_id="corrected-cost-1")
+corrected = calls.model_copy(update={"revisions": [correction]})
+earlier = analyze_series(corrected, context={"as_of": "2026-01-01T09:00:30Z"})
+later = analyze_series(corrected, context={"as_of": "2026-01-01T09:02:00Z"})
+```
+
+Repeated valid snapshots and later-timestamp prefix extensions preserve prior
+point evidence. Adding another member to an **open same-time cohort** can change
+its available support and the interpretation of whether an order comparison was
+possible; it is not a finalized chronological prefix. Late arrivals with explicit
+availability never change an earlier as-of snapshot. A later snapshot may revise
+references after a late arrival/correction; persist the request and availability
+history if historical reconstruction is required. The engine maintains no durable
+delivery ledger or cross-request duplicate registry.
+
+Quality `samples` retain `event_id`, `original_timestamp`, `event_sequence`,
+original input indexes, `initial_value`, selected value, availability, revision ID
+and a selected-input fingerprint. Evidence IDs use stable event identity within
+the declared entity/target scope rather than array position; the existing `index`
+still links into prepared samples.
+`Assessment.event_id` and `Case.event_id` identify the call. A correction keeps the
+case ID while changing its revision when its numerical support changes. Entity
+scope and contributing targets also form case identity. Caller policy still owns
+notification/incident deduplication; a case, point episode and rule finding can be
+overlapping descriptions of the same call.
+
+CLI JSON and MCP accept the same fields. MCP case findings expose `event_id`;
+`get_evidence.source_samples` returns bounded source identity/provenance beside
+the selected evidence. Exact relationships between identified datasets require
+matching ID arrays, original UTC times and order contracts, with
+`LineagePoint.source_event_ids` and `source_original_timestamps`. A lagged
+relationship cannot use unordered tied events. Completed-day event-index
+aggregation remains unavailable. Calendar and legacy unique-time inputs keep
+their existing behavior; IDs cannot be used to bypass a calendar duplicate rule.
+
+All raw events plus revisions share the existing request point/byte/runtime
+budgets. Results grow with retained events and evidence; point limits are not a
+small-response guarantee. MCP summaries stay compact and drilldowns are paged.
+The standalone benchmark includes a 1,344-event workload with four distinct calls
+at each recorded timestamp; CI records actual result bytes and warm timings.
 
 ## What sparse statistical support means
 

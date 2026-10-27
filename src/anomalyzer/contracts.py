@@ -243,6 +243,7 @@ class DataPolicy(Contract):
     measurement: Literal["measurement", "additive_volume"] = "measurement"
     absence_means_zero: bool = False
     observation_basis: Literal["calendar", "event_index"] = "calendar"
+    event_order: Literal["timestamp", "trusted_sequence"] = "timestamp"
     reference_gaps: Literal["same_phase", "restart"] = "same_phase"
     grid_start: str | None = None
     grid_end: str | None = None
@@ -251,6 +252,8 @@ class DataPolicy(Contract):
 
     @model_validator(mode="after")
     def meaningful(self):
+        if self.event_order == "trusted_sequence" and self.observation_basis != "event_index":
+            raise ValueError("trusted_sequence requires event_index")
         if (self.missing == "zero_for_empty" or self.absence_means_zero) and self.measurement != "additive_volume":
             raise ValueError("zero-for-empty requires measurement='additive_volume'")
         if self.absence_means_zero and self.missing != "zero_for_empty":
@@ -262,6 +265,7 @@ class DataPolicy(Contract):
 
 
 Coverage = Literal["complete", "empty", "unknown", "incomplete", "excluded", "revised"]
+EventId = Annotated[str, Field(min_length=1, max_length=128, strict=True, pattern=r"^\S(?:.*\S)?$")]
 
 
 class SampleRevision(Contract):
@@ -270,6 +274,7 @@ class SampleRevision(Contract):
     available_at: str
     revision_id: str = Field(min_length=1)
     coverage: Coverage = "revised"
+    event_id: EventId | None = None
 
     @field_validator("value", mode="before")
     @classmethod
@@ -287,10 +292,12 @@ class DatasetV11(Dataset):
     coverage: list[Coverage] | None = None
     available_at: list[str | None] | None = None
     revisions: list[SampleRevision] = Field(default_factory=list)
+    event_ids: list[EventId] | None = Field(default=None, json_schema_extra={"uniqueItems": True})
+    event_sequence: list[Annotated[int, Field(ge=0, le=9223372036854775807, strict=True)]] | None = Field(default=None, json_schema_extra={"uniqueItems": True})
 
     @model_validator(mode="after")
     def source_annotations(self):
-        for name in ("coverage", "available_at"):
+        for name in ("coverage", "available_at", "event_ids", "event_sequence"):
             annotation = getattr(self, name)
             if annotation is not None and len(annotation) != len(self.values):
                 raise ValueError(f"{name} and values must have equal length")
@@ -298,6 +305,24 @@ class DatasetV11(Dataset):
             raise ValueError("source policies/coverage/revisions require original timestamps")
         if self.data_policy and self.data_policy.observation_basis == "event_index" and self.frequency is not None:
             raise ValueError("event_index must omit frequency; event position is not elapsed cadence")
+        identified = self.event_ids is not None
+        if identified:
+            if self.timestamps is None or self.data_policy is None or self.data_policy.observation_basis != "event_index":
+                raise ValueError("event_ids require original timestamps and an explicit event_index policy")
+            if len(set(self.event_ids)) != len(self.event_ids):
+                raise ValueError("duplicate logical event IDs; deduplicate retry deliveries before analysis")
+            if any(revision.event_id is None for revision in self.revisions):
+                raise ValueError("identified event revisions require event_id")
+        elif any(revision.event_id is not None for revision in self.revisions):
+            raise ValueError("revision event_id requires dataset event_ids")
+        trusted = self.data_policy is not None and self.data_policy.event_order == "trusted_sequence"
+        if trusted and (not identified or self.event_sequence is None):
+            raise ValueError("trusted_sequence requires event_ids and aligned event_sequence")
+        if self.event_sequence is not None:
+            if not trusted:
+                raise ValueError("event_sequence requires an explicit trusted_sequence contract")
+            if len(set(self.event_sequence)) != len(self.event_sequence):
+                raise ValueError("event_sequence must contain unique ordinals")
         return self
 
     @field_validator("rules", "completed_period_rules")
@@ -445,6 +470,7 @@ class Assessment(Contract):
     target_id: str
     index: int
     timestamp: str | None
+    event_id: str | None = None
     classification: Classification
     maturity: Maturity
     basis: Basis
@@ -486,6 +512,8 @@ class LineagePoint(Contract):
     source_revision_ids: dict[str, str | None] = Field(default_factory=dict)
     source_available_at: dict[str, str | None] = Field(default_factory=dict)
     source_input_indexes: dict[str, list[int]] = Field(default_factory=dict)
+    source_event_ids: dict[str, str] = Field(default_factory=dict)
+    source_original_timestamps: dict[str, str] = Field(default_factory=dict)
 
 
 class DatasetResultV11(Contract):
@@ -533,6 +561,7 @@ class Case(Contract):
     revision_id: str
     entity: dict[str, str]
     event_time: str | int
+    event_id: str | None = None
     detection_time: str | int
     source_availability_cutoff: str | int
     contributing_dataset_ids: list[str]

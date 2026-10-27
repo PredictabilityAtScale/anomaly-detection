@@ -118,6 +118,16 @@ def main():
     events = {**sparse["datasets"][0], "data_policy":{"observation_basis":"event_index"}}
     events.pop("frequency")
     assert analyze_series(events, sparse["config"]).dataset_results[0].data_quality["coordinate"] == "event_index"
+    identified = dict(id="call-cost", entity={"application":"synthetic"}, units="dollars_per_call",
+        timestamps=["2026-01-01T00:00:00Z"]*2+["2026-01-01T01:00:00Z"]*3+["2026-01-01T02:00:00Z"]*2,
+        values=[.10,.10,.09,.10,.11,.80,.90], event_ids=[f"call-{i}" for i in range(7)],
+        data_policy={"observation_basis":"event_index"},
+        rules=[{"id":"example-cap","kind":"acceptable_range","minimum":0,"maximum":.20}])
+    actual = analyze_series(identified, {"season_length":1,"training_size":2,"calibration_size":3,"trend":"none"})
+    assert {case.event_id for case in actual.cases} == {"call-5","call-6"}
+    assert not actual.dataset_results[0].anomaly_patterns
+    assert actual.dataset_results[0].data_quality["event_identity_contract"] == "event-identity-v1"
+    assert [case.id for case in analyze_series(identified, {"training_size":2,"calibration_size":3,"trend":"none"}).cases] == [case.id for case in actual.cases]
     print(json.dumps({"version": anomalyzer.__version__, "status": result.status,
                       "cases": len(result.cases), "offline": True,
                       "pydantic_core": pydantic_core.__file__}))

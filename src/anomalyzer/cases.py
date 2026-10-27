@@ -43,11 +43,11 @@ def compose_cases(dataset_results: list[DatasetResultV11],
         event = assessment.timestamp if assessment.timestamp is not None else assessment.index
         entity = entities[source_id]
         entity_key = json.dumps(entity, sort_keys=True, separators=(",", ":"))
-        grouped.setdefault((event, entity_key), []).append(
+        grouped.setdefault((event, entity_key, assessment.event_id), []).append(
             (source_kind, source_id, assessment))
     cases = []
-    for (event, entity_key), items in sorted(
-            grouped.items(), key=lambda item: (str(item[0][0]), item[0][1])):
+    for (event, entity_key, event_id), items in sorted(
+            grouped.items(), key=lambda item: (str(item[0][0]), item[0][1], str(item[0][2]))):
         entity = json.loads(entity_key)
         datasets = sorted({source_id for kind, source_id, _ in items if kind == "dataset"})
         relationships = sorted({source_id for kind, source_id, _ in items if kind == "relationship"})
@@ -56,9 +56,10 @@ def compose_cases(dataset_results: list[DatasetResultV11],
                       {assessment.id for _, _, assessment in items})
         stable_material = json.dumps(
             {"event": event, "entity": entity, "datasets": datasets,
-             "relationships": relationships},
+             "relationships": relationships, **({"event_id": event_id} if event_id is not None else {})},
             sort_keys=True, separators=(",", ":"))
-        case_id = "case:" + hashlib.sha256(stable_material.encode()).hexdigest()[:16]
+        case_digest = hashlib.sha256(stable_material.encode()).hexdigest()
+        case_id = "case:" + (case_digest if event_id is not None else case_digest[:16])
         maturity_order = {
             "observation_only": 0, "early": 1, "provisional": 2, "calibrated": 3,
         }
@@ -110,13 +111,16 @@ def compose_cases(dataset_results: list[DatasetResultV11],
             "explanation": explanation,
             "action_eligible": action,
             "notification_eligible": notification,
+            **({"assessments": [assessment.model_dump(exclude={"index"})
+                for _, _, assessment in sorted(items, key=lambda entry: entry[2].id)]} if event_id is not None else {}),
         }, sort_keys=True, separators=(",", ":"))
-        revision_id = case_id + ":" + hashlib.sha256(
-            revision_material.encode()).hexdigest()[:12]
+        revision_digest = hashlib.sha256(revision_material.encode()).hexdigest()
+        revision_id = case_id + ":" + (revision_digest if event_id is not None else revision_digest[:12])
         correlation_group = sorted(
             assessment.id for _, _, assessment in items)
         cases.append(Case(
             id=case_id, revision_id=revision_id, entity=entity, event_time=event,
+            event_id=event_id,
             detection_time=max([event, *[assessment.baseline.get("known_input_availability_cutoff", event)
                                         for _, _, assessment in items]], key=str),
             source_availability_cutoff=max([event, *[assessment.baseline.get("known_input_availability_cutoff", event)

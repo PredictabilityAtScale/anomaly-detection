@@ -30,7 +30,7 @@ For application builds without a source checkout, use a pinned wheel from
 [GitHub Releases](https://github.com/PredictabilityAtScale/anomaly-detection/releases).
 The [release and library-consumer guide](docs/releases/README.md) explains the
 first release, dependency hashes, upgrades and Linux/Python 3.12 bundling for Guard.
-Version 0.2.1 includes the sparse-data progression in chapters 14–22. Tagged
+Version 0.3.0 includes the sparse-data progression in chapters 14–24. Tagged
 artifacts are published after the workflow passes and the owner seals the draft.
 
 Install from a checkout with Python 3.11–3.13:
@@ -193,7 +193,7 @@ when visualization is unavailable.
 Schema 1.0 is the single-series contract. Schema 1.1 adds named datasets,
 relationships, assessments, policy, and cases; it also works with one dataset
 and no relationships. Both use the same analysis core through CLI, Python, and
-MCP. Sparse schema-1.1 and multi-resolution support is described in chapters 14–22.
+MCP. Sparse schema-1.1, multi-resolution and identified events are described in chapters 14–24.
 The legacy schema-1.0 multi-resolution profile does
 not support `reset_points`; both other recipes support explicit resets.
 
@@ -729,6 +729,54 @@ grid expansion, event-index restrictions, availability/correction semantics and
 the remaining complete-span restrictions. All new fixtures run through
 `examples/run_demo.py`; the existing generator and figure renderer reproduce the
 full progression.
+
+### 23. Keep distinct calls at the same recorded time
+
+Two completed calls can share the exact timestamp while having different costs.
+The [identified-call example](examples/sparse/identified_calls.json) supplies
+aligned `event_ids` under `data_policy.observation_basis="event_index"`.
+It retains all ten original calls: three in the training cohort, four in the
+calibration cohort, and three at `09:00:10.789Z`. The last three cost $0.80,
+$0.12 and $0.90. They remain three observations at the same time; no jitter,
+averaging or delivery order is introduced.
+
+![Distinct call costs at exact shared timestamps, with separate IDs and a frozen prior-time reference](docs/images/anomaly-progression-23-same-time-calls.png)
+
+The $0.80 and $0.90 calls each have inspectable point/range evidence and a distinct
+`Case.event_id`. A whole timestamp cohort finishes training or calibration before
+a later cohort can use that reference; alphabetical ID order never trains one
+same-time call on another. Actual support can therefore exceed the requested
+minimum training/calibration count. Event IDs and source indexes link evidence
+back to the original measurements. Separate findings do not imply separate
+notifications or independent confirmations.
+
+### 24. Declare identity, retries and order separately
+
+`event-identity-v1` requires caller-trusted logical IDs. A retry keeps the same
+ID; the [duplicate-delivery fixture](examples/sparse/identified_retry.json) is
+rejected instead of counted as another call. Repeating a valid snapshot preserves
+its case and evidence IDs. The [correction fixture](examples/sparse/identified_corrected.json)
+addresses `call-07` using `SampleRevision.event_id`, keeps its original timestamp,
+and changes its case revision while retaining the case ID. The
+[earlier as-of snapshot](examples/sparse/identified_before_correction.json) still
+returns the original evidence.
+
+![Identical same-time residuals support points but no timestamp-only sequence pattern; an explicit trusted sequence permits order-based checks](docs/images/anomaly-progression-24-event-order.png)
+
+In the [timestamp-only example](examples/sparse/identified_pattern_ties.json),
+twelve comparable evaluation calls share one timestamp. Their point reference
+is usable, but their ID layout cannot establish change-rule, Nelson, CUSUM or
+moving-range continuity. Each tied call breaks those comparisons. There is no
+sequence-pattern case in this example.
+
+The [ordered variant](examples/sparse/identified_pattern_sequence.json) adds
+`data_policy.event_order="trusted_sequence"` and unique aligned integer
+`event_sequence` ordinals. Only a caller with an actual trustworthy ordering
+contract should assert that order. The same timestamps stay unchanged; the
+declared sequence permits residual pattern checks without establishing elapsed
+rates, causal explanation or independence. Without IDs, the existing unique-time
+event-index contract continues unchanged. See the [API guide](docs/sparse-data.md#stable-event-identities-since-030)
+for validation, replay, alignment and caller responsibilities.
 
 ## Baseline and calibration reference
 

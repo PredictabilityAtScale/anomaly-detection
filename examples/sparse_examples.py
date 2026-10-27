@@ -62,13 +62,46 @@ def fixtures():
     daily["datasets"][0]["coverage"] = ["complete"]*59+["incomplete"]
     daily["datasets"][0]["values"][-1] = 3
     result["unfinished_daily"] = daily
+    # Genuine distinct calls share the recorded timestamp; IDs do not order them.
+    same_time = {"id":"call-cost", "entity":{"application":"synthetic"}, "units":"dollars_per_call",
+        "timestamps":["2026-01-01T09:00:00.123Z"]*3+["2026-01-01T09:00:05.456Z"]*4+["2026-01-01T09:00:10.789Z"]*3,
+        "values":[.10,.10,.10,.09,.10,.11,.10,.80,.12,.90],
+        "event_ids":[f"call-{i:02}" for i in range(10)],
+        "data_policy":{"observation_basis":"event_index"},
+        "rules":[{"id":"illustrative-cap","kind":"acceptable_range","minimum":0,"maximum":.20}]}
+    result["identified_calls"] = request(same_time, training_size=2, calibration_size=3)
+    corrected = deepcopy(result["identified_calls"])
+    corrected["datasets"][0]["revisions"] = [{"event_id":"call-07", "timestamp":same_time["timestamps"][7],
+        "value":.85,"available_at":"2026-01-01T09:01:00Z","revision_id":"corrected-cost-1"}]
+    corrected["context"] = {"as_of":"2026-01-01T09:02:00Z"}
+    result["identified_corrected"] = corrected
+    before = deepcopy(corrected)
+    before["context"]["as_of"] = "2026-01-01T09:00:30Z"
+    result["identified_before_correction"] = before
+    tied_pattern = deepcopy(same_time)
+    tied_pattern.update(values=[.10,.10,.10,.09,.10,.11,.10]+[.12]*12,
+        timestamps=same_time["timestamps"][:7]+[same_time["timestamps"][-1]]*12,
+        event_ids=[f"call-{i:02}" for i in range(19)])
+    result["identified_pattern_ties"] = request(tied_pattern, training_size=2, calibration_size=3, point_threshold=100)
+    ordered = deepcopy(tied_pattern)
+    ordered["event_sequence"] = list(range(100,119))
+    ordered["data_policy"]["event_order"] = "trusted_sequence"
+    result["identified_pattern_sequence"] = request(ordered, training_size=2, calibration_size=3, point_threshold=100)
     return result
+
+
+def retry_fixture():
+    document = deepcopy(fixtures()["identified_calls"])
+    ds = document["datasets"][0]
+    for name in ("timestamps", "values", "event_ids"):
+        ds[name].append(ds[name][-1])
+    return document
 
 
 def generate():
     directory = Path(__file__).parent / "sparse"
     directory.mkdir(exist_ok=True)
-    for name, document in fixtures().items():
+    for name, document in {**fixtures(), "identified_retry":retry_fixture()}.items():
         (directory/f"{name}.json").write_text(json.dumps(document, indent=2)+"\n", encoding="utf-8")
 
 
@@ -94,6 +127,23 @@ def run_checks():
     assert "missing_source_value" in reasons and "zero_denominator" in reasons
     daily = next(item for item in outputs["unfinished_daily"].dataset_results if item.resolution == "completed_period")
     assert [r["complete"] for r in daily.data_quality["aggregation"]] == [False, True, False]
+    calls = outputs["identified_calls"]
+    assert {c.event_id for c in calls.cases} == {"call-07","call-09"}
+    assert not calls.dataset_results[0].anomaly_patterns
+    again = analyze(fixtures()["identified_calls"])
+    assert [c.model_dump() for c in calls.cases] == [c.model_dump() for c in again.cases]
+    assert [c.model_dump() for c in calls.cases] == [c.model_dump() for c in outputs["identified_before_correction"].cases]
+    original = next(c for c in calls.cases if c.event_id == "call-07")
+    revised = next(c for c in outputs["identified_corrected"].cases if c.event_id == "call-07")
+    assert original.id == revised.id and original.revision_id != revised.revision_id
+    assert not outputs["identified_pattern_ties"].dataset_results[0].anomaly_patterns
+    assert any(p["rule"] == "nelson_rule_2" for p in outputs["identified_pattern_sequence"].dataset_results[0].anomaly_patterns)
+    try:
+        analyze(json.loads((directory/"identified_retry.json").read_text()))
+    except ValueError as exc:
+        assert "duplicate logical" in str(exc)
+    else:
+        raise AssertionError("Retry delivery must not become another logical call")
     for name, result in outputs.items():
         print(f"PASS sparse/{name}: {result.status}; {len(result.cases)} numerical case(s)")
     return outputs

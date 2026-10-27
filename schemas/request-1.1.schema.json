@@ -127,6 +127,15 @@
           "title": "Observation Basis",
           "type": "string"
         },
+        "event_order": {
+          "default": "timestamp",
+          "enum": [
+            "timestamp",
+            "trusted_sequence"
+          ],
+          "title": "Event Order",
+          "type": "string"
+        },
         "reference_gaps": {
           "default": "same_phase",
           "enum": [
@@ -399,6 +408,43 @@
           },
           "title": "Revisions",
           "type": "array"
+        },
+        "event_ids": {
+          "anyOf": [
+            {
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^\\S(?:.*\\S)?$",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Ids",
+          "uniqueItems": true
+        },
+        "event_sequence": {
+          "anyOf": [
+            {
+              "items": {
+                "maximum": 9223372036854775807,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Sequence",
+          "uniqueItems": true
         }
       },
       "required": [
@@ -1061,6 +1107,21 @@
           ],
           "title": "Coverage",
           "type": "string"
+        },
+        "event_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^\\S(?:.*\\S)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Id"
         }
       },
       "required": [

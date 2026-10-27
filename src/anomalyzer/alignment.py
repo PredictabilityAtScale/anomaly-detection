@@ -60,4 +60,11 @@ def exact_sources(ids: list[str], prepared: dict[str, PreparedDataset]):
     if any(source.times != reference for source in sources[1:]):
         raise ValueError(
             "exact relationship alignment requires identical UTC-normalized timestamps")
+    if any("event_identity_contract" in source.quality for source in sources):
+        signatures = [[(s.get("event_id"), s.get("event_sequence"))
+                       for s in source.quality.get("samples", [])] for source in sources]
+        if (not all("event_identity_contract" in source.quality for source in sources)
+                or any(signature != signatures[0] for signature in signatures[1:])
+                or len({source.quality["event_order"] for source in sources}) != 1):
+            raise ValueError("identified relationships require matching logical event IDs and order contracts")
     return sources
