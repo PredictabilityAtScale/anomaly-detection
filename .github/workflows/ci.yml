@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
+    branches: ['**']
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
@@ -20,9 +22,83 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
+          version: '0.6.13'
           enable-cache: true
           python-version: ${{ matrix.python-version }}
       - run: uv sync --locked --extra dev
       - run: uv run pytest -q
       - run: uv run python examples/run_demo.py
-      - run: uv build
+      - run: uv run python examples/run_agentic_demo.py
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.6.13'
+          python-version: '3.12'
+      - name: Check release tag before building
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python scripts/release.py check-version --tag "$RELEASE_TAG"
+      - name: Build sdist and wheel from that sdist once
+        run: uv build
+      - name: Check package metadata
+        run: uvx --from twine==6.1.0 twine check --strict dist/*
+      - name: Export locked runtime dependencies
+        run: uv export --locked --no-dev --no-emit-project --output-file dist/runtime-dependencies.txt
+      - name: Record source and checksums
+        env:
+          RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+        run: python scripts/release.py create --revision "$GITHUB_SHA" --tag "$RELEASE_TAG"
+      - name: Test built wheel and sdist outside checkout
+        run: python scripts/verify_distribution.py --python 3.12
+      - name: Verify inventory
+        run: python scripts/release.py verify --revision "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-dist-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+
+  installed:
+    needs: build
+    name: Installed artifacts / Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.6.13'
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist-${{ github.sha }}
+          path: dist/
+      - run: python scripts/verify_distribution.py --python '${{ matrix.python-version }}'
+
+  lambda:
+    needs: build
+    name: Offline Lambda / Linux x86_64 / Python 3.12
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist-${{ github.sha }}
+          path: dist/
+      - run: bash scripts/verify_lambda.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lambda-consumer-${{ github.sha }}
+          path: |
+            .tmp/lambda-consumer/image-digests.json
+            .tmp/lambda-consumer/smoke.json
+            .tmp/lambda-consumer/requirements-offline.txt
