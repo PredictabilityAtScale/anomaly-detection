@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: checks
+    if: github.repository == 'PredictabilityAtScale/anomaly-detection'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist-${{ github.sha }}
+          path: dist/
+      - name: Stage tested assets for owner publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python scripts/publish_release.py --tag "$RELEASE_TAG" --revision "$GITHUB_SHA"

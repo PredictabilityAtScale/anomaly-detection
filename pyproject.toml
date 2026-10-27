@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.27.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "anomalyzer"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Local, inspectable time-series anomaly evidence"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -16,7 +16,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -24,7 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-dependencies = ["pydantic>=2.10,<3", "tzdata>=2024.1; sys_platform == 'win32'"]
+dependencies = ["pydantic>=2.10,<3", "typing-extensions>=4.12.2", "tzdata>=2024.1; sys_platform == 'win32'"]
 
 [project.urls]
 Homepage = "https://github.com/PredictabilityAtScale/anomaly-detection"
@@ -40,3 +39,16 @@ anomalyzer-mcp = "anomalyzer.mcp:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.hatch.version]
+path = "src/anomalyzer/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/anomalyzer"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src", "/tests", "/schemas", "/examples", "/scripts",
+    "/.agents/skills/anomaly-detection", "/docs/releases",
+    "/README.md", "/CONTRIBUTING.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
+]

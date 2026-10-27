@@ -23,6 +23,10 @@ python -m pytest -q
 
 ## Before opening a pull request
 
+For package versions, artifact validation and publication, follow the
+[release guide](docs/releases/README.md). `_version.py` is the authoritative
+version; never move or reuse a release tag.
+
 The behavior map lives in [`.capabilities/`](.capabilities/), grouped into data,
 analysis, relationships, investigation, interfaces, and execution. Each capability
 describes an observable outcome with 3–5 acceptance criteria, 3–5 representative

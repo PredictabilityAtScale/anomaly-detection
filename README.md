@@ -26,6 +26,12 @@ notification delivery, and operational actions belong to the calling application
 
 ## Quick start
 
+For application builds without a source checkout, use a pinned wheel from
+[GitHub Releases](https://github.com/PredictabilityAtScale/anomaly-detection/releases).
+The [release and library-consumer guide](docs/releases/README.md) explains the
+first release, dependency hashes, upgrades and Linux/Python 3.12 bundling for Guard.
+Release candidates become downloadable there after the version tag workflow passes.
+
 Install from a checkout with Python 3.11–3.13:
 
 ```bash
