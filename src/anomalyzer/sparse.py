@@ -43,6 +43,9 @@ def normalize(ds, cfg, context, budget=None):
     budget = budget or RuntimeBudget(cfg.max_runtime_seconds)
     policy = ds.data_policy or DataPolicy()
     context = Context.model_validate(context or {})
+    if ds.event_ids is not None:
+        from .events import normalize_events
+        return normalize_events(ds, cfg, context, budget)
     cutoff = timestamp(context.as_of, ds.timezone) if context.as_of else None
     rows = {}
     statuses = ds.period_statuses or ["complete"] * len(ds.values)
@@ -188,13 +191,15 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
     context = Context.model_validate(context or {})
     times, values, quality = prepared or normalize(ds, cfg, context, budget)
     policy = ds.data_policy or DataPolicy()
-    resets = active_resets(cfg.reset_points, times, ds.timezone, context.as_of)
+    identified = "event_identity_contract" in quality
+    resets = quality["event_reset_positions"] if identified else active_resets(cfg.reset_points, times, ds.timezone, context.as_of)
+    cohort_ends = set(quality.get("reference_cohort_ends", range(len(values))))
     if policy.observation_basis == "calendar" and (cfg.recipe == "adaptive-seasonal-v1" or cfg.trend not in ("none", "auto")):
         return analyze_contiguous(ds, cfg, context, budget, (times, values, quality), resets)
     method = MethodResult(id="sparse_seasonal", status="insufficient_history",
         applicability="eligible observations on the original grid; frozen training phase reference",
         parameters={**cfg.model_dump(), "resolved_reset_positions": resets,
-                    "profile_revision": "sparse-frozen-phase-v1",
+                    "profile_revision": "identified-events-v1" if identified else "sparse-frozen-phase-v1",
                     "observation_basis": policy.observation_basis, "reference_updates": "frozen_until_explicit_reset"},
         diagnostics={"segments": [], "unavailable": [], "pattern_boundaries": resets.copy()})
     unsupported = ("event_index requires season_length=1, trend=none/auto and a single-resolution seasonal recipe"
@@ -204,7 +209,8 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
         if cfg.recipe != "seasonal-residual-v1" or cfg.trend not in ("none", "auto") else None)
     patterns, observations = [], []
     boundaries = sorted(set([0, *resets, len(values)] + (
-        [i + 1 for i, value in enumerate(values[:-1]) if value is None]
+        (quality["reference_restart_positions"] if identified else
+         [i + 1 for i, value in enumerate(values[:-1]) if value is None])
         if policy.reference_gaps == "restart" else [])))
     try:
         if unsupported:
@@ -213,6 +219,8 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
             for segment_number, (start, stop) in enumerate(zip(boundaries, boundaries[1:])):
                 budget.check()
                 training, calibration = [], []
+                training_complete = calibration_complete = False
+                cohort_calibration_count = 0
                 phase_values, phase_indexes, phase_expected = {}, {}, {}
                 center = scale = None
                 evidence = []
@@ -222,14 +230,24 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
                     status="insufficient_history", trend="none (explicit sparse frozen reference)")
                 for index in range(start, stop):
                     budget.check()
+                    if index == start or index-1 in cohort_ends:
+                        cohort_calibration_count = len(calibration)
+                        if len(calibration) >= cfg.calibration_size and not calibration_complete:
+                            calibration_complete = True
+                            if identified:
+                                from .events import fingerprint
+                                segment["reference_revision"] = fingerprint([
+                                    quality["samples"][i]["selected_revision"]
+                                    for i in training + segment["calibration_indexes"]])
                     value = values[index]
                     phase = (index - start) % cfg.season_length
-                    if len(training) < cfg.training_size:
+                    if not training_complete:
                         if value is not None:
                             training.append(index)
                             phase_values.setdefault(phase, []).append(value)
                             phase_indexes.setdefault(phase, []).append(index)
-                        if len(training) == cfg.training_size:
+                        if len(training) >= cfg.training_size and index in cohort_ends:
+                            training_complete = True
                             phase_expected = {p: (safe_median(v) if cfg.outlier_handling == "robust" else statistics.mean(v)) for p, v in phase_values.items()
                                               if len(v) >= policy.minimum_phase_samples}
                             segment["training_indexes"] = training.copy()
@@ -250,13 +268,22 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
                         continue
                     maturity, z, triggers = "reference_only", None, []
                     count = len(calibration)
-                    if count < cfg.calibration_size:
-                        if count >= 3:
+                    if identified and not calibration_complete:
+                        count = cohort_calibration_count
+                    if not calibration_complete:
+                        if count >= 3 and not identified:
                             raw = [item[1] for item in calibration]
                             z = (residual - statistics.mean(raw)) / max(statistics.stdev(raw), cfg.scale_floor)
                             maturity = "provisional"
                         calibration.append((index, residual))
                         segment["calibration_indexes"].append(index)
+                        if len(calibration) >= cfg.calibration_size and index in cohort_ends:
+                            calibration_complete = True
+                            if identified:
+                                from .events import fingerprint
+                                segment["reference_revision"] = fingerprint([
+                                    quality["samples"][i]["selected_revision"]
+                                    for i in training + segment["calibration_indexes"]])
                     else:
                         if center is None:
                             raw = [item[1] for item in calibration]
@@ -291,12 +318,20 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
                 method.diagnostics["segments"].append(segment)
                 method.evidence.extend(evidence)
                 temporary = method.model_copy(update={"evidence": evidence})
+                if identified:
+                    # Unordered tied calls supply points, never a sequence detector.
+                    blocked = set(quality["unordered_tie_positions"])
+                    temporary = method.model_copy(update={"evidence": [e for e in evidence if e["index"] not in blocked]})
                 # Separate calls prohibit patterns/episodes crossing explicit regime boundaries.
                 for pattern in anomaly_patterns([temporary], ds.id, cusum_k=cfg.cusum_k,
                         cusum_h=cfg.cusum_h, moving_range_threshold=cfg.moving_range_threshold):
+                    if identified and pattern["sample_count"] < 2:
+                        continue
                     pattern["id"] = f"segment:{segment_number}:{pattern['id']}"
                     patterns.append(pattern)
-                for observation in episodes([temporary], ds.id):
+                episode_rows = (o for e in evidence for o in episodes(
+                    [method.model_copy(update={"evidence": [e]})], ds.id)) if identified else episodes([temporary], ds.id)
+                for observation in episode_rows:
                     observation["id"] = f"segment:{segment_number}:{observation['id']}"
                     observations.append(observation)
             if any(row["signal_maturity"] == "calibrated" for row in method.evidence):
@@ -305,6 +340,9 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
         method.status, method.error = "budget_exceeded", str(exc)
     except (ArithmeticError, ValueError) as exc:
         method.status, method.error = "failed", f"{type(exc).__name__}: {exc}"
+    if identified:
+        from .events import identify_evidence
+        identify_evidence([method], observations, patterns, quality)
     method.diagnostics["detection_readiness"] = dict(
         status="caution" if method.status == "completed" else "not_assessed",
         reasons=["Sparse frozen phase medians use only eligible training observations; gaps do not count as measurements.",
@@ -314,6 +352,10 @@ def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
     method.limitations = ["Training and calibration origins remain fixed within each explicit regime; no evaluated episode updates the reference.",
         "Sparse calibration counts usable residuals, not elapsed grid positions. Phase support and readiness remain separate from business severity.",
         "No probability, health verdict, abuse accuracy, operational permission or delivery-time performance is established."]
+    if identified:
+        method.limitations.append("event-identity-v1: whole timestamp cohorts share prior-time references unless trusted_sequence is explicit. Unordered tied calls cannot supply change or sequence-pattern continuity. Distinct events are not independent confirmations.")
+        method.diagnostics["detection_readiness"]["reasons"].append(
+            "Identified sequence patterns need at least two ordered evaluation points. Tied timestamp cohorts are excluded unless trusted_sequence is declared.")
     resolved = dict(datasets=[ds.model_dump(mode="json")], config=cfg.model_dump(mode="json"),
                     context=context.model_dump(mode="json"))
     method.runtime_seconds = time.perf_counter() - started

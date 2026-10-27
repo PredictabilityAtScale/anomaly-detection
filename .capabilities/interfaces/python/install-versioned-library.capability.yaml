@@ -72,9 +72,6 @@ agent:
       - Follow the release guide and confirm Guard retains domain severity and
         incident ownership; inspect readiness and evidence limits before
         adopting.
-    gaps:
-      - First immutable GitHub Release requires owner setup and a reviewed
-        version tag.
   review:
     depth: partial
     source: deterministic-assessment
@@ -112,26 +109,29 @@ agent:
           - scripts/release.py:39
           - scripts/release.py:48
           - scripts/release.py:54
-          - scripts/publish_release.py:19
-          - scripts/publish_release.py:27
-          - scripts/publish_release.py:29
-          - scripts/publish_release.py:39
-          - scripts/verify_lambda.sh:14
-          - scripts/verify_lambda.sh:17
-          - scripts/verify_lambda.sh:19
-          - scripts/verify_lambda.sh:25
-          - scripts/verify_lambda.sh:27
+          - scripts/publish_release.py:21
+          - scripts/publish_release.py:34
+          - scripts/publish_release.py:42
+          - scripts/publish_release.py:53
+          - scripts/verify_lambda.sh:15
+          - scripts/verify_lambda.sh:18
+          - scripts/verify_lambda.sh:20
+          - scripts/verify_lambda.sh:26
+          - scripts/verify_lambda.sh:28
+          - examples/library/guard_smoke.py:74
           - .github/workflows/ci.yml:14
           - .github/workflows/ci.yml:19
           - .github/workflows/ci.yml:27
-          - .github/workflows/ci.yml:41
-          - .github/workflows/ci.yml:46
-          - .github/workflows/release.yml:28
-          - docs/releases/README.md:12
-          - docs/releases/README.md:13
-          - docs/releases/README.md:14
+          - .github/workflows/ci.yml:43
+          - .github/workflows/ci.yml:48
+          - .github/workflows/release.yml:31
+          - .github/workflows/release.yml:52
+          - .github/workflows/release.yml:61
+          - docs/releases/README.md:16
           - docs/releases/README.md:17
           - docs/releases/README.md:18
+          - docs/releases/README.md:21
+          - docs/releases/README.md:22
           - tests/test_release.py:60
           - tests/test_release.py:71
           - tests/test_release.py:81
@@ -145,17 +145,19 @@ agent:
         status: partial
         evidence:
           - scripts/verify_distribution.py:1
-          - scripts/verify_distribution.py:42
+          - scripts/verify_distribution.py:48
           - examples/library/guard_smoke.py:32
           - examples/library/guard_smoke.py:49
           - examples/library/guard_smoke.py:65
           - examples/library/guard_smoke.py:69
-          - examples/library/guard_smoke.py:75
-          - .github/workflows/ci.yml:57
-          - docs/releases/README.md:13
-          - docs/releases/README.md:208
-          - docs/releases/README.md:211
-          - docs/releases/README.md:213
+          - examples/library/guard_smoke.py:76
+          - .github/workflows/ci.yml:59
+          - .github/workflows/release.yml:60
+          - docs/releases/README.md:17
+          - docs/releases/README.md:99
+          - docs/releases/README.md:217
+          - docs/releases/README.md:220
+          - docs/releases/README.md:222
         notes: Related implementation text was found, but deterministic matching cannot
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more
@@ -173,27 +175,28 @@ agent:
           - scripts/release.py:85
           - scripts/release.py:92
           - scripts/publish_release.py:1
-          - scripts/publish_release.py:25
-          - scripts/publish_release.py:26
-          - scripts/publish_release.py:27
-          - scripts/publish_release.py:28
-          - scripts/verify_distribution.py:41
-          - scripts/verify_lambda.sh:24
+          - scripts/publish_release.py:18
+          - scripts/publish_release.py:19
+          - scripts/publish_release.py:20
+          - scripts/publish_release.py:40
+          - scripts/verify_distribution.py:47
+          - scripts/verify_lambda.sh:25
           - examples/library/guard_smoke.py:39
-          - .github/workflows/ci.yml:42
-          - .github/workflows/ci.yml:45
-          - .github/workflows/ci.yml:46
-          - .github/workflows/ci.yml:49
+          - .github/workflows/ci.yml:44
+          - .github/workflows/ci.yml:47
+          - .github/workflows/ci.yml:48
           - .github/workflows/ci.yml:51
-          - .github/workflows/release.yml:31
-          - .github/workflows/release.yml:33
+          - .github/workflows/ci.yml:53
+          - .github/workflows/release.yml:34
           - .github/workflows/release.yml:36
-          - .github/workflows/release.yml:37
-          - docs/releases/README.md:3
-          - docs/releases/README.md:12
-          - docs/releases/README.md:14
-          - docs/releases/README.md:15
+          - .github/workflows/release.yml:39
+          - .github/workflows/release.yml:40
+          - .github/workflows/release.yml:48
+          - docs/releases/README.md:8
+          - docs/releases/README.md:16
+          - docs/releases/README.md:18
           - docs/releases/README.md:19
+          - docs/releases/README.md:23
           - tests/test_release.py:1
           - tests/test_release.py:21
           - tests/test_release.py:23
@@ -211,21 +214,22 @@ agent:
           - pyproject.toml:33
           - scripts/release.py:81
           - scripts/release.py:82
-          - scripts/publish_release.py:40
-          - scripts/verify_distribution.py:41
+          - scripts/publish_release.py:54
+          - scripts/verify_distribution.py:47
           - scripts/verify_lambda.sh:6
-          - scripts/verify_lambda.sh:17
-          - scripts/verify_lambda.sh:19
-          - .github/workflows/ci.yml:30
-          - .github/workflows/ci.yml:31
-          - .github/workflows/ci.yml:51
-          - .github/workflows/ci.yml:52
-          - .github/workflows/ci.yml:90
-          - docs/releases/README.md:12
-          - docs/releases/README.md:15
-          - docs/releases/README.md:58
-          - docs/releases/README.md:59
-          - docs/releases/README.md:75
+          - scripts/verify_lambda.sh:18
+          - scripts/verify_lambda.sh:20
+          - .github/workflows/ci.yml:29
+          - .github/workflows/ci.yml:32
+          - .github/workflows/ci.yml:33
+          - .github/workflows/ci.yml:53
+          - .github/workflows/ci.yml:54
+          - .github/workflows/release.yml:62
+          - docs/releases/README.md:16
+          - docs/releases/README.md:19
+          - docs/releases/README.md:62
+          - docs/releases/README.md:63
+          - docs/releases/README.md:79
         notes: Related implementation text was found, but deterministic matching cannot
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more

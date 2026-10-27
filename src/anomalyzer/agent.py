@@ -17,7 +17,7 @@ def analyze_series(dataset: Dataset | dict | list[float | None],
             raise ValueError("context requires a Dataset rather than a bare values list")
         return analyze(dataset, settings)
     if isinstance(dataset, DatasetV11) or isinstance(dataset, dict) and any(
-            name in dataset for name in ("data_policy", "coverage", "available_at", "revisions", "rules", "completed_period_rules")):
+            name in dataset for name in ("data_policy", "coverage", "available_at", "revisions", "rules", "completed_period_rules", "event_ids", "event_sequence")):
         config = Settings.model_validate(settings or {})
         validated = DatasetV11.model_validate(dataset)
         return analyze({"schema_version": "1.1", "datasets": [validated.model_dump(mode="json")],

@@ -21,6 +21,7 @@ from .registry import versions
 from .relationships import derive, _source_ids
 from .validation import resolve_reset_points
 from .sparse import analyze_sparse, active_resets
+from .events import annotate_assessments
 
 
 def annotate_availability(assessments, times, samples):
@@ -138,7 +139,9 @@ def analyze_relationships(request: RequestV11 | dict, *, _budget=None) -> Result
                 source.times[:source.quality.get("grid_count", source.quality["observation_count"])],
                 source.quality.get("rule_values", source.values)[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.rules,
                 request.policy,
-                reset_positions=active_resets(request.config.reset_points, source.times[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.timezone, request.context.as_of),
+                reset_positions=(source.quality["event_reset_positions"] + source.quality["sequence_boundaries"]
+                    if "event_identity_contract" in source.quality else
+                    active_resets(request.config.reset_points, source.times[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.timezone, request.context.as_of)),
                 change_max_gap_seconds=dataset.data_policy.change_max_gap_seconds if dataset.data_policy else None,
                 excluded_positions=[s["index"] for s in source.quality.get("samples", []) if s["coverage"] == "excluded"])
             assessments.extend(calibrated_assessments(
@@ -148,6 +151,7 @@ def analyze_relationships(request: RequestV11 | dict, *, _budget=None) -> Result
                     dataset.id, result.methods, result.anomaly_patterns,
                     request.policy))
             annotate_availability(assessments, source.times, source.quality.get("samples", []))
+            annotate_assessments(assessments, source.quality, result.methods)
             dataset_results.append(DatasetResultV11(
                 dataset_id=dataset.id, status=result.status,
                 data_quality=result.data_quality, methods=result.methods,
@@ -173,11 +177,22 @@ def analyze_relationships(request: RequestV11 | dict, *, _budget=None) -> Result
                 analysis_view, request.config, request.context, budget=budget)
             _shift_result_indexes(result, analysis_offset)
             _namespace_result(result, f"relationship:{relationship.id}")
+            if "event_identity_contract" in result.data_quality:
+                from .events import fingerprint as event_fingerprint
+                for method in result.methods:
+                    for segment in method.diagnostics.get("segments", []):
+                        if segment.get("reference_revision"):
+                            segment["reference_revision"] = event_fingerprint([
+                                segment["reference_revision"],
+                                [lineage[i].source_revision_ids for i in
+                                 segment["training_indexes"] + segment["calibration_indexes"]]])
             quality["analysis_offset"] = analysis_offset
             assessments = descriptive_assessments(
                 relationship.id, derived.timestamps or [], derived.values,
                 relationship.rules, request.policy, relationship=True,
-                reset_positions=active_resets(request.config.reset_points, derived.timestamps or [], derived.timezone, request.context.as_of),
+                reset_positions=(result.data_quality["event_reset_positions"] + result.data_quality["sequence_boundaries"]
+                    if "event_identity_contract" in result.data_quality else
+                    active_resets(request.config.reset_points, derived.timestamps or [], derived.timezone, request.context.as_of)),
                 change_max_gap_seconds=getattr(getattr(derived, "data_policy", None), "change_max_gap_seconds", None),
                 excluded_positions=[i for i, state in enumerate(getattr(derived, "coverage", None) or []) if state == "excluded"])
             assessments.extend(calibrated_assessments(
@@ -189,6 +204,13 @@ def analyze_relationships(request: RequestV11 | dict, *, _budget=None) -> Result
                     request.policy, relationship=True))
             annotate_availability(assessments, [p.timestamp for p in lineage],
                 [dict(value=p.value, available_at=p.latest_source_cutoff if any(p.source_available_at.values()) else None) for p in lineage])
+            annotate_assessments(assessments, result.data_quality, result.methods)
+            for assessment in assessments:
+                if assessment.event_id is not None:
+                    assessment.baseline["source_revision_ids"] = lineage[assessment.index].source_revision_ids
+            if "event_identity_contract" in result.data_quality:
+                quality.update({key: result.data_quality[key] for key in (
+                    "samples", "event_identity_contract", "event_order", "tied_timestamp_count", "tied_event_count")})
             quality["model_eligibility"] = {key: result.data_quality.get(key)
                 for key in ("coordinate", "usable_model_count", "coverage_counts")}
             if quality["available_count"] == 0 or quality["latest_evidence_state"] == "insufficient_evidence":

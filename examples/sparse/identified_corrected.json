@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.1",
+  "datasets": [
+    {
+      "id": "call-cost",
+      "entity": {
+        "application": "synthetic"
+      },
+      "units": "dollars_per_call",
+      "timestamps": [
+        "2026-01-01T09:00:00.123Z",
+        "2026-01-01T09:00:00.123Z",
+        "2026-01-01T09:00:00.123Z",
+        "2026-01-01T09:00:05.456Z",
+        "2026-01-01T09:00:05.456Z",
+        "2026-01-01T09:00:05.456Z",
+        "2026-01-01T09:00:05.456Z",
+        "2026-01-01T09:00:10.789Z",
+        "2026-01-01T09:00:10.789Z",
+        "2026-01-01T09:00:10.789Z"
+      ],
+      "values": [
+        0.1,
+        0.1,
+        0.1,
+        0.09,
+        0.1,
+        0.11,
+        0.1,
+        0.8,
+        0.12,
+        0.9
+      ],
+      "event_ids": [
+        "call-00",
+        "call-01",
+        "call-02",
+        "call-03",
+        "call-04",
+        "call-05",
+        "call-06",
+        "call-07",
+        "call-08",
+        "call-09"
+      ],
+      "data_policy": {
+        "observation_basis": "event_index"
+      },
+      "rules": [
+        {
+          "id": "illustrative-cap",
+          "kind": "acceptable_range",
+          "minimum": 0,
+          "maximum": 0.2
+        }
+      ],
+      "revisions": [
+        {
+          "event_id": "call-07",
+          "timestamp": "2026-01-01T09:00:10.789Z",
+          "value": 0.85,
+          "available_at": "2026-01-01T09:01:00Z",
+          "revision_id": "corrected-cost-1"
+        }
+      ]
+    }
+  ],
+  "config": {
+    "season_length": 1,
+    "training_size": 2,
+    "calibration_size": 3,
+    "trend": "none"
+  },
+  "context": {
+    "as_of": "2026-01-01T09:02:00Z"
+  }
+}

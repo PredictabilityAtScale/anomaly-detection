@@ -81,50 +81,64 @@
   </g>
   <g id="graph">
     <g id="links">
-      <path class="link committed" d="M726.7,209.9 Q538.3,179.7 406.3,317.4" />
-      <path class="link committed" d="M941.8,225.6 Q906.2,230.9 925.7,261.1" />
-      <path class="link committed" d="M722.8,183.0 Q606.9,110.6 485.5,173.5" />
-      <path class="link committed" d="M872.5,179.4 Q890.4,208.4 902.8,176.7" />
-      <path class="link committed" d="M1203.1,236.2 Q1215.2,211.3 1188.8,219.5" />
-      <path class="link committed" d="M337.7,166.3 Q709.8,258.5 1083.0,170.6" />
-      <path class="link committed" d="M311.4,270.2 Q336.7,237.8 298.4,222.9" />
-      <path class="link committed" d="M1005.2,216.9 Q998.5,257.0 1039.1,257.3" />
-      <path class="link committed" d="M1118.9,224.0 Q1088.2,224.6 1104.8,250.3" />
-      <path class="link committed" d="M871.2,201.3 Q1009.6,313.0 1181.2,265.9" />
-      <path class="link committed" d="M279.2,624.8 Q808.0,489.6 1264.0,189.8" />
-      <path class="link committed" d="M361.6,169.0 Q268.1,111.1 171.0,162.8" />
-      <path class="link committed" d="M274.1,294.1 Q248.8,206.4 158.2,195.9" />
-      <path class="link committed" d="M723.5,175.8 Q700.8,139.3 669.1,168.3" />
-      <path class="link committed" d="M167.0,161.0 Q364.3,250.7 561.6,161.0" />
-      <path class="link committed" d="M337.7,165.2 Q450.5,223.4 561.6,161.8" />
-      <path class="link committed" d="M273.5,614.9 Q512.8,553.5 646.9,346.0" />
-      <path class="link committed" d="M1063.2,355.6 Q1028.9,372.9 1050.3,404.7" />
-      <path class="link committed" d="M1219.3,329.3 Q1179.7,346.9 1197.4,386.5" />
-      <path class="link committed" d="M1319.2,221.0 Q1277.6,286.5 1321.9,350.2" />
-      <path class="link committed" d="M406.2,347.2 Q832.1,463.8 1269.1,400.8" />
-      <path class="link committed" d="M302.5,411.7 Q133.6,582.6 130.9,822.8" />
-      <path class="link committed" d="M264.3,308.9 Q259.2,273.1 227.5,290.4" />
-      <path class="link committed" d="M279.6,396.8 Q171.3,427.6 145.8,537.2" />
-      <path class="link committed" d="M466.4,210.8 Q464.6,245.9 499.2,239.8" />
-      <path class="link committed" d="M644.4,333.0 Q426.3,324.1 274.9,481.2" />
-      <path class="link committed" d="M391.2,222.8 Q263.6,305.4 254.2,457.1" />
-      <path class="link committed" d="M819.7,257.7 Q793.4,362.6 873.7,435.0" />
-      <path class="link committed" d="M914.7,386.6 Q888.6,479.4 959.2,545.2" />
-      <path class="link committed" d="M1124.1,226.4 Q981.8,355.3 991.2,547.1" />
-      <path class="link committed" d="M934.2,221.5 Q720.1,388.4 657.6,652.5" />
-      <path class="link committed" d="M859.2,376.7 Q692.5,467.2 659.8,654.0" />
-      <path class="link committed" d="M993.5,482.2 Q790.8,502.8 674.3,669.9" />
-      <path class="link committed" d="M897.9,389.0 Q828.5,529.8 901.1,669.0" />
-      <path class="link committed" d="M1055.7,353.1 Q913.4,481.4 920.7,672.9" />
-      <path class="link committed" d="M875.7,385.3 Q743.7,517.6 764.9,703.2" />
-      <path class="link committed" d="M1176.6,486.9 Q1094.0,650.6 1166.6,819.0" />
-      <path class="link committed" d="M1148.6,231.0 Q1066.2,527.3 1163.8,819.0" />
-      <path class="link committed" d="M1293.5,215.2 Q1098.4,405.4 1064.5,675.7" />
-      <path class="link committed" d="M651.2,196.0 Q844.1,511.7 1163.1,699.0" />
-      <path class="link committed" d="M1305.3,450.9 Q1201.1,546.7 1215.5,687.5" />
+      <path class="link committed" d="M643.0,307.1 Q452.1,168.4 218.8,204.6" />
+      <path class="link committed" d="M943.4,220.6 Q902.2,223.4 914.6,262.8" />
+      <path class="link committed" d="M203.3,229.2 Q234.6,315.0 325.9,315.7" />
+      <path class="link committed" d="M646.4,296.5 Q545.0,174.9 387.8,194.5" />
+      <path class="link committed" d="M789.3,284.5 Q883.7,290.5 922.4,204.1" />
+      <path class="link committed" d="M1277.8,292.6 Q1264.5,222.9 1194.1,214.6" />
+      <path class="link committed" d="M436.6,338.8 Q781.4,349.8 1084.9,185.7" />
+      <path class="link committed" d="M660.9,379.0 Q438.6,455.9 335.6,667.5" />
+      <path class="link committed" d="M141.7,443.0 Q146.7,580.6 262.3,655.4" />
+      <path class="link committed" d="M363.9,410.8 Q271.0,514.5 305.5,649.4" />
+      <path class="link committed" d="M999.6,226.7 Q980.2,248.5 1009.3,250.9" />
+      <path class="link committed" d="M1108.1,216.5 Q1064.7,217.8 1069.8,260.9" />
+      <path class="link committed" d="M800.8,326.5 Q1029.3,418.1 1259.0,329.7" />
+      <path class="link committed" d="M859.4,166.0 Q1059.2,256.0 1259.0,166.0" />
+      <path class="link committed" d="M287.5,215.1 Q179.5,249.4 153.7,359.8" />
+      <path class="link committed" d="M133.3,260.5 Q89.8,298.7 123.3,345.9" />
+      <path class="link committed" d="M749.4,164.3 Q724.9,134.7 698.5,162.7" />
+      <path class="link committed" d="M988.7,340.4 Q894.9,354.0 862.9,443.2" />
+      <path class="link committed" d="M1272.8,361.5 Q1204.5,360.6 1181.4,425.0" />
+      <path class="link committed" d="M1280.0,205.7 Q1220.5,214.7 1214.1,274.4" />
+      <path class="link committed" d="M216.4,195.2 Q658.8,340.3 1123.2,306.8" />
+      <path class="link committed" d="M138.7,260.9 Q36.5,536.0 114.2,819.0" />
+      <path class="link committed" d="M216.7,179.3 Q326.8,229.7 426.0,160.4" />
+      <path class="link committed" d="M159.7,258.9 Q120.9,424.2 231.4,553.3" />
+      <path class="link committed" d="M365.0,218.4 Q385.6,341.4 499.7,392.0" />
+      <path class="link committed" d="M604.1,190.4 Q390.9,235.0 282.9,424.1" />
+      <path class="link committed" d="M310.9,228.4 Q233.4,302.0 257.4,406.1" />
+      <path class="link committed" d="M672.3,389.5 Q570.3,429.5 558.8,538.4" />
+      <path class="link committed" d="M339.8,680.4 Q436.2,683.4 486.1,600.8" />
+      <path class="link committed" d="M411.6,402.4 Q416.2,496.7 501.8,536.7" />
+      <path class="link committed" d="M730.5,405.3 Q688.6,490.7 749.7,563.6" />
+      <path class="link committed" d="M914.5,372.0 Q907.1,414.2 949.8,419.4" />
+      <path class="link committed" d="M1116.9,222.8 Q1008.5,289.3 1003.7,416.4" />
+      <path class="link committed" d="M1006.2,223.5 Q1019.9,426.2 1184.1,545.9" />
+      <path class="link committed" d="M926.3,360.7 Q999.6,519.1 1169.7,557.9" />
+      <path class="link committed" d="M869.1,491.2 Q994.8,602.8 1160.7,575.2" />
+      <path class="link committed" d="M867.6,384.3 Q770.7,531.9 827.8,699.0" />
+      <path class="link committed" d="M1007.8,355.3 Q845.7,491.6 842.7,703.4" />
+      <path class="link committed" d="M880.9,384.6 Q836.3,474.1 894.3,555.6" />
+      <path class="link committed" d="M1124.2,504.1 Q1008.0,642.7 1040.2,820.6" />
+      <path class="link committed" d="M1137.1,230.1 Q997.8,509.7 1036.0,819.7" />
+      <path class="link committed" d="M1288.6,212.5 Q1109.7,329.2 1080.6,540.9" />
+      <path class="link committed" d="M346.5,706.9 Q717.8,798.2 1089.7,709.6" />
+      <path class="link committed" d="M1172.0,363.2 Q1086.4,505.2 1143.4,661.0" />
     </g>
     <g id="nodes">
-      <g class="node partial" data-capability="analysis/evidence/calibrate-departures" transform="translate(331.4 342.5)">
+      <g class="node partial" data-capability="data/inputs/accept-analysis-requests" transform="translate(720.8 325.9)">
+        <title>Bring my metrics into an analysis</title>
+        <circle class="node-halo" r="81" />
+        <circle class="node-ring" r="73" />
+        <circle class="node-core" r="63" />
+        <text class="label" y="-3">
+          <tspan x="0" dy="-3">Bring my metrics</tspan>
+          <tspan x="0" dy="14">into an a...</tspan>
+        </text>
+        <text class="meta" y="61">data/inputs</text>
+      </g>
+      <g class="node partial" data-capability="analysis/evidence/calibrate-departures" transform="translate(142.0 186.0)">
         <title>Understand how much history supports a finding</title>
         <circle class="node-halo" r="76" />
         <circle class="node-ring" r="68" />
@@ -135,18 +149,7 @@
         </text>
         <text class="meta" y="56">analysis/evidence</text>
       </g>
-      <g class="node partial" data-capability="data/inputs/accept-analysis-requests" transform="translate(797.8 186.0)">
-        <title>Bring my metrics into an analysis</title>
-        <circle class="node-halo" r="76" />
-        <circle class="node-ring" r="68" />
-        <circle class="node-core" r="58" />
-        <text class="label" y="-3">
-          <tspan x="0" dy="-3">Bring my metrics</tspan>
-          <tspan x="0" dy="14">into an a...</tspan>
-        </text>
-        <text class="meta" y="56">data/inputs</text>
-      </g>
-      <g class="node partial" data-capability="interfaces/cli/analyze-files-and-streams" transform="translate(897.1 324.0)">
+      <g class="node partial" data-capability="interfaces/cli/analyze-files-and-streams" transform="translate(875.8 319.8)">
         <title>Analyze local files from the command line</title>
         <circle class="node-halo" r="66" />
         <circle class="node-ring" r="58" />
@@ -157,7 +160,18 @@
         </text>
         <text class="meta" y="46">interfaces/cli</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/model-seasonal-level-and-growth" transform="translate(421.5 171.0)">
+      <g class="node partial" data-capability="analysis/detection/identify-residual-patterns" transform="translate(378.2 352.5)">
+        <title>Spot sustained shifts and changing patterns</title>
+        <circle class="node-halo" r="61" />
+        <circle class="node-ring" r="53" />
+        <circle class="node-core" r="43" />
+        <text class="label" y="-3">
+          <tspan x="0" dy="-3">Spot sustained shifts</tspan>
+          <tspan x="0" dy="14">and ...</tspan>
+        </text>
+        <text class="meta" y="41">analysis/detection</text>
+      </g>
+      <g class="node partial" data-capability="analysis/expectations/model-seasonal-level-and-growth" transform="translate(328.3 171.0)">
         <title>Account for ordinary seasonal patterns and growth</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
@@ -168,7 +182,7 @@
         </text>
         <text class="meta" y="41">analysis/expectations</text>
       </g>
-      <g class="node partial" data-capability="interfaces/python/analyze-through-public-api" transform="translate(966.6 171.0)">
+      <g class="node partial" data-capability="interfaces/python/analyze-through-public-api" transform="translate(977.2 171.0)">
         <title>Embed local analysis in my application</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
@@ -179,7 +193,7 @@
         </text>
         <text class="meta" y="41">interfaces/python</text>
       </g>
-      <g class="node partial" data-capability="investigation/cases/group-related-evidence" transform="translate(1147.0 171.0)">
+      <g class="node partial" data-capability="investigation/cases/group-related-evidence" transform="translate(1147.2 171.0)">
         <title>Investigate related findings together</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
@@ -190,18 +204,18 @@
         </text>
         <text class="meta" y="41">investigation/cases</text>
       </g>
-      <g class="node partial" data-capability="analysis/detection/identify-residual-patterns" transform="translate(282.7 166.0)">
-        <title>Spot sustained shifts and changing patterns</title>
+      <g class="node partial" data-capability="data/quality/analyze-sparse-observations" transform="translate(291.5 706.7)">
+        <title>Assess sparse observations without inventing consumption</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
         <circle class="node-core" r="38" />
         <text class="label" y="-3">
-          <tspan x="0" dy="-3">Spot sustained shifts</tspan>
-          <tspan x="0" dy="14">and ...</tspan>
+          <tspan x="0" dy="-3">Assess sparse</tspan>
+          <tspan x="0" dy="14">observations...</tspan>
         </text>
-        <text class="meta" y="36">analysis/detection</text>
+        <text class="meta" y="36">data/quality</text>
       </g>
-      <g class="node partial" data-capability="data/quality/prepare-timestamped-series" transform="translate(228.9 647.0)">
+      <g class="node partial" data-capability="data/quality/prepare-timestamped-series" transform="translate(804.4 166.0)">
         <title>Analyze observations in the right time order</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -212,7 +226,7 @@
         </text>
         <text class="meta" y="36">data/quality</text>
       </g>
-      <g class="node partial" data-capability="interfaces/mcp/investigate-findings-and-evidence" transform="translate(1077.1 302.4)">
+      <g class="node partial" data-capability="interfaces/mcp/investigate-findings-and-evidence" transform="translate(1031.3 305.6)">
         <title>Let an agent inspect the evidence behind a finding</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -223,7 +237,7 @@
         </text>
         <text class="meta" y="36">interfaces/mcp</text>
       </g>
-      <g class="node partial" data-capability="investigation/assessments/describe-early-changes" transform="translate(1238.9 277.9)">
+      <g class="node partial" data-capability="investigation/assessments/describe-early-changes" transform="translate(1318.0 330.1)">
         <title>Spot early changes with a short history</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -245,7 +259,7 @@
         </text>
         <text class="meta" y="36">relationships/quality</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/reset-declared-regimes" transform="translate(117.0 161.0)">
+      <g class="node partial" data-capability="analysis/expectations/reset-declared-regimes" transform="translate(117.0 399.5)">
         <title>Compare against a new baseline after a known change</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -256,18 +270,7 @@
         </text>
         <text class="meta" y="31">analysis/expectations</text>
       </g>
-      <g class="node partial" data-capability="data/quality/analyze-sparse-observations" transform="translate(615.6 161.0)">
-        <title>Assess sparse observations without inventing consumption</title>
-        <circle class="node-halo" r="51" />
-        <circle class="node-ring" r="43" />
-        <circle class="node-core" r="33" />
-        <text class="label" y="-3">
-          <tspan x="0" dy="-3">Assess sparse</tspan>
-          <tspan x="0" dy="14">observations...</tspan>
-        </text>
-        <text class="meta" y="31">data/quality</text>
-      </g>
-      <g class="node partial" data-capability="data/quality/exclude-incomplete-periods" transform="translate(690.8 314.4)">
+      <g class="node partial" data-capability="data/quality/exclude-incomplete-periods" transform="translate(644.5 161.0)">
         <title>Avoid mistaking unfinished periods for drops</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -278,7 +281,7 @@
         </text>
         <text class="meta" y="31">data/quality</text>
       </g>
-      <g class="node partial" data-capability="interfaces/mcp/connect-read-only-local-server" transform="translate(1036.6 456.9)">
+      <g class="node partial" data-capability="interfaces/mcp/connect-read-only-local-server" transform="translate(821.1 477.4)">
         <title>Give an agent read-only access to local analysis</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -289,7 +292,7 @@
         </text>
         <text class="meta" y="31">interfaces/mcp</text>
       </g>
-      <g class="node partial" data-capability="investigation/rules/check-declared-numerical-rules" transform="translate(1178.1 436.9)">
+      <g class="node partial" data-capability="investigation/rules/check-declared-numerical-rules" transform="translate(1137.0 455.8)">
         <title>Find values that break my stated limits</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -300,7 +303,7 @@
         </text>
         <text class="meta" y="31">investigation/rules</text>
       </g>
-      <g class="node partial" data-capability="relationships/comparisons/compare-declared-metrics" transform="translate(1323.0 404.2)">
+      <g class="node partial" data-capability="relationships/comparisons/compare-declared-metrics" transform="translate(1176.8 313.4)">
         <title>Find changes in conversion, unit cost, and metric gaps</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -322,7 +325,7 @@
         </text>
         <text class="meta" y="26">analysis/detection</text>
       </g>
-      <g class="node partial" data-capability="analysis/evidence/assess-reference-readiness" transform="translate(183.7 268.4)">
+      <g class="node partial" data-capability="analysis/evidence/assess-reference-readiness" transform="translate(474.8 156.0)">
         <title>Know when the expected baseline is weak</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -333,7 +336,7 @@
         </text>
         <text class="meta" y="26">analysis/evidence</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/adapt-to-changing-growth" transform="translate(112.0 572.7)">
+      <g class="node partial" data-capability="analysis/expectations/adapt-to-changing-growth" transform="translate(243.0 600.9)">
         <title>Follow evolving growth while exposing unusual values</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -344,7 +347,7 @@
         </text>
         <text class="meta" y="26">analysis/expectations</text>
       </g>
-      <g class="node uncovered" data-capability="analysis/expectations/model-multiple-seasonal-cycles" transform="translate(121.0 403.2)">
+      <g class="node uncovered" data-capability="analysis/expectations/model-multiple-seasonal-cycles" transform="translate(234.8 287.4)">
         <title>Account for daily and weekly patterns together</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -355,7 +358,7 @@
         </text>
         <text class="meta" y="35">analysis/expectations</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/protect-reference-from-extremes" transform="translate(535.8 272.3)">
+      <g class="node partial" data-capability="analysis/expectations/protect-reference-from-extremes" transform="translate(529.8 430.7)">
         <title>Limit how extreme values distort later comparisons</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -366,7 +369,7 @@
         </text>
         <text class="meta" y="26">analysis/expectations</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/select-season-length" transform="translate(112.0 724.9)">
+      <g class="node partial" data-capability="analysis/expectations/select-season-length" transform="translate(112.0 554.2)">
         <title>Choose the repeating cycle for a fair comparison</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -377,7 +380,7 @@
         </text>
         <text class="meta" y="26">analysis/expectations</text>
       </g>
-      <g class="node uncovered" data-capability="analysis/rates/assess-bounded-count-rates" transform="translate(370.3 531.3)">
+      <g class="node uncovered" data-capability="analysis/rates/assess-bounded-count-rates" transform="translate(538.1 286.3)">
         <title>Interpret rate changes with their supporting volume</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -388,7 +391,7 @@
         </text>
         <text class="meta" y="35">analysis/rates</text>
       </g>
-      <g class="node partial" data-capability="analysis/resolution/monitor-within-unfinished-days" transform="translate(229.4 499.4)">
+      <g class="node partial" data-capability="analysis/resolution/monitor-within-unfinished-days" transform="translate(243.3 453.0)">
         <title>See changes before the day is complete</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -399,7 +402,7 @@
         </text>
         <text class="meta" y="26">analysis/resolution</text>
       </g>
-      <g class="node uncovered" data-capability="data/calendar/aggregate-local-calendar-periods" transform="translate(393.9 859.0)">
+      <g class="node uncovered" data-capability="data/calendar/aggregate-local-calendar-periods" transform="translate(393.4 859.0)">
         <title>Compare days and weeks in my business timezone</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -410,7 +413,7 @@
         </text>
         <text class="meta" y="35">data/calendar</text>
       </g>
-      <g class="node uncovered" data-capability="data/cohorts/analyze-declared-entity-batches" transform="translate(512.5 418.6)">
+      <g class="node uncovered" data-capability="data/cohorts/analyze-declared-entity-batches" transform="translate(384.8 529.1)">
         <title>Analyze many entities without mixing their histories</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -421,7 +424,18 @@
         </text>
         <text class="meta" y="35">data/cohorts</text>
       </g>
-      <g class="node uncovered" data-capability="data/quality/report-source-freshness" transform="translate(534.9 578.6)">
+      <g class="node partial" data-capability="data/quality/identify-distinct-events" transform="translate(529.1 577.4)">
+        <title>Inspect distinct events sharing an original timestamp</title>
+        <circle class="node-halo" r="46" />
+        <circle class="node-ring" r="38" />
+        <circle class="node-core" r="28" />
+        <text class="label" y="-3">
+          <tspan x="0" dy="-3">Inspect distinct</tspan>
+          <tspan x="0" dy="14">events sh...</tspan>
+        </text>
+        <text class="meta" y="26">data/quality</text>
+      </g>
+      <g class="node uncovered" data-capability="data/quality/report-source-freshness" transform="translate(122.2 716.7)">
         <title>Know when missing updates weaken the conclusion</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -432,7 +446,7 @@
         </text>
         <text class="meta" y="35">data/quality</text>
       </g>
-      <g class="node uncovered" data-capability="data/revisions/reconcile-late-and-corrected-observations" transform="translate(237.1 818.9)">
+      <g class="node uncovered" data-capability="data/revisions/reconcile-late-and-corrected-observations" transform="translate(238.9 859.0)">
         <title>See how late or corrected data changes the evidence</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -443,7 +457,7 @@
         </text>
         <text class="meta" y="35">data/revisions</text>
       </g>
-      <g class="node uncovered" data-capability="evaluation/comparisons/compare-monitor-configurations" transform="translate(671.0 476.4)">
+      <g class="node uncovered" data-capability="evaluation/comparisons/compare-monitor-configurations" transform="translate(660.0 508.9)">
         <title>Choose settings using held-out historical evidence</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -454,7 +468,7 @@
         </text>
         <text class="meta" y="35">evaluation/comparisons</text>
       </g>
-      <g class="node uncovered" data-capability="evaluation/outcomes/compare-findings-with-reviewed-incidents" transform="translate(386.9 687.7)">
+      <g class="node uncovered" data-capability="evaluation/outcomes/compare-findings-with-reviewed-incidents" transform="translate(456.0 730.8)">
         <title>Measure detection timing against reviewed incidents</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -465,7 +479,7 @@
         </text>
         <text class="meta" y="35">evaluation/outcomes</text>
       </g>
-      <g class="node uncovered" data-capability="evaluation/replay/replay-historical-observations" transform="translate(509.2 780.2)">
+      <g class="node uncovered" data-capability="evaluation/replay/replay-historical-observations" transform="translate(626.2 703.3)">
         <title>Replay history as it would have arrived</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -476,7 +490,7 @@
         </text>
         <text class="meta" y="35">evaluation/replay</text>
       </g>
-      <g class="node uncovered" data-capability="execution/incremental/append-finalized-observations" transform="translate(666.0 859.0)">
+      <g class="node uncovered" data-capability="execution/incremental/append-finalized-observations" transform="translate(877.3 859.0)">
         <title>Update evidence when the next observations arrive</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -487,7 +501,7 @@
         </text>
         <text class="meta" y="35">execution/incremental</text>
       </g>
-      <g class="node partial" data-capability="execution/resilience/retain-evidence-under-failure-and-limits" transform="translate(888.0 481.8)">
+      <g class="node partial" data-capability="execution/resilience/retain-evidence-under-failure-and-limits" transform="translate(755.7 612.2)">
         <title>Keep useful evidence when analysis cannot finish</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -498,7 +512,7 @@
         </text>
         <text class="meta" y="26">execution/resilience</text>
       </g>
-      <g class="node uncovered" data-capability="execution/state/save-and-restore-analysis-state" transform="translate(792.0 591.0)">
+      <g class="node uncovered" data-capability="execution/state/save-and-restore-analysis-state" transform="translate(551.6 859.0)">
         <title>Resume local analysis after a restart</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -509,7 +523,7 @@
         </text>
         <text class="meta" y="35">execution/state</text>
       </g>
-      <g class="node partial" data-capability="interfaces/cli/explain-findings-in-readable-output" transform="translate(972.4 592.4)">
+      <g class="node partial" data-capability="interfaces/cli/explain-findings-in-readable-output" transform="translate(979.0 458.7)">
         <title>Understand findings in a readable summary</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -520,7 +534,7 @@
         </text>
         <text class="meta" y="26">interfaces/cli</text>
       </g>
-      <g class="node uncovered" data-capability="interfaces/export/package-investigation-evidence" transform="translate(1132.5 591.2)">
+      <g class="node uncovered" data-capability="interfaces/export/package-investigation-evidence" transform="translate(719.6 859.0)">
         <title>Share an investigation that can be inspected later</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -531,18 +545,18 @@
         </text>
         <text class="meta" y="35">interfaces/export</text>
       </g>
-      <g class="node partial" data-capability="interfaces/python/install-versioned-library" transform="translate(629.5 696.3)">
+      <g class="node partial" data-capability="interfaces/python/install-versioned-library" transform="translate(1207.8 588.8)">
         <title>Install a versioned analysis library</title>
-        <circle class="node-halo" r="49" />
-        <circle class="node-ring" r="41" />
-        <circle class="node-core" r="31" />
+        <circle class="node-halo" r="46" />
+        <circle class="node-ring" r="38" />
+        <circle class="node-core" r="28" />
         <text class="label" y="-3">
           <tspan x="0" dy="-3">Install a</tspan>
           <tspan x="0" dy="14">versioned analys...</tspan>
         </text>
-        <text class="meta" y="29">interfaces/python</text>
+        <text class="meta" y="26">interfaces/python</text>
       </g>
-      <g class="node partial" data-capability="interfaces/skill/guide-anomaly-investigation" transform="translate(901.6 718.0)">
+      <g class="node partial" data-capability="interfaces/skill/guide-anomaly-investigation" transform="translate(821.7 747.6)">
         <title>Ask an agent to explain unusual changes in my metrics</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -553,7 +567,7 @@
         </text>
         <text class="meta" y="26">interfaces/skill</text>
       </g>
-      <g class="node partial" data-capability="interfaces/skill/visualize-analysis-on-request" transform="translate(748.8 749.5)">
+      <g class="node partial" data-capability="interfaces/skill/visualize-analysis-on-request" transform="translate(898.1 604.4)">
         <title>See the evidence in a chart when I ask for one</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -564,7 +578,7 @@
         </text>
         <text class="meta" y="26">interfaces/skill</text>
       </g>
-      <g class="node uncovered" data-capability="investigation/cohorts/explain-additive-segment-contributions" transform="translate(1319.0 859.0)">
+      <g class="node uncovered" data-capability="investigation/cohorts/explain-additive-segment-contributions" transform="translate(1319.0 495.8)">
         <title>Find which segments contribute to an aggregate change</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -575,7 +589,7 @@
         </text>
         <text class="meta" y="35">investigation/cohorts</text>
       </g>
-      <g class="node uncovered" data-capability="investigation/history/record-reviewed-case-outcomes" transform="translate(1299.6 546.6)">
+      <g class="node uncovered" data-capability="investigation/history/record-reviewed-case-outcomes" transform="translate(1168.6 859.0)">
         <title>Keep reviewed outcomes beside the original evidence</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -586,7 +600,7 @@
         </text>
         <text class="meta" y="35">investigation/history</text>
       </g>
-      <g class="node uncovered" data-capability="investigation/history/retrieve-comparable-reviewed-cases" transform="translate(835.8 859.0)">
+      <g class="node uncovered" data-capability="investigation/history/retrieve-comparable-reviewed-cases" transform="translate(1319.0 691.6)">
         <title>Find earlier reviewed cases with comparable evidence</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -597,7 +611,7 @@
         </text>
         <text class="meta" y="35">investigation/history</text>
       </g>
-      <g class="node partial" data-capability="investigation/policy/replay-action-eligibility" transform="translate(1165.1 868.0)">
+      <g class="node partial" data-capability="investigation/policy/replay-action-eligibility" transform="translate(1027.7 868.0)">
         <title>Change action eligibility without rerunning analysis</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -608,7 +622,7 @@
         </text>
         <text class="meta" y="26">investigation/policy</text>
       </g>
-      <g class="node uncovered" data-capability="investigation/regimes/propose-reviewed-baseline-changes" transform="translate(996.5 859.0)">
+      <g class="node uncovered" data-capability="investigation/regimes/propose-reviewed-baseline-changes" transform="translate(974.3 735.4)">
         <title>Review a possible new baseline before accepting it</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -619,7 +633,7 @@
         </text>
         <text class="meta" y="35">investigation/regimes</text>
       </g>
-      <g class="node uncovered" data-capability="relationships/cohorts/separate-rate-and-population-mix" transform="translate(1319.0 723.2)">
+      <g class="node uncovered" data-capability="relationships/cohorts/separate-rate-and-population-mix" transform="translate(1319.0 859.0)">
         <title>Distinguish changing performance from a changing population mix</title>
         <circle class="node-halo" r="55" />
         <circle class="node-ring" r="47" />
@@ -630,7 +644,7 @@
         </text>
         <text class="meta" y="35">relationships/cohorts</text>
       </g>
-      <g class="node partial" data-capability="relationships/comparisons/evaluate-delayed-response" transform="translate(1042.7 719.6)">
+      <g class="node partial" data-capability="relationships/comparisons/evaluate-delayed-response" transform="translate(1054.4 582.3)">
         <title>Check whether a metric follows its expected delayed response</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -641,7 +655,7 @@
         </text>
         <text class="meta" y="26">relationships/comparisons</text>
       </g>
-      <g class="node partial" data-capability="relationships/resolution/compare-finalized-subperiods" transform="translate(1198.1 733.3)">
+      <g class="node partial" data-capability="relationships/resolution/compare-finalized-subperiods" transform="translate(1138.7 709.7)">
         <title>Inspect related metrics before the business period closes</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />

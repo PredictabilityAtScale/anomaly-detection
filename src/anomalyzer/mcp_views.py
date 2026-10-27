@@ -73,6 +73,8 @@ def _quality(item):
             "zero_filled_count": source["zero_filled_count"], "observation_basis": source["coordinate"]}
            if "data_policy" in source else {}),
         **({"resolution": item["resolution"]} if item.get("resolution") else {}),
+        **({key: source[key] for key in ("event_identity_contract", "event_order", "tied_timestamp_count", "tied_event_count")}
+           if "event_identity_contract" in source else {}),
     }
 
 
@@ -147,6 +149,7 @@ def build_findings(result):
                 "id": case["id"], "kind": "case", "target_id": target,
                 **({"resolution": case["resolution"]} if case.get("resolution") else {}),
                 "entity": case["entity"], "event_time": case["event_time"],
+                **({"event_id": case["event_id"]} if case.get("event_id") is not None else {}),
                 "headline": _case_headline(case, matches, definitions),
                 "maturity": case["maturity"],
                 "severity": case["severity"],
@@ -371,6 +374,12 @@ def get_evidence(result, finding_id, cursor=0, limit=50):
         "run_id": result["run_id"], "finding": finding,
         "record": record, "assessments": assessments,
         "lineage": lineage, "readiness": readiness,
+        "source_samples": [dict(target_id=target, **point)
+            for _, target, target_item in related
+            for point in target_item["data_quality"].get("samples", [])
+            if point.get("event_id") is not None and point["index"] in (
+                {sample["index"] for sample in selected_samples} |
+                {assessment["index"] for assessment in assessments if assessment["target_id"] == target})][:limit],
         "sample_count": len(samples), "samples": selected_samples,
         "next_cursor": end if end < len(samples) else None,
         "note": "Evidence establishes numerical criteria only; source context, cause, impact, and action authority require external review.",

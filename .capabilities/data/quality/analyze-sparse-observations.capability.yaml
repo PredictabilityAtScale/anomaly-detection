@@ -21,6 +21,8 @@ guidance:
   - Default missingness is unknown. A modeled expectation is never a measurement.
   - Caller business severity, incident state and notifications remain outside
     the engine.
+  - Optional event-identity-v1 IDs retain simultaneous distinct calls; only a
+    separately asserted trusted sequence permits ordering their measurements.
 planning:
   story_map:
     backbone: Monitor while periods are still open

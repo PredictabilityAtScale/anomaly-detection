@@ -100,3 +100,9 @@ Run a single case through the CLI:
 CSV and JSON contain the same values. Regenerate all twelve cases with
 `.venv/Scripts/python examples/generate.py`. Synthetic cases test mechanics;
 they do not establish accuracy on real usage data.
+
+Progression chapters 23–24 add `sparse/identified_calls.json`, the deliberately
+invalid retry fixture, addressed corrections/as-of snapshots, and timestamp-only
+versus explicitly trusted sequence examples. `examples/run_demo.py` checks every
+valid example and verifies that the retry is rejected. Render the complete sparse
+progression with `examples/render_readme_progression.py --only-sparse`.

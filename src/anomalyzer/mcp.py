@@ -56,8 +56,22 @@ SERVER_INSTRUCTIONS = (
     "previously reported evidence using caller-held state. Policy eligibility "
     "does not check detection readiness and is not an action recommendation. "
     "The server does not schedule runs, deliver alerts, or execute actions. "
+    "Identified same-time events remain separate points; IDs are not temporal "
+    "order or independent confirmations. Inspect source_samples and event_order. "
     "Do not infer cause, business impact, or normality from absent findings."
 )
+
+
+def _input_schema(model):
+    """Drop display titles from wire schemas, retaining all validation constraints."""
+    def compact(value):
+        if isinstance(value, dict):
+            return {key: compact(item) for key, item in value.items()
+                    if key != "title" or not isinstance(item, str)}
+        if isinstance(value, list):
+            return [compact(item) for item in value]
+        return value
+    return compact(model.model_json_schema())
 
 
 TOOLS = [
@@ -68,7 +82,7 @@ TOOLS = [
             "assessment, readiness and data-quality checks, a preview of findings, "
             "and a run_id for drilldown. The full result stays in this MCP session. "
             "No finding establishes cause, incident status, or action authority."),
-        "inputSchema": AnalyzeRequestArguments.model_json_schema(),
+        "inputSchema": _input_schema(AnalyzeRequestArguments),
         "outputSchema": {
             "type": "object",
             "required": ["run_id", "schema_version", "status", "headline",
@@ -94,7 +108,7 @@ TOOLS = [
             "Page through cases, early candidates, point episodes, residual patterns, and data-quality "
             "issues from a prior analyze call. These types can overlap and are not "
             "a count of separate incidents. The run_id lasts only for this session."),
-        "inputSchema": ListFindingsArguments.model_json_schema(),
+        "inputSchema": _input_schema(ListFindingsArguments),
         "outputSchema": {
             "type": "object", "additionalProperties": True,
             "required": ["run_id", "total", "findings", "next_cursor"],
@@ -113,7 +127,7 @@ TOOLS = [
             "Inspect one finding by run_id and finding_id. Returns the numerical "
             "record, relevant assessments and lineage, readiness, limitations, "
             "and a page of source samples. This does not establish cause or impact."),
-        "inputSchema": GetEvidenceArguments.model_json_schema(),
+        "inputSchema": _input_schema(GetEvidenceArguments),
         "outputSchema": {
             "type": "object", "additionalProperties": True,
             "required": ["run_id", "finding", "record", "sample_count",

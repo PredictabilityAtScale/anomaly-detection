@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import subprocess
 import tempfile
+import time
 
 from release import digest, verify
 
@@ -56,7 +57,14 @@ def publish(dist, tag, revision, *, finalize=False):
                 encoding="utf-8")
             gh("release", "create", tag, "--repo", REPOSITORY, "--draft", "--verify-tag",
                "--target", revision, "--title", f"Anomalyzer {tag}", "--notes-file", str(notes))
-        release = find_release(tag)
+        # GitHub's draft index can lag behind successful creation. Retry reads,
+        # never creation, and leave the resumable draft intact on timeout.
+        for attempt in range(10):
+            release = find_release(tag)
+            if release is not None:
+                break
+            if attempt < 9:
+                time.sleep(2)
         if release is None:
             raise RuntimeError("Created draft is not visible yet; rerun to resume it safely")
     expected = {p.name: p for p in dist.iterdir() if p.is_file() and p.name != ".gitignore"}

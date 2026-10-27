@@ -138,3 +138,23 @@ def test_final_publication_verifies_release_by_id(monkeypatch, tmp_path):
     monkeypatch.setattr(publisher, "gh", fake_gh)
     publisher.publish(dist, "v0.2.1", "a" * 40, finalize=True)
     assert calls[-1] == ("api", f"repos/{publisher.REPOSITORY}/releases/42")
+
+
+def test_draft_visibility_delay_retries_reads_without_creating_twice(monkeypatch, tmp_path):
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    monkeypatch.setattr(publisher, "verify", lambda *args: None)
+    replies = iter([None,None,None,{"id":42,"draft":True,"assets":[]}])
+    monkeypatch.setattr(publisher, "find_release", lambda tag: next(replies))
+    delays, calls = [], []
+    monkeypatch.setattr(publisher.time, "sleep", delays.append)
+    def fake_gh(*args):
+        calls.append(args)
+        if args[0] == "api" and "/commits/" in args[1]:
+            return json.dumps({"sha":"a"*40})
+        assert args[:2] == ("release","create")
+        return ""
+    monkeypatch.setattr(publisher,"gh",fake_gh)
+    publisher.publish(dist,"v0.3.0","a"*40)
+    assert delays == [2,2]
+    assert sum(call[:2] == ("release","create") for call in calls) == 1

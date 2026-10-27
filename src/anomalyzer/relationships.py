@@ -32,6 +32,10 @@ def derive(relationship: Relationship,
            prepared: dict[str, PreparedDataset]) -> tuple[Dataset, list[LineagePoint], dict]:
     ids = _source_ids(relationship)
     sources = exact_sources(ids, prepared)
+    identified = "event_identity_contract" in sources[0].quality
+    if (identified and relationship.kind == "lagged_response"
+            and sources[0].quality["unordered_tie_positions"]):
+        raise ValueError("lagged_response cannot order tied events without trusted_sequence")
     # Exclusion from a model does not erase a genuine measured value.
     sources = [replace(source, values=source.quality.get("rule_values", source.values)) for source in sources]
     by_id = {source.dataset.id: source for source in sources}
@@ -177,6 +181,9 @@ def derive(relationship: Relationship,
             source.quality["samples"][i]["available_at"] if "samples" in source.quality else None for source, i in used}
         lineage[-1].source_input_indexes = {source.dataset.id:
             source.quality["samples"][i]["source_indexes"] if "samples" in source.quality else [source.source_indexes[i]] for source, i in used}
+        if identified:
+            lineage[-1].source_event_ids = {source.dataset.id: source.quality["samples"][i]["event_id"] for source, i in used}
+            lineage[-1].source_original_timestamps = {source.dataset.id: source.quality["samples"][i]["original_timestamp"] for source, i in used}
         known = [lineage[-1].source_available_at[source.dataset.id] for source, i in used
                  if source.values[i] is not None and lineage[-1].source_available_at[source.dataset.id]]
         lineage[-1].latest_source_cutoff = max([cutoff, *known])
@@ -188,10 +195,14 @@ def derive(relationship: Relationship,
         derived = DatasetV11(id=relationship.id, timestamps=times, values=values,
             frequency=first.frequency, units=relationship.units, entity=first.entity, timezone=first.timezone,
             data_policy=DataPolicy(observation_basis=basis,
+                event_order=policies[0].event_order if identified else "timestamp",
                 reference_gaps="restart" if any(p.reference_gaps == "restart" for p in policies) else "same_phase",
                 minimum_phase_samples=max(p.minimum_phase_samples for p in policies),
                 change_max_gap_seconds=min(separation) if separation else None),
-            coverage=["excluded" if i in excluded_indexes else "complete" if v is not None else "unknown" for i, v in enumerate(values)])
+            coverage=["excluded" if i in excluded_indexes else "complete" if v is not None else "unknown" for i, v in enumerate(values)],
+            event_ids=[s["event_id"] for s in sources[0].quality["samples"]] if identified else None,
+            available_at=[p.latest_source_cutoff if any(p.source_available_at.values()) else None for p in lineage] if identified else None,
+            event_sequence=[s["event_sequence"] for s in sources[0].quality["samples"]] if identified and policies[0].event_order == "trusted_sequence" else None)
     else:
         derived = Dataset(id=relationship.id, timestamps=times, values=values,
             frequency=first.frequency, units=relationship.units, entity=first.entity, timezone=first.timezone)

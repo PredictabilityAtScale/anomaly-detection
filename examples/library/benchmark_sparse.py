@@ -38,6 +38,13 @@ def workloads():
         data_policy={"observation_basis":"event_index"})
     events["datasets"][0].pop("frequency")
     result["448_comparable_events"] = events
+    identified = deepcopy(base)
+    identified["datasets"][0].update(timestamps=[times[i//4] for i in range(count)],
+        values=[.10+(i%5)*.001 for i in range(count)], units="dollars_per_call",
+        event_ids=[f"call-{i:04}" for i in range(count)],
+        data_policy={"observation_basis":"event_index"})
+    identified["datasets"][0].pop("frequency")
+    result["1344_distinct_calls_with_timestamp_ties"] = identified
     return result
 
 

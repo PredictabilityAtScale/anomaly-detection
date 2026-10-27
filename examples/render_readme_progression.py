@@ -988,6 +988,54 @@ def sparse_progression():
     svg.text(70, 625, "Hourly evidence: available. Completed-day learning: insufficient history. Views share the same source and are correlated.", 17, INK)
     svg.text(70, 660, "Fixed UTC 24-hour windows; local-calendar/DST aggregation and adaptive multi-resolution children remain separate work.", 15, MUTED)
     figures["anomaly-progression-22-sparse-days"] = svg.finish()
+    svg = Svg()
+    header(svg, "23", "Keep distinct calls at the same recorded time", "Each blue or red mark is a real call at its exact timestamp; equal costs can overlap. IDs do not invent order.")
+    x_at = {"2026-01-01T09:00:00.123Z":180, "2026-01-01T09:00:05.456Z":630, "2026-01-01T09:00:10.789Z":1080}
+    sy = lambda value: 500-value/1.05*300
+    for cost in (0,.1,.2,.5,.8,1.0):
+        svg.line(95, sy(cost), 1130, sy(cost), GRID)
+        svg.text(80, sy(cost)+5, f"${cost:.2f}", 15, MUTED, anchor="end")
+    svg.line(95, 200, 95, 500, AXIS)
+    svg.line(95, 500, 1130, 500, AXIS)
+    svg.line(95, sy(.2), 1130, sy(.2), GOLD, 2, "6 5")
+    svg.text(110, sy(.2)-12, "Illustrative range maximum: $0.20", 16, GOLD)
+    svg.line(850, sy(.1), 1130, sy(.1), NAVY, 2, "7 5")
+    calls = requests["identified_calls"]["datasets"][0]
+    for time_text, cost, event_id in zip(calls["timestamps"], calls["values"], calls["event_ids"]):
+        svg.circle(x_at[time_text], sy(cost), 6, RED if cost > .2 else BLUE)
+    for text, x in x_at.items():
+        svg.text(x, 535, text[11:23], 16, MUTED, anchor="middle")
+    svg.text(180, 170, "3 training calls", 19, INK, 700, "middle")
+    svg.text(630, 170, "4 calibration calls", 19, INK, 700, "middle")
+    svg.text(1080, 170, "3 evaluated calls", 19, INK, 700, "middle")
+    svg.text(180, 560, "call-00 to call-02", 15, MUTED, anchor="middle")
+    svg.text(630, 560, "call-03 to call-06", 15, MUTED, anchor="middle")
+    svg.text(1080, 560, "call-07 to call-09", 15, MUTED, anchor="middle")
+    svg.text(1060, sy(.8)+5, "call-07: $0.80", 17, RED, 700, "end")
+    svg.text(1060, sy(.9)-10, "call-09: $0.90", 17, RED, 700, "end")
+    svg.text(1055, sy(.12)-13, "call-08: $0.12", 16, BLUE, 400, "end")
+    svg.text(60, 605, "Original UTC time (including milliseconds). Whole cohorts finish a reference stage before the next timestamp uses it.", 16, INK)
+    legend(svg, [("dot",BLUE,"measured call"),("dot",RED,"point / range criterion"),("dash",NAVY,"frozen earlier-time reference")], y=640)
+    svg.text(60, 669, "Two distinct call cases remain inspectable. Cases, rule findings and point episodes are overlapping evidence, not alert counts.", 14, MUTED)
+    figures["anomaly-progression-23-same-time-calls"] = svg.finish()
+    svg = Svg()
+    header(svg, "24", "Declare identity, retries and order separately", "Same values, IDs and timestamps in both panels; only the caller's explicit ordering contract changes.")
+    for name, y, title in (("identified_pattern_ties",175,"Timestamp-only: ID layout; tied calls supply no sequence pattern"),
+                           ("identified_pattern_sequence",410,"Trusted sequence: ordered residual checks become applicable")):
+        item = target(name)
+        values = observed(name)
+        displayed = values if name.endswith("sequence") else [None]*len(values)
+        sx, sy = chart(svg, displayed, [(NAVY,expectation(name),2,"7 5",1)],95,y,1035,135,
+            shade_until=None, y_bounds=(.08,.13), y_tick_format=lambda value:f"${value:.2f}",
+            ticks=[(0,"call-00"),(7,"call-07"),(18,"call-18")],label=title)
+        for i, cost in enumerate(values):
+            svg.circle(sx(i),sy(cost),3.5,BLUE)
+        svg.line(sx(7),y-5,sx(7),y+140,AXIS,1,"3 5")
+        svg.text(1120,y-17,f"{len(item.anomaly_patterns)} pattern finding(s)",16,NAVY,700,"end")
+    svg.text(95,585,"All twelve evaluation calls share 09:00:10.789Z. The x-axis is ID layout or declared ordinal, never elapsed time.",16,INK)
+    svg.text(60,630,"Retry: same logical ID is rejected twice. Correction: same event/case ID, addressed value revision, as-of history retained.",16,INK)
+    svg.text(60,665,"Only assert trusted_sequence from actual source order. Neither sequence nor distinct IDs proves independence or cause.",15,MUTED)
+    figures["anomaly-progression-24-event-order"] = svg.finish()
     return figures
 
 
