@@ -70,7 +70,8 @@ def main():
     assert isinstance(result, ResultV11)
     assert result.status == "completed"
     assert analyze(request).status == "completed"
-    assert analyze_series(Dataset.model_validate(datasets[1])).status == "completed"
+    assert analyze_series(Dataset.model_validate({
+        **datasets[1], "timezone": "America/Los_Angeles"})).status == "completed"
     assert result.relationship_results[0].lineage[65].value == 1.5
     short = analyze_relationships({**request.model_dump(mode="json"),
         "datasets": [{**datasets[0], "values": values[:4], "timestamps": timestamps[:4]}],
