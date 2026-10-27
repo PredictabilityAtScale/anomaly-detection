@@ -65,7 +65,14 @@ def test_published_matching_release_is_noop(monkeypatch, tmp_path):
 def test_release_stops_before_mutation(monkeypatch, tmp_path, options, message):
     dist, _ = setup_publisher(monkeypatch, tmp_path, **options)
     with pytest.raises(ValueError, match=message):
-        publisher.publish(dist, "v0.1.0", "a" * 40)
+        publisher.publish(dist, "v0.1.0", "a" * 40, finalize=True)
+
+
+def test_ci_stages_draft_without_admin_api_or_publication(monkeypatch, tmp_path):
+    dist, calls = setup_publisher(monkeypatch, tmp_path, draft=True)
+    publisher.publish(dist, "v0.1.0", "a" * 40)
+    assert not any(call[0] == "api" and call[1].endswith("immutable-releases") for call in calls)
+    assert not any(call[:2] == ("release", "edit") for call in calls)
 
 
 def test_changed_artifact_fails_checksum_verification(monkeypatch, tmp_path):

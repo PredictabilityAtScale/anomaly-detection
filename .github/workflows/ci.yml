@@ -63,6 +63,7 @@ jobs:
           name: release-dist-${{ github.sha }}
           path: dist/
           if-no-files-found: error
+          overwrite: true
 
   installed:
     needs: build
@@ -98,7 +99,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: lambda-consumer-${{ github.sha }}
+          overwrite: true
           path: |
             .tmp/lambda-consumer/image-digests.json
             .tmp/lambda-consumer/smoke.json
             .tmp/lambda-consumer/requirements-offline.txt
+            .tmp/lambda-consumer/wheelhouse-SHA256SUMS

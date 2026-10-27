@@ -20,6 +20,8 @@ docker run --rm --platform linux/amd64 --entrypoint /bin/bash \
       --find-links /output/wheelhouse -r /artifacts/requirements-offline.txt \
       --target /output/package --no-compile
     cp /artifacts/requirements-offline.txt /output/requirements-offline.txt
+    cd /output/wheelhouse
+    sha256sum *.whl > /output/wheelhouse-SHA256SUMS
     python -m pip --version
   '
 docker run --rm --platform linux/amd64 --network none --entrypoint /bin/bash \

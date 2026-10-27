@@ -14,11 +14,14 @@ def gh(*args):
     return subprocess.check_output(["gh", *args], text=True).strip()
 
 
-def publish(dist, tag, revision):
+def publish(dist, tag, revision, *, finalize=False):
     verify(dist, revision, tag)
-    settings = json.loads(gh("api", f"repos/{REPOSITORY}/immutable-releases"))
-    if not settings["enabled"]:
-        raise ValueError("Enable release immutability in repository Settings > General > Releases first")
+    # This endpoint requires admin-read, unavailable to GITHUB_TOKEN. Only the
+    # owner's explicit final publication uses it; CI stages a verified draft.
+    if finalize:
+        settings = json.loads(gh("api", f"repos/{REPOSITORY}/immutable-releases"))
+        if not settings["enabled"]:
+            raise ValueError("Enable release immutability in repository Settings > General > Releases first")
     remote_sha = json.loads(gh("api", f"repos/{REPOSITORY}/commits/{tag}"))["sha"]
     if remote_sha != revision:
         raise ValueError("Remote tag no longer points to the tested source revision")
@@ -60,6 +63,9 @@ def publish(dist, tag, revision):
         return
     for name in sorted(set(expected) - existing):
         gh("release", "upload", tag, str(expected[name]), "--repo", REPOSITORY)
+    if not finalize:
+        print(f"Verified draft staged for {tag}; owner must run this command with --publish to seal it")
+        return
     gh("release", "edit", tag, "--repo", REPOSITORY, "--draft=false")
     sealed = json.loads(gh("api", endpoint))
     if not sealed.get("immutable"):
@@ -72,5 +78,7 @@ if __name__ == "__main__":
     parser.add_argument("--dist", type=Path, default=Path("dist"))
     parser.add_argument("--tag", required=True)
     parser.add_argument("--revision", required=True)
+    parser.add_argument("--publish", action="store_true",
+                        help="Owner-only final step: require immutability, then publish the draft")
     args = parser.parse_args()
-    publish(args.dist, args.tag, args.revision)
+    publish(args.dist, args.tag, args.revision, finalize=args.publish)

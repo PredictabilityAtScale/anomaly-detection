@@ -20,6 +20,12 @@ guidance:
   - Guard owns scheduling, persistence, business severity, incidents and
     notifications.
   - A published package does not establish integration into UsageTap Guard.
+planning:
+  story_map:
+    backbone: Embed analysis in my application
+    step: Install a released dependency
+    release: Python integration
+    order: 20
 #
 #
 agent:
@@ -85,16 +91,17 @@ agent:
           - scripts/release.py:1
           - scripts/release.py:20
           - scripts/release.py:39
-          - scripts/release.py:47
-          - scripts/release.py:53
-          - scripts/publish_release.py:24
-          - scripts/publish_release.py:26
-          - scripts/publish_release.py:36
+          - scripts/release.py:48
+          - scripts/release.py:54
+          - scripts/publish_release.py:19
+          - scripts/publish_release.py:27
+          - scripts/publish_release.py:29
+          - scripts/publish_release.py:39
           - scripts/verify_lambda.sh:14
           - scripts/verify_lambda.sh:17
           - scripts/verify_lambda.sh:19
-          - scripts/verify_lambda.sh:23
           - scripts/verify_lambda.sh:25
+          - scripts/verify_lambda.sh:27
           - .github/workflows/ci.yml:14
           - .github/workflows/ci.yml:19
           - .github/workflows/ci.yml:27
@@ -107,7 +114,8 @@ agent:
           - docs/releases/README.md:17
           - docs/releases/README.md:18
           - tests/test_release.py:60
-          - tests/test_release.py:74
+          - tests/test_release.py:71
+          - tests/test_release.py:81
         notes: Related implementation text was found, but deterministic matching cannot
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more
@@ -126,9 +134,9 @@ agent:
           - examples/library/guard_smoke.py:75
           - .github/workflows/ci.yml:57
           - docs/releases/README.md:13
-          - docs/releases/README.md:188
-          - docs/releases/README.md:191
-          - docs/releases/README.md:193
+          - docs/releases/README.md:208
+          - docs/releases/README.md:211
+          - docs/releases/README.md:213
         notes: Related implementation text was found, but deterministic matching cannot
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more
@@ -141,16 +149,17 @@ agent:
           - pyproject.toml:26
           - pyproject.toml:33
           - scripts/release.py:34
-          - scripts/release.py:80
           - scripts/release.py:81
-          - scripts/release.py:84
-          - scripts/release.py:91
+          - scripts/release.py:82
+          - scripts/release.py:85
+          - scripts/release.py:92
           - scripts/publish_release.py:1
-          - scripts/publish_release.py:22
-          - scripts/publish_release.py:23
-          - scripts/publish_release.py:24
           - scripts/publish_release.py:25
+          - scripts/publish_release.py:26
+          - scripts/publish_release.py:27
+          - scripts/publish_release.py:28
           - scripts/verify_distribution.py:41
+          - scripts/verify_lambda.sh:24
           - examples/library/guard_smoke.py:39
           - .github/workflows/ci.yml:42
           - .github/workflows/ci.yml:45
@@ -170,7 +179,7 @@ agent:
           - tests/test_release.py:21
           - tests/test_release.py:23
           - tests/test_release.py:52
-          - tests/test_release.py:74
+          - tests/test_release.py:81
         notes: Related implementation text was found, but deterministic matching cannot
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more
@@ -181,9 +190,9 @@ agent:
         evidence:
           - pyproject.toml:26
           - pyproject.toml:33
-          - scripts/release.py:80
           - scripts/release.py:81
-          - scripts/publish_release.py:37
+          - scripts/release.py:82
+          - scripts/publish_release.py:40
           - scripts/verify_distribution.py:41
           - scripts/verify_lambda.sh:6
           - scripts/verify_lambda.sh:17
@@ -192,12 +201,12 @@ agent:
           - .github/workflows/ci.yml:31
           - .github/workflows/ci.yml:51
           - .github/workflows/ci.yml:52
-          - .github/workflows/ci.yml:89
+          - .github/workflows/ci.yml:90
           - docs/releases/README.md:12
           - docs/releases/README.md:15
-          - docs/releases/README.md:56
-          - docs/releases/README.md:57
-          - docs/releases/README.md:73
+          - docs/releases/README.md:58
+          - docs/releases/README.md:59
+          - docs/releases/README.md:75
         notes: Related implementation text was found, but deterministic matching cannot
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more

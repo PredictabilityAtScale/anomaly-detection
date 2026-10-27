@@ -44,6 +44,7 @@ def check_archives(dist):
                         for p in (ROOT / "src/anomalyzer").rglob("*.py")}
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
+        assert "anomalyzer/py.typed" in names
         assert expected_modules <= set(names), "wheel missing source modules"
         assert not any("__pycache__" in name or name.endswith(".pyc") for name in names)
         meta = BytesParser().parsebytes(archive.read(f"anomalyzer-{ver}.dist-info/METADATA"))

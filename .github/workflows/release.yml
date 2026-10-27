@@ -30,7 +30,7 @@ jobs:
         with:
           name: release-dist-${{ github.sha }}
           path: dist/
-      - name: Seal the tested assets as an immutable GitHub Release
+      - name: Stage tested assets for owner publication
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}

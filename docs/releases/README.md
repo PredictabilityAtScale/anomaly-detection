@@ -22,13 +22,15 @@ it for package metadata and the public `__version__` imports it.
 
 1. Review and merge the packaging PR into `main` after CI passes.
 2. In GitHub **Settings → General → Releases**, enable **release immutability**.
-   The publish job refuses to proceed without it. On publication GitHub seals
+   The owner's final publish command refuses to proceed without it. On publication GitHub seals
    the tag and assets. See [GitHub's instructions](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/establish-provenance-and-integrity/prevent-release-changes).
 3. Ensure GitHub Actions is enabled and permitted to use the actions listed in
    `.github/workflows/ci.yml` and `release.yml`. The checks use `contents: read`;
    only the final publish job uses `contents: write` through GitHub's automatic,
    short-lived `GITHUB_TOKEN`. No personal token, PyPI account or AWS credentials
-   are required by CI.
+   are required by CI. CI stages a draft; the final command below runs under the
+   owner's existing GitHub CLI login. GitHub's immutability-settings endpoint
+   needs admin-read access, which the minimal workflow token cannot obtain.
 4. Recommended: add a repository tag ruleset for `v*` that restricts tag creation
    to release maintainers and blocks deletion/updates. Immutability protects the
    tag after publication; a ruleset protects it while checks are running too.
@@ -72,7 +74,23 @@ Open the repository's **Actions → Release** run. It runs all tests on
 contents, installs both artifacts in clean environments on all supported Python
 versions, and tests a bundled Linux x86_64/Python 3.12 consumer in AWS's Lambda
 image. The runtime container has networking disabled. Only after every job
-passes does it create a draft, attach the tested files and publish it atomically.
+passes does it create a draft and attach the tested files. Publication is one
+explicit owner step, using the already tested files:
+
+```text
+git switch --detach v0.1.0
+gh release download v0.1.0 --repo PredictabilityAtScale/anomaly-detection --dir release-v0.1.0
+git rev-parse HEAD
+python scripts/publish_release.py --dist release-v0.1.0 --tag v0.1.0 --revision <full-SHA-printed-above> --publish
+git switch main
+```
+
+Replace `<full-SHA-printed-above>` with the commit printed by Git. The helper
+requires the owner's authenticated `gh` session with admin-read access; it checks
+the actual repository immutability setting, remote tag, checksums and existing
+draft bytes before publishing. It never rebuilds. GitHub then seals the tag and
+all assets together. If GitHub CLI reports a permission problem, use the owner
+account (`gh auth switch`) or sign in as that owner; do not add a token to CI.
 
 Assets live under [GitHub Releases](https://github.com/PredictabilityAtScale/anomaly-detection/releases),
 in the release for the selected tag:
@@ -89,7 +107,7 @@ in the release for the selected tag:
 
 CI's **Artifacts** section also holds `release-dist-<commit>` and the
 `lambda-consumer-<commit>` verification report, including the actual container
-image digest and offline smoke result. CI artifacts expire; Release assets are
+image digest, chosen dependency wheel hashes and offline smoke result. CI artifacts expire; Release assets are
 the durable distribution channel. Branch/PR artifacts are candidates, not
 published releases; their manifest has a null tag and their prospective release
 URL will not work until that version is released.
@@ -97,12 +115,14 @@ URL will not work until that version is released.
 ## Failures and reruns
 
 Before publication, failures leave no release or an unpublished draft. Fix
-environment/setup failures (for example enable immutability), then use **Re-run
+environment/setup failures, then use **Re-run
 failed jobs** on the same Actions run. The publish job downloads the already
 tested CI artifact; it never rebuilds. A partial draft resumes by verifying
 existing bytes and uploading only missing assets. It refuses mismatched or
 unexpected assets. A complete matching immutable release is a successful no-op
-on rerun. Never delete/replace assets to make a rerun pass.
+on rerun. If the final owner command fails, fix its setup issue (for example
+enable immutability) and rerun that command with the same downloaded assets.
+Never delete/replace release assets to make a rerun pass.
 
 If source changes are needed after a tag was pushed, use a new version/tag even
 if the old tag failed; do not move the tag. If build/check jobs are rerun, every
