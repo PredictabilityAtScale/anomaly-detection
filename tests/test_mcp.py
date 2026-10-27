@@ -338,7 +338,7 @@ def test_schema_11_episode_is_paged_and_has_relationship_evidence():
         "orders": 14, "qualified_visits": 14}
 
 
-def test_inapplicable_method_keeps_descriptive_candidate_visible():
+def test_sparse_insufficient_history_keeps_descriptive_candidate_visible():
     request = {
         "schema_version": "1.1",
         "datasets": [{"id": "series", "entity": {"account": "example"},
@@ -350,7 +350,7 @@ def test_inapplicable_method_keeps_descriptive_candidate_visible():
     summary = handle({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
                       "params": {"name": "analyze", "arguments": {"request": request}}}
                      )["result"]["structuredContent"]
-    assert summary["status"] == "inapplicable"
+    assert summary["status"] == "insufficient_history"
     candidate = next(item for item in summary["findings_preview"]
                      if item["kind"] == "candidate")
     detail = handle({"jsonrpc": "2.0", "id": 2, "method": "tools/call",

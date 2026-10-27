@@ -15,24 +15,28 @@ class PreparedDataset:
 
 
 def prepare_source(dataset: DatasetV11, settings: Settings,
-                   context: Context) -> PreparedDataset:
-    times, values, quality = prepare(dataset, settings, context)
+                   context: Context, budget=None) -> PreparedDataset:
+    from .sparse import normalize, uses_policy
+    explicit = uses_policy(dataset)
+    times, values, quality = (normalize(dataset, settings, context, budget)
+                              if explicit else prepare(dataset, settings, context))
     if dataset.timestamps is None:
         indexes = list(range(len(values)))
     else:
-        if quality["duplicate_count"]:
+        if quality["duplicate_count"] and dataset.data_policy is None:
             raise ValueError(
                 "relationship lineage requires unique source timestamps; duplicates are not supported")
         by_time = {
             timestamp(value, dataset.timezone).isoformat(): index
             for index, value in enumerate(dataset.timestamps)
         }
-        indexes = [by_time[value] for value in times]
+        indexes = ([sample["source_index"] if len(sample["source_indexes"]) <= 1 else -1
+                    for sample in quality["samples"]] if explicit else [by_time.get(value, -1) for value in times])
         # Retain trailing explicitly incomplete periods for relationship
         # alignment, but represent their values as unavailable. The
         # single-series engine still receives the original Dataset and excludes
         # these periods during its own preparation.
-        for item in quality.get("incomplete_periods", []):
+        for item in ([] if explicit else quality.get("incomplete_periods", [])):
             times.append(item["timestamp"])
             values.append(None)
             indexes.append(item["index"])
@@ -46,6 +50,9 @@ def exact_sources(ids: list[str], prepared: dict[str, PreparedDataset]):
     frequencies = {source.dataset.frequency for source in sources}
     if len(frequencies) != 1:
         raise ValueError("related datasets must declare the same cadence")
+    bases = {source.quality.get("coordinate") == "event_index" for source in sources}
+    if len(bases) != 1:
+        raise ValueError("related datasets must share the observation basis")
     entities = {tuple(sorted(source.dataset.entity.items())) for source in sources}
     if len(entities) != 1:
         raise ValueError("related datasets must declare matching entity metadata")

@@ -19,6 +19,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dist", type=Path, default=Path("dist"))
     parser.add_argument("--python", default="3.12")
+    parser.add_argument("--from-release", action="store_true",
+                        help="Install the wheel through the exact published URL and hashes")
     args = parser.parse_args()
     dist = args.dist.resolve()
     artifacts = list(dist.glob("*.whl")) + list(dist.glob("*.tar.gz"))
@@ -37,9 +39,13 @@ def main():
             run(["uv", "venv", "--python", args.python, venv], outside, env=env)
             python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
             scripts = python.parent
-            run(["uv", "pip", "install", "--python", python, "--require-hashes", "-r",
-                 dist / "runtime-dependencies.txt"], outside, env=env)
-            run(["uv", "pip", "install", "--python", python, "--no-deps", artifact], outside, env=env)
+            if args.from_release and artifact.suffix == ".whl":
+                run(["uv", "pip", "install", "--python", python, "--require-hashes", "-r",
+                     dist / "requirements-guard-py312-linux-x86_64.txt"], outside, env=env)
+            else:
+                run(["uv", "pip", "install", "--python", python, "--require-hashes", "-r",
+                     dist / "runtime-dependencies.txt"], outside, env=env)
+                run(["uv", "pip", "install", "--python", python, "--no-deps", artifact], outside, env=env)
             run(["uv", "pip", "check", "--python", python], outside, env=env)
             run([python, "-I", smoke, "--expect-prefix", venv], outside, env=env)
             cli = scripts / ("anomalyzer.exe" if os.name == "nt" else "anomalyzer")

@@ -78,7 +78,7 @@ def test_ci_stages_draft_without_admin_api_or_publication(monkeypatch, tmp_path)
 def test_changed_artifact_fails_checksum_verification(monkeypatch, tmp_path):
     (tmp_path / "wheel.whl").write_bytes(b"changed after testing")
     (tmp_path / "release-manifest.json").write_text(json.dumps({
-        "version": release.version(), "source_revision": "a" * 40, "tag": "v0.1.0",
+        "version": release.version(), "source_revision": "a" * 40, "tag": f"v{release.version()}",
         "artifacts": {"wheel.whl": {"sha256": "0" * 64, "size": 21}}}))
     with pytest.raises(AssertionError, match="wheel.whl"):
-        release.verify(tmp_path, "a" * 40, "v0.1.0")
+        release.verify(tmp_path, "a" * 40, f"v{release.version()}")

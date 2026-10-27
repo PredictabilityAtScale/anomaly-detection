@@ -4,8 +4,9 @@ summary: Timestamped observations are normalized to UTC, ordered, and checked
   against their declared cadence before analysis.
 intent: Compare like periods and make preparation decisions visible to the caller.
 acceptance:
-  - Timestamped datasets provide both timestamps and frequency; positional
-    datasets provide neither.
+  - Calendar datasets provide timestamps and frequency; positional datasets
+    provide neither. Explicit schema-1.1 event-index sources retain timestamps
+    without a calendar frequency.
   - Local timestamps require a timezone, and ambiguous or nonexistent
     daylight-saving times require an explicit offset.
   - Duplicate timestamps are rejected unless an aggregation policy is supplied;
@@ -13,7 +14,9 @@ acceptance:
   - An as_of cutoff excludes later observations, and cadence is checked as a
     fixed elapsed duration.
 guidance:
-  - No interpolation, imputation, resampling, or unit conversion occurs.
+  - No interpolation or implicit filling, resampling, or unit conversion occurs.
+    Schema-1.1 source policies may explicitly authorize confirmed empty additive
+    volume as zero.
   - Duplicate null values propagate through aggregation.
 planning:
   story_map:
@@ -34,6 +37,8 @@ agent:
   # -----------------------------
   implementation:
     references:
+      - src/anomalyzer/sparse.py
+      - tests/test_sparse.py
       - src/anomalyzer/validation.py
       - src/anomalyzer/contracts.py
       - tests/test_analysis.py

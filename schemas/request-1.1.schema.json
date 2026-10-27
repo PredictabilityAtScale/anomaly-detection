@@ -91,6 +91,99 @@
       "title": "Context",
       "type": "object"
     },
+    "DataPolicy": {
+      "additionalProperties": false,
+      "description": "Explicit source semantics; unknown collection is never implicit zero.",
+      "properties": {
+        "missing": {
+          "default": "preserve",
+          "enum": [
+            "preserve",
+            "zero_for_empty"
+          ],
+          "title": "Missing",
+          "type": "string"
+        },
+        "measurement": {
+          "default": "measurement",
+          "enum": [
+            "measurement",
+            "additive_volume"
+          ],
+          "title": "Measurement",
+          "type": "string"
+        },
+        "absence_means_zero": {
+          "default": false,
+          "title": "Absence Means Zero",
+          "type": "boolean"
+        },
+        "observation_basis": {
+          "default": "calendar",
+          "enum": [
+            "calendar",
+            "event_index"
+          ],
+          "title": "Observation Basis",
+          "type": "string"
+        },
+        "reference_gaps": {
+          "default": "same_phase",
+          "enum": [
+            "same_phase",
+            "restart"
+          ],
+          "title": "Reference Gaps",
+          "type": "string"
+        },
+        "grid_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grid Start"
+        },
+        "grid_end": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grid End"
+        },
+        "change_max_gap_seconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Change Max Gap Seconds"
+        },
+        "minimum_phase_samples": {
+          "default": 2,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Minimum Phase Samples",
+          "type": "integer"
+        }
+      },
+      "title": "DataPolicy",
+      "type": "object"
+    },
     "DatasetV11": {
       "additionalProperties": false,
       "properties": {
@@ -218,6 +311,94 @@
           },
           "title": "Rules",
           "type": "array"
+        },
+        "completed_period_rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Completed Period Rules",
+          "type": "array"
+        },
+        "data_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "complete",
+                  "empty",
+                  "unknown",
+                  "incomplete",
+                  "excluded",
+                  "revised"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Coverage"
+        },
+        "available_at": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Available At"
+        },
+        "revisions": {
+          "items": {
+            "$ref": "#/$defs/SampleRevision"
+          },
+          "title": "Revisions",
+          "type": "array"
         }
       },
       "required": [
@@ -230,6 +411,31 @@
     "DifferenceRelationship": {
       "additionalProperties": false,
       "properties": {
+        "completed_period_rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Completed Period Rules",
+          "type": "array"
+        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -300,6 +506,31 @@
     "JointConditionRelationship": {
       "additionalProperties": false,
       "properties": {
+        "completed_period_rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Completed Period Rules",
+          "type": "array"
+        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -409,6 +640,31 @@
     "LaggedResponseRelationship": {
       "additionalProperties": false,
       "properties": {
+        "completed_period_rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Completed Period Rules",
+          "type": "array"
+        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -564,6 +820,31 @@
     "NormalizedResidualRelationship": {
       "additionalProperties": false,
       "properties": {
+        "completed_period_rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Completed Period Rules",
+          "type": "array"
+        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -640,6 +921,31 @@
     "RatioRelationship": {
       "additionalProperties": false,
       "properties": {
+        "completed_period_rules": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "acceptable_range": "#/$defs/AcceptableRangeRule",
+                "maximum_absolute_change": "#/$defs/MaximumAbsoluteChangeRule",
+                "maximum_relative_change": "#/$defs/MaximumRelativeChangeRule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AcceptableRangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumAbsoluteChangeRule"
+              },
+              {
+                "$ref": "#/$defs/MaximumRelativeChangeRule"
+              }
+            ]
+          },
+          "title": "Completed Period Rules",
+          "type": "array"
+        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -714,6 +1020,56 @@
         "units"
       ],
       "title": "RatioRelationship",
+      "type": "object"
+    },
+    "SampleRevision": {
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "available_at": {
+          "title": "Available At",
+          "type": "string"
+        },
+        "revision_id": {
+          "minLength": 1,
+          "title": "Revision Id",
+          "type": "string"
+        },
+        "coverage": {
+          "default": "revised",
+          "enum": [
+            "complete",
+            "empty",
+            "unknown",
+            "incomplete",
+            "excluded",
+            "revised"
+          ],
+          "title": "Coverage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timestamp",
+        "value",
+        "available_at",
+        "revision_id"
+      ],
+      "title": "SampleRevision",
       "type": "object"
     },
     "Settings": {

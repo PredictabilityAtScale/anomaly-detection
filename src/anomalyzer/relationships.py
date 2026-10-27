@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 
 from .alignment import PreparedDataset, exact_sources
-from .contracts import Dataset, LineagePoint, Relationship
+from .contracts import DataPolicy, Dataset, DatasetV11, LineagePoint, Relationship
 
 
 def _compare(value: float, operator: str, threshold: float) -> bool:
@@ -31,6 +32,8 @@ def derive(relationship: Relationship,
            prepared: dict[str, PreparedDataset]) -> tuple[Dataset, list[LineagePoint], dict]:
     ids = _source_ids(relationship)
     sources = exact_sources(ids, prepared)
+    # Exclusion from a model does not erase a genuine measured value.
+    sources = [replace(source, values=source.quality.get("rule_values", source.values)) for source in sources]
     by_id = {source.dataset.id: source for source in sources}
     times = sources[0].times
     if any(value is None for value in times):
@@ -76,6 +79,7 @@ def derive(relationship: Relationship,
     values: list[float | None] = []
     lineage: list[LineagePoint] = []
     unavailable_count = 0
+    excluded_indexes = set()
     for index, observed_at in enumerate(times):
         used: list[tuple[PreparedDataset, int]] = []
         unavailable = None
@@ -146,8 +150,10 @@ def derive(relationship: Relationship,
                            for value, condition in zip(source_values, relationship.conditions)]
                 value = float(all(matches) if relationship.combine == "all" else any(matches))
         if value is not None and not math.isfinite(value):
-            raise ValueError(f"derived nonfinite value at aligned index {index}")
+            value, unavailable = None, "nonfinite_derived_value"
         values.append(value)
+        if any("samples" in source.quality and source.quality["samples"][i]["coverage"] == "excluded" for source, i in used):
+            excluded_indexes.add(index)
         unavailable_count += unavailable is not None
         source_indexes = {source.dataset.id: source.source_indexes[source_index]
                           for source, source_index in used}
@@ -161,11 +167,34 @@ def derive(relationship: Relationship,
             formula=formula, parameters=parameters, units=relationship.units,
             lag=lag, unavailable_reason=unavailable,
             latest_source_cutoff=cutoff))
+        lineage[-1].source_values = {source.dataset.id: source.values[i] for source, i in used}
+        lineage[-1].source_coverage = {source.dataset.id:
+            source.quality["samples"][i]["coverage"] if "samples" in source.quality else
+            "complete" if source.values[i] is not None else "unknown_or_incomplete" for source, i in used}
+        lineage[-1].source_revision_ids = {source.dataset.id:
+            source.quality["samples"][i]["revision_id"] if "samples" in source.quality else None for source, i in used}
+        lineage[-1].source_available_at = {source.dataset.id:
+            source.quality["samples"][i]["available_at"] if "samples" in source.quality else None for source, i in used}
+        lineage[-1].source_input_indexes = {source.dataset.id:
+            source.quality["samples"][i]["source_indexes"] if "samples" in source.quality else [source.source_indexes[i]] for source, i in used}
+        known = [lineage[-1].source_available_at[source.dataset.id] for source, i in used
+                 if source.values[i] is not None and lineage[-1].source_available_at[source.dataset.id]]
+        lineage[-1].latest_source_cutoff = max([cutoff, *known])
     first = sources[0].dataset
-    derived = Dataset(
-        id=relationship.id, timestamps=times, values=values,
-        frequency=first.frequency, units=relationship.units,
-        entity=first.entity)
+    if any("data_policy" in source.quality for source in sources) or any(v is None for v in values):
+        basis = "event_index" if sources[0].quality.get("coordinate") == "event_index" else "calendar"
+        policies = [getattr(source.dataset, "data_policy", None) or DataPolicy() for source in sources]
+        separation = [policy.change_max_gap_seconds for policy in policies if policy.change_max_gap_seconds]
+        derived = DatasetV11(id=relationship.id, timestamps=times, values=values,
+            frequency=first.frequency, units=relationship.units, entity=first.entity, timezone=first.timezone,
+            data_policy=DataPolicy(observation_basis=basis,
+                reference_gaps="restart" if any(p.reference_gaps == "restart" for p in policies) else "same_phase",
+                minimum_phase_samples=max(p.minimum_phase_samples for p in policies),
+                change_max_gap_seconds=min(separation) if separation else None),
+            coverage=["excluded" if i in excluded_indexes else "complete" if v is not None else "unknown" for i, v in enumerate(values)])
+    else:
+        derived = Dataset(id=relationship.id, timestamps=times, values=values,
+            frequency=first.frequency, units=relationship.units, entity=first.entity, timezone=first.timezone)
     quality = {
         "alignment": "exact", "cadence": first.frequency,
         "aligned_count": len(times), "available_count": len(times) - unavailable_count,

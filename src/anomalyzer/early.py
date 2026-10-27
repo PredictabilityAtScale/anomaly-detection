@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import statistics
+import math
+from bisect import insort
+from datetime import datetime
 from typing import Iterable
 
 from .contracts import (
@@ -39,7 +42,9 @@ def descriptive_assessments(target_id: str, times: list[str | None],
                             values: list[float | None],
                             rules: Iterable[ExplicitRule] = (),
                             policy: ActionPolicy | None = None,
-                            relationship: bool = False) -> list[Assessment]:
+                            relationship: bool = False,
+                            reset_positions=(), change_max_gap_seconds=None,
+                            excluded_positions=()) -> list[Assessment]:
     """Return prefix-invariant facts and simple-reference comparisons.
 
     Missing values break the comparison population. They are intentionally not
@@ -49,14 +54,23 @@ def descriptive_assessments(target_id: str, times: list[str | None],
     result: list[Assessment] = []
     prior: list[float] = []
     previous: float | None = None
+    boundaries = set(reset_positions) | set(excluded_positions) | {i + 1 for i in excluded_positions}
     for index, (observed_at, value) in enumerate(zip(times, values)):
+        if (index in boundaries or change_max_gap_seconds is not None and index and
+                times[index] and times[index-1] and
+                (datetime.fromisoformat(times[index]) - datetime.fromisoformat(times[index-1])).total_seconds() > change_max_gap_seconds):
+            prior, previous = [], None
         if value is None:
             prior = []
             previous = None
             continue
         change = value - previous if previous is not None else None
+        if change is not None and not math.isfinite(change):
+            change = None
         relative = (change / abs(previous)
                     if change is not None and previous != 0 else None)
+        if relative is not None and not math.isfinite(relative):
+            relative = None
         violations = _rule_violations(value, previous, rules)
         if violations:
             classification = "criterion_violation"
@@ -94,8 +108,9 @@ def descriptive_assessments(target_id: str, times: list[str | None],
                 "Two observations do not establish an unusual departure, stable "
                 "baseline, or real-world cause.")
         else:
-            center = statistics.median(prior)
-            low, high = min(prior), max(prior)
+            middle = len(prior)//2
+            center = statistics.mean(prior[middle-1:middle+1]) if len(prior)%2 == 0 else prior[middle]
+            low, high = prior[0], prior[-1]
             outside = value < low or value > high
             width = high - low
             distance = low - value if value < low else value - high if value > high else 0.0
@@ -120,6 +135,13 @@ def descriptive_assessments(target_id: str, times: list[str | None],
                 "does not establish a real-world anomaly or cause.")
         action = bool(
             criterion_met and policy.allow_explicit_rules)
+        if strength is not None and not math.isfinite(strength):
+            strength = None
+        unavailable_rules = [dict(id=rule.id, reason="no_comparable_prior" if previous is None else "relative_change_from_zero")
+            for rule in rules if rule.kind != "acceptable_range" and
+            (previous is None or rule.kind == "maximum_relative_change" and previous == 0)]
+        if unavailable_rules:
+            baseline["unavailable_rules"] = unavailable_rules
         result.append(Assessment(
             id=f"{target_id}:assessment:{index}:early",
             target_id=target_id, index=index, timestamp=observed_at,
@@ -138,7 +160,7 @@ def descriptive_assessments(target_id: str, times: list[str | None],
                 "Values share the declared target units and entity.",
                 "No interpolation, resampling, or implicit unit conversion was performed.",
             ], established=established, not_established=not_established))
-        prior.append(value)
+        insort(prior, value)
         previous = value
     return result
 

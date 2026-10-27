@@ -59,7 +59,7 @@ agent:
         description: Inspect descriptive candidate evidence without inventing a case.
         command: python -m pytest -q
           tests/test_mcp.py::test_short_history_candidate_is_visible_without_a_case
-          tests/test_mcp.py::test_inapplicable_method_keeps_descriptive_candidate_visible
+          tests/test_mcp.py::test_sparse_insufficient_history_keeps_descriptive_candidate_visible
       - id: sample-pagination
         description: Page supporting samples for a residual pattern.
         command: python -m pytest -q

@@ -33,7 +33,10 @@ def publish(dist, tag, revision, *, finalize=False):
             raise RuntimeError(found.stderr)
         with tempfile.TemporaryDirectory() as temp:
             notes = Path(temp) / "notes.md"
+            feature_path = Path(__file__).resolve().parents[1] / "docs/releases" / f"{tag[1:]}.md"
+            feature_notes = feature_path.read_text(encoding="utf-8") + "\n\n" if feature_path.is_file() else ""
             notes.write_text(
+                feature_notes +
                 f"Anomalyzer {tag[1:]} — local Python analysis library.\n\n"
                 f"Source revision: `{revision}`.\n\n"
                 "Wheel and source distribution tested on Python 3.11–3.13; "

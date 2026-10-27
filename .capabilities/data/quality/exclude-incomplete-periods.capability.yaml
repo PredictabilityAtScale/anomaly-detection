@@ -1,11 +1,11 @@
 title: Avoid mistaking unfinished periods for drops
 status: implemented
-summary: Explicitly incomplete trailing observations are reported as data
-  quality evidence and excluded from completed-series analysis.
+summary: Explicitly incomplete observations are reported as data quality
+  evidence and excluded from completed-series analysis.
 intent: Prevent an unfinished period from appearing to be an unexplained drop.
 acceptance:
-  - Incomplete observations form a trailing suffix after chronological
-    preparation.
+  - Schema-1.0 incomplete observations form a trailing suffix; schema-1.1 source
+    policies preserve internal and trailing incomplete positions as unavailable.
   - The observed values and timestamps of unfinished periods remain available in
     data quality output.
   - Incomplete source samples are excluded from expectations, calibration, point
@@ -36,6 +36,9 @@ agent:
     - data/quality/prepare-timestamped-series
   implementation:
     references:
+      - src/anomalyzer/sparse.py
+      - src/anomalyzer/sparse_views.py
+      - tests/test_sparse.py
       - src/anomalyzer/validation.py
       - src/anomalyzer/alignment.py
       - src/anomalyzer/recipes.py

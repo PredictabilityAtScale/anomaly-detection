@@ -322,6 +322,18 @@
           "title": "Id",
           "type": "string"
         },
+        "resolution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolution"
+        },
         "revision_id": {
           "title": "Revision Id",
           "type": "string"
@@ -508,6 +520,18 @@
         "dataset_id": {
           "title": "Dataset Id",
           "type": "string"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolution"
         },
         "status": {
           "enum": [
@@ -815,6 +839,65 @@
         "latest_source_cutoff": {
           "title": "Latest Source Cutoff",
           "type": "string"
+        },
+        "source_coverage": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Coverage",
+          "type": "object"
+        },
+        "source_values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Source Values",
+          "type": "object"
+        },
+        "source_revision_ids": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Source Revision Ids",
+          "type": "object"
+        },
+        "source_available_at": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Source Available At",
+          "type": "object"
+        },
+        "source_input_indexes": {
+          "additionalProperties": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "title": "Source Input Indexes",
+          "type": "object"
         }
       },
       "required": [
@@ -1006,6 +1089,18 @@
         "relationship_id": {
           "title": "Relationship Id",
           "type": "string"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolution"
         },
         "kind": {
           "enum": [

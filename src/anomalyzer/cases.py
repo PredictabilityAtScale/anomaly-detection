@@ -117,7 +117,10 @@ def compose_cases(dataset_results: list[DatasetResultV11],
             assessment.id for _, _, assessment in items)
         cases.append(Case(
             id=case_id, revision_id=revision_id, entity=entity, event_time=event,
-            detection_time=event, source_availability_cutoff=event,
+            detection_time=max([event, *[assessment.baseline.get("known_input_availability_cutoff", event)
+                                        for _, _, assessment in items]], key=str),
+            source_availability_cutoff=max([event, *[assessment.baseline.get("known_input_availability_cutoff", event)
+                                                    for _, _, assessment in items]], key=str),
             contributing_dataset_ids=datasets,
             contributing_relationship_ids=relationships,
             supporting_evidence=refs, conflicting_evidence=[],

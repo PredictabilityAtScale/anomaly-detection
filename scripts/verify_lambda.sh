@@ -5,6 +5,7 @@ image=public.ecr.aws/lambda/python:3.12
 root=$(pwd)
 bundle="$root/.tmp/lambda-consumer"
 mkdir -p "$bundle"
+mkdir -p "$bundle/reports"
 if [ -e "$bundle/package" ]; then
   echo "Use a fresh .tmp/lambda-consumer directory for each verification" >&2
   exit 1
@@ -27,6 +28,8 @@ docker run --rm --platform linux/amd64 --entrypoint /bin/bash \
 docker run --rm --platform linux/amd64 --network none --entrypoint /bin/bash \
   -v "$bundle/package:/var/task:ro" \
   -v "$root/examples/library/guard_smoke.py:/tmp/guard_smoke.py:ro" \
+  -v "$root/examples/library/benchmark_sparse.py:/tmp/benchmark_sparse.py:ro" \
+  -v "$bundle/reports:/reports" \
   -w /var/task "$image" -euc \
-  'PYTHONPATH=/var/task python /tmp/guard_smoke.py --expect-prefix /var/task' \
+  'PYTHONPATH=/var/task python /tmp/guard_smoke.py --expect-prefix /var/task && PYTHONPATH=/var/task python /tmp/benchmark_sparse.py --output /reports/benchmark.json >/dev/null' \
   | tee "$bundle/smoke.json"

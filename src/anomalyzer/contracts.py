@@ -78,7 +78,7 @@ class Dataset(Contract):
         if self.timestamps is None:
             if self.frequency is not None or self.timezone is not None:
                 raise ValueError("frequency and timezone require timestamps")
-        elif self.frequency is None:
+        elif self.frequency is None and getattr(getattr(self, "data_policy", None), "observation_basis", None) != "event_index":
             raise ValueError("timestamps require frequency")
         elif len(self.timestamps) != len(self.values):
             raise ValueError("timestamps and values must have equal length")
@@ -237,11 +237,70 @@ ExplicitRule = Annotated[
 ]
 
 
+class DataPolicy(Contract):
+    """Explicit source semantics; unknown collection is never implicit zero."""
+    missing: Literal["preserve", "zero_for_empty"] = "preserve"
+    measurement: Literal["measurement", "additive_volume"] = "measurement"
+    absence_means_zero: bool = False
+    observation_basis: Literal["calendar", "event_index"] = "calendar"
+    reference_gaps: Literal["same_phase", "restart"] = "same_phase"
+    grid_start: str | None = None
+    grid_end: str | None = None
+    change_max_gap_seconds: float | None = Field(default=None, gt=0)
+    minimum_phase_samples: int = Field(default=2, ge=1, le=10000, strict=True)
+
+    @model_validator(mode="after")
+    def meaningful(self):
+        if (self.missing == "zero_for_empty" or self.absence_means_zero) and self.measurement != "additive_volume":
+            raise ValueError("zero-for-empty requires measurement='additive_volume'")
+        if self.absence_means_zero and self.missing != "zero_for_empty":
+            raise ValueError("absence_means_zero requires missing='zero_for_empty'")
+        if self.observation_basis == "event_index" and (
+                self.missing != "preserve" or self.grid_start or self.grid_end):
+            raise ValueError("event_index preserves real events; zero filling and calendar grids are unavailable")
+        return self
+
+
+Coverage = Literal["complete", "empty", "unknown", "incomplete", "excluded", "revised"]
+
+
+class SampleRevision(Contract):
+    timestamp: str
+    value: float | None
+    available_at: str
+    revision_id: str = Field(min_length=1)
+    coverage: Coverage = "revised"
+
+    @field_validator("value", mode="before")
+    @classmethod
+    def numeric_revision(cls, value):
+        if value is not None and (isinstance(value, bool) or not isinstance(value, (float, int))):
+            raise ValueError("revision values must be numeric or null")
+        return value
+
+
 class DatasetV11(Dataset):
     entity: dict[str, str] = Field(min_length=1)
     rules: list[ExplicitRule] = Field(default_factory=list)
+    completed_period_rules: list[ExplicitRule] = Field(default_factory=list)
+    data_policy: DataPolicy | None = None
+    coverage: list[Coverage] | None = None
+    available_at: list[str | None] | None = None
+    revisions: list[SampleRevision] = Field(default_factory=list)
 
-    @field_validator("rules")
+    @model_validator(mode="after")
+    def source_annotations(self):
+        for name in ("coverage", "available_at"):
+            annotation = getattr(self, name)
+            if annotation is not None and len(annotation) != len(self.values):
+                raise ValueError(f"{name} and values must have equal length")
+        if (self.data_policy or self.coverage or self.available_at or self.revisions) and self.timestamps is None:
+            raise ValueError("source policies/coverage/revisions require original timestamps")
+        if self.data_policy and self.data_policy.observation_basis == "event_index" and self.frequency is not None:
+            raise ValueError("event_index must omit frequency; event position is not elapsed cadence")
+        return self
+
+    @field_validator("rules", "completed_period_rules")
     @classmethod
     def unique_rule_ids(cls, rules):
         ids = [rule.id for rule in rules]
@@ -251,6 +310,7 @@ class DatasetV11(Dataset):
 
 
 class RatioRelationship(Contract):
+    completed_period_rules: list[ExplicitRule] = Field(default_factory=list)
     id: str = Field(min_length=1)
     kind: Literal["ratio"]
     numerator: str = Field(min_length=1)
@@ -262,6 +322,7 @@ class RatioRelationship(Contract):
 
 
 class DifferenceRelationship(Contract):
+    completed_period_rules: list[ExplicitRule] = Field(default_factory=list)
     id: str = Field(min_length=1)
     kind: Literal["difference"]
     minuend: str = Field(min_length=1)
@@ -272,6 +333,7 @@ class DifferenceRelationship(Contract):
 
 
 class NormalizedResidualRelationship(Contract):
+    completed_period_rules: list[ExplicitRule] = Field(default_factory=list)
     id: str = Field(min_length=1)
     kind: Literal["normalized_residual"]
     observed: str = Field(min_length=1)
@@ -283,6 +345,7 @@ class NormalizedResidualRelationship(Contract):
 
 
 class LaggedResponseRelationship(Contract):
+    completed_period_rules: list[ExplicitRule] = Field(default_factory=list)
     id: str = Field(min_length=1)
     kind: Literal["lagged_response"]
     response: str = Field(min_length=1)
@@ -309,6 +372,7 @@ class JointConditionTerm(Contract):
 
 
 class JointConditionRelationship(Contract):
+    completed_period_rules: list[ExplicitRule] = Field(default_factory=list)
     id: str = Field(min_length=1)
     kind: Literal["joint_condition"]
     conditions: list[JointConditionTerm] = Field(min_length=2, max_length=4)
@@ -370,7 +434,7 @@ class RequestV11(Contract):
             if len(set(refs)) != len(refs):
                 raise ValueError(
                     f"relationship {relationship.id!r} must reference distinct datasets")
-        total_points = sum(len(dataset.values) for dataset in self.datasets)
+        total_points = sum(len(dataset.values) + len(dataset.revisions) for dataset in self.datasets)
         if total_points > self.config.max_points:
             raise ValueError("request exceeds max_points across all datasets")
         return self
@@ -417,10 +481,16 @@ class LineagePoint(Contract):
     lag: int = 0
     unavailable_reason: str | None = None
     latest_source_cutoff: str
+    source_coverage: dict[str, str] = Field(default_factory=dict)
+    source_values: dict[str, float | None] = Field(default_factory=dict)
+    source_revision_ids: dict[str, str | None] = Field(default_factory=dict)
+    source_available_at: dict[str, str | None] = Field(default_factory=dict)
+    source_input_indexes: dict[str, list[int]] = Field(default_factory=dict)
 
 
 class DatasetResultV11(Contract):
     dataset_id: str
+    resolution: str | None = None
     status: Literal[
         "completed", "partial", "failed", "inapplicable",
         "insufficient_history",
@@ -436,6 +506,7 @@ class DatasetResultV11(Contract):
 
 class RelationshipResult(Contract):
     relationship_id: str
+    resolution: str | None = None
     kind: Literal[
         "ratio", "difference", "normalized_residual", "lagged_response",
         "joint_condition",
@@ -458,6 +529,7 @@ class RelationshipResult(Contract):
 
 class Case(Contract):
     id: str
+    resolution: str | None = None
     revision_id: str
     entity: dict[str, str]
     event_time: str | int
