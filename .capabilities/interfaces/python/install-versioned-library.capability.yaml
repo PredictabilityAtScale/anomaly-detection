@@ -78,9 +78,28 @@ agent:
   review:
     depth: partial
     source: deterministic-assessment
+    gaps:
+      - Wheel and source distributions carry the complete Python package,
+        license, public API, CLI and read-only MCP entry points with one
+        authoritative version. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Clean consumers outside the source checkout can install either
+        distribution and exercise contracts, recipes, assessments,
+        relationships, readiness and cases. Review the cited evidence. If it is
+        correct, save agent.review evidence or make the criterion/reference
+        wording more explicit.
+      - Version tags agree with package metadata and published release assets
+        include SHA-256 checksums, source revision and pinned transitive
+        dependencies. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - A Linux Python 3.12 build bundles compatible binary dependencies and
+        executes the consumer example with networking disabled. Review the cited
+        evidence. If it is correct, save agent.review evidence or make the
+        criterion/reference wording more explicit.
     intent_summary: Implementation evidence synchronized from deterministic
       assessment for interfaces/python/install-versioned-library.
-    done: false
     criteria:
       - criterion: Wheel and source distributions carry the complete Python package,
           license, public API, CLI and read-only MCP entry points with one
@@ -211,23 +230,4 @@ agent:
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more
           explicit.
-    gaps:
-      - Wheel and source distributions carry the complete Python package,
-        license, public API, CLI and read-only MCP entry points with one
-        authoritative version. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - Clean consumers outside the source checkout can install either
-        distribution and exercise contracts, recipes, assessments,
-        relationships, readiness and cases. Review the cited evidence. If it is
-        correct, save agent.review evidence or make the criterion/reference
-        wording more explicit.
-      - Version tags agree with package metadata and published release assets
-        include SHA-256 checksums, source revision and pinned transitive
-        dependencies. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - A Linux Python 3.12 build bundles compatible binary dependencies and
-        executes the consumer example with networking disabled. Review the cited
-        evidence. If it is correct, save agent.review evidence or make the
-        criterion/reference wording more explicit.
+    done: false
