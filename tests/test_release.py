@@ -82,3 +82,59 @@ def test_changed_artifact_fails_checksum_verification(monkeypatch, tmp_path):
         "artifacts": {"wheel.whl": {"sha256": "0" * 64, "size": 21}}}))
     with pytest.raises(AssertionError, match="wheel.whl"):
         release.verify(tmp_path, "a" * 40, f"v{release.version()}")
+
+
+@pytest.mark.parametrize("already_created", [False, True])
+def test_draft_lookup_stages_and_resumes_without_duplicate_creation(monkeypatch, tmp_path, already_created):
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "wheel.whl").write_bytes(b"tested")
+    monkeypatch.setattr(publisher, "verify", lambda *args: None)
+    monkeypatch.setattr(publisher.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(
+        returncode=1, stdout=json.dumps({"status": "404"}), stderr="Not Found"))
+    created = already_created
+    calls = []
+    def fake_gh(*args):
+        nonlocal created
+        calls.append(args)
+        if args[0] == "api" and "/commits/" in args[1]:
+            return json.dumps({"sha": "a" * 40})
+        if args[:4] == ("api", "--paginate", "--slurp", f"repos/{publisher.REPOSITORY}/releases?per_page=100"):
+            # Include another tag on the first page to exercise pagination/filtering.
+            return json.dumps([[{"tag_name": "v0.0.1"}],
+                               [{"id": 42, "tag_name": "v0.2.1", "draft": True, "assets": []}] if created else []])
+        if args[:2] == ("release", "create"):
+            assert not created
+            created = True
+            return ""
+        if args[:2] == ("release", "upload"):
+            assert Path(args[3]).read_bytes() == b"tested"
+            return ""
+        raise AssertionError(f"Unexpected GitHub call: {args}")
+    monkeypatch.setattr(publisher, "gh", fake_gh)
+    publisher.publish(dist, "v0.2.1", "a" * 40)
+    assert sum(call[:2] == ("release", "create") for call in calls) == int(not already_created)
+    assert sum(call[:2] == ("release", "upload") for call in calls) == 1
+    assert not any(call[:2] == ("release", "edit") for call in calls)
+
+
+def test_final_publication_verifies_release_by_id(monkeypatch, tmp_path):
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    monkeypatch.setattr(publisher, "verify", lambda *args: None)
+    draft = {"id": 42, "draft": True, "assets": []}
+    monkeypatch.setattr(publisher, "find_release", lambda tag: draft)
+    calls = []
+    def fake_gh(*args):
+        calls.append(args)
+        if args == ("api", f"repos/{publisher.REPOSITORY}/immutable-releases"):
+            return json.dumps({"enabled": True})
+        if args == ("api", f"repos/{publisher.REPOSITORY}/commits/v0.2.1"):
+            return json.dumps({"sha": "a" * 40})
+        if args == ("api", f"repos/{publisher.REPOSITORY}/releases/42"):
+            return json.dumps({"immutable": True, "html_url": "https://example.test/release"})
+        assert args[:2] == ("release", "edit")
+        return ""
+    monkeypatch.setattr(publisher, "gh", fake_gh)
+    publisher.publish(dist, "v0.2.1", "a" * 40, finalize=True)
+    assert calls[-1] == ("api", f"repos/{publisher.REPOSITORY}/releases/42")

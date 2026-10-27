@@ -14,6 +14,20 @@ def gh(*args):
     return subprocess.check_output(["gh", *args], text=True).strip()
 
 
+def find_release(tag):
+    """The by-tag endpoint omits drafts; the authenticated release list includes them."""
+    endpoint = f"repos/{REPOSITORY}/releases/tags/{tag}"
+    found = subprocess.run(["gh", "api", endpoint], capture_output=True, text=True)
+    if not found.returncode:
+        return json.loads(found.stdout)
+    error = json.loads(found.stdout)
+    if str(error.get("status")) != "404":
+        raise RuntimeError(found.stderr)
+    pages = json.loads(gh("api", "--paginate", "--slurp",
+                         f"repos/{REPOSITORY}/releases?per_page=100"))
+    return next((item for page in pages for item in page if item["tag_name"] == tag), None)
+
+
 def publish(dist, tag, revision, *, finalize=False):
     verify(dist, revision, tag)
     # This endpoint requires admin-read, unavailable to GITHUB_TOKEN. Only the
@@ -25,12 +39,8 @@ def publish(dist, tag, revision, *, finalize=False):
     remote_sha = json.loads(gh("api", f"repos/{REPOSITORY}/commits/{tag}"))["sha"]
     if remote_sha != revision:
         raise ValueError("Remote tag no longer points to the tested source revision")
-    endpoint = f"repos/{REPOSITORY}/releases/tags/{tag}"
-    found = subprocess.run(["gh", "api", endpoint], capture_output=True, text=True)
-    if found.returncode:
-        error = json.loads(found.stdout)
-        if str(error.get("status")) != "404":
-            raise RuntimeError(found.stderr)
+    release = find_release(tag)
+    if release is None:
         with tempfile.TemporaryDirectory() as temp:
             notes = Path(temp) / "notes.md"
             feature_path = Path(__file__).resolve().parents[1] / "docs/releases" / f"{tag[1:]}.md"
@@ -46,9 +56,9 @@ def publish(dist, tag, revision, *, finalize=False):
                 encoding="utf-8")
             gh("release", "create", tag, "--repo", REPOSITORY, "--draft", "--verify-tag",
                "--target", revision, "--title", f"Anomalyzer {tag}", "--notes-file", str(notes))
-        release = json.loads(gh("api", endpoint))
-    else:
-        release = json.loads(found.stdout)
+        release = find_release(tag)
+        if release is None:
+            raise RuntimeError("Created draft is not visible yet; rerun to resume it safely")
     expected = {p.name: p for p in dist.iterdir() if p.is_file() and p.name != ".gitignore"}
     existing = {item["name"] for item in release["assets"]}
     if not existing <= set(expected):
@@ -70,7 +80,7 @@ def publish(dist, tag, revision, *, finalize=False):
         print(f"Verified draft staged for {tag}; owner must run this command with --publish to seal it")
         return
     gh("release", "edit", tag, "--repo", REPOSITORY, "--draft=false")
-    sealed = json.loads(gh("api", endpoint))
+    sealed = json.loads(gh("api", f"repos/{REPOSITORY}/releases/{release['id']}"))
     if not sealed.get("immutable"):
         raise RuntimeError("GitHub did not report an immutable release; investigate repository settings")
     print(sealed["html_url"])
