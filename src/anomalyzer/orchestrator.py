@@ -18,7 +18,24 @@ from .early import (
 )
 from .recipes import _namespace_result, analyze_dataset
 from .registry import versions
-from .relationships import derive
+from .relationships import derive, _source_ids
+from .validation import resolve_reset_points
+from .sparse import analyze_sparse, active_resets
+
+
+def annotate_availability(assessments, times, samples):
+    """Conservative known-input cutoff; not a measured first-detection latency."""
+    if not any(row.get("available_at") and (row.get("value") is not None or row.get("coverage") == "excluded") for row in samples):
+        return
+    cutoffs, latest = [], None
+    for observed_at, row in zip(times, samples):
+        if row.get("value") is not None or row.get("coverage") == "excluded":
+            latest = max(filter(None, (latest, observed_at, row.get("available_at"))))
+        cutoffs.append(max(filter(None, (latest, observed_at))))
+    for assessment in assessments:
+        if assessment.index < len(cutoffs):
+            assessment.baseline["known_input_availability_cutoff"] = cutoffs[assessment.index]
+            assessment.assumptions.append("Availability cutoff is conservative across known prior inputs; unknown arrival history cannot establish delivery-time detection performance.")
 
 
 def _canonical_request(request: RequestV11) -> dict:
@@ -47,6 +64,8 @@ def _derived_analysis_view(derived):
     analyze the later derived series without treating those points as zero.
     Internal or trailing gaps remain visible and make the engine inapplicable.
     """
+    if hasattr(derived, "data_policy"):
+        return derived, 0
     offset = 0
     while offset < len(derived.values) and derived.values[offset] is None:
         offset += 1
@@ -82,40 +101,53 @@ def _shift_result_indexes(result, offset):
     return result
 
 
-def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
+def analyze_relationships(request: RequestV11 | dict, *, _budget=None) -> ResultV11:
     request = RequestV11.model_validate(request)
+    if request.config.recipe == "multi-resolution-v1":
+        from .sparse_views import analyze_multi_request
+        return analyze_multi_request(request, _budget)
     if request.config.recipe not in (
             "seasonal-residual-v1", "adaptive-seasonal-v1"):
         raise ValueError(
             "schema 1.1 relationships require seasonal-residual-v1 or "
             "adaptive-seasonal-v1")
     started = time.perf_counter()
-    budget = RuntimeBudget(request.config.max_runtime_seconds)
+    budget = _budget or RuntimeBudget(request.config.max_runtime_seconds)
     canonical = _canonical_request(request)
     fingerprint = hashlib.sha256(json.dumps(
         canonical, sort_keys=True, separators=(",", ":"),
         allow_nan=False).encode()).hexdigest()
     prepared: dict[str, PreparedDataset] = {}
     dataset_results = []
+    prepared_points = 0
     for dataset in sorted(request.datasets, key=lambda item: item.id):
         try:
             budget.check()
-            source = prepare_source(dataset, request.config, request.context)
+            source = prepare_source(dataset, request.config, request.context, budget)
+            prepared_points += len(source.values) + len(dataset.revisions)
+            if prepared_points > request.config.max_points:
+                raise ValueError("expanded request exceeds shared max_points across all datasets")
             prepared[dataset.id] = source
-            result = analyze_dataset(
-                dataset, request.config, request.context, budget=budget)
+            result = (analyze_sparse(dataset, request.config, request.context, budget,
+                       (source.times, source.values, source.quality))
+                      if "data_policy" in source.quality and request.config.recipe != "multi-resolution-v1"
+                      else analyze_dataset(dataset, request.config, request.context, budget=budget))
             _namespace_result(result, f"dataset:{dataset.id}")
             assessments = descriptive_assessments(
                 dataset.id,
-                source.times[:source.quality["observation_count"]],
-                source.values[:source.quality["observation_count"]], dataset.rules,
-                request.policy)
+                source.times[:source.quality.get("grid_count", source.quality["observation_count"])],
+                source.quality.get("rule_values", source.values)[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.rules,
+                request.policy,
+                reset_positions=active_resets(request.config.reset_points, source.times[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.timezone, request.context.as_of),
+                change_max_gap_seconds=dataset.data_policy.change_max_gap_seconds if dataset.data_policy else None,
+                excluded_positions=[s["index"] for s in source.quality.get("samples", []) if s["coverage"] == "excluded"])
             assessments.extend(calibrated_assessments(
                 dataset.id, result.methods, request.policy))
-            if request.config.recipe == "adaptive-seasonal-v1":
+            if request.config.recipe == "adaptive-seasonal-v1" or "data_policy" in source.quality:
                 assessments.extend(location_pattern_assessments(
                     dataset.id, result.methods, result.anomaly_patterns,
                     request.policy))
+            annotate_availability(assessments, source.times, source.quality.get("samples", []))
             dataset_results.append(DatasetResultV11(
                 dataset_id=dataset.id, status=result.status,
                 data_quality=result.data_quality, methods=result.methods,
@@ -130,6 +162,11 @@ def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
         definition = relationship.model_dump(mode="json")
         try:
             budget.check()
+            definitions = {d.id: d for d in request.datasets}
+            if any(definitions[name].timestamps is None for name in _source_ids(relationship)):
+                raise ValueError("exact relationship alignment requires timestamped datasets")
+            if len({definitions[name].frequency for name in _source_ids(relationship)}) != 1:
+                raise ValueError("related datasets must declare the same cadence")
             derived, lineage, quality = derive(relationship, prepared)
             analysis_view, analysis_offset = _derived_analysis_view(derived)
             result = analyze_dataset(
@@ -139,14 +176,21 @@ def analyze_relationships(request: RequestV11 | dict) -> ResultV11:
             quality["analysis_offset"] = analysis_offset
             assessments = descriptive_assessments(
                 relationship.id, derived.timestamps or [], derived.values,
-                relationship.rules, request.policy, relationship=True)
+                relationship.rules, request.policy, relationship=True,
+                reset_positions=active_resets(request.config.reset_points, derived.timestamps or [], derived.timezone, request.context.as_of),
+                change_max_gap_seconds=getattr(getattr(derived, "data_policy", None), "change_max_gap_seconds", None),
+                excluded_positions=[i for i, state in enumerate(getattr(derived, "coverage", None) or []) if state == "excluded"])
             assessments.extend(calibrated_assessments(
                 relationship.id, result.methods, request.policy,
                 relationship=True))
-            if request.config.recipe == "adaptive-seasonal-v1":
+            if request.config.recipe == "adaptive-seasonal-v1" or hasattr(derived, "data_policy"):
                 assessments.extend(location_pattern_assessments(
                     relationship.id, result.methods, result.anomaly_patterns,
                     request.policy, relationship=True))
+            annotate_availability(assessments, [p.timestamp for p in lineage],
+                [dict(value=p.value, available_at=p.latest_source_cutoff if any(p.source_available_at.values()) else None) for p in lineage])
+            quality["model_eligibility"] = {key: result.data_quality.get(key)
+                for key in ("coordinate", "usable_model_count", "coverage_counts")}
             if quality["available_count"] == 0 or quality["latest_evidence_state"] == "insufficient_evidence":
                 status = "insufficient_evidence"
             elif quality["unavailable_count"] and result.status == "inapplicable":

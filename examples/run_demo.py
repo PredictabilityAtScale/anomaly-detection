@@ -122,6 +122,8 @@ def main():
                   f"actual: {sorted(actual_patterns)}")
     print("\nRobust mode keeps actual incidents visible while preventing their seasonal echoes.")
     print("These synthetic checks demonstrate behavior, not real-world detection accuracy.")
+    from sparse_examples import run_checks
+    run_checks()
     return 0 if passed else 1
 
 

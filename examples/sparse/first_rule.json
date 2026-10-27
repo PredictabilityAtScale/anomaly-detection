@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.1",
+  "datasets": [
+    {
+      "id": "series",
+      "entity": {
+        "customer": "synthetic"
+      },
+      "units": "measured_units",
+      "timestamps": [
+        "2026-01-01T00:00:00+00:00"
+      ],
+      "values": [
+        100
+      ],
+      "frequency": "1h",
+      "data_policy": {},
+      "rules": [
+        {
+          "id": "example-range",
+          "kind": "acceptable_range",
+          "minimum": 0,
+          "maximum": 20
+        }
+      ]
+    }
+  ],
+  "config": {
+    "season_length": 1,
+    "training_size": 4,
+    "calibration_size": 3,
+    "trend": "none"
+  },
+  "policy": {
+    "allow_explicit_rules": true
+  }
+}

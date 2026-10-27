@@ -6,12 +6,22 @@ on:
     paths:
       - '.capabilities/**'
       - 'docs/capability-maps/**'
+      - 'README.md'
+      - 'docs/sparse-data.md'
+      - 'docs/images/**'
+      - 'examples/sparse/**'
+      - 'scripts/export_examples_site.py'
       - 'scripts/export_capability_preview.py'
       - '.github/workflows/capability-maps.yml'
   pull_request:
     paths:
       - '.capabilities/**'
       - 'docs/capability-maps/**'
+      - 'README.md'
+      - 'docs/sparse-data.md'
+      - 'docs/images/**'
+      - 'examples/sparse/**'
+      - 'scripts/export_examples_site.py'
       - 'scripts/export_capability_preview.py'
       - '.github/workflows/capability-maps.yml'
   workflow_dispatch:
@@ -33,6 +43,9 @@ jobs:
           python-version: '3.13'
       - name: Check static preview
         run: python scripts/export_capability_preview.py --check
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.6.13'
       - name: Assemble public map files
         run: |
           mkdir -p _site
@@ -40,6 +53,8 @@ jobs:
           cp .capabilities/dependency-viewer.html _site/dependency-viewer.html
           cp .capabilities/story-map-viewer.html _site/story-map-viewer.html
           cp .capabilities/dependency-preview.svg _site/dependency-preview.svg
+      - name: Assemble numbered examples and API guide
+        run: uv run --locked --extra docs python scripts/export_examples_site.py --output _site/examples
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site

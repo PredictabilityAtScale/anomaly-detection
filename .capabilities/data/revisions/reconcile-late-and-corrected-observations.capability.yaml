@@ -14,6 +14,10 @@ acceptance:
   - Invalid or conflicting revisions leave the previous state available;
     unchanged inputs preserve numerical evidence and unrelated source results.
 guidance:
+  - Schema-1.1 snapshot revision selection and as-of availability are
+    implemented in data/quality/analyze-sparse-observations; durable prior/new
+    evidence diffing and automatic reconciliation in this capability remain
+    planned.
   - A corrected event-time result does not replace the record of what was known
     earlier; callers control retention and any notification about a revision.
   - Proposed automated checks cover late completion, corrected calibration data,

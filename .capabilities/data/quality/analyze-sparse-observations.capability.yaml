@@ -1,0 +1,321 @@
+title: Assess sparse observations without inventing consumption
+status: implemented
+summary: Schema-1.1 callers declare coverage and missing-data semantics per
+  source, keeping unknown collection distinct from confirmed empty additive
+  volume.
+intent: Retain useful rule and supported statistical evidence for sparse
+  histories while preserving time, provenance, incomplete periods and evidence
+  limits.
+acceptance:
+  - Bounded calendar preparation preserves phase, original values and coverage;
+    only an explicit additive-volume empty policy authorizes zero conversion.
+  - Frozen eligible training and calibration support point references across
+    gaps, while pattern and change comparisons respect gaps and explicit resets.
+  - Event-index profiles preserve real event timestamps and reject calendar
+    seasonality; unavailable relationship inputs and zero denominators stay
+    unavailable.
+  - As-of replay respects supplied arrival/revision timestamps and sparse
+    multi-resolution views retain useful siblings without inventing complete
+    totals.
+guidance:
+  - Default missingness is unknown. A modeled expectation is never a measurement.
+  - Caller business severity, incident state and notifications remain outside
+    the engine.
+planning:
+  story_map:
+    backbone: Monitor while periods are still open
+    step: Assess sparse source data
+    release: Incomplete-period monitoring
+    order: 30
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review data/quality/analyze-sparse-observations
+  # run deterministic review only: capabilitykit review data/quality/analyze-sparse-observations --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review data/quality/analyze-sparse-observations --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result data/quality/analyze-sparse-observations --input review.json
+  # -----------------------------
+  depends_on:
+    - data/inputs/accept-analysis-requests
+    - analysis/expectations/reset-declared-regimes
+    - analysis/detection/identify-residual-patterns
+  implementation:
+    references:
+      - src/anomalyzer/contracts.py
+      - src/anomalyzer/sparse.py
+      - src/anomalyzer/sparse_views.py
+      - src/anomalyzer/orchestrator.py
+      - src/anomalyzer/relationships.py
+      - src/anomalyzer/early.py
+      - tests/test_sparse.py
+      - docs/sparse-data.md
+      - examples/sparse_examples.py
+      - examples/render_readme_progression.py
+  verification:
+    automated:
+      - id: source-semantics
+        description: Preserve unknown periods and require explicit empty-volume
+          authorization.
+        command: python -m pytest -q tests/test_sparse.py -k "zero or omitted or grid or
+          duplicate or expansion"
+      - id: causal-boundaries
+        description: Retain real phase, event times, resets and as-of revision eligibility.
+        command: python -m pytest -q tests/test_sparse.py -k "phase or gap or reset or
+          event or revision or arrival"
+      - id: public-interfaces
+        description: Preserve useful rules, relationships, views, cases and API parity.
+        command: python -m pytest -q tests/test_sparse.py -k "rule or relationship or
+          daily or parity"
+      - id: progressive-examples
+        description: Reproduce the full numbered sequence and sparse worked examples.
+        command: python examples/run_demo.py
+    manual:
+      - Inspect progression figures 14–22 for true gaps, distinguished policy
+        zeros, original event time, unavailable checks and caller-owned business
+        severity.
+  review:
+    depth: partial
+    source: deterministic-assessment
+    gaps:
+      - Bounded calendar preparation preserves phase, original values and
+        coverage; only an explicit additive-volume empty policy authorizes zero
+        conversion. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Frozen eligible training and calibration support point references across
+        gaps, while pattern and change comparisons respect gaps and explicit
+        resets. Review the cited evidence. If it is correct, save agent.review
+        evidence or make the criterion/reference wording more explicit.
+      - Event-index profiles preserve real event timestamps and reject calendar
+        seasonality; unavailable relationship inputs and zero denominators stay
+        unavailable. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - As-of replay respects supplied arrival/revision timestamps and sparse
+        multi-resolution views retain useful siblings without inventing complete
+        totals. Review the cited evidence. If it is correct, save agent.review
+        evidence or make the criterion/reference wording more explicit.
+    intent_summary: Implementation evidence synchronized from deterministic
+      assessment for data/quality/analyze-sparse-observations.
+    criteria:
+      - criterion: Bounded calendar preparation preserves phase, original values and
+          coverage; only an explicit additive-volume empty policy authorizes
+          zero conversion.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:51
+          - src/anomalyzer/contracts.py:54
+          - src/anomalyzer/contracts.py:71
+          - src/anomalyzer/contracts.py:85
+          - src/anomalyzer/contracts.py:86
+          - src/anomalyzer/sparse.py:3
+          - src/anomalyzer/sparse.py:34
+          - src/anomalyzer/sparse.py:42
+          - src/anomalyzer/sparse.py:48
+          - src/anomalyzer/sparse.py:54
+          - src/anomalyzer/sparse_views.py:74
+          - src/anomalyzer/sparse_views.py:81
+          - src/anomalyzer/sparse_views.py:82
+          - src/anomalyzer/sparse_views.py:97
+          - src/anomalyzer/sparse_views.py:119
+          - src/anomalyzer/orchestrator.py:63
+          - src/anomalyzer/orchestrator.py:127
+          - src/anomalyzer/orchestrator.py:139
+          - src/anomalyzer/orchestrator.py:191
+          - src/anomalyzer/relationships.py:36
+          - src/anomalyzer/relationships.py:58
+          - src/anomalyzer/relationships.py:98
+          - src/anomalyzer/relationships.py:131
+          - src/anomalyzer/relationships.py:141
+          - src/anomalyzer/early.py:58
+          - src/anomalyzer/early.py:137
+          - tests/test_sparse.py:44
+          - tests/test_sparse.py:45
+          - tests/test_sparse.py:50
+          - tests/test_sparse.py:51
+          - tests/test_sparse.py:57
+          - docs/sparse-data.md:4
+          - docs/sparse-data.md:29
+          - docs/sparse-data.md:37
+          - docs/sparse-data.md:39
+          - docs/sparse-data.md:40
+          - examples/sparse_examples.py:22
+          - examples/sparse_examples.py:23
+          - examples/sparse_examples.py:25
+          - examples/sparse_examples.py:26
+          - examples/sparse_examples.py:28
+          - examples/render_readme_progression.py:135
+          - examples/render_readme_progression.py:139
+          - examples/render_readme_progression.py:140
+          - examples/render_readme_progression.py:166
+          - examples/render_readme_progression.py:206
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Frozen eligible training and calibration support point references
+          across gaps, while pattern and change comparisons respect gaps and
+          explicit resets.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:27
+          - src/anomalyzer/contracts.py:49
+          - src/anomalyzer/contracts.py:51
+          - src/anomalyzer/contracts.py:54
+          - src/anomalyzer/contracts.py:56
+          - src/anomalyzer/sparse.py:1
+          - src/anomalyzer/sparse.py:23
+          - src/anomalyzer/sparse.py:181
+          - src/anomalyzer/sparse.py:187
+          - src/anomalyzer/sparse.py:189
+          - src/anomalyzer/sparse_views.py:15
+          - src/anomalyzer/sparse_views.py:98
+          - src/anomalyzer/sparse_views.py:107
+          - src/anomalyzer/sparse_views.py:108
+          - src/anomalyzer/sparse_views.py:112
+          - src/anomalyzer/orchestrator.py:22
+          - src/anomalyzer/orchestrator.py:23
+          - src/anomalyzer/orchestrator.py:38
+          - src/anomalyzer/orchestrator.py:129
+          - src/anomalyzer/orchestrator.py:141
+          - src/anomalyzer/relationships.py:185
+          - src/anomalyzer/relationships.py:189
+          - src/anomalyzer/relationships.py:191
+          - src/anomalyzer/early.py:46
+          - src/anomalyzer/early.py:48
+          - src/anomalyzer/early.py:51
+          - src/anomalyzer/early.py:59
+          - src/anomalyzer/early.py:61
+          - tests/test_sparse.py:20
+          - tests/test_sparse.py:108
+          - tests/test_sparse.py:111
+          - tests/test_sparse.py:113
+          - tests/test_sparse.py:119
+          - docs/sparse-data.md:37
+          - docs/sparse-data.md:41
+          - docs/sparse-data.md:42
+          - docs/sparse-data.md:106
+          - docs/sparse-data.md:108
+          - examples/sparse_examples.py:16
+          - examples/sparse_examples.py:33
+          - examples/sparse_examples.py:50
+          - examples/sparse_examples.py:51
+          - examples/sparse_examples.py:91
+          - examples/render_readme_progression.py:241
+          - examples/render_readme_progression.py:312
+          - examples/render_readme_progression.py:317
+          - examples/render_readme_progression.py:346
+          - examples/render_readme_progression.py:349
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Event-index profiles preserve real event timestamps and reject
+          calendar seasonality; unavailable relationship inputs and zero
+          denominators stay unavailable.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:54
+          - src/anomalyzer/contracts.py:81
+          - src/anomalyzer/contracts.py:242
+          - src/anomalyzer/contracts.py:245
+          - src/anomalyzer/contracts.py:258
+          - src/anomalyzer/sparse.py:4
+          - src/anomalyzer/sparse.py:49
+          - src/anomalyzer/sparse.py:57
+          - src/anomalyzer/sparse.py:63
+          - src/anomalyzer/sparse.py:64
+          - src/anomalyzer/sparse_views.py:75
+          - src/anomalyzer/sparse_views.py:94
+          - src/anomalyzer/sparse_views.py:127
+          - src/anomalyzer/sparse_views.py:155
+          - src/anomalyzer/sparse_views.py:157
+          - src/anomalyzer/orchestrator.py:37
+          - src/anomalyzer/orchestrator.py:38
+          - src/anomalyzer/orchestrator.py:166
+          - src/anomalyzer/orchestrator.py:178
+          - src/anomalyzer/orchestrator.py:180
+          - src/anomalyzer/relationships.py:40
+          - src/anomalyzer/relationships.py:57
+          - src/anomalyzer/relationships.py:58
+          - src/anomalyzer/relationships.py:96
+          - src/anomalyzer/relationships.py:97
+          - src/anomalyzer/early.py:140
+          - src/anomalyzer/early.py:147
+          - tests/test_sparse.py:59
+          - tests/test_sparse.py:67
+          - tests/test_sparse.py:75
+          - tests/test_sparse.py:99
+          - tests/test_sparse.py:128
+          - docs/sparse-data.md:26
+          - docs/sparse-data.md:96
+          - docs/sparse-data.md:101
+          - docs/sparse-data.md:132
+          - docs/sparse-data.md:142
+          - examples/sparse_examples.py:26
+          - examples/sparse_examples.py:36
+          - examples/sparse_examples.py:38
+          - examples/sparse_examples.py:57
+          - examples/sparse_examples.py:81
+          - examples/render_readme_progression.py:654
+          - examples/render_readme_progression.py:697
+          - examples/render_readme_progression.py:884
+          - examples/render_readme_progression.py:896
+          - examples/render_readme_progression.py:917
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: As-of replay respects supplied arrival/revision timestamps and sparse
+          multi-resolution views retain useful siblings without inventing
+          complete totals.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:13
+          - src/anomalyzer/contracts.py:54
+          - src/anomalyzer/contracts.py:297
+          - src/anomalyzer/contracts.py:298
+          - src/anomalyzer/contracts.py:437
+          - src/anomalyzer/sparse.py:4
+          - src/anomalyzer/sparse.py:34
+          - src/anomalyzer/sparse.py:64
+          - src/anomalyzer/sparse.py:66
+          - src/anomalyzer/sparse.py:83
+          - src/anomalyzer/sparse_views.py:1
+          - src/anomalyzer/sparse_views.py:28
+          - src/anomalyzer/sparse_views.py:29
+          - src/anomalyzer/sparse_views.py:82
+          - src/anomalyzer/sparse_views.py:94
+          - src/anomalyzer/orchestrator.py:106
+          - src/anomalyzer/orchestrator.py:107
+          - src/anomalyzer/orchestrator.py:133
+          - src/anomalyzer/orchestrator.py:166
+          - src/anomalyzer/orchestrator.py:180
+          - src/anomalyzer/relationships.py:160
+          - src/anomalyzer/relationships.py:162
+          - src/anomalyzer/relationships.py:166
+          - tests/test_sparse.py:59
+          - tests/test_sparse.py:75
+          - tests/test_sparse.py:99
+          - tests/test_sparse.py:123
+          - tests/test_sparse.py:180
+          - docs/sparse-data.md:26
+          - docs/sparse-data.md:41
+          - docs/sparse-data.md:69
+          - docs/sparse-data.md:78
+          - docs/sparse-data.md:96
+          - examples/sparse_examples.py:59
+          - examples/sparse_examples.py:95
+          - examples/render_readme_progression.py:686
+          - examples/render_readme_progression.py:699
+          - examples/render_readme_progression.py:710
+          - examples/render_readme_progression.py:767
+          - examples/render_readme_progression.py:884
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+    done: false

@@ -32,6 +32,7 @@ Issues = "https://github.com/PredictabilityAtScale/anomaly-detection/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "jsonschema>=4,<5"]
+docs = ["markdown-it-py==3.0.0"]
 
 [project.scripts]
 anomalyzer = "anomalyzer.cli:main"
@@ -49,6 +50,6 @@ packages = ["src/anomalyzer"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/src", "/tests", "/schemas", "/examples", "/scripts",
-    "/.agents/skills/anomaly-detection", "/docs/releases",
+    "/.agents/skills/anomaly-detection", "/docs/releases", "/docs/sparse-data.md",
     "/README.md", "/CONTRIBUTING.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
 ]

@@ -14,8 +14,9 @@ acceptance:
   - Published schema 1.0 and 1.1 request and result schemas match the public
     Python contracts.
 guidance:
-  - Null observations represent missing values, never zero. Limits apply to the
-    request as a whole.
+  - Null observations remain unknown unless a schema-1.1 additive-volume policy
+    explicitly authorizes confirmed empty collection as zero. Limits apply to
+    the request as a whole.
   - Describe current supported behavior; historical plans do not add accepted
     inputs.
 planning:

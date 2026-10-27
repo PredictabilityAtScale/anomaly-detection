@@ -1,4 +1,5 @@
 """Generate deterministic, synthetic demonstrations; no production effectiveness claim."""
+from sparse_examples import generate as generate_sparse
 import csv
 import json
 import math
@@ -6,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 base = Path(__file__).parent
+generate_sparse()
 ordinary = [100 + [0, 10, -5, 8, 2, -12, -8][i % 7] + [0.2, -0.4, 0.6, -0.3, 0.1][i % 5] for i in range(90)]
 for name in ("ordinary", "spike", "drop", "shift", "growth_up", "growth_down",
              "compound", "compound_down", "location_shift_up", "location_shift_down",
@@ -50,7 +52,11 @@ for name in ("ordinary", "spike", "drop", "shift", "growth_up", "growth_down",
                      150 - 0.4*(i-50) if i < 100 else
                      105 * 1.01**(i-100))
             values.append(round(level + weekly[i % 7] + [0.2, -0.4, 0.6, -0.3, 0.1][i % 5], 4))
-    config = {"season_length": 7, "max_runtime_seconds": 120}
+    config = {"season_length": 7}
+    if name in ("shift", "steps"):
+        # Preserve the original progression's single-reference sustained-shift profile.
+        config["robust_reference_seasons"] = 1
+    config["max_runtime_seconds"] = 120
     if name.startswith("compound"):
         # Five complete seasonal cycles make the synthetic exponential rate
         # identifiable despite the small deterministic variation.

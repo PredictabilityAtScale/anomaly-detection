@@ -1,6 +1,6 @@
 # Release and use Anomalyzer
 
-Anomalyzer is a normal Python dependency. Version **0.1.0** is the first release
+Anomalyzer is a normal Python dependency. Version **0.2.0** is the first release
 candidate; nothing is uploaded to PyPI by this workflow. GitHub Releases is the
 initial distribution channel. Publishing the library does not integrate it into
 UsageTap Guard.
@@ -11,7 +11,7 @@ UsageTap Guard.
 | --- | --- |
 | Wheel (`.whl`) | Ready-to-install Python package. Use this for Guard. Anomalyzer's wheel works across supported operating systems; its dependencies may need platform-specific wheels. |
 | Source distribution (`.tar.gz`, or sdist) | Source needed to build the package. Useful for rebuilding and inspection; installation also needs the declared build backend. |
-| Version tag (`v0.1.0`) | Permanent Git name for the exact source revision released. It must match `_version.py`; never move or reuse it. |
+| Version tag (`v0.2.0`) | Permanent Git name for the exact source revision released. It must match `_version.py`; never move or reuse it. |
 | Dependency pin | An exact version or artifact URL, plus a SHA-256 fingerprint. A hash checks that downloaded bytes match the intended artifact. Pin transitive dependencies too. |
 
 The package supports Python 3.11, 3.12 and 3.13. Version lives only in
@@ -38,10 +38,10 @@ it for package metadata and the public `__version__` imports it.
    and sign into GitHub CLI with your own account (`gh auth login`) if you use
    the optional CLI commands. Never paste credentials into this repository.
 
-At preparation time there were no existing tags/releases and release
-immutability was disabled. Check again before choosing a version.
+Before choosing a version, inspect existing tags/releases and the immutability
+setting. Never reuse a published version or move a version tag.
 
-## First release: 0.1.0
+## First release: 0.2.0
 
 Run these commands from a clean checkout of the merged `main` branch. Commands
 work in PowerShell or Bash except where explicitly labelled.
@@ -57,16 +57,16 @@ uv sync --locked --extra dev
 uv run pytest -q
 uv run python examples/run_demo.py
 uv run python examples/run_agentic_demo.py
-uv run python scripts/release.py check-version --tag v0.1.0
+uv run python scripts/release.py check-version --tag v0.2.0
 ```
 
-`git status --short` must be empty. If `v0.1.0` already exists, stop and choose
+`git status --short` must be empty. If `v0.2.0` already exists, stop and choose
 the next unused version through a PR. Otherwise create an annotated tag on the
 reviewed commit and push it (do not use `--force`):
 
 ```text
-git tag -a v0.1.0 -m "Anomalyzer 0.1.0"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "Anomalyzer 0.2.0"
+git push origin v0.2.0
 ```
 
 Open the repository's **Actions → Release** run. It runs all tests on
@@ -78,10 +78,10 @@ passes does it create a draft and attach the tested files. Publication is one
 explicit owner step, using the already tested files:
 
 ```text
-git switch --detach v0.1.0
-gh release download v0.1.0 --repo PredictabilityAtScale/anomaly-detection --dir release-v0.1.0
+git switch --detach v0.2.0
+gh release download v0.2.0 --repo PredictabilityAtScale/anomaly-detection --dir release-v0.2.0
 git rev-parse HEAD
-python scripts/publish_release.py --dist release-v0.1.0 --tag v0.1.0 --revision <full-SHA-printed-above> --publish
+python scripts/publish_release.py --dist release-v0.2.0 --tag v0.2.0 --revision <full-SHA-printed-above> --publish
 git switch main
 ```
 
@@ -91,18 +91,23 @@ the actual repository immutability setting, remote tag, checksums and existing
 draft bytes before publishing. It never rebuilds. GitHub then seals the tag and
 all assets together. If GitHub CLI reports a permission problem, use the owner
 account (`gh auth switch`) or sign in as that owner; do not add a token to CI.
+Publication also triggers `verify-published`: it downloads and checks the sealed
+assets, installs the exact public wheel URL with its hashes in a clean consumer,
+and repeats the offline Linux/Python 3.12 bundle test. Check that job before
+adopting the release. Transient download failures can be rerun without changing
+any release asset.
 
 Assets live under [GitHub Releases](https://github.com/PredictabilityAtScale/anomaly-detection/releases),
 in the release for the selected tag:
 
-- `anomalyzer-0.1.0-py3-none-any.whl` and `anomalyzer-0.1.0.tar.gz`.
+- `anomalyzer-0.2.0-py3-none-any.whl` and `anomalyzer-0.2.0.tar.gz`.
 - `release-manifest.json`: version, tag, full source commit, file sizes and hashes.
 - `SHA256SUMS`: hashes of all assets including the manifest (except itself).
 - `runtime-dependencies.txt`: exact dependency versions and accepted hashes
   exported from the repository lock, including platform markers.
 - `requirements-guard-py312-linux-x86_64.txt`: those dependencies plus the exact
   GitHub wheel URL and its hash. This is an installable starting lock for Guard.
-- `requirements-offline.txt`: the same pins using `anomalyzer==0.1.0` so pip can
+- `requirements-offline.txt`: the same pins using `anomalyzer==0.2.0` so pip can
   install entirely from a local wheelhouse.
 
 CI's **Artifacts** section also holds `release-dist-<commit>` and the
@@ -147,11 +152,11 @@ analysis needs no checkout, CLI, MCP server, hosted Anomalyzer service or networ
 1. Download the chosen Release's assets and verify `SHA256SUMS`. For example:
 
    ```text
-   gh release download v0.1.0 --repo PredictabilityAtScale/anomaly-detection --dir release
+   gh release download v0.2.0 --repo PredictabilityAtScale/anomaly-detection --dir release
    ```
 
    In Linux/WSL/Bash: `(cd release && sha256sum --check SHA256SUMS)`.
-   In PowerShell, `Get-FileHash release/anomalyzer-0.1.0-py3-none-any.whl -Algorithm SHA256`
+   In PowerShell, `Get-FileHash release/anomalyzer-0.2.0-py3-none-any.whl -Algorithm SHA256`
    shows the wheel's hash; compare it with the manifest/checksum file. Also check
    the manifest's tag and commit against the intended release. Hashes identify
    bytes; use the trusted GitHub repository/release as their source.
@@ -160,7 +165,7 @@ analysis needs no checkout, CLI, MCP server, hosted Anomalyzer service or networ
    inputs. Its final requirement has this form, with a real generated hash:
 
    ```text
-   anomalyzer @ https://github.com/PredictabilityAtScale/anomaly-detection/releases/download/v0.1.0/anomalyzer-0.1.0-py3-none-any.whl --hash=sha256:<generated-wheel-hash>
+   anomalyzer @ https://github.com/PredictabilityAtScale/anomaly-detection/releases/download/v0.2.0/anomalyzer-0.2.0-py3-none-any.whl --hash=sha256:<generated-wheel-hash>
    ```
 
    Install the actual file, not this placeholder. It also pins Pydantic,

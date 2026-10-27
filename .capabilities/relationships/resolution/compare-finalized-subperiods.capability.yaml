@@ -1,7 +1,7 @@
 title: Inspect related metrics before the business period closes
-status: planned
+status: implemented
 summary: Extend declared related-metric analysis to compatible finalized
-  subperiods and completed calendar or fixed-duration aggregates.
+  subperiods and completed fixed UTC 24-hour additive aggregates.
 intent: Detect conversion or unit-cost changes during a period while keeping
   partial progress separate from completed-period comparisons.
 acceptance:
@@ -16,6 +16,10 @@ acceptance:
     identifies coverage; correlated resolutions do not count as independent
     corroboration.
 guidance:
+  - Daily ratios and differences are supported. Daily lagged,
+    normalized-residual and joint-condition definitions remain explicitly
+    inapplicable; their native evidence remains eligible. Local-calendar
+    aggregation is separate work.
   - Initial support should use explicit relationships and compatible boundaries;
     cross-cadence joining or automatic resampling needs a separate contract.
   - Proposed automated checks cover ratio-of-totals arithmetic, missing sources,
@@ -26,5 +30,184 @@ planning:
   story_map:
     backbone: Monitor the periods my business uses
     step: Compare related metrics while the period is open
-    release: Future - Calendar and data readiness
+    release: Related-metric analysis
     order: 30
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review relationships/resolution/compare-finalized-subperiods
+  # run deterministic review only: capabilitykit review relationships/resolution/compare-finalized-subperiods --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review relationships/resolution/compare-finalized-subperiods --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result relationships/resolution/compare-finalized-subperiods --input review.json
+  # -----------------------------
+  depends_on:
+    - data/quality/analyze-sparse-observations
+    - relationships/comparisons/compare-declared-metrics
+  implementation:
+    references:
+      - src/anomalyzer/sparse_views.py
+      - src/anomalyzer/relationships.py
+      - src/anomalyzer/agent.py
+      - tests/test_sparse.py
+      - examples/sparse/unfinished_daily.json
+      - docs/sparse-data.md
+  verification:
+    automated:
+      - id: ratio-of-sums
+        description: Compute daily ratios from compatible sums and preserve
+          missing-child coverage.
+        command: python -m pytest -q
+          tests/test_sparse.py::test_complete_daily_ratio_divides_sums_and_missing_child_invalidates_only_its_view
+      - id: view-policies
+        description: Keep native/daily rules separate and preserve case identity on replay.
+        command: python -m pytest -q
+          tests/test_sparse.py::test_daily_rules_are_not_silently_reused_from_hourly_rules
+          tests/test_sparse.py::test_multi_resolution_mcp_drilldown_selects_correct_view_and_replays_case_ids
+      - id: view-limits
+        description: Report unsupported daily lag semantics without discarding native
+          evidence.
+        command: python -m pytest -q
+          tests/test_sparse.py::test_unsupported_daily_relationship_is_explicit_and_does_not_reinterpret_lag
+    manual:
+      - Inspect progression chapter 22 and confirm incomplete progress is not
+        presented as a completed total or independent corroboration.
+  review:
+    depth: partial
+    source: deterministic-assessment
+    gaps:
+      - Callers select related datasets with identical native boundaries, entity
+        scope, declared aggregation semantics, and compatible period
+        definitions. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Finalized subperiod relationships retain each source value and original
+        source index; unavailable or incomplete sources yield explicit
+        unavailability. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Completed aggregate ratios use aggregated numerators and denominators; a
+        ratio of totals is not silently replaced by an average of individual
+        ratios. Review the cited evidence. If it is correct, save agent.review
+        evidence or make the criterion/reference wording more explicit.
+      - Open-period progress remains separate from completed-period evidence and
+        identifies coverage; correlated resolutions do not count as independent
+        corroboration. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+    intent_summary: Implementation evidence synchronized from deterministic
+      assessment for relationships/resolution/compare-finalized-subperiods.
+    criteria:
+      - criterion: Callers select related datasets with identical native boundaries,
+          entity scope, declared aggregation semantics, and compatible period
+          definitions.
+        status: partial
+        evidence:
+          - src/anomalyzer/sparse_views.py:19
+          - src/anomalyzer/sparse_views.py:22
+          - src/anomalyzer/sparse_views.py:139
+          - src/anomalyzer/sparse_views.py:143
+          - src/anomalyzer/sparse_views.py:164
+          - src/anomalyzer/agent.py:14
+          - src/anomalyzer/agent.py:20
+          - src/anomalyzer/agent.py:23
+          - src/anomalyzer/agent.py:29
+          - tests/test_sparse.py:18
+          - tests/test_sparse.py:59
+          - tests/test_sparse.py:87
+          - tests/test_sparse.py:99
+          - tests/test_sparse.py:117
+          - docs/sparse-data.md:31
+          - docs/sparse-data.md:127
+          - docs/sparse-data.md:159
+          - docs/sparse-data.md:199
+          - docs/sparse-data.md:203
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Finalized subperiod relationships retain each source value and
+          original source index; unavailable or incomplete sources yield
+          explicit unavailability.
+        status: partial
+        evidence:
+          - src/anomalyzer/sparse_views.py:19
+          - src/anomalyzer/sparse_views.py:75
+          - src/anomalyzer/sparse_views.py:94
+          - src/anomalyzer/sparse_views.py:122
+          - src/anomalyzer/sparse_views.py:123
+          - src/anomalyzer/relationships.py:7
+          - src/anomalyzer/relationships.py:19
+          - src/anomalyzer/relationships.py:33
+          - src/anomalyzer/relationships.py:34
+          - src/anomalyzer/relationships.py:36
+          - src/anomalyzer/agent.py:34
+          - tests/test_sparse.py:10
+          - tests/test_sparse.py:40
+          - tests/test_sparse.py:50
+          - tests/test_sparse.py:60
+          - tests/test_sparse.py:62
+          - docs/sparse-data.md:17
+          - docs/sparse-data.md:41
+          - docs/sparse-data.md:68
+          - docs/sparse-data.md:97
+          - docs/sparse-data.md:99
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Completed aggregate ratios use aggregated numerators and
+          denominators; a ratio of totals is not silently replaced by an average
+          of individual ratios.
+        status: partial
+        evidence:
+          - src/anomalyzer/sparse_views.py:29
+          - src/anomalyzer/sparse_views.py:70
+          - src/anomalyzer/sparse_views.py:82
+          - src/anomalyzer/sparse_views.py:170
+          - src/anomalyzer/relationships.py:90
+          - src/anomalyzer/relationships.py:173
+          - tests/test_sparse.py:230
+          - tests/test_sparse.py:259
+          - tests/test_sparse.py:313
+          - docs/sparse-data.md:41
+          - docs/sparse-data.md:111
+          - docs/sparse-data.md:194
+          - docs/sparse-data.md:197
+          - docs/sparse-data.md:198
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Open-period progress remains separate from completed-period evidence
+          and identifies coverage; correlated resolutions do not count as
+          independent corroboration.
+        status: partial
+        evidence:
+          - src/anomalyzer/sparse_views.py:1
+          - src/anomalyzer/sparse_views.py:29
+          - src/anomalyzer/sparse_views.py:82
+          - src/anomalyzer/sparse_views.py:130
+          - src/anomalyzer/sparse_views.py:159
+          - src/anomalyzer/relationships.py:157
+          - src/anomalyzer/relationships.py:192
+          - src/anomalyzer/agent.py:20
+          - src/anomalyzer/agent.py:47
+          - tests/test_sparse.py:217
+          - tests/test_sparse.py:247
+          - tests/test_sparse.py:251
+          - tests/test_sparse.py:264
+          - tests/test_sparse.py:386
+          - examples/sparse/unfinished_daily.json:208
+          - docs/sparse-data.md:8
+          - docs/sparse-data.md:11
+          - docs/sparse-data.md:37
+          - docs/sparse-data.md:41
+          - docs/sparse-data.md:45
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+    done: false

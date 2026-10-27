@@ -103,6 +103,21 @@ def main():
                      "config": {"recipe": "multi-resolution-v1", "training_size": 2,
                                 "calibration_size": 3, "completed_period_season_length": 1}})
     assert multi.data_quality["incomplete_period"]["included_in_completed_period_view"] is False
+    # New source contracts must work from the distribution, without local fixtures.
+    sparse = {"schema_version":"1.1", "datasets":[{
+        "id":"calls","entity":{"customer":"synthetic"},"units":"calls",
+        "timestamps":timestamps[:12],"frequency":"1d","values":[1,None,0,1,1,0,1,1,None,1,0,20],
+        "coverage":["complete","empty"]+["complete"]*6+["unknown"]+["complete"]*3,
+        "data_policy":{"measurement":"additive_volume","missing":"zero_for_empty"},
+        "rules":[{"id":"measured-limit","kind":"acceptable_range","minimum":0,"maximum":10}]}],
+        "config":{"season_length":1,"training_size":4,"calibration_size":3,"trend":"none"}}
+    result_sparse = analyze_relationships(sparse)
+    quality = result_sparse.dataset_results[0].data_quality
+    assert quality["zero_filled_count"] == 1 and quality["samples"][8]["value"] is None
+    assert result_sparse.cases
+    events = {**sparse["datasets"][0], "data_policy":{"observation_basis":"event_index"}}
+    events.pop("frequency")
+    assert analyze_series(events, sparse["config"]).dataset_results[0].data_quality["coordinate"] == "event_index"
     print(json.dumps({"version": anomalyzer.__version__, "status": result.status,
                       "cases": len(result.cases), "offline": True,
                       "pydantic_core": pydantic_core.__file__}))

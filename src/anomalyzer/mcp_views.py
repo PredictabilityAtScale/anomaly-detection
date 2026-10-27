@@ -67,6 +67,12 @@ def _quality(item):
         "regular": source.get("regular"),
         "latest_evidence_state": source.get("latest_evidence_state"),
         "error": item.get("error"),
+        **({"data_policy": source["data_policy"], "coverage_counts": source["coverage_counts"],
+            "grid_count": source["grid_count"], "usable_model_count": source["usable_model_count"],
+            "reported_measurement_count": source["reported_measurement_count"],
+            "zero_filled_count": source["zero_filled_count"], "observation_basis": source["coordinate"]}
+           if "data_policy" in source else {}),
+        **({"resolution": item["resolution"]} if item.get("resolution") else {}),
     }
 
 
@@ -117,7 +123,7 @@ def _interval_text(interval):
 
 def _quality_headline(target, item, quality):
     if quality["latest_evidence_state"] == "insufficient_evidence":
-        return f"{target}: latest relationship evidence is unavailable."
+        return f"{target}: latest numerical evidence is unavailable."
     if quality["incomplete_count"]:
         return (f"{target}: {quality['incomplete_count']} incomplete source "
                 "period(s) were excluded from finalized scoring.")
@@ -139,17 +145,19 @@ def build_findings(result):
             target = matches[0][1] if matches else None
             findings.append({
                 "id": case["id"], "kind": "case", "target_id": target,
+                **({"resolution": case["resolution"]} if case.get("resolution") else {}),
                 "entity": case["entity"], "event_time": case["event_time"],
                 "headline": _case_headline(case, matches, definitions),
                 "maturity": case["maturity"],
                 "severity": case["severity"],
                 "readiness": (_readiness(next(item for _, name, item in _targets(result)
-                                              if name == target))[0]
+                                              if name == target and item.get("resolution") == case.get("resolution")))[0]
                               if target else "not_assessed"),
                 "note": "A case is numerical evidence, not an incident or permission to act.",
                 "_order": order, "_priority": 0,
             })
     for kind, target, item in _targets(result):
+        previous_findings = len(findings)
         readiness, _ = _readiness(item)
         for episode in item["observations"]:
             findings.append({
@@ -202,7 +210,7 @@ def build_findings(result):
         if _quality_issue(item):
             quality = _quality(item)
             findings.append({
-                "id": f"quality:{kind}:{target}", "kind": "quality",
+                "id": f"quality:{kind}:{target}" + (f":{item['resolution']}" if item.get("resolution") else ""), "kind": "quality",
                 "target_id": target, "entity": definitions[target]["entity"],
                 "event_time": item["data_quality"].get("window", [None, None])[-1]
                               if item["data_quality"].get("window") else None,
@@ -215,7 +223,11 @@ def build_findings(result):
                     or quality["missing_count"] or quality["incomplete_count"]
                     else 3),
             })
-    findings.sort(key=lambda item: (item["_priority"], -item["_order"], item["id"]))
+        if item.get("resolution"):
+            for finding in findings[previous_findings:]:
+                finding["resolution"] = item["resolution"]
+    findings.sort(key=lambda item: (item["_priority"], -item["_order"],
+        item["kind"] == "quality" and not item["id"].startswith("quality:relationship:"), item["id"]))
     for item in findings:
         del item["_order"]
         del item["_priority"]
@@ -289,7 +301,7 @@ def get_evidence(result, finding_id, cursor=0, limit=50):
         references = set(record["evidence_refs"])
         targets = {target for _, target, _ in matches}
         for kind, target, item in _targets(result):
-            if target in targets:
+            if target in targets and item.get("resolution") == record.get("resolution"):
                 related.append((kind, target, item))
                 if kind == "relationship":
                     indexes = {assessment["index"] for source_kind, name, assessment
@@ -299,7 +311,7 @@ def get_evidence(result, finding_id, cursor=0, limit=50):
     else:
         kind, target, item = next((kind, target, item)
                                   for kind, target, item in _targets(result)
-                                  if target == finding["target_id"])
+                                  if target == finding["target_id"] and item.get("resolution") == finding.get("resolution"))
         related = [(kind, target, item)]
         if finding["kind"] == "pattern":
             record = next(pattern for pattern in item["anomaly_patterns"]
@@ -321,6 +333,9 @@ def get_evidence(result, finding_id, cursor=0, limit=50):
             record = {
                 "status": item["status"], "data_quality": _quality(item),
                 "transformations": source_quality.get("transformations", []),
+                "source_samples_preview": source_quality.get("samples", [])[-5:],
+                "aggregation_preview": (source_quality.get("aggregation", [])[:5]
+                    if isinstance(source_quality.get("aggregation", []), list) else source_quality.get("aggregation")),
                 "incomplete_period_count": len(incomplete),
                 "incomplete_periods_preview": incomplete[:5],
                 "error": item.get("error"),

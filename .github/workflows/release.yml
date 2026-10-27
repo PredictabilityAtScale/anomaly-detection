@@ -3,6 +3,8 @@ name: Release
 on:
   push:
     tags: ['v*']
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -13,11 +15,12 @@ concurrency:
 
 jobs:
   checks:
+    if: github.event_name == 'push'
     uses: ./.github/workflows/ci.yml
 
   publish:
     needs: checks
-    if: github.repository == 'PredictabilityAtScale/anomaly-detection'
+    if: github.event_name == 'push' && github.repository == 'PredictabilityAtScale/anomaly-detection'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,3 +38,26 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: python scripts/publish_release.py --tag "$RELEASE_TAG" --revision "$GITHUB_SHA"
+
+  verify-published:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.6.13'
+          python-version: '3.12'
+      - name: Download and verify the immutable published assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir dist
+          python scripts/release.py verify --tag "$RELEASE_TAG" --revision "$(git rev-parse HEAD)"
+      - name: Install the exact published wheel URL with hashes outside checkout
+        run: python scripts/verify_distribution.py --python 3.12 --from-release
+      - name: Verify the downloaded release in the offline Lambda-compatible bundle
+        run: bash scripts/verify_lambda.sh

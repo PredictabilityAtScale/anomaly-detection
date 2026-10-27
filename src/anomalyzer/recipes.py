@@ -45,6 +45,12 @@ def _analyze_seasonal(request: Request) -> Result:
 def analyze_dataset(dataset: Dataset, settings: Settings, context,
                     budget: RuntimeBudget | None = None) -> Result:
     """Emit causal seasonal evidence, and flag only fully calibrated scores."""
+    from .sparse import analyze_sparse, uses_policy
+    if uses_policy(dataset):
+        if settings.recipe == "multi-resolution-v1":
+            from .sparse_views import analyze_sparse_views
+            return analyze_sparse_views(dataset, settings, context, budget)
+        return analyze_sparse(dataset, settings, context, budget)
     if settings.recipe == "multi-resolution-v1":
         return analyze_multi_resolution(dataset, settings, context, budget)
     start = time.perf_counter()

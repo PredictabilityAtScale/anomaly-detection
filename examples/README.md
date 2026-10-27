@@ -1,5 +1,12 @@
 # Try the anomaly detector
 
+The README progression continues through chapters 14–22 with
+[sparse-data fixtures](sparse/), explicit empty policies, coverage, event-index
+measurements, calendar phase, gap-broken patterns, early rules and incomplete-day
+relationships. `generate.py` generates these fixtures, `run_demo.py` checks them,
+and `render_readme_progression.py` renders their figures in the established style.
+See the [source-policy API guide](../docs/sparse-data.md) for interpretation limits.
+
 From the project root:
 
 ```powershell

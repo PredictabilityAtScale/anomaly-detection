@@ -192,7 +192,8 @@ when visualization is unavailable.
 Schema 1.0 is the single-series contract. Schema 1.1 adds named datasets,
 relationships, assessments, policy, and cases; it also works with one dataset
 and no relationships. Both use the same analysis core through CLI, Python, and
-MCP. The multi-resolution recipe currently supports schema 1.0 only and does
+MCP. Sparse schema-1.1 and multi-resolution support is described in chapters 14–22.
+The legacy schema-1.0 multi-resolution profile does
 not support `reset_points`; both other recipes support explicit resets.
 
 ## Capability maps
@@ -596,6 +597,137 @@ server session in a cache bounded to eight runs and 64 MB; evicted run IDs requi
 reanalysis. Older tool names remain callable for compatibility but are not
 advertised. Recurring monitoring, deduplication of previously reported findings,
 review state, alerts, and production actions require caller-held state and logic.
+
+### 14. Choose what an empty period means
+
+The same timestamps can mean different things when collection guarantees differ.
+The safe default preserves missing values. An explicit additive-volume policy can
+interpret **confirmed complete empty periods** as zero. Unknown collection never
+provides that guarantee. A typical value, expectation, interpolation or previous
+measurement is never inserted as an observation.
+
+![Same input with preserved gaps versus explicitly authorized zero volume](docs/images/anomaly-progression-14-empty-policy.png)
+
+Compare [preserve.json](examples/sparse/preserve.json) with
+[zero_empty.json](examples/sparse/zero_empty.json). The latter declares
+`data_policy={"measurement":"additive_volume","missing":"zero_for_empty"}`;
+its four `coverage="empty"` positions have visible conversion reasons. The blue
+observations are unchanged; gold markers distinguish policy-derived zeros.
+
+### 15. Keep zero, unknown and unfinished distinct
+
+An observed zero is a real value. An unknown period stays a gap. An open period
+can show its reported progress without entering a completed baseline or total.
+The [coverage example](examples/sparse/statuses.json) retains the original values,
+statuses and grid, including the open period's value of 3.
+
+![Observed zeros, unknown gaps and an unfinished value shown separately](docs/images/anomaly-progression-15-coverage-states.png)
+
+Missing periods cannot establish normality or recovery. An expectation may remain
+visible as a separate dashed reference across a gap; the observed line breaks.
+
+### 16. Retain a quiet customer's later event
+
+For a completely collected additive count, quiet periods can legitimately be
+zero. [This synthetic customer](examples/sparse/quiet_volume.json) normally has one
+call every 12 hours. Confirmed quiet hours remain in their actual seasonal phase;
+a later measurement of 40 calls is still assessable.
+
+![A quiet but completely collected volume series and a later large measurement](docs/images/anomaly-progression-16-quiet-volume.png)
+
+The profile learns from eligible measurements and authorized empty counts.
+Business materiality, severity and incident decisions remain the caller's job.
+
+### 17. Compare real calls across quiet hours
+
+No calls means cost per call is undefined. The [calendar profile](examples/sparse/cost_calendar.json)
+keeps 431 hourly positions, but lacks matching daily-phase support. The
+[event-index profile](examples/sparse/cost_events.json) explicitly compares 12
+genuine comparable calls and retains every call's original event timestamp.
+
+![Undefined quiet-hour cost values versus comparable event-index observations](docs/images/anomaly-progression-17-event-index.png)
+
+Set `data_policy.observation_basis="event_index"`, omit `frequency`, and use
+`season_length=1`. This is event position, not elapsed time or a calendar rate.
+Model/workload compatibility is a caller declaration; tokens or consumed units
+are not implicitly independent events.
+
+### 18. Keep the weekday when observations are absent
+
+Sparse calendar history must not be squeezed into a shorter positional sequence.
+The [weekday example](examples/sparse/weekday_phase.json) preserves five missing
+days. Its reference still compares the same seven-day phase, using eligible
+training values and a fixed calibration origin.
+
+![Sparse observations retaining their actual seven-day seasonal phase](docs/images/anomaly-progression-18-sparse-phase.png)
+
+The sparse frozen profile can borrow supported training phases across gaps.
+Unsupported phases remain unavailable. Phase support, calibration eligibility and
+reference quality are reported separately; evaluation samples do not update this
+frozen reference. Adaptive and explicit trend recipes currently need complete
+contiguous spans and an explicit reset/restart before new post-gap learning.
+
+### 19. Restart consecutive patterns at a gap
+
+Point-reference reuse does not make missing residuals consecutive. In
+[this example](examples/sparse/pattern_gap.json), four positive residuals, one
+unknown hour and seven positive residuals do not make an eleven-observation run.
+CUSUM restarts independently; Nelson Rule 2 does not bridge the gap.
+
+![Consecutive residual patterns broken by an unknown collection period](docs/images/anomaly-progression-19-pattern-gap.png)
+
+Unknown, incomplete and explicitly excluded model samples break pattern runs.
+Reviewed resets also break early comparisons, references and calibration.
+
+### 20. Apply a measured rule on the first observation
+
+A caller-supplied range can be checked before any statistical learning. The
+[first-value example](examples/sparse/first_rule.json) observes 100 measured units
+against an explicitly declared acceptable range of 0–20. It retains the rule
+assessment and case while statistical status is `insufficient_history`.
+
+![First-observation numerical rule violation while statistical learning is unavailable](docs/images/anomaly-progression-20-first-rule.png)
+
+This threshold is illustrative, not a recommended business-risk limit. Change
+rules need a comparable prior observation and respect gaps/resets; relative
+change from zero stays unavailable. Early descriptive/provisional evidence alone
+cannot trigger a case. Numerical policy eligibility is not operational authority.
+
+### 21. Keep undefined ratios unavailable
+
+[Cost per call](examples/sparse/relationships.json) requires an aligned valid
+numerator and denominator. At hour 1 the denominator is zero; hours 2 and 9 have
+missing inputs. These points stay undefined with explicit reasons and source
+lineage, even when another source uses an additive zero policy.
+
+![Aligned source quantities and undefined derived ratios shown with real gaps](docs/images/anomaly-progression-21-undefined-ratios.png)
+
+An observed numerator of zero over positive volume can produce an observed ratio
+of zero. A missing numerator or zero denominator cannot.
+
+### 22. Preserve incomplete days and useful hourly evidence
+
+A daily total needs every expected finalized child. In the
+[sparse daily example](examples/sparse/unfinished_daily.json), day 1 has an unknown
+hour, day 2 is complete, and day 3 remains open. Only day 2 supplies a completed
+total. Eligible hourly evidence remains available while daily learning lacks
+support.
+
+![Unknown child and unfinished day kept out of completed totals while hourly evidence survives](docs/images/anomaly-progression-22-sparse-days.png)
+
+Schema-1.1 multi-resolution outputs label each view and retain assessments,
+relationships, cases and policy replay. Daily ratios divide summed compatible
+quantities; they do not average percentages. Daily thresholds belong in separate
+`completed_period_rules`. Views are correlated evidence, not independent votes.
+This supports fixed UTC days and frozen seasonal children; local-calendar/DST
+aggregation, adaptive multi-resolution children and simultaneous multi-seasonality
+remain separate work.
+
+The [sparse-data API guide](docs/sparse-data.md) documents policy defaults, bounded
+grid expansion, event-index restrictions, availability/correction semantics and
+the remaining complete-span restrictions. All new fixtures run through
+`examples/run_demo.py`; the existing generator and figure renderer reproduce the
+full progression.
 
 ## Baseline and calibration reference
 
@@ -1010,7 +1142,7 @@ local DST times require offsets. Cadence is a fixed duration, such as `1h`, `1d`
 `1w`, or `15min`; days are 24 elapsed hours and weeks are seven such days.
 Sorting and UTC normalization are
 reported. Duplicates require `--duplicate-policy mean|sum`; nulls propagate.
-Missing values or irregular cadence make the baseline inapplicable. No imputation,
+In schema 1.0, missing values or irregular cadence make the baseline inapplicable. No implicit imputation,
 resampling, interpolation, or unit conversion occurs.
 
 `--config` accepts settings or a complete canonical request. Precedence is

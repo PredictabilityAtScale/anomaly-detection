@@ -18,7 +18,10 @@ guidance:
   - Periods are fixed 24-hour windows, not daylight-saving-aware local calendar
     days.
   - Native and daily views share source observations and are correlated.
-  - This recipe supports schema 1.0 and does not support reset_points.
+  - Legacy schema 1.0 requires complete input and does not support resets.
+    Schema 1.1 labels sparse native/completed-day views and preserves reset
+    boundaries; daily sums require declared additive volume and fully observed
+    children.
 planning:
   story_map:
     backbone: Monitor while periods are still open
@@ -41,6 +44,8 @@ agent:
     - analysis/expectations/model-seasonal-level-and-growth
   implementation:
     references:
+      - src/anomalyzer/sparse_views.py
+      - tests/test_sparse.py
       - src/anomalyzer/recipes.py
       - tests/test_analysis.py
       - tests/test_capability_behaviors.py
