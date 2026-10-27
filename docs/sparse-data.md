@@ -5,8 +5,9 @@ Schema 1.1 therefore preserves missing values by default. An expectation can be
 shown separately; it is never inserted as an observed measurement. Schema 1.0
 keeps its existing complete-series behavior and unchanged schemas.
 Schema 1.1 gains optional source and result fields. Upgrade strict schema-1.1
-producers/readers together to 0.3 for the extended identity contract; an older strict result model is not promised to
-accept the new metadata. Complete legacy requests remain accepted. Record the
+producers/readers together to 0.3 for the extended identity contract; an older
+strict result model is not promised to accept the new metadata. Complete legacy
+requests remain accepted. Record the
 package version and method `profile_revision` with Guard's own profile revision.
 
 The numbered [README progression](../README.md#14-choose-what-an-empty-period-means)
@@ -220,8 +221,10 @@ relationship cannot use unordered tied events. Completed-day event-index
 aggregation remains unavailable. Calendar and legacy unique-time inputs keep
 their existing behavior; IDs cannot be used to bypass a calendar duplicate rule.
 
-All raw events plus revisions share the existing request point/byte/runtime
-budgets. Results grow with retained events and evidence; point limits are not a
+Raw events plus revisions share the request point budget, and preparation/scoring
+use the cooperative runtime budget. CLI input reads enforce `max_bytes`;
+in-memory Python/MCP callers own ingress payload limits. Results grow with
+retained events and evidence; point limits are not a
 small-response guarantee. MCP summaries stay compact and drilldowns are paged.
 The standalone benchmark includes a 1,344-event workload with four distinct calls
 at each recorded timestamp; CI records actual result bytes and warm timings.

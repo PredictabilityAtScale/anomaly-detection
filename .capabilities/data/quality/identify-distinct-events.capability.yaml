@@ -133,11 +133,11 @@ agent:
           - tests/test_events.py:24
           - tests/test_events.py:25
           - tests/test_events.py:41
-          - docs/sparse-data.md:49
-          - docs/sparse-data.md:72
+          - docs/sparse-data.md:50
           - docs/sparse-data.md:73
-          - docs/sparse-data.md:76
-          - docs/sparse-data.md:82
+          - docs/sparse-data.md:74
+          - docs/sparse-data.md:77
+          - docs/sparse-data.md:83
           - examples/sparse_examples.py:36
           - examples/sparse_examples.py:57
           - examples/sparse_examples.py:65
@@ -197,11 +197,11 @@ agent:
           - tests/test_events.py:30
           - tests/test_events.py:47
           - tests/test_events.py:56
-          - docs/sparse-data.md:30
-          - docs/sparse-data.md:87
-          - docs/sparse-data.md:92
-          - docs/sparse-data.md:105
-          - docs/sparse-data.md:110
+          - docs/sparse-data.md:31
+          - docs/sparse-data.md:88
+          - docs/sparse-data.md:93
+          - docs/sparse-data.md:106
+          - docs/sparse-data.md:111
           - examples/sparse_examples.py:65
           - examples/sparse_examples.py:67
           - examples/sparse_examples.py:74
@@ -259,11 +259,11 @@ agent:
           - tests/test_events.py:80
           - tests/test_events.py:81
           - tests/test_events.py:121
-          - docs/sparse-data.md:117
-          - docs/sparse-data.md:135
+          - docs/sparse-data.md:118
           - docs/sparse-data.md:136
           - docs/sparse-data.md:137
           - docs/sparse-data.md:138
+          - docs/sparse-data.md:139
           - examples/sparse_examples.py:87
           - examples/sparse_examples.py:88
           - examples/sparse_examples.py:89
@@ -322,11 +322,11 @@ agent:
           - tests/test_events.py:36
           - tests/test_events.py:49
           - tests/test_events.py:51
-          - docs/sparse-data.md:36
-          - docs/sparse-data.md:96
-          - docs/sparse-data.md:99
-          - docs/sparse-data.md:110
-          - docs/sparse-data.md:114
+          - docs/sparse-data.md:37
+          - docs/sparse-data.md:97
+          - docs/sparse-data.md:100
+          - docs/sparse-data.md:111
+          - docs/sparse-data.md:115
           - examples/sparse_examples.py:39
           - examples/sparse_examples.py:72
           - examples/sparse_examples.py:73
