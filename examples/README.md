@@ -1,5 +1,17 @@
 # Try the anomaly detector
 
+Version 0.4.0 adds [distribution fixtures](distributions/) for numeric shape
+changes at an unchanged mean, an ordinary control, whole categorical mix,
+weighted descriptive composition and bounded causal replay. Run
+`python examples/run_distribution_demo.py`; regenerate fixtures with
+`python examples/distributions/generate.py` and README chapters 25–26 with
+`python examples/render_readme_progression.py --only-distributions`.
+See the [population API and UsageTap handoff](../docs/distribution-detection.md).
+
+Version 0.5.0 adds `seasonal-morning.json`: the normal 8am batch stays quiet
+against matched mornings. See README chapter 27 and the
+[explicit seasonal selection guide](../docs/seasonal-distributions.md).
+
 The README progression continues through chapters 14–22 with
 [sparse-data fixtures](sparse/), explicit empty policies, coverage, event-index
 measurements, calendar phase, gap-broken patterns, early rules and incomplete-day

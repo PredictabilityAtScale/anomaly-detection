@@ -1,0 +1,339 @@
+title: Detect changes across populations of observations
+status: implemented
+summary: Compare numeric distributions and categorical compositions using
+  explicit, disjoint populations, including ties and ordinary zero values.
+intent: Find behavioral changes in spread, tails, zero frequency or category
+  composition even when average usage stays steady and no individual reading is
+  extreme.
+acceptance:
+  - Numeric comparisons use a tie-aware two-sample empirical distribution test
+    and report effect size, population support and source identities.
+  - Categorical comparisons assess the whole composition and explain changed
+    shares without treating consumed quantities as independent observations.
+  - Causal monitoring freezes an earlier reference, compares bounded recent
+    windows and accounts for all planned looks and window sizes in its testing
+    budget.
+  - Unknown observations and untrusted tied timestamps cannot silently establish
+    sequence continuity, and insufficient or unfinished evidence cannot
+    establish normality.
+  - Results separate statistical evidence, practical effect thresholds and
+    business impact, with inspectable assumptions and reproducible calculations.
+guidance:
+  - The caller owns comparable populations, independent sampling assumptions and
+    the testing budget across monitors, resets and deployments.
+  - A distribution change does not establish abuse, cause or permission to act.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/detection/compare-distributions
+  # run deterministic review only: capabilitykit review analysis/detection/compare-distributions --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/detection/compare-distributions --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/detection/compare-distributions --input review.json
+  # -----------------------------
+  implementation:
+    references:
+      - src/anomalyzer/distribution_contracts.py
+      - src/anomalyzer/distributions.py
+      - src/anomalyzer/__init__.py
+      - src/anomalyzer/cli.py
+      - src/anomalyzer/mcp.py
+      - tests/test_distributions.py
+      - examples/run_distribution_demo.py
+      - examples/render_readme_progression.py
+      - docs/distribution-detection.md
+      - README.md
+  verification:
+    automated:
+      - id: numeric-populations
+        description: Exact tied-value label permutations, stable zero-heavy mixtures and
+          mean-preserving changes without extreme points.
+        command: python -m pytest -q tests/test_distributions.py -k "numeric_exact or
+          same_mean or stable_zero"
+      - id: categorical-populations
+        description: Whole-composition changes and report-level weighted permutations
+          retain event support rather than inventing independent units.
+        command: python -m pytest -q tests/test_distributions.py -k "categorical or
+          weighted or quantities"
+      - id: causal-testing-budget
+        description: Frozen causal replay preserves identities and gaps, exposes
+          horizons and controls a predeclared family over exhaustive null
+          allocations.
+        command: python -m pytest -q tests/test_distributions.py -k "monitor or horizon
+          or unknowns or family_budget or runtime"
+      - id: interface-contracts
+        description: CLI, MCP and public Python results agree with generated schemas and
+          explicit evidence gates.
+        command: python -m pytest -q tests/test_distributions.py -k "cli or schemas or
+          invalid or assumptions or multiple_comparison"
+      - id: graphical-examples
+        description: Checked-in numeric, categorical, weighted-report and causal-monitor
+          fixtures produce the documented real-engine evidence.
+        command: python examples/run_distribution_demo.py
+    manual:
+      - Inspect README chapters 25–26 against their actual request/results and
+        PNGs; verify unchanged means, source support, first detection,
+        weighted-unit limits and the distinction between statistical evidence
+        and business impact.
+    gaps:
+      - Real-world detection delay, false-finding burden and clustered-call
+        validity require representative caller-owned replay; synthetic examples
+        do not establish production effectiveness.
+  review:
+    depth: partial
+    source: deterministic-assessment
+    gaps:
+      - Numeric comparisons use a tie-aware two-sample empirical distribution
+        test and report effect size, population support and source identities.
+        Review the cited evidence. If it is correct, save agent.review evidence
+        or make the criterion/reference wording more explicit.
+      - Categorical comparisons assess the whole composition and explain changed
+        shares without treating consumed quantities as independent observations.
+        Review the cited evidence. If it is correct, save agent.review evidence
+        or make the criterion/reference wording more explicit.
+      - Causal monitoring freezes an earlier reference, compares bounded recent
+        windows and accounts for all planned looks and window sizes in its
+        testing budget. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Unknown observations and untrusted tied timestamps cannot silently
+        establish sequence continuity, and insufficient or unfinished evidence
+        cannot establish normality. Review the cited evidence. If it is correct,
+        save agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Results separate statistical evidence, practical effect thresholds and
+        business impact, with inspectable assumptions and reproducible
+        calculations. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+    intent_summary: Implementation evidence synchronized from deterministic
+      assessment for analysis/detection/compare-distributions.
+    criteria:
+      - criterion: Numeric comparisons use a tie-aware two-sample empirical distribution
+          test and report effect size, population support and source identities.
+        status: partial
+        evidence:
+          - src/anomalyzer/distribution_contracts.py:1
+          - src/anomalyzer/distribution_contracts.py:50
+          - src/anomalyzer/distribution_contracts.py:80
+          - src/anomalyzer/distribution_contracts.py:92
+          - src/anomalyzer/distribution_contracts.py:93
+          - src/anomalyzer/distributions.py:3
+          - src/anomalyzer/distributions.py:4
+          - src/anomalyzer/distributions.py:24
+          - src/anomalyzer/distributions.py:37
+          - src/anomalyzer/distributions.py:38
+          - src/anomalyzer/__init__.py:7
+          - src/anomalyzer/__init__.py:18
+          - src/anomalyzer/cli.py:37
+          - src/anomalyzer/cli.py:79
+          - src/anomalyzer/cli.py:106
+          - src/anomalyzer/cli.py:107
+          - src/anomalyzer/cli.py:110
+          - src/anomalyzer/mcp.py:52
+          - src/anomalyzer/mcp.py:55
+          - src/anomalyzer/mcp.py:77
+          - src/anomalyzer/mcp.py:146
+          - src/anomalyzer/mcp.py:168
+          - tests/test_distributions.py:35
+          - tests/test_distributions.py:105
+          - tests/test_distributions.py:117
+          - tests/test_distributions.py:125
+          - tests/test_distributions.py:134
+          - examples/render_readme_progression.py:943
+          - examples/render_readme_progression.py:1037
+          - examples/render_readme_progression.py:1045
+          - examples/render_readme_progression.py:1061
+          - examples/render_readme_progression.py:1062
+          - docs/distribution-detection.md:3
+          - docs/distribution-detection.md:12
+          - docs/distribution-detection.md:16
+          - docs/distribution-detection.md:21
+          - docs/distribution-detection.md:23
+          - README.md:24
+          - README.md:25
+          - README.md:134
+          - README.md:262
+          - README.md:269
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Categorical comparisons assess the whole composition and explain
+          changed shares without treating consumed quantities as independent
+          observations.
+        status: partial
+        evidence:
+          - src/anomalyzer/distribution_contracts.py:1
+          - src/anomalyzer/distribution_contracts.py:80
+          - src/anomalyzer/distribution_contracts.py:92
+          - src/anomalyzer/distribution_contracts.py:166
+          - src/anomalyzer/distribution_contracts.py:176
+          - src/anomalyzer/distributions.py:22
+          - src/anomalyzer/distributions.py:152
+          - src/anomalyzer/distributions.py:159
+          - src/anomalyzer/distributions.py:191
+          - src/anomalyzer/distributions.py:213
+          - src/anomalyzer/cli.py:117
+          - src/anomalyzer/cli.py:160
+          - src/anomalyzer/cli.py:163
+          - src/anomalyzer/cli.py:305
+          - src/anomalyzer/cli.py:306
+          - src/anomalyzer/mcp.py:56
+          - src/anomalyzer/mcp.py:64
+          - src/anomalyzer/mcp.py:99
+          - src/anomalyzer/mcp.py:168
+          - tests/test_distributions.py:80
+          - tests/test_distributions.py:94
+          - tests/test_distributions.py:105
+          - tests/test_distributions.py:125
+          - tests/test_distributions.py:157
+          - examples/run_distribution_demo.py:11
+          - examples/render_readme_progression.py:644
+          - examples/render_readme_progression.py:665
+          - examples/render_readme_progression.py:773
+          - examples/render_readme_progression.py:826
+          - examples/render_readme_progression.py:1051
+          - docs/distribution-detection.md:16
+          - docs/distribution-detection.md:21
+          - docs/distribution-detection.md:23
+          - docs/distribution-detection.md:24
+          - docs/distribution-detection.md:59
+          - README.md:23
+          - README.md:134
+          - README.md:199
+          - README.md:269
+          - README.md:420
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Causal monitoring freezes an earlier reference, compares bounded
+          recent windows and accounts for all planned looks and window sizes in
+          its testing budget.
+        status: partial
+        evidence:
+          - src/anomalyzer/distribution_contracts.py:91
+          - src/anomalyzer/distribution_contracts.py:142
+          - src/anomalyzer/distribution_contracts.py:143
+          - src/anomalyzer/distribution_contracts.py:145
+          - src/anomalyzer/distribution_contracts.py:148
+          - src/anomalyzer/distributions.py:24
+          - src/anomalyzer/distributions.py:145
+          - src/anomalyzer/distributions.py:238
+          - src/anomalyzer/distributions.py:241
+          - src/anomalyzer/distributions.py:242
+          - src/anomalyzer/cli.py:37
+          - src/anomalyzer/cli.py:106
+          - src/anomalyzer/cli.py:107
+          - src/anomalyzer/cli.py:111
+          - src/anomalyzer/cli.py:113
+          - src/anomalyzer/mcp.py:53
+          - src/anomalyzer/mcp.py:170
+          - src/anomalyzer/mcp.py:185
+          - src/anomalyzer/mcp.py:216
+          - tests/test_distributions.py:62
+          - tests/test_distributions.py:166
+          - tests/test_distributions.py:204
+          - tests/test_distributions.py:208
+          - tests/test_distributions.py:223
+          - examples/render_readme_progression.py:918
+          - examples/render_readme_progression.py:922
+          - examples/render_readme_progression.py:935
+          - examples/render_readme_progression.py:940
+          - examples/render_readme_progression.py:989
+          - docs/distribution-detection.md:3
+          - docs/distribution-detection.md:12
+          - docs/distribution-detection.md:16
+          - docs/distribution-detection.md:94
+          - docs/distribution-detection.md:121
+          - README.md:11
+          - README.md:25
+          - README.md:26
+          - README.md:74
+          - README.md:187
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Unknown observations and untrusted tied timestamps cannot silently
+          establish sequence continuity, and insufficient or unfinished evidence
+          cannot establish normality.
+        status: partial
+        evidence:
+          - src/anomalyzer/distribution_contracts.py:141
+          - src/anomalyzer/distribution_contracts.py:166
+          - src/anomalyzer/distributions.py:22
+          - src/anomalyzer/cli.py:83
+          - src/anomalyzer/cli.py:117
+          - src/anomalyzer/cli.py:128
+          - src/anomalyzer/cli.py:160
+          - src/anomalyzer/cli.py:163
+          - src/anomalyzer/mcp.py:64
+          - tests/test_distributions.py:245
+          - examples/render_readme_progression.py:644
+          - examples/render_readme_progression.py:665
+          - examples/render_readme_progression.py:773
+          - examples/render_readme_progression.py:884
+          - examples/render_readme_progression.py:897
+          - docs/distribution-detection.md:59
+          - docs/distribution-detection.md:70
+          - docs/distribution-detection.md:162
+          - README.md:440
+          - README.md:465
+          - README.md:502
+          - README.md:538
+          - README.md:624
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Results separate statistical evidence, practical effect thresholds
+          and business impact, with inspectable assumptions and reproducible
+          calculations.
+        status: partial
+        evidence:
+          - src/anomalyzer/distribution_contracts.py:205
+          - src/anomalyzer/distributions.py:25
+          - src/anomalyzer/distributions.py:207
+          - src/anomalyzer/distributions.py:214
+          - src/anomalyzer/distributions.py:215
+          - src/anomalyzer/distributions.py:216
+          - src/anomalyzer/cli.py:24
+          - src/anomalyzer/cli.py:295
+          - src/anomalyzer/cli.py:349
+          - src/anomalyzer/cli.py:351
+          - src/anomalyzer/cli.py:352
+          - src/anomalyzer/mcp.py:5
+          - src/anomalyzer/mcp.py:54
+          - src/anomalyzer/mcp.py:55
+          - src/anomalyzer/mcp.py:57
+          - src/anomalyzer/mcp.py:78
+          - tests/test_distributions.py:102
+          - tests/test_distributions.py:144
+          - tests/test_distributions.py:152
+          - tests/test_distributions.py:153
+          - tests/test_distributions.py:178
+          - examples/run_distribution_demo.py:14
+          - examples/render_readme_progression.py:3
+          - examples/render_readme_progression.py:781
+          - examples/render_readme_progression.py:782
+          - examples/render_readme_progression.py:787
+          - examples/render_readme_progression.py:798
+          - docs/distribution-detection.md:100
+          - docs/distribution-detection.md:102
+          - docs/distribution-detection.md:113
+          - docs/distribution-detection.md:115
+          - docs/distribution-detection.md:116
+          - README.md:8
+          - README.md:82
+          - README.md:226
+          - README.md:262
+          - README.md:269
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+    done: false

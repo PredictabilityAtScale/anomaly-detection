@@ -23,7 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-dependencies = ["pydantic>=2.10,<3", "typing-extensions>=4.12.2", "tzdata>=2024.1; sys_platform == 'win32'"]
+dependencies = ["pydantic>=2.10,<3", "typing-extensions>=4.12.2", "tzdata>=2024.1"]
 
 [project.urls]
 Homepage = "https://github.com/PredictabilityAtScale/anomaly-detection"
@@ -50,6 +50,6 @@ packages = ["src/anomalyzer"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/src", "/tests", "/schemas", "/examples", "/scripts",
-    "/.agents/skills/anomaly-detection", "/docs/releases", "/docs/sparse-data.md",
+    "/.agents/skills/anomaly-detection", "/docs/releases", "/docs/sparse-data.md", "/docs/distribution-detection.md", "/docs/seasonal-distributions.md",
     "/README.md", "/CONTRIBUTING.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
 ]

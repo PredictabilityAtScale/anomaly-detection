@@ -21,7 +21,7 @@ import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from anomalyzer import analyze
+from anomalyzer import analyze, compare_distributions, monitor_distributions, compare_seasonal_distributions
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1039,6 +1039,113 @@ def sparse_progression():
     return figures
 
 
+def distribution_progression():
+    directory = EXAMPLES / "distributions"
+    numeric_request = json.loads((directory / "numeric-shape.json").read_text())
+    numeric = compare_distributions(numeric_request)
+    monitor_request = json.loads((directory / "numeric-monitor.json").read_text())
+    monitor = monitor_distributions(monitor_request)
+    assert numeric.change_detected and monitor.first_detection is not None
+    svg = Svg()
+    header(svg, "25", "Detect redistribution while the average stays steady",
+           "Real distribution-v1 output on synthetic calls; ordinary zeros remain measured observations.")
+    values = [sample["value"] for sample in monitor_request["samples"]]
+    detection = monitor.first_detection["index"]
+    sx, sy = chart(svg, values, [], 95, 165, 1035, 180, y_bounds=(0, 1),
+        shade_until=127, flags=[detection], boundaries=[160],
+        ticks=[(0, "call 0"), (127, "127"), (160, "160"), (287, "287")],
+        y_tick_format=lambda value: f"{max(0, value):.0%}", label="Cache fraction per call; gray = frozen reference")
+    svg.line(sx(detection), 145, sx(detection), 350, RED, 2, "4 5")
+    svg.text(sx(detection)+10, 143, f"First detection: call {detection}", 16, RED, 700)
+    svg.text(95, 395, "Explicit population comparison: both averages = 50%", 21, INK, 700)
+    a = numeric_request["reference"]["samples"]
+    b = numeric_request["current"]["samples"]
+    levels = [0, .25, .5, .75, 1]
+    for i, value in enumerate(levels):
+        x = 115+i*120
+        for samples, offset, color in ((a, 0, BLUE), (b, 34, GOLD)):
+            share = sum(sample["value"] == value for sample in samples) / len(samples)
+            svg.rect(x+offset, 545-share*280, 28, share*280, color)
+            svg.text(x+offset+14, 545-share*280-8, f"{share:.0%}", 14, color, anchor="middle")
+        svg.text(x+31, 571, f"{value:.0%}", 15, MUTED, anchor="middle")
+    svg.text(765, 435, f"KS distance: {numeric.statistic:.2f}", 21, NAVY, 700)
+    svg.text(765, 473, f"Exact tied-value p: {numeric.p_value:.3g}", 18, INK)
+    svg.text(765, 509, f"Support: {numeric.reference['sample_count']} + {numeric.current['sample_count']} calls", 18, INK)
+    svg.text(765, 545, "No individual value exceeds 3 reference SD.", 16, MUTED)
+    legend(svg, [("line", BLUE, "reference population"), ("line", GOLD, "current population"),
+                 ("dot", RED, "first monitored finding")], y=620)
+    svg.text(60, 658, "Two related synthetic examples. Replay corrects all 258 planned comparisons; no incident, cause or alert accuracy is established.", 15, MUTED)
+    first_figure = svg.finish()
+
+    request = json.loads((directory / "categorical-mix.json").read_text())
+    result = compare_distributions(request)
+    assert result.change_detected
+    svg = Svg()
+    header(svg, "26", "Find small changes across the whole feature mix",
+           "Totals stay at 800 reports per population; every category moves by only 1.875 percentage points.")
+    rows = result.details["categories"]
+    left, top, width, height = 95, 180, 1035, 270
+    sy = lambda value: top+height-value/.1*height
+    for share in (0, .025, .05, .075, .1):
+        svg.line(left, sy(share), left+width, sy(share), GRID)
+        svg.text(left-12, sy(share)+5, f"{share:.1%}", 15, MUTED, anchor="end")
+    for i, row in enumerate(rows):
+        x = left+i*width/len(rows)+8
+        for key, offset, color in (("reference_share", 0, BLUE), ("current_share", 22, GOLD)):
+            svg.rect(x+offset, sy(row[key]), 18, top+height-sy(row[key]), color)
+        svg.text(x+20, top+height+26, f"{i+1:02d}", 14, MUTED, anchor="middle")
+    svg.text(left, 155, "Share of genuine reporting events by feature", 18, INK, 700)
+    svg.rect(80, 510, 1040, 85, SHADE, radius=8)
+    svg.text(105, 543, f"Whole-composition divergence: {result.statistic:.4f} bits", 21, NAVY, 700)
+    svg.text(105, 578, f"Permutation p: {result.p_value:g}   |   threshold: {result.threshold:g}   |   change detected: yes", 18, INK)
+    legend(svg, [("line", BLUE, "reference category shares"), ("line", GOLD, "current category shares")], y=625)
+    svg.text(60, 660, "Category rows explain one global comparison. Weighted consumed units get descriptive effects, never invented independent sample counts.", 14, MUTED)
+    return {"anomaly-progression-25-numeric-distribution": first_figure,
+            "anomaly-progression-26-categorical-distribution": svg.finish(),
+            "anomaly-progression-27-seasonal-distribution": figure_seasonal_distribution()}
+
+
+def figure_seasonal_distribution():
+    request = json.loads((EXAMPLES/"distributions/seasonal-morning.json").read_text())
+    matched = compare_seasonal_distributions(request)
+    current_ids = set(matched.selection["current_sample_ids"])
+    prior = [sample for sample in request["samples"] if sample["timestamp"] < request["window_start"]]
+    current = [sample for sample in request["samples"] if sample["id"] in current_ids]
+    broad = compare_distributions(dict(kind=request["kind"], entity=request["entity"], units=request["units"],
+        reference={"samples": prior}, current={"samples": current}, assume_exchangeable=True))
+    assert broad.change_detected and matched.status == "completed" and not matched.change_detected
+    svg = Svg()
+    header(svg, "27", "Compare the 8am batch with earlier mornings",
+           "Explicit timezone: America/Los_Angeles. Today and all selected priors cover 08:00-08:05.")
+    x, y, width, height = 95, 175, 1035, 225
+    sy = lambda value: y+height-value*height
+    for fraction in (0, .25, .5, .75, 1):
+        svg.line(x, sy(fraction), x+width, sy(fraction), GRID)
+        svg.text(x-12, sy(fraction)+5, f"{fraction:.0%}", 15, MUTED, anchor="end")
+    columns = [("Oct 27", "08:00", .8, BLUE), ("Oct 27", "21:00", .1, AXIS),
+               ("Oct 28", "08:00", .8, BLUE), ("Oct 28", "21:00", .1, AXIS),
+               ("Oct 29", "08:00", .8, BLUE), ("Oct 29", "21:00", .1, AXIS),
+               ("Today", "08:00", .8, GOLD)]
+    for i, (day, clock, value, color) in enumerate(columns):
+        left = x+35+i*width/len(columns)
+        svg.rect(left, sy(value), 60, value*height, color)
+        svg.text(left+30, sy(value)-12, f"{value:.0%}", 17, color, 700, "middle")
+        svg.text(left+30, y+height+28, day, 16, MUTED, anchor="middle")
+        svg.text(left+30, y+height+53, clock, 15, MUTED, anchor="middle")
+    svg.text(x, 151, "Cache-read fraction per call; 32 measured calls in each displayed population", 18, INK, 700)
+    for left, title, detail, color in (
+        (80, "All prior day/night calls", f"KS {broad.statistic:.2f}; p={broad.p_value:.3g}; finding", RED),
+        (640, "Selected prior mornings", f"KS {matched.comparison.statistic:.2f}; p={matched.comparison.p_value:g}; no finding", NAVY),
+    ):
+        svg.rect(left, 495, 480, 88, SHADE, radius=8)
+        svg.text(left+20, 529, title, 21, color, 700)
+        svg.text(left+20, 564, detail, 18, INK)
+    legend(svg, [("line", BLUE, "selected morning priors"), ("line", AXIS, "unmatched evenings"),
+                 ("line", GOLD, "current morning")], y=625)
+    svg.text(60, 662, "Synthetic example with explicit exchangeability. Seasonal matching does not remove batch dependence or establish alert accuracy.", 15, MUTED)
+    return svg.finish()
+
+
 def render(name, svg, browser, temp):
     page = temp / f"{name}.html"
     page.write_text(
@@ -1065,6 +1172,12 @@ def render(name, svg, browser, temp):
 def main():
     OUTPUT.mkdir(parents=True, exist_ok=True)
     browser = find_browser()
+    import sys
+    if "--only-distributions" in sys.argv:
+        with tempfile.TemporaryDirectory(prefix="anomalyzer-distribution-figures-") as directory:
+            for name, svg in distribution_progression().items():
+                render(name, svg, browser, Path(directory))
+        return 0
     figures = {
         "anomaly-progression-01-linear": figure_one(),
         "anomaly-progression-02-linear-seasonality": figure_two(),
@@ -1087,6 +1200,7 @@ def main():
         figures = sparse
     else:
         figures.update(sparse)
+        figures.update(distribution_progression())
     with tempfile.TemporaryDirectory(prefix="anomalyzer-readme-") as directory:
         temp = Path(directory)
         for name, svg in figures.items():

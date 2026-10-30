@@ -15,6 +15,23 @@ def versions():
 def methods():
     return {
         "schema_version": "1.0", "dependencies": versions(),
+        "distribution_detectors": [
+            {"id": "explicit_seasonal_selection", "task": "compare_seasonal_distributions",
+             "input": "timestamped history and explicit timezone/local-clock matching policy",
+             "score_semantics": "select earlier daily/weekday windows at matching progress, then apply the existing distribution test once",
+             "requirements": "minimum distinct prior windows; caller-held testing family; no discovery or block resampling"},
+            {"id": "ks_tie_exact", "task": "compare_distributions",
+             "input": "disjoint numeric event populations, including zeros and ties",
+             "score_semantics": "maximum empirical CDF difference with exact conditional permutation p-value",
+             "requirements": "caller-asserted exchangeability, minimum support, declared testing family"},
+            {"id": "jensen_shannon_permutation", "task": "compare_distributions",
+             "input": "disjoint categorical event populations",
+             "score_semantics": "whole-composition divergence in bits with exact or plus-one Monte Carlo permutation p-value",
+             "requirements": "at most 128 pooled categories; individual quantity-weighted events permitted; aggregate-only weights descriptive"},
+            {"id": "distribution_monitor", "task": "monitor_distributions",
+             "input": "ordered original event positions",
+             "score_semantics": "frozen-prefix comparisons; Bonferroni across planned looks and windows; no automatic reset"},
+        ],
         "methods": [{
             "id": "seasonal_trend", "tasks": ["analyze"],
             "provider": "python standard library", "installed": True,

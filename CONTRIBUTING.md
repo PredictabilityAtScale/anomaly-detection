@@ -66,6 +66,9 @@ to GitHub Pages after changes reach `main`. Repository Settings → Pages must u
 - Regenerate schemas with `python scripts/export_schemas.py` after changing a
   public request or result model.
 - Run `python -m pytest -q` and `python examples/run_demo.py`.
+- For population comparisons, run `python examples/run_distribution_demo.py`;
+  regenerate fixtures with `python examples/distributions/generate.py` and the
+  two figures with `python examples/render_readme_progression.py --only-distributions`.
 - Update the README when behavior, inputs, output, or limitations change.
 
 By contributing, you agree that your contribution is licensed under the MIT

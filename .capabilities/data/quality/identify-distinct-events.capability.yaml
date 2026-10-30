@@ -79,9 +79,28 @@ agent:
   review:
     depth: partial
     source: deterministic-assessment
+    gaps:
+      - Identified event-index sources retain every distinct event and its
+        original time, reject repeated logical IDs and preserve calendar and
+        legacy semantics. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Without a trusted sequence, whole timestamp cohorts share prior-time
+        point references and ties cannot establish change, Nelson or CUSUM
+        continuity. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Explicit trusted sequence metadata establishes a validated event order,
+        not independence, elapsed cadence or operational authority. Review the
+        cited evidence. If it is correct, save agent.review evidence or make the
+        criterion/reference wording more explicit.
+      - Event-specific evidence and case identities survive deterministic
+        replay; availability and identified corrections retain as-of provenance
+        and bounded results. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
     intent_summary: Implementation evidence synchronized from deterministic
       assessment for data/quality/identify-distinct-events.
-    done: false
     criteria:
       - criterion: Identified event-index sources retain every distinct event and its
           original time, reject repeated logical IDs and preserve calendar and
@@ -341,23 +360,4 @@ agent:
           prove the behavior. Review the cited evidence. If it is correct, save
           agent.review evidence or make the criterion/reference wording more
           explicit.
-    gaps:
-      - Identified event-index sources retain every distinct event and its
-        original time, reject repeated logical IDs and preserve calendar and
-        legacy semantics. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - Without a trusted sequence, whole timestamp cohorts share prior-time
-        point references and ties cannot establish change, Nelson or CUSUM
-        continuity. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - Explicit trusted sequence metadata establishes a validated event order,
-        not independence, elapsed cadence or operational authority. Review the
-        cited evidence. If it is correct, save agent.review evidence or make the
-        criterion/reference wording more explicit.
-      - Event-specific evidence and case identities survive deterministic
-        replay; availability and identified corrections retain as-of provenance
-        and bounded results. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
+    done: false

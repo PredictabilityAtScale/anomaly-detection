@@ -27,10 +27,10 @@ def stable_result(value):
 def test_mcp_lists_read_only_tools():
     response = handle({"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
     assert [tool["name"] for tool in response["result"]["tools"]] == [
-        "analyze", "list_findings", "get_evidence"]
+        "analyze", "list_findings", "get_evidence", "compare_distributions", "monitor_distributions", "compare_seasonal_distributions"]
     assert all(tool["annotations"]["readOnlyHint"] for tool in TOOLS)
     assert all("outputSchema" in tool for tool in TOOLS)
-    assert len(json.dumps(TOOLS)) < 25_000
+    assert len(json.dumps(TOOLS)) < 65_000
     assert "compact" in TOOLS[0]["description"]
     assert "overlap" in TOOLS[1]["description"]
     assert "lineage" in TOOLS[2]["description"]
@@ -262,7 +262,7 @@ def test_mcp_stdio_legacy_handshake_and_tool_listing():
     assert responses[0]["result"]["protocolVersion"] == "2025-11-25"
     assert "Nelson Rules 2, 5, and 6" in responses[0]["result"]["instructions"]
     assert "readiness status and reasons" in responses[0]["result"]["instructions"]
-    assert len(responses[1]["result"]["tools"]) == 3
+    assert len(responses[1]["result"]["tools"]) == 6
 
 
 def test_mcp_modern_discovery_and_stateless_tool_listing():
@@ -282,7 +282,7 @@ def test_mcp_modern_discovery_and_stateless_tool_listing():
         "params": {"_meta": metadata}})
     assert listing["result"]["resultType"] == "complete"
     assert listing["result"]["cacheScope"] == "public"
-    assert len(listing["result"]["tools"]) == 3
+    assert len(listing["result"]["tools"]) == 6
 
 
 @pytest.mark.parametrize("settings", [None, {"trend": "none"},

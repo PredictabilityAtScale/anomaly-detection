@@ -22,7 +22,7 @@ source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
-    { name = "tzdata", marker = "sys_platform == 'win32'" },
+    { name = "tzdata" },
 ]
 
 [package.optional-dependencies]
@@ -41,7 +41,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.10,<3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
     { name = "typing-extensions", specifier = ">=4.12.2" },
-    { name = "tzdata", marker = "sys_platform == 'win32'", specifier = ">=2024.1" },
+    { name = "tzdata", specifier = ">=2024.1" },
 ]
 provides-extras = ["dev", "docs"]
 

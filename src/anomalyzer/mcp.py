@@ -18,10 +18,28 @@ from .contracts import (
 )
 from .mcp_views import get_evidence, list_findings, summarize
 from .recipes import analyze
+from ._version import __version__
+from .distribution_contracts import (
+    DistributionRequest, DistributionResult, DistributionMonitorRequest, DistributionMonitorResult,
+)
+from .distributions import compare_distributions, monitor_distributions
+from .seasonal_distributions import SeasonalDistributionRequest, SeasonalDistributionResult, compare_seasonal_distributions
 
 
 class AnalyzeRequestArguments(Contract):
     request: Request | RequestV11
+
+
+class DistributionArguments(Contract):
+    request: DistributionRequest
+
+
+class DistributionMonitorArguments(Contract):
+    request: DistributionMonitorRequest
+
+
+class SeasonalDistributionArguments(Contract):
+    request: SeasonalDistributionRequest
 
 
 class ListFindingsArguments(Contract):
@@ -36,6 +54,11 @@ class GetEvidenceArguments(ListFindingsArguments):
 
 
 SERVER_INSTRUCTIONS = (
+    "Use compare_seasonal_distributions for caller-declared timezone/day matching; inspect selected windows, fallback and distinct-day support. No automatic discovery or dependence correction is performed. "
+    "Use compare_distributions for two explicit numeric/categorical populations, "
+    "or monitor_distributions for bounded causal replay. These tools return full "
+    "distribution-v1 results directly, without session drilldown. Check assumptions, "
+    "testing budget, support and practical effect separately from business impact. "
     "Use analyze to assess a canonical request, list_findings to browse its "
     "bounded findings, and get_evidence to inspect one finding. Results are "
     "cached only for this server session; use the returned run_id. "
@@ -146,6 +169,19 @@ TOOLS = [
 ]
 
 
+for _name, _arguments, _output, _description in (
+    ("compare_distributions", DistributionArguments, DistributionResult,
+     "Compare disjoint numeric/categorical populations with support, effect, p-value and category contributions. Exchangeability must be asserted; quantity-weighted events count as events; aggregate-only weights are descriptive."),
+    ("monitor_distributions", DistributionMonitorArguments, DistributionMonitorResult,
+     "Replay a finite causal distribution monitor against a frozen earlier reference, with planned-window/lookup correction and first detection. No persistence, scheduling or alerts."),
+    ("compare_seasonal_distributions", SeasonalDistributionArguments, SeasonalDistributionResult,
+     "Select earlier daily or weekday local-clock populations under an explicit timezone policy, match partial progress, expose insufficient history/fallback, then reuse the distribution test and caller-held testing family."),
+):
+    TOOLS.append(dict(name=_name, description=_description,
+        inputSchema=_input_schema(_arguments), outputSchema=_input_schema(_output),
+        annotations=dict(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)))
+
+
 MAX_CACHED_RUNS = 8
 MAX_CACHED_BYTES = 64_000_000
 _RUNS = OrderedDict()
@@ -181,6 +217,14 @@ def _compact_result(structured, message):
 
 
 def _tool_call(name, arguments):
+    if name == "compare_seasonal_distributions":
+        result = compare_seasonal_distributions(SeasonalDistributionArguments.model_validate(arguments).request).model_dump(mode="json")
+        return _compact_result(result, f"Seasonally matched distribution analysis: {result['status']}. Inspect matching, support and limitations.")
+    if name in ("compare_distributions", "monitor_distributions"):
+        model = DistributionArguments if name == "compare_distributions" else DistributionMonitorArguments
+        function = compare_distributions if name == "compare_distributions" else monitor_distributions
+        result = function(model.model_validate(arguments).request).model_dump(mode="json")
+        return _compact_result(result, f"Distribution analysis: {result['status']}. Inspect support, testing budget and limitations.")
     if name == "analyze":
         result = analyze(AnalyzeRequestArguments.model_validate(arguments).request)
         full = result.model_dump(mode="json")
@@ -235,7 +279,7 @@ def _modern_result(result):
     return {
         "resultType": "complete", **result,
         "_meta": {"io.modelcontextprotocol/serverInfo": {
-            "name": "anomalyzer", "version": "0.1.0"}},
+            "name": "anomalyzer", "version": __version__}},
     }
 
 
@@ -256,7 +300,7 @@ def handle(message):
         result = {
             "protocolVersion": requested if requested in supported else "2025-11-25",
             "capabilities": {"tools": {"listChanged": False}},
-            "serverInfo": {"name": "anomalyzer", "version": "0.1.0"},
+            "serverInfo": {"name": "anomalyzer", "version": __version__},
             "instructions": SERVER_INSTRUCTIONS,
         }
     elif method == "tools/list":

@@ -57,7 +57,7 @@ def main():
                            input=json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}) + "\n")
             payload = json.loads(response.stdout)
             assert {t["name"] for t in payload["result"]["tools"]} == {
-                "analyze", "list_findings", "get_evidence"}
+                "analyze", "list_findings", "get_evidence", "compare_distributions", "monitor_distributions", "compare_seasonal_distributions"}
     print("Clean wheel and sdist consumer checks passed")
 
 

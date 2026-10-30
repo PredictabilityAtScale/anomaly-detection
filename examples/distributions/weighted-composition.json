@@ -1,0 +1,22 @@
+{
+  "schema_version": "distribution-v1",
+  "task": "compare_distributions",
+  "kind": "categorical",
+  "entity": {
+    "application": "synthetic-weighted-example",
+    "meter": "pages"
+  },
+  "units": "pages",
+  "reference": {
+    "weights": {
+      "search": 900,
+      "export": 100
+    }
+  },
+  "current": {
+    "weights": {
+      "search": 100,
+      "export": 900
+    }
+  }
+}

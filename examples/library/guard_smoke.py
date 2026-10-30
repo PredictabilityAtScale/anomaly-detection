@@ -128,6 +128,32 @@ def main():
     assert not actual.dataset_results[0].anomaly_patterns
     assert actual.dataset_results[0].data_quality["event_identity_contract"] == "event-identity-v1"
     assert [case.id for case in analyze_series(identified, {"training_size":2,"calibration_size":3,"trend":"none"}).cases] == [case.id for case in actual.cases]
+    # Exercise the additive population contract from an installed artifact,
+    # with networking disabled and without repository fixtures or SciPy.
+    from anomalyzer import compare_distributions, monitor_distributions
+    def population(values, prefix):
+        return {"samples": [{"id": f"{prefix}-{i}", "value": value} for i, value in enumerate(values)]}
+    comparison = compare_distributions(dict(kind="numeric", entity={"app": "offline"}, units="fraction",
+        reference=population([0, .25, .5, .75, 1]*80, "reference"),
+        current=population([0, 0, .5, 1, 1]*80, "current"), assume_exchangeable=True))
+    assert comparison.change_detected and comparison.method == "ks_tie_exact"
+    composition = compare_distributions(dict(kind="categorical", entity={"app": "offline"}, units="feature",
+        reference=population(["search"]*20, "reference"), current=population(["export"]*20, "current"),
+        assume_exchangeable=True, config={"min_reference": 2, "min_current": 2, "permutations": 99, "alpha": .05}))
+    assert composition.change_detected
+    replay = monitor_distributions(dict(kind="numeric", monitor_id="offline", entity={"app": "offline"}, units="fraction",
+        samples=population([0, 1]*20, "call")["samples"], order="trusted_sequence", reference_size=20,
+        window_sizes=[10], max_looks=2, config={"min_reference": 10, "min_current": 10}))
+    assert replay.evaluations and replay.first_detection is None
+    from anomalyzer import compare_seasonal_distributions
+    source = [dict(id=f"{day}-{i}", value=.8, timestamp=f"{day}T08:00:{i:02d}+00:00")
+              for day in ("2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30") for i in range(32)]
+    matched = compare_seasonal_distributions(dict(kind="numeric", entity={"app": "offline"}, units="fraction",
+        samples=source, window_start="2026-10-30T08:00:00Z", window_end="2026-10-30T09:00:00Z",
+        as_of="2026-10-30T08:05:00Z", reference_policy={"timezone": "UTC", "matching": "daily"},
+        assume_exchangeable=True))
+    assert matched.status == "completed" and matched.comparison.p_value == 1
+    assert matched.selection["reference_windows"] == 3 and not matched.change_detected
     print(json.dumps({"version": anomalyzer.__version__, "status": result.status,
                       "cases": len(result.cases), "offline": True,
                       "pydantic_core": pydantic_core.__file__}))
