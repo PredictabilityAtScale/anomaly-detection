@@ -1,0 +1,1176 @@
+{
+  "schema_version": "distribution-v1",
+  "task": "monitor_distributions",
+  "kind": "numeric",
+  "monitor_id": "synthetic-cache-family-1",
+  "entity": {
+    "application": "synthetic-cache-example"
+  },
+  "units": "cache_read_fraction",
+  "samples": [
+    {
+      "id": "call-0000",
+      "value": 0.25
+    },
+    {
+      "id": "call-0001",
+      "value": 0.5
+    },
+    {
+      "id": "call-0002",
+      "value": 0.5
+    },
+    {
+      "id": "call-0003",
+      "value": 0.75
+    },
+    {
+      "id": "call-0004",
+      "value": 0.25
+    },
+    {
+      "id": "call-0005",
+      "value": 0.5
+    },
+    {
+      "id": "call-0006",
+      "value": 0.5
+    },
+    {
+      "id": "call-0007",
+      "value": 0.75
+    },
+    {
+      "id": "call-0008",
+      "value": 0.25
+    },
+    {
+      "id": "call-0009",
+      "value": 0.5
+    },
+    {
+      "id": "call-0010",
+      "value": 0.5
+    },
+    {
+      "id": "call-0011",
+      "value": 0.75
+    },
+    {
+      "id": "call-0012",
+      "value": 0.25
+    },
+    {
+      "id": "call-0013",
+      "value": 0.5
+    },
+    {
+      "id": "call-0014",
+      "value": 0.5
+    },
+    {
+      "id": "call-0015",
+      "value": 0.75
+    },
+    {
+      "id": "call-0016",
+      "value": 0.25
+    },
+    {
+      "id": "call-0017",
+      "value": 0.5
+    },
+    {
+      "id": "call-0018",
+      "value": 0.5
+    },
+    {
+      "id": "call-0019",
+      "value": 0.75
+    },
+    {
+      "id": "call-0020",
+      "value": 0.25
+    },
+    {
+      "id": "call-0021",
+      "value": 0.5
+    },
+    {
+      "id": "call-0022",
+      "value": 0.5
+    },
+    {
+      "id": "call-0023",
+      "value": 0.75
+    },
+    {
+      "id": "call-0024",
+      "value": 0.25
+    },
+    {
+      "id": "call-0025",
+      "value": 0.5
+    },
+    {
+      "id": "call-0026",
+      "value": 0.5
+    },
+    {
+      "id": "call-0027",
+      "value": 0.75
+    },
+    {
+      "id": "call-0028",
+      "value": 0.25
+    },
+    {
+      "id": "call-0029",
+      "value": 0.5
+    },
+    {
+      "id": "call-0030",
+      "value": 0.5
+    },
+    {
+      "id": "call-0031",
+      "value": 0.75
+    },
+    {
+      "id": "call-0032",
+      "value": 0.25
+    },
+    {
+      "id": "call-0033",
+      "value": 0.5
+    },
+    {
+      "id": "call-0034",
+      "value": 0.5
+    },
+    {
+      "id": "call-0035",
+      "value": 0.75
+    },
+    {
+      "id": "call-0036",
+      "value": 0.25
+    },
+    {
+      "id": "call-0037",
+      "value": 0.5
+    },
+    {
+      "id": "call-0038",
+      "value": 0.5
+    },
+    {
+      "id": "call-0039",
+      "value": 0.75
+    },
+    {
+      "id": "call-0040",
+      "value": 0.25
+    },
+    {
+      "id": "call-0041",
+      "value": 0.5
+    },
+    {
+      "id": "call-0042",
+      "value": 0.5
+    },
+    {
+      "id": "call-0043",
+      "value": 0.75
+    },
+    {
+      "id": "call-0044",
+      "value": 0.25
+    },
+    {
+      "id": "call-0045",
+      "value": 0.5
+    },
+    {
+      "id": "call-0046",
+      "value": 0.5
+    },
+    {
+      "id": "call-0047",
+      "value": 0.75
+    },
+    {
+      "id": "call-0048",
+      "value": 0.25
+    },
+    {
+      "id": "call-0049",
+      "value": 0.5
+    },
+    {
+      "id": "call-0050",
+      "value": 0.5
+    },
+    {
+      "id": "call-0051",
+      "value": 0.75
+    },
+    {
+      "id": "call-0052",
+      "value": 0.25
+    },
+    {
+      "id": "call-0053",
+      "value": 0.5
+    },
+    {
+      "id": "call-0054",
+      "value": 0.5
+    },
+    {
+      "id": "call-0055",
+      "value": 0.75
+    },
+    {
+      "id": "call-0056",
+      "value": 0.25
+    },
+    {
+      "id": "call-0057",
+      "value": 0.5
+    },
+    {
+      "id": "call-0058",
+      "value": 0.5
+    },
+    {
+      "id": "call-0059",
+      "value": 0.75
+    },
+    {
+      "id": "call-0060",
+      "value": 0.25
+    },
+    {
+      "id": "call-0061",
+      "value": 0.5
+    },
+    {
+      "id": "call-0062",
+      "value": 0.5
+    },
+    {
+      "id": "call-0063",
+      "value": 0.75
+    },
+    {
+      "id": "call-0064",
+      "value": 0.25
+    },
+    {
+      "id": "call-0065",
+      "value": 0.5
+    },
+    {
+      "id": "call-0066",
+      "value": 0.5
+    },
+    {
+      "id": "call-0067",
+      "value": 0.75
+    },
+    {
+      "id": "call-0068",
+      "value": 0.25
+    },
+    {
+      "id": "call-0069",
+      "value": 0.5
+    },
+    {
+      "id": "call-0070",
+      "value": 0.5
+    },
+    {
+      "id": "call-0071",
+      "value": 0.75
+    },
+    {
+      "id": "call-0072",
+      "value": 0.25
+    },
+    {
+      "id": "call-0073",
+      "value": 0.5
+    },
+    {
+      "id": "call-0074",
+      "value": 0.5
+    },
+    {
+      "id": "call-0075",
+      "value": 0.75
+    },
+    {
+      "id": "call-0076",
+      "value": 0.25
+    },
+    {
+      "id": "call-0077",
+      "value": 0.5
+    },
+    {
+      "id": "call-0078",
+      "value": 0.5
+    },
+    {
+      "id": "call-0079",
+      "value": 0.75
+    },
+    {
+      "id": "call-0080",
+      "value": 0.25
+    },
+    {
+      "id": "call-0081",
+      "value": 0.5
+    },
+    {
+      "id": "call-0082",
+      "value": 0.5
+    },
+    {
+      "id": "call-0083",
+      "value": 0.75
+    },
+    {
+      "id": "call-0084",
+      "value": 0.25
+    },
+    {
+      "id": "call-0085",
+      "value": 0.5
+    },
+    {
+      "id": "call-0086",
+      "value": 0.5
+    },
+    {
+      "id": "call-0087",
+      "value": 0.75
+    },
+    {
+      "id": "call-0088",
+      "value": 0.25
+    },
+    {
+      "id": "call-0089",
+      "value": 0.5
+    },
+    {
+      "id": "call-0090",
+      "value": 0.5
+    },
+    {
+      "id": "call-0091",
+      "value": 0.75
+    },
+    {
+      "id": "call-0092",
+      "value": 0.25
+    },
+    {
+      "id": "call-0093",
+      "value": 0.5
+    },
+    {
+      "id": "call-0094",
+      "value": 0.5
+    },
+    {
+      "id": "call-0095",
+      "value": 0.75
+    },
+    {
+      "id": "call-0096",
+      "value": 0.25
+    },
+    {
+      "id": "call-0097",
+      "value": 0.5
+    },
+    {
+      "id": "call-0098",
+      "value": 0.5
+    },
+    {
+      "id": "call-0099",
+      "value": 0.75
+    },
+    {
+      "id": "call-0100",
+      "value": 0.25
+    },
+    {
+      "id": "call-0101",
+      "value": 0.5
+    },
+    {
+      "id": "call-0102",
+      "value": 0.5
+    },
+    {
+      "id": "call-0103",
+      "value": 0.75
+    },
+    {
+      "id": "call-0104",
+      "value": 0.25
+    },
+    {
+      "id": "call-0105",
+      "value": 0.5
+    },
+    {
+      "id": "call-0106",
+      "value": 0.5
+    },
+    {
+      "id": "call-0107",
+      "value": 0.75
+    },
+    {
+      "id": "call-0108",
+      "value": 0.25
+    },
+    {
+      "id": "call-0109",
+      "value": 0.5
+    },
+    {
+      "id": "call-0110",
+      "value": 0.5
+    },
+    {
+      "id": "call-0111",
+      "value": 0.75
+    },
+    {
+      "id": "call-0112",
+      "value": 0.25
+    },
+    {
+      "id": "call-0113",
+      "value": 0.5
+    },
+    {
+      "id": "call-0114",
+      "value": 0.5
+    },
+    {
+      "id": "call-0115",
+      "value": 0.75
+    },
+    {
+      "id": "call-0116",
+      "value": 0.25
+    },
+    {
+      "id": "call-0117",
+      "value": 0.5
+    },
+    {
+      "id": "call-0118",
+      "value": 0.5
+    },
+    {
+      "id": "call-0119",
+      "value": 0.75
+    },
+    {
+      "id": "call-0120",
+      "value": 0.25
+    },
+    {
+      "id": "call-0121",
+      "value": 0.5
+    },
+    {
+      "id": "call-0122",
+      "value": 0.5
+    },
+    {
+      "id": "call-0123",
+      "value": 0.75
+    },
+    {
+      "id": "call-0124",
+      "value": 0.25
+    },
+    {
+      "id": "call-0125",
+      "value": 0.5
+    },
+    {
+      "id": "call-0126",
+      "value": 0.5
+    },
+    {
+      "id": "call-0127",
+      "value": 0.75
+    },
+    {
+      "id": "call-0128",
+      "value": 0.25
+    },
+    {
+      "id": "call-0129",
+      "value": 0.5
+    },
+    {
+      "id": "call-0130",
+      "value": 0.5
+    },
+    {
+      "id": "call-0131",
+      "value": 0.75
+    },
+    {
+      "id": "call-0132",
+      "value": 0.25
+    },
+    {
+      "id": "call-0133",
+      "value": 0.5
+    },
+    {
+      "id": "call-0134",
+      "value": 0.5
+    },
+    {
+      "id": "call-0135",
+      "value": 0.75
+    },
+    {
+      "id": "call-0136",
+      "value": 0.25
+    },
+    {
+      "id": "call-0137",
+      "value": 0.5
+    },
+    {
+      "id": "call-0138",
+      "value": 0.5
+    },
+    {
+      "id": "call-0139",
+      "value": 0.75
+    },
+    {
+      "id": "call-0140",
+      "value": 0.25
+    },
+    {
+      "id": "call-0141",
+      "value": 0.5
+    },
+    {
+      "id": "call-0142",
+      "value": 0.5
+    },
+    {
+      "id": "call-0143",
+      "value": 0.75
+    },
+    {
+      "id": "call-0144",
+      "value": 0.25
+    },
+    {
+      "id": "call-0145",
+      "value": 0.5
+    },
+    {
+      "id": "call-0146",
+      "value": 0.5
+    },
+    {
+      "id": "call-0147",
+      "value": 0.75
+    },
+    {
+      "id": "call-0148",
+      "value": 0.25
+    },
+    {
+      "id": "call-0149",
+      "value": 0.5
+    },
+    {
+      "id": "call-0150",
+      "value": 0.5
+    },
+    {
+      "id": "call-0151",
+      "value": 0.75
+    },
+    {
+      "id": "call-0152",
+      "value": 0.25
+    },
+    {
+      "id": "call-0153",
+      "value": 0.5
+    },
+    {
+      "id": "call-0154",
+      "value": 0.5
+    },
+    {
+      "id": "call-0155",
+      "value": 0.75
+    },
+    {
+      "id": "call-0156",
+      "value": 0.25
+    },
+    {
+      "id": "call-0157",
+      "value": 0.5
+    },
+    {
+      "id": "call-0158",
+      "value": 0.5
+    },
+    {
+      "id": "call-0159",
+      "value": 0.75
+    },
+    {
+      "id": "call-0160",
+      "value": 0
+    },
+    {
+      "id": "call-0161",
+      "value": 1
+    },
+    {
+      "id": "call-0162",
+      "value": 0
+    },
+    {
+      "id": "call-0163",
+      "value": 1
+    },
+    {
+      "id": "call-0164",
+      "value": 0
+    },
+    {
+      "id": "call-0165",
+      "value": 1
+    },
+    {
+      "id": "call-0166",
+      "value": 0
+    },
+    {
+      "id": "call-0167",
+      "value": 1
+    },
+    {
+      "id": "call-0168",
+      "value": 0
+    },
+    {
+      "id": "call-0169",
+      "value": 1
+    },
+    {
+      "id": "call-0170",
+      "value": 0
+    },
+    {
+      "id": "call-0171",
+      "value": 1
+    },
+    {
+      "id": "call-0172",
+      "value": 0
+    },
+    {
+      "id": "call-0173",
+      "value": 1
+    },
+    {
+      "id": "call-0174",
+      "value": 0
+    },
+    {
+      "id": "call-0175",
+      "value": 1
+    },
+    {
+      "id": "call-0176",
+      "value": 0
+    },
+    {
+      "id": "call-0177",
+      "value": 1
+    },
+    {
+      "id": "call-0178",
+      "value": 0
+    },
+    {
+      "id": "call-0179",
+      "value": 1
+    },
+    {
+      "id": "call-0180",
+      "value": 0
+    },
+    {
+      "id": "call-0181",
+      "value": 1
+    },
+    {
+      "id": "call-0182",
+      "value": 0
+    },
+    {
+      "id": "call-0183",
+      "value": 1
+    },
+    {
+      "id": "call-0184",
+      "value": 0
+    },
+    {
+      "id": "call-0185",
+      "value": 1
+    },
+    {
+      "id": "call-0186",
+      "value": 0
+    },
+    {
+      "id": "call-0187",
+      "value": 1
+    },
+    {
+      "id": "call-0188",
+      "value": 0
+    },
+    {
+      "id": "call-0189",
+      "value": 1
+    },
+    {
+      "id": "call-0190",
+      "value": 0
+    },
+    {
+      "id": "call-0191",
+      "value": 1
+    },
+    {
+      "id": "call-0192",
+      "value": 0
+    },
+    {
+      "id": "call-0193",
+      "value": 1
+    },
+    {
+      "id": "call-0194",
+      "value": 0
+    },
+    {
+      "id": "call-0195",
+      "value": 1
+    },
+    {
+      "id": "call-0196",
+      "value": 0
+    },
+    {
+      "id": "call-0197",
+      "value": 1
+    },
+    {
+      "id": "call-0198",
+      "value": 0
+    },
+    {
+      "id": "call-0199",
+      "value": 1
+    },
+    {
+      "id": "call-0200",
+      "value": 0
+    },
+    {
+      "id": "call-0201",
+      "value": 1
+    },
+    {
+      "id": "call-0202",
+      "value": 0
+    },
+    {
+      "id": "call-0203",
+      "value": 1
+    },
+    {
+      "id": "call-0204",
+      "value": 0
+    },
+    {
+      "id": "call-0205",
+      "value": 1
+    },
+    {
+      "id": "call-0206",
+      "value": 0
+    },
+    {
+      "id": "call-0207",
+      "value": 1
+    },
+    {
+      "id": "call-0208",
+      "value": 0
+    },
+    {
+      "id": "call-0209",
+      "value": 1
+    },
+    {
+      "id": "call-0210",
+      "value": 0
+    },
+    {
+      "id": "call-0211",
+      "value": 1
+    },
+    {
+      "id": "call-0212",
+      "value": 0
+    },
+    {
+      "id": "call-0213",
+      "value": 1
+    },
+    {
+      "id": "call-0214",
+      "value": 0
+    },
+    {
+      "id": "call-0215",
+      "value": 1
+    },
+    {
+      "id": "call-0216",
+      "value": 0
+    },
+    {
+      "id": "call-0217",
+      "value": 1
+    },
+    {
+      "id": "call-0218",
+      "value": 0
+    },
+    {
+      "id": "call-0219",
+      "value": 1
+    },
+    {
+      "id": "call-0220",
+      "value": 0
+    },
+    {
+      "id": "call-0221",
+      "value": 1
+    },
+    {
+      "id": "call-0222",
+      "value": 0
+    },
+    {
+      "id": "call-0223",
+      "value": 1
+    },
+    {
+      "id": "call-0224",
+      "value": 0
+    },
+    {
+      "id": "call-0225",
+      "value": 1
+    },
+    {
+      "id": "call-0226",
+      "value": 0
+    },
+    {
+      "id": "call-0227",
+      "value": 1
+    },
+    {
+      "id": "call-0228",
+      "value": 0
+    },
+    {
+      "id": "call-0229",
+      "value": 1
+    },
+    {
+      "id": "call-0230",
+      "value": 0
+    },
+    {
+      "id": "call-0231",
+      "value": 1
+    },
+    {
+      "id": "call-0232",
+      "value": 0
+    },
+    {
+      "id": "call-0233",
+      "value": 1
+    },
+    {
+      "id": "call-0234",
+      "value": 0
+    },
+    {
+      "id": "call-0235",
+      "value": 1
+    },
+    {
+      "id": "call-0236",
+      "value": 0
+    },
+    {
+      "id": "call-0237",
+      "value": 1
+    },
+    {
+      "id": "call-0238",
+      "value": 0
+    },
+    {
+      "id": "call-0239",
+      "value": 1
+    },
+    {
+      "id": "call-0240",
+      "value": 0
+    },
+    {
+      "id": "call-0241",
+      "value": 1
+    },
+    {
+      "id": "call-0242",
+      "value": 0
+    },
+    {
+      "id": "call-0243",
+      "value": 1
+    },
+    {
+      "id": "call-0244",
+      "value": 0
+    },
+    {
+      "id": "call-0245",
+      "value": 1
+    },
+    {
+      "id": "call-0246",
+      "value": 0
+    },
+    {
+      "id": "call-0247",
+      "value": 1
+    },
+    {
+      "id": "call-0248",
+      "value": 0
+    },
+    {
+      "id": "call-0249",
+      "value": 1
+    },
+    {
+      "id": "call-0250",
+      "value": 0
+    },
+    {
+      "id": "call-0251",
+      "value": 1
+    },
+    {
+      "id": "call-0252",
+      "value": 0
+    },
+    {
+      "id": "call-0253",
+      "value": 1
+    },
+    {
+      "id": "call-0254",
+      "value": 0
+    },
+    {
+      "id": "call-0255",
+      "value": 1
+    },
+    {
+      "id": "call-0256",
+      "value": 0
+    },
+    {
+      "id": "call-0257",
+      "value": 1
+    },
+    {
+      "id": "call-0258",
+      "value": 0
+    },
+    {
+      "id": "call-0259",
+      "value": 1
+    },
+    {
+      "id": "call-0260",
+      "value": 0
+    },
+    {
+      "id": "call-0261",
+      "value": 1
+    },
+    {
+      "id": "call-0262",
+      "value": 0
+    },
+    {
+      "id": "call-0263",
+      "value": 1
+    },
+    {
+      "id": "call-0264",
+      "value": 0
+    },
+    {
+      "id": "call-0265",
+      "value": 1
+    },
+    {
+      "id": "call-0266",
+      "value": 0
+    },
+    {
+      "id": "call-0267",
+      "value": 1
+    },
+    {
+      "id": "call-0268",
+      "value": 0
+    },
+    {
+      "id": "call-0269",
+      "value": 1
+    },
+    {
+      "id": "call-0270",
+      "value": 0
+    },
+    {
+      "id": "call-0271",
+      "value": 1
+    },
+    {
+      "id": "call-0272",
+      "value": 0
+    },
+    {
+      "id": "call-0273",
+      "value": 1
+    },
+    {
+      "id": "call-0274",
+      "value": 0
+    },
+    {
+      "id": "call-0275",
+      "value": 1
+    },
+    {
+      "id": "call-0276",
+      "value": 0
+    },
+    {
+      "id": "call-0277",
+      "value": 1
+    },
+    {
+      "id": "call-0278",
+      "value": 0
+    },
+    {
+      "id": "call-0279",
+      "value": 1
+    },
+    {
+      "id": "call-0280",
+      "value": 0
+    },
+    {
+      "id": "call-0281",
+      "value": 1
+    },
+    {
+      "id": "call-0282",
+      "value": 0
+    },
+    {
+      "id": "call-0283",
+      "value": 1
+    },
+    {
+      "id": "call-0284",
+      "value": 0
+    },
+    {
+      "id": "call-0285",
+      "value": 1
+    },
+    {
+      "id": "call-0286",
+      "value": 0
+    },
+    {
+      "id": "call-0287",
+      "value": 1
+    }
+  ],
+  "order": "trusted_sequence",
+  "assume_exchangeable": true,
+  "reference_size": 128,
+  "window_sizes": [
+    32,
+    64
+  ],
+  "max_looks": 129,
+  "config": {
+    "alpha": 0.05,
+    "min_effect": 0.1
+  }
+}

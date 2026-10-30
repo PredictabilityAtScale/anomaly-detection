@@ -1,0 +1,90 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "distribution-v1",
+      "default": "distribution-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "monitor_distributions",
+      "default": "monitor_distributions",
+      "title": "Task",
+      "type": "string"
+    },
+    "monitor_id": {
+      "title": "Monitor Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "insufficient_history",
+        "partial",
+        "horizon_exhausted"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "input_fingerprint": {
+      "title": "Input Fingerprint",
+      "type": "string"
+    },
+    "reference_id": {
+      "title": "Reference Id",
+      "type": "string"
+    },
+    "evaluations": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Evaluations",
+      "type": "array"
+    },
+    "first_detection": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "First Detection"
+    },
+    "testing": {
+      "additionalProperties": true,
+      "title": "Testing",
+      "type": "object"
+    },
+    "data_quality": {
+      "additionalProperties": true,
+      "title": "Data Quality",
+      "type": "object"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "monitor_id",
+    "status",
+    "input_fingerprint",
+    "reference_id",
+    "evaluations",
+    "first_detection",
+    "testing",
+    "data_quality",
+    "limitations"
+  ],
+  "title": "DistributionMonitorResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

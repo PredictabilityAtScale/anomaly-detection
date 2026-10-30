@@ -8,6 +8,9 @@ from .contracts import Request, RequestV11, Settings
 from .io import read_text, load_json, csv_dataset, write_result
 from .recipes import analyze
 from .registry import methods
+from ._version import __version__
+from .distributions import compare_distributions, monitor_distributions
+from .seasonal_distributions import compare_seasonal_distributions
 
 
 def parser():
@@ -29,8 +32,15 @@ Run 'anomalyzer analyze --help' for input rules, tuning, and more examples.
 Run 'anomalyzer methods --help' for method discovery.
 
 """ + exit_codes)
-    root.add_argument("--version", action="version", version="anomalyzer 0.1.0")
+    root.add_argument("--version", action="version", version=f"anomalyzer {__version__}")
     commands = root.add_subparsers(dest="command", required=True, title="commands")
+    for command in ("compare-distributions", "monitor-distributions", "compare-seasonal-distributions"):
+        sub = commands.add_parser(command, help="Compare explicit populations" if command.startswith("compare") else "Replay a bounded causal distribution monitor")
+        sub.add_argument("input", help="distribution-v1 JSON request path, or '-' for stdin")
+        sub.add_argument("--format", choices=["json", "text"], default="json")
+        sub.add_argument("--output")
+        sub.add_argument("--overwrite", action="store_true")
+        sub.add_argument("--max-bytes", type=int, default=10000000)
     defaults = Settings()
     for command in ("analyze", "methods"):
         is_analysis = command == "analyze"
@@ -333,6 +343,20 @@ def _recent_case_lines(result):
 
 
 def readable(result):
+    if result.get("schema_version") == "distribution-v1":
+        if result["task"] == "compare_seasonal_distributions":
+            selection = result["selection"]
+            return (f"Seasonal distribution comparison: {result['status']}\n"
+                    f"Matched prior windows: {selection.get('reference_windows', 0)}; "
+                    f"daily fallback: {selection.get('fallback_used', False)}\n"
+                    f"Change detected: {result['change_detected']}; business impact: unresolved.\n" + "\n".join(result["reasons"]))
+        if result["task"] == "monitor_distributions":
+            return (f"Distribution monitor: {result['status']}\n"
+                    f"Evaluations: {len(result['evaluations'])}; first detection: {result['first_detection']}\n"
+                    "Overlapping findings are correlated. Business impact: unresolved.")
+        return (f"Distribution comparison: {result['status']}\n"
+                f"{result['method']}: effect={result['statistic']}; p={result['p_value']}; threshold={result['threshold']}\n"
+                f"Change detected: {result['change_detected']}; business impact: unresolved.\n" + "\n".join(result["reasons"]))
     if "detectors" in result:
         return "Installed analysis methods\n" + "\n".join(f"  {m['id']}: {m['update_semantics']}" for m in result["methods"])
     if result.get("schema_version") == "1.1":
@@ -423,10 +447,17 @@ def main(argv=None):
     try:
         if args.output and Path(args.output).exists() and not args.overwrite:
             raise ValueError("output exists; use --overwrite to replace it")
-        result = methods() if args.command == "methods" else analyze(build_request(args)).model_dump(mode="json")
+        if args.command in ("compare-distributions", "monitor-distributions", "compare-seasonal-distributions"):
+            limit = Settings.model_validate({"max_bytes": args.max_bytes}).max_bytes
+            document = load_json(read_text(args.input, limit))
+            function = {"compare-distributions": compare_distributions, "monitor-distributions": monitor_distributions,
+                        "compare-seasonal-distributions": compare_seasonal_distributions}[args.command]
+            result = function(document).model_dump(mode="json")
+        else:
+            result = methods() if args.command == "methods" else analyze(build_request(args)).model_dump(mode="json")
         text = json.dumps(result, indent=2, allow_nan=False) if args.format == "json" else readable(result)
         write_result(text, args.output, args.overwrite)
-        return 1 if result.get("status") in ("failed", "partial") else 0
+        return 1 if result.get("status") in ("failed", "partial", "budget_exceeded") else 0
     except (ValueError, ValidationError, UnicodeError, FileExistsError) as exc:
         print(f"Invalid input/configuration: {exc}", file=sys.stderr)
         return 2

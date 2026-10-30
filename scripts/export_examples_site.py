@@ -18,6 +18,10 @@ def page(markdown, destination, title):
             link = "assets/"+Path(link).name
         elif link == "docs/sparse-data.md":
             link = "sparse-data.html"
+        elif link == "docs/distribution-detection.md":
+            link = "distribution-detection.html"
+        elif link == "docs/seasonal-distributions.md":
+            link = "seasonal-distributions.html"
         elif not link.startswith(("https://", "http://", "#")):
             link = SOURCE+link.removeprefix("../")
         return f"[{label}]({link})"
@@ -37,7 +41,7 @@ a{{color:#2563a6}}nav{{border-bottom:1px solid #dce1e7;padding-bottom:18px}}img{
 pre{{background:#eef1f4;padding:18px;overflow:auto}}code{{font-size:.88em}}table{{border-collapse:collapse;width:100%}}
 th,td{{text-align:left;border:1px solid #dce1e7;padding:10px}}h2,h3{{line-height:1.25;margin-top:2em}}</style>
 <nav><a href="../">Capability maps</a> · <a href="index.html">Numbered examples</a> ·
-<a href="sparse-data.html">Sparse-data API</a> · <a href="{SOURCE}docs/releases/README.md">Release guide</a></nav>
+<a href="sparse-data.html">Sparse-data API</a> · <a href="distribution-detection.html">Distribution API</a> · <a href="seasonal-distributions.html">Seasonal matching</a> · <a href="{SOURCE}docs/releases/README.md">Release guide</a></nav>
 <main>{content}</main><footer>Synthetic examples establish mechanics, not measured abuse accuracy.</footer></html>''', encoding="utf-8")
     for image in re.findall(r'src="(assets/[^\"]+)"', content):
         if not (destination.parent/image).is_file():
@@ -57,6 +61,8 @@ def main():
     progression = readme.split("## The progression", 1)[1].split("## Baseline and calibration reference", 1)[0]
     page("# Anomalyzer: the progression\n"+progression, args.output/"index.html", "Anomalyzer — numbered examples")
     page((ROOT/"docs/sparse-data.md").read_text(), args.output/"sparse-data.html", "Anomalyzer — sparse data")
+    page((ROOT/"docs/distribution-detection.md").read_text(), args.output/"distribution-detection.html", "Anomalyzer — distribution detection")
+    page((ROOT/"docs/seasonal-distributions.md").read_text(), args.output/"seasonal-distributions.html", "Anomalyzer — seasonal matching")
     print(f"Exported numbered progression and sparse-data guide to {args.output}")
 
 

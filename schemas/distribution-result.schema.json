@@ -1,0 +1,176 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "distribution-v1",
+      "default": "distribution-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "compare_distributions",
+      "default": "compare_distributions",
+      "title": "Task",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "descriptive",
+        "insufficient_history",
+        "resolution_limited",
+        "budget_exceeded"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "numeric",
+        "categorical"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "entity": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Entity",
+      "type": "object"
+    },
+    "units": {
+      "title": "Units",
+      "type": "string"
+    },
+    "reference_id": {
+      "title": "Reference Id",
+      "type": "string"
+    },
+    "current_id": {
+      "title": "Current Id",
+      "type": "string"
+    },
+    "input_fingerprint": {
+      "title": "Input Fingerprint",
+      "type": "string"
+    },
+    "method": {
+      "title": "Method",
+      "type": "string"
+    },
+    "statistic": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Statistic"
+    },
+    "p_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P Value"
+    },
+    "adjusted_p_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Adjusted P Value"
+    },
+    "threshold": {
+      "title": "Threshold",
+      "type": "number"
+    },
+    "statistical_change": {
+      "default": false,
+      "title": "Statistical Change",
+      "type": "boolean"
+    },
+    "practical_change": {
+      "default": false,
+      "title": "Practical Change",
+      "type": "boolean"
+    },
+    "change_detected": {
+      "default": false,
+      "title": "Change Detected",
+      "type": "boolean"
+    },
+    "reference": {
+      "additionalProperties": true,
+      "title": "Reference",
+      "type": "object"
+    },
+    "current": {
+      "additionalProperties": true,
+      "title": "Current",
+      "type": "object"
+    },
+    "details": {
+      "additionalProperties": true,
+      "title": "Details",
+      "type": "object"
+    },
+    "testing": {
+      "additionalProperties": true,
+      "title": "Testing",
+      "type": "object"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "business_impact": {
+      "const": "unresolved",
+      "default": "unresolved",
+      "title": "Business Impact",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "kind",
+    "entity",
+    "units",
+    "reference_id",
+    "current_id",
+    "input_fingerprint",
+    "method",
+    "threshold",
+    "reference",
+    "current",
+    "testing",
+    "limitations"
+  ],
+  "title": "DistributionResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

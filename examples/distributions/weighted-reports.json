@@ -1,0 +1,342 @@
+{
+  "schema_version": "distribution-v1",
+  "task": "compare_distributions",
+  "kind": "categorical",
+  "entity": {
+    "application": "synthetic-reports",
+    "meter": "pages"
+  },
+  "units": "pages_per_report",
+  "reference": {
+    "samples": [
+      {
+        "id": "reference-0000",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0001",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0002",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0003",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0004",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0005",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0006",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0007",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0008",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0009",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0010",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0011",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0012",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0013",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0014",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0015",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0016",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0017",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0018",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0019",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0020",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0021",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0022",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0023",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0024",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0025",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0026",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0027",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0028",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0029",
+        "value": "export",
+        "weight": 1
+      },
+      {
+        "id": "reference-0030",
+        "value": "search",
+        "weight": 9
+      },
+      {
+        "id": "reference-0031",
+        "value": "export",
+        "weight": 1
+      }
+    ]
+  },
+  "current": {
+    "samples": [
+      {
+        "id": "current-0000",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0001",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0002",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0003",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0004",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0005",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0006",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0007",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0008",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0009",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0010",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0011",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0012",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0013",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0014",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0015",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0016",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0017",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0018",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0019",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0020",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0021",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0022",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0023",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0024",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0025",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0026",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0027",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0028",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0029",
+        "value": "export",
+        "weight": 9
+      },
+      {
+        "id": "current-0030",
+        "value": "search",
+        "weight": 1
+      },
+      {
+        "id": "current-0031",
+        "value": "export",
+        "weight": 9
+      }
+    ]
+  },
+  "assume_exchangeable": true,
+  "config": {
+    "permutations": 999
+  }
+}

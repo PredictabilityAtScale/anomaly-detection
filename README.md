@@ -20,6 +20,19 @@ maturity and caller-supplied policy determine eligibility for further action.
 It runs locally and requires no hosted service or model API. Scheduling,
 notification delivery, and operational actions belong to the calling application.
 
+Version **0.4.0** also compares populations of numeric or categorical observations,
+including shape changes at an unchanged mean. Use `compare_distributions` for
+explicit populations and `monitor_distributions` for bounded causal replay with a
+frozen reference and a declared repeated-testing budget. See
+[chapters 25–26](#25-detect-redistribution-while-the-average-stays-steady) and the
+[distribution API / UsageTap handoff](docs/distribution-detection.md).
+
+Version **0.5.0** adds caller-declared timezone and daily/weekday reference
+matching through `compare_seasonal_distributions`. It compares equivalent progress
+through scheduled windows and reports insufficient history or an explicit fallback.
+See [chapter 27](#27-compare-the-8am-batch-with-earlier-mornings) and the
+[seasonal selection handoff](docs/seasonal-distributions.md).
+
 > [!NOTE]
 > Anomalyzer is an alpha release. Validate thresholds and detector behavior on
 > representative historical data before using its output for operational decisions.
@@ -30,7 +43,8 @@ For application builds without a source checkout, use a pinned wheel from
 [GitHub Releases](https://github.com/PredictabilityAtScale/anomaly-detection/releases).
 The [release and library-consumer guide](docs/releases/README.md) explains the
 first release, dependency hashes, upgrades and Linux/Python 3.12 bundling for Guard.
-Version 0.3.0 includes the sparse-data progression in chapters 14–24. Tagged
+Version 0.5.0 extends the sparse-data progression in chapters 14–24 with population
+comparisons in chapters 25–26 and explicit seasonal matching in chapter 27. Tagged
 artifacts are published after the workflow passes and the owner seals the draft.
 
 Install from a checkout with Python 3.11–3.13:
@@ -778,6 +792,116 @@ rates, causal explanation or independence. Without IDs, the existing unique-time
 event-index contract continues unchanged. See the [API guide](docs/sparse-data.md#stable-event-identities-since-030)
 for validation, replay, alignment and caller responsibilities.
 
+### 25. Detect redistribution while the average stays steady
+
+Individual cache misses and hits can both be ordinary. The question is whether
+the recent **population** changed. The new numeric detector compares empirical
+distributions, including zeros and ties, rather than asking whether the latest
+call crosses a residual threshold.
+
+![A mean-preserving change in cache fractions is detected by a numeric distribution test; causal replay shows the first detection against a frozen reference](docs/images/anomaly-progression-25-numeric-distribution.png)
+
+The [numeric shape example](examples/distributions/numeric-shape.json) has 400
+calls in each population and a mean cache fraction of 50% in both. The proportions
+at 0%, 25%, 50%, 75% and 100% change, but no individual value exceeds three
+reference standard deviations. `ks_tie_exact` reports a CDF distance of 0.2 and
+an exact conditional permutation p-value of approximately `2.22e-8`. The
+[ordinary control](examples/distributions/numeric-ordinary.json) has the same
+distribution and produces no finding. These are synthetic behavior checks,
+not measurements of production accuracy.
+
+The upper panel uses the separate [causal monitoring example](examples/distributions/numeric-monitor.json):
+128 earlier positions remain frozen, and 32/64-call windows share a budget across
+129 planned looks. The introduced change starts at call 160; the first finding
+is at zero-based call 182. That delay is specific to this fixture and its settings.
+Unknown current positions break windows; incomplete suffixes are excluded.
+References never adapt to or automatically reset on a finding.
+
+```python
+import json
+from anomalyzer import compare_distributions, monitor_distributions
+
+with open("examples/distributions/numeric-shape.json") as stream:
+    comparison = compare_distributions(json.load(stream))
+print(comparison.change_detected, comparison.statistic, comparison.p_value)
+
+with open("examples/distributions/numeric-monitor.json") as stream:
+    replay = monitor_distributions(json.load(stream))
+print(replay.first_detection)
+```
+
+### 26. Compare the whole category composition
+
+A feature mix can change through several small share movements rather than one
+large category jump. The categorical detector compares all supplied categories
+together, then reports each share change to explain that one comparison.
+
+![A global feature-composition comparison detects sixteen small category-share changes while total report counts remain unchanged](docs/images/anomaly-progression-26-categorical-distribution.png)
+
+The [categorical example](examples/distributions/categorical-mix.json) preserves
+800 reporting events per population. Each of 16 categories changes by only
+1.875 percentage points. Whole-composition Jensen-Shannon divergence is about
+0.0167 bits; 1,999 reproducible permutations give `p=0.001` under this fixture's
+explicit exchangeability assumption and prospective settings. Counts and shares
+come from genuine events. The [weighted example](examples/distributions/weighted-composition.json)
+reports a descriptive composition change only: consumed units are not
+independent event counts and cannot manufacture statistical support.
+
+When individual report quantities are available, the [weighted-report example](examples/distributions/weighted-reports.json)
+compares consumed-unit mix by permuting whole category/quantity reports. Sample
+support counts reports; changing the quantity unit does not multiply the evidence.
+
+```text
+anomalyzer compare-distributions examples/distributions/categorical-mix.json
+anomalyzer monitor-distributions examples/distributions/numeric-monitor.json
+python examples/run_distribution_demo.py
+python examples/render_readme_progression.py --only-distributions
+```
+
+Both detectors require caller-asserted exchangeability for inference. Statistical
+and practical effect gates are separate; business impact stays unresolved.
+Bonferroni correction covers the **declared** comparisons, including overlapping
+windows, but not an unlimited sequence of restarted monitors. Category rarity,
+permutation resolution, clustered calls and changing traffic mix need explicit
+attention. Read the [integration guide](docs/distribution-detection.md) for
+contracts, defaults, budgets, source identity, limits and UsageTap adoption checks.
+
+### 27. Compare the 8am batch with earlier mornings
+
+A scheduled morning batch can normally have different cache reuse from evening
+traffic. Comparing today's calls with all prior calls can flag that expected
+composition. Explicit local-clock matching selects comparable prior mornings
+before running the same distribution detector.
+
+![The same normal 8am calls differ from broad day/night history but match the selected prior morning windows](docs/images/anomaly-progression-27-seasonal-distribution.png)
+
+The [seasonal morning fixture](examples/distributions/seasonal-morning.json)
+contains morning cache fractions of 80% and evening fractions of 10%. Today's
+08:00–09:00 window is assessed at 08:05 in `America/Los_Angeles`; only the same
+08:00–08:05 portion of the prior three mornings supplies its reference. The
+matched comparison has 96 reference calls and 32 current calls, `p=1`, and no
+finding. The synthetic broad-history comparison flags their expected day/night
+difference. This demonstrates reference selection, not a guaranteed reduction
+in production false-positive rates.
+
+```text
+anomalyzer compare-seasonal-distributions examples/distributions/seasonal-morning.json
+```
+
+Choose `daily`, `same_weekday`, or `weekday_weekend` explicitly, with an IANA
+timezone, bounded lookback and minimum support across distinct dates. There is
+no automatic schedule discovery. A broader daily fallback is opt-in, based on
+support alone, and visibly reported. Partial windows match the same clock-time
+progress; historical DST gaps/folds are skipped with reasons. Selected IDs,
+windows, fallback and testing allocation remain inspectable. Existing APIs stay
+available; the [handoff guide](docs/seasonal-distributions.md) defines supported
+boundaries and evidence limits.
+
+Matching does not make calls within a batch independent. No block resampling or
+automatic reset is added. Keep elapsed-time rate and application-wide mix checks
+to detect a missing, moved or enlarged batch, and preserve the caller's testing
+budget across partial looks, detectors and days.
+
 ## Baseline and calibration reference
 
 The robust expectation for sample `t` uses four previous matching seasonal
@@ -1267,7 +1391,7 @@ deterministic; UUIDs and runtimes vary.
 ## Dependencies and scope
 
 Numerical calculations use Python's standard library. Pydantic handles input
-validation and schemas; Windows additionally needs `tzdata` for IANA timezones.
+validation and schemas; `tzdata` supplies IANA timezone data across supported runtimes.
 Pytest and jsonschema are development-only dependencies. StatsForecast, SciPy,
 NumPy, pandas, Numba/LLVM, and their forecasting dependencies have been removed.
 

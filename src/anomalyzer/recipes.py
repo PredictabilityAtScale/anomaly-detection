@@ -21,6 +21,17 @@ from .validation import prepare, resolve_reset_points, timestamp
 def analyze(request: Request | dict | list[float | None],
             settings: Settings | dict | None = None):
     """Dispatch a validated request to its causal anomaly-detection recipe."""
+    from .distribution_contracts import DistributionRequest, DistributionMonitorRequest
+    from .distributions import compare_distributions, monitor_distributions
+    from .seasonal_distributions import SeasonalDistributionRequest, compare_seasonal_distributions
+    if isinstance(request, (DistributionRequest, DistributionMonitorRequest, SeasonalDistributionRequest)) or (
+            isinstance(request, dict) and request.get("schema_version") == "distribution-v1"):
+        if settings is not None:
+            raise ValueError("distribution settings belong in the request config")
+        task = request.get("task", "compare_distributions") if isinstance(request, dict) else request.task
+        if task == "compare_seasonal_distributions":
+            return compare_seasonal_distributions(request)
+        return monitor_distributions(request) if task == "monitor_distributions" else compare_distributions(request)
     if isinstance(request, list):
         if isinstance(settings, Settings):
             settings = settings.model_dump(exclude_unset=True)

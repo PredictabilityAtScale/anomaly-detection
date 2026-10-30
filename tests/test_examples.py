@@ -23,3 +23,12 @@ def test_agentic_demo_checks_all_cases():
     for case in ("conversion.json", "lagged-response.json", "unit-cost.json",
                  "incomplete-usage.json"):
         assert f"PASS {case}:" in result.stdout
+
+
+def test_distribution_demo_checks_all_cases():
+    root = Path(__file__).parents[1]
+    result = subprocess.run([sys.executable, str(root / "examples/run_distribution_demo.py")],
+                            cwd=root, text=True, capture_output=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    for case in ("numeric-shape", "numeric-ordinary", "categorical-mix", "numeric-monitor", "weighted-composition", "weighted-reports", "seasonal-morning"):
+        assert f"PASS {case}:" in result.stdout

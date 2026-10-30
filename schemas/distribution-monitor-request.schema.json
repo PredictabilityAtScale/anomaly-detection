@@ -1,0 +1,241 @@
+{
+  "$defs": {
+    "DistributionSample": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        },
+        "complete": {
+          "default": true,
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "weight": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "value"
+      ],
+      "title": "DistributionSample",
+      "type": "object"
+    },
+    "DistributionSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 0.01,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Alpha",
+          "type": "number"
+        },
+        "max_comparisons": {
+          "default": 1,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Comparisons",
+          "type": "integer"
+        },
+        "comparison_index": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Comparison Index",
+          "type": "integer"
+        },
+        "min_reference": {
+          "default": 32,
+          "maximum": 4096,
+          "minimum": 2,
+          "title": "Min Reference",
+          "type": "integer"
+        },
+        "min_current": {
+          "default": 16,
+          "maximum": 4096,
+          "minimum": 2,
+          "title": "Min Current",
+          "type": "integer"
+        },
+        "min_effect": {
+          "default": 0.05,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Min Effect",
+          "type": "number"
+        },
+        "missing_current": {
+          "default": "exclude",
+          "enum": [
+            "exclude",
+            "break"
+          ],
+          "title": "Missing Current",
+          "type": "string"
+        },
+        "permutations": {
+          "default": 9999,
+          "maximum": 99999,
+          "minimum": 99,
+          "title": "Permutations",
+          "type": "integer"
+        },
+        "seed": {
+          "default": 0,
+          "maximum": 4294967295,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "DistributionSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "distribution-v1",
+      "default": "distribution-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "monitor_distributions",
+      "default": "monitor_distributions",
+      "title": "Task",
+      "type": "string"
+    },
+    "monitor_id": {
+      "minLength": 1,
+      "title": "Monitor Id",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "numeric",
+        "categorical"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "entity": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1,
+      "title": "Entity",
+      "type": "object"
+    },
+    "units": {
+      "minLength": 1,
+      "title": "Units",
+      "type": "string"
+    },
+    "samples": {
+      "items": {
+        "$ref": "#/$defs/DistributionSample"
+      },
+      "maxItems": 10000,
+      "title": "Samples",
+      "type": "array"
+    },
+    "assume_exchangeable": {
+      "default": false,
+      "title": "Assume Exchangeable",
+      "type": "boolean"
+    },
+    "order": {
+      "default": "timestamp",
+      "enum": [
+        "timestamp",
+        "trusted_sequence"
+      ],
+      "title": "Order",
+      "type": "string"
+    },
+    "reference_size": {
+      "default": 128,
+      "maximum": 4096,
+      "minimum": 2,
+      "title": "Reference Size",
+      "type": "integer"
+    },
+    "window_sizes": {
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 4,
+      "minItems": 1,
+      "title": "Window Sizes",
+      "type": "array"
+    },
+    "stride": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Stride",
+      "type": "integer"
+    },
+    "max_looks": {
+      "default": 32,
+      "maximum": 10000,
+      "minimum": 1,
+      "title": "Max Looks",
+      "type": "integer"
+    },
+    "config": {
+      "$ref": "#/$defs/DistributionSettings"
+    }
+  },
+  "required": [
+    "monitor_id",
+    "kind",
+    "entity",
+    "units",
+    "samples"
+  ],
+  "title": "DistributionMonitorRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

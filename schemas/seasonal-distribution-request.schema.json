@@ -1,0 +1,278 @@
+{
+  "$defs": {
+    "DistributionSample": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        },
+        "complete": {
+          "default": true,
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "weight": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "value"
+      ],
+      "title": "DistributionSample",
+      "type": "object"
+    },
+    "DistributionSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 0.01,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "title": "Alpha",
+          "type": "number"
+        },
+        "max_comparisons": {
+          "default": 1,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Comparisons",
+          "type": "integer"
+        },
+        "comparison_index": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Comparison Index",
+          "type": "integer"
+        },
+        "min_reference": {
+          "default": 32,
+          "maximum": 4096,
+          "minimum": 2,
+          "title": "Min Reference",
+          "type": "integer"
+        },
+        "min_current": {
+          "default": 16,
+          "maximum": 4096,
+          "minimum": 2,
+          "title": "Min Current",
+          "type": "integer"
+        },
+        "min_effect": {
+          "default": 0.05,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Min Effect",
+          "type": "number"
+        },
+        "missing_current": {
+          "default": "exclude",
+          "enum": [
+            "exclude",
+            "break"
+          ],
+          "title": "Missing Current",
+          "type": "string"
+        },
+        "permutations": {
+          "default": 9999,
+          "maximum": 99999,
+          "minimum": 99,
+          "title": "Permutations",
+          "type": "integer"
+        },
+        "seed": {
+          "default": 0,
+          "maximum": 4294967295,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "DistributionSettings",
+      "type": "object"
+    },
+    "SeasonalReferencePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "timezone": {
+          "minLength": 1,
+          "title": "Timezone",
+          "type": "string"
+        },
+        "matching": {
+          "default": "same_weekday",
+          "enum": [
+            "daily",
+            "same_weekday",
+            "weekday_weekend"
+          ],
+          "title": "Matching",
+          "type": "string"
+        },
+        "lookback_days": {
+          "default": 28,
+          "maximum": 366,
+          "minimum": 1,
+          "title": "Lookback Days",
+          "type": "integer"
+        },
+        "min_windows": {
+          "default": 3,
+          "maximum": 90,
+          "minimum": 2,
+          "title": "Min Windows",
+          "type": "integer"
+        },
+        "max_windows": {
+          "default": 14,
+          "maximum": 90,
+          "minimum": 2,
+          "title": "Max Windows",
+          "type": "integer"
+        },
+        "min_samples_per_window": {
+          "default": 8,
+          "maximum": 4096,
+          "minimum": 1,
+          "title": "Min Samples Per Window",
+          "type": "integer"
+        },
+        "fallback": {
+          "default": "none",
+          "enum": [
+            "none",
+            "daily"
+          ],
+          "title": "Fallback",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timezone"
+      ],
+      "title": "SeasonalReferencePolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "distribution-v1",
+      "default": "distribution-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "compare_seasonal_distributions",
+      "default": "compare_seasonal_distributions",
+      "title": "Task",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "numeric",
+        "categorical"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "entity": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1,
+      "title": "Entity",
+      "type": "object"
+    },
+    "units": {
+      "minLength": 1,
+      "title": "Units",
+      "type": "string"
+    },
+    "samples": {
+      "items": {
+        "$ref": "#/$defs/DistributionSample"
+      },
+      "maxItems": 10000,
+      "title": "Samples",
+      "type": "array"
+    },
+    "window_start": {
+      "title": "Window Start",
+      "type": "string"
+    },
+    "window_end": {
+      "title": "Window End",
+      "type": "string"
+    },
+    "as_of": {
+      "title": "As Of",
+      "type": "string"
+    },
+    "reference_policy": {
+      "$ref": "#/$defs/SeasonalReferencePolicy"
+    },
+    "assume_exchangeable": {
+      "default": false,
+      "title": "Assume Exchangeable",
+      "type": "boolean"
+    },
+    "config": {
+      "$ref": "#/$defs/DistributionSettings"
+    }
+  },
+  "required": [
+    "kind",
+    "entity",
+    "units",
+    "samples",
+    "window_start",
+    "window_end",
+    "as_of",
+    "reference_policy"
+  ],
+  "title": "SeasonalDistributionRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
