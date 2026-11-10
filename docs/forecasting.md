@@ -6,6 +6,12 @@ with a separate `forecast-v1` JSON contract. It returns a validated
 CLI/MCP tools or Guard recipes. No hosted service or credentials are involved.
 This API requires **0.6.0 or later**; published 0.5.0 wheels do not include it.
 
+Version **0.7.0** adds opt-in
+[`historical_anomalies`](historical-anomalies.md), versioned separately as
+`historical-anomalies-v1`. It returns native signed residual evidence and
+first-detection patterns from this same historical analysis. Omitting the option
+keeps existing forecast behavior; no second analysis or service is required.
+
 ```python
 from anomalyzer import ForecastDataset, ForecastSettings, forecast_series
 

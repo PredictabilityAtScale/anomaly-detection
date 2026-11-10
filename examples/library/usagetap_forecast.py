@@ -1,4 +1,4 @@
-"""Proposed usage-forecast-v1 bridge for the separately released 0.6.0 wheel.
+"""Proposed usage-forecast-v1 bridge for the separately released 0.7.0 wheel.
 
 Copy only after releasing and reviewing the pinned upstream artifact. No AWS
 client, credentials, customer identity or Guard profile is needed here.
@@ -7,7 +7,7 @@ import math
 
 from anomalyzer import __version__, forecast_series
 
-VERSION = "0.6.0"
+VERSION = "0.7.0"
 CONTRACT = "usage-forecast-v1"
 WINDOWS = {"hour": 1344, "day": 56, "week": 52, "month": 36}
 MAX_HORIZONS = {"hour": 168, "day": 90, "week": 26, "month": 24}
@@ -21,6 +21,12 @@ def forecast_usage(event, context=None):
         return unavailable("invalid_input")
     if __version__ != VERSION or event.get("contract") != CONTRACT:
         return unavailable("unsupported_contract")
+    evidence = event.get("historicalAnomalies")
+    if "historicalAnomalies" in event:
+        if not isinstance(evidence, dict):
+            return unavailable("invalid_input")
+        if evidence.get("schema_version") != "historical-anomalies-v1":
+            return unavailable("unsupported_contract")
     values, interval, horizon = event.get("values"), event.get("interval"), event.get("horizon")
     adjustment = event.get("trendAdjustmentPct", 0)
     try:
@@ -55,11 +61,12 @@ def forecast_usage(event, context=None):
         "trend_adjustment_pct": adjustment, "lower_bound": 0,
         "max_training_points": WINDOWS[interval], "max_inference_points": 768,
         "max_points": 6000, "max_runtime_seconds": seconds,
+        **({"historical_anomalies": evidence} if evidence is not None else {}),
     })
     if result.status != "completed":
         return unavailable(result.reason)
     model = result.model
-    return {"contract": CONTRACT, "status": "completed", "expected": result.expected,
+    response = {"contract": CONTRACT, "status": "completed", "expected": result.expected,
         "eligible": result.eligible, "predicted": result.predicted,
         # The legacy TS validator requires nonnegative trend; the public
         # additive trend component is signed even for bounded predictions.
@@ -73,3 +80,6 @@ def forecast_usage(event, context=None):
                 f"Forecast fit window (original positions): {model.fit_window}",
                 f"Historical training window: {model.historical_training_window}",
                 "Legacy null tail assumed partial; transport cannot distinguish missing from partial."]}}
+    if evidence is not None:
+        response["historicalAnomalies"] = result.historical_anomalies.model_dump(mode="json")
+    return response

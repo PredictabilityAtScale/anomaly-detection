@@ -36,6 +36,19 @@ def main():
         shutil.copyfile(ROOT / "examples/library/guard_smoke.py", smoke)
         forecast_smoke = outside / "forecast_smoke.py"
         shutil.copyfile(ROOT / "examples/library/forecast_smoke.py", forecast_smoke)
+        evidence_smoke = outside / "historical_anomalies_smoke.py"
+        shutil.copyfile(ROOT / "examples/library/historical_anomalies_smoke.py", evidence_smoke)
+        # Run the same evidence regressions against installed artifacts, with
+        # test inputs/schemas copied outside the checkout and no source package.
+        consumer = outside / "consumer"
+        for relative in ("tests/test_forecast_anomalies.py", "examples/library/usagetap_forecast.py"):
+            target = consumer / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        shutil.copytree(ROOT / "schemas", consumer / "schemas")
+        test_dependencies = outside / "test-dependencies.txt"
+        run(["uv", "export", "--locked", "--extra", "dev", "--no-emit-project",
+             "--output-file", test_dependencies], ROOT, env=env, stdout=subprocess.DEVNULL)
         for index, artifact in enumerate(artifacts):
             venv = outside / f"venv-{index}"
             run(["uv", "venv", "--python", args.python, venv], outside, env=env)
@@ -51,6 +64,7 @@ def main():
             run(["uv", "pip", "check", "--python", python], outside, env=env)
             run([python, "-I", smoke, "--expect-prefix", venv], outside, env=env)
             run([python, "-I", forecast_smoke], outside, env=env)
+            run([python, "-I", evidence_smoke], outside, env=env)
             cli = scripts / ("anomalyzer.exe" if os.name == "nt" else "anomalyzer")
             mcp = scripts / ("anomalyzer-mcp.exe" if os.name == "nt" else "anomalyzer-mcp")
             run([cli, "--help"], outside, env=env, stdout=subprocess.DEVNULL)
@@ -61,6 +75,9 @@ def main():
             payload = json.loads(response.stdout)
             assert {t["name"] for t in payload["result"]["tools"]} == {
                 "analyze", "list_findings", "get_evidence", "compare_distributions", "monitor_distributions", "compare_seasonal_distributions"}
+            run(["uv", "pip", "install", "--python", python, "--require-hashes", "-r", test_dependencies], outside, env=env)
+            run([python, "-I", "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                 consumer / "tests/test_forecast_anomalies.py"], consumer, env=env)
     print("Clean wheel and sdist consumer checks passed")
 
 

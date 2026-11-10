@@ -1,0 +1,176 @@
+title: Choose native historical detection independently of forecasting
+status: implemented
+summary: An opt-in versioned forecast extension exposes native historical point
+  and pattern evidence from the same frozen historical analysis.
+intent: Let consumers use library statistical qualification while retaining
+  their own business materiality, severity and notification preferences.
+acceptance:
+  - One forecast call reuses its historical analysis and returns typed native
+    signed reference, residual, score, triggers, maturity, calibration support,
+    availability and detector provenance in original input positions.
+  - Frozen-origin earlier point evidence and first-detection pattern snapshots
+    survive changed or appended suffixes; provisional evidence cannot trigger,
+    and retrospective screening is separate from anomaly qualification.
+  - Opt-in defaults preserve existing forecast arrays, signed decomposition,
+    horizon prefixes and adjustment semantics; missing gaps and budget failures
+    return unavailable without fabricated or partial evidence.
+  - Public schemas, a single-call compatibility adapter and migration guidance
+    document independent selectors, baseline labels, explicit materiality and
+    version negotiation without changing Guard or saved notifications.
+guidance:
+  - Model exclusions are not incidents. Native scores do not describe residuals
+    against a lower-bounded display expectation when that reference differs.
+  - A separately approved verified 0.7.0 artifact is required before consumers
+    enable the detector; development builds must remain unavailable.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/forecasting/expose-native-historical-anomalies
+  # run deterministic review only: capabilitykit review analysis/forecasting/expose-native-historical-anomalies --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/forecasting/expose-native-historical-anomalies --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/forecasting/expose-native-historical-anomalies --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/forecasting/project-observed-series
+    - analysis/evidence/calibrate-departures
+    - analysis/expectations/protect-reference-from-extremes
+  implementation:
+    references:
+      - src/anomalyzer/forecast.py
+      - src/anomalyzer/forecast_contracts.py
+      - src/anomalyzer/forecast_evidence.py
+      - src/anomalyzer/__init__.py
+      - tests/test_forecast_anomalies.py
+      - schemas/historical-anomalies-request.schema.json
+      - schemas/historical-anomalies-result.schema.json
+      - examples/library/usagetap_forecast.py
+      - examples/library/historical_anomalies_smoke.py
+      - scripts/verify_distribution.py
+      - scripts/verify_lambda.sh
+      - docs/historical-anomalies.md
+      - docs/usagetap-forecast-migration.md
+  verification:
+    automated:
+      - id: frozen-point-pattern-evidence
+        description: Native point rows and first-detection patterns remain causal when
+          targets or suffixes change and observations are appended.
+        command: python -m pytest -q -p no:cacheprovider
+          tests/test_forecast_anomalies.py -k "frozen or pattern"
+      - id: statistical-support-boundaries
+        description: Preserve original positions, signed reference semantics,
+          calibration maturity, zero, spikes, drops and separate exclusions.
+        command: python -m pytest -q -p no:cacheprovider
+          tests/test_forecast_anomalies.py -k "warmup or quiet or signed or
+          screening or partial"
+      - id: opt-in-bridge-safety
+        description: Validate schemas, single-analysis reuse, unchanged forecasts, all
+          interval caps, deterministic output and explicit failures.
+        command: python -m pytest -q -p no:cacheprovider
+          tests/test_forecast_anomalies.py -k "bridge or opt_in or invalid or
+          models or adapter"
+      - id: installed-artifacts
+        description: Install built wheel and sdist outside checkout and run public
+          Guard, forecast, evidence smoke and the evidence regression suite.
+        command: python scripts/verify_distribution.py --python 3.12
+      - id: offline-lambda
+        description: Execute installed public APIs without network access in the Linux
+          x86_64 Python 3.12 Lambda runtime with bridge-sized inputs.
+        command: bash scripts/verify_lambda.sh
+    manual:
+      - Inspect signed versus display references, calibration rebuild cutoffs,
+        first-detection snapshots and independent selector/materiality guidance;
+        confirm no exclusion, caution or score is presented as business
+        severity, confidence, forecast accuracy or health.
+    gaps:
+      - A separately approved stable release and a separately reviewed UsageTap
+        adoption are required before enabling the consumer detector.
+  review:
+    depth: partial
+    source: coding-agent
+    gaps:
+      - A separately approved stable release and separately reviewed UsageTap
+        adoption are required before enabling the consumer detector.
+    evidence:
+      - Primary agent self-review in this session; not an independent reviewer
+        approval.
+      - "Python 3.12.9 source suite: 417 passed in 47.52s."
+      - "Clean Python 3.12 wheel and sdist installs outside checkout: 36
+        evidence regressions each, plus Guard/forecast/evidence smoke,
+        dependency and entry-point checks."
+      - "Linux x86_64 Lambda Python 3.12: hash-required installation and public
+        smoke/benchmark passed with networking disabled; four maximum-size
+        evidence cases took 1.60s total."
+      - docs/historical-anomalies-validation.md records artifact hashes, runtime
+        image digest, commands and interpretation limits.
+      - "Stable 0.7.0 preflight after owner authorization: 417 source tests
+        passed in 37.22s. Release documentation and version pins re-inspected;
+        no detector implementation changes."
+    intent_summary: An opt-in versioned forecast extension exposes native historical
+      point and pattern evidence from the same frozen historical analysis.
+    criteria:
+      - criterion: One forecast call reuses its historical analysis and returns typed
+          native signed reference, residual, score, triggers, maturity,
+          calibration support, availability and detector provenance in original
+          input positions.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast.py:66
+          - src/anomalyzer/forecast_evidence.py:16
+          - src/anomalyzer/forecast_contracts.py:213
+          - tests/test_forecast_anomalies.py:185
+        notes: Inspected one reused analyze_dataset result, typed N-position projection,
+          resolved thresholds and separate signed expectations/calibration
+          metadata. The call-count regression and public installed artifacts
+          passed.
+      - criterion: Frozen-origin earlier point evidence and first-detection pattern
+          snapshots survive changed or appended suffixes; provisional evidence
+          cannot trigger, and retrospective screening is separate from anomaly
+          qualification.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_evidence.py:51
+          - src/anomalyzer/forecast_evidence.py:72
+          - tests/test_forecast_anomalies.py:30
+          - tests/test_forecast_anomalies.py:73
+          - tests/test_forecast_anomalies.py:142
+        notes: Reviewed the native engine calibration rebuild/exclusion annotations and
+          pattern merging. The projection excludes retrospective flags from
+          point rows and truncates summaries through first detection. Prefix
+          replay tests cover all supported rules plus target/suffix/appends
+          under both policies.
+      - criterion: Opt-in defaults preserve existing forecast arrays, signed
+          decomposition, horizon prefixes and adjustment semantics; missing gaps
+          and budget failures return unavailable without fabricated or partial
+          evidence.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast.py:196
+          - tests/test_forecast_anomalies.py:155
+          - tests/test_forecast_anomalies.py:170
+          - tests/test_forecast_anomalies.py:208
+          - tests/test_forecast.py:198
+        notes: Default opt-in preserves forward values and history. Missing gaps fail
+          explicitly without filling. Tested budget failure at entry and during
+          evidence projection, bridge caps, zeros and partial tails.
+      - criterion: Public schemas, a single-call compatibility adapter and migration
+          guidance document independent selectors, baseline labels, explicit
+          materiality and version negotiation without changing Guard or saved
+          notifications.
+        status: covered
+        evidence:
+          - schemas/historical-anomalies-request.schema.json
+          - schemas/historical-anomalies-result.schema.json
+          - examples/library/usagetap_forecast.py:16
+          - docs/historical-anomalies.md
+          - docs/usagetap-forecast-migration.md
+        notes: Reviewed exact model schemas and single-call adapter; legacy response
+          shape is retained without opt-in. Guide specifies two stacked
+          independent selectors, defaults, version refusal, signed baseline
+          labels, native qualification and retained caller materiality/severity
+          policy. No UsageTap source changes were made.
+    done: false
+    input_fingerprint: cd2bc2fbcd116f63ddc5d5e9a26db85f78060fd65da941147959cf39d8be685f
+    mode: quick

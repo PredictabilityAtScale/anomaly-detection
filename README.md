@@ -41,6 +41,13 @@ See the [0.6.0 notes](docs/releases/0.6.0.md) and
 [UsageTap migration checklist](docs/usagetap-forecast-migration.md). Existing
 0.5.0 wheels do not include this source addition.
 
+Version **0.7.0** adds an opt-in
+[`historical-anomalies-v1` extension](docs/historical-anomalies.md) to
+`forecast_series`. It exposes native point/pattern evidence from the same
+historical analysis so callers can choose forecasting and detection independently.
+See the [0.7.0 release notes](docs/releases/0.7.0.md). Consumer adoption requires
+verified release assets and a separate integration change.
+
 > [!NOTE]
 > Anomalyzer is an alpha release. Validate thresholds and detector behavior on
 > representative historical data before using its output for operational decisions.

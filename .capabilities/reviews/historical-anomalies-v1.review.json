@@ -1,0 +1,65 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "An opt-in versioned forecast extension exposes native historical point and pattern evidence from the same frozen historical analysis.",
+  "criteria": [
+    {
+      "criterion": "One forecast call reuses its historical analysis and returns typed native signed reference, residual, score, triggers, maturity, calibration support, availability and detector provenance in original input positions.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast.py:66",
+        "src/anomalyzer/forecast_evidence.py:16",
+        "src/anomalyzer/forecast_contracts.py:213",
+        "tests/test_forecast_anomalies.py:185"
+      ],
+      "notes": "Inspected one reused analyze_dataset result, typed N-position projection, resolved thresholds and separate signed expectations/calibration metadata. The call-count regression and public installed artifacts passed."
+    },
+    {
+      "criterion": "Frozen-origin earlier point evidence and first-detection pattern snapshots survive changed or appended suffixes; provisional evidence cannot trigger, and retrospective screening is separate from anomaly qualification.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast_evidence.py:51",
+        "src/anomalyzer/forecast_evidence.py:72",
+        "tests/test_forecast_anomalies.py:30",
+        "tests/test_forecast_anomalies.py:73",
+        "tests/test_forecast_anomalies.py:142"
+      ],
+      "notes": "Reviewed the native engine calibration rebuild/exclusion annotations and pattern merging. The projection excludes retrospective flags from point rows and truncates summaries through first detection. Prefix replay tests cover all supported rules plus target/suffix/appends under both policies."
+    },
+    {
+      "criterion": "Opt-in defaults preserve existing forecast arrays, signed decomposition, horizon prefixes and adjustment semantics; missing gaps and budget failures return unavailable without fabricated or partial evidence.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast.py:196",
+        "tests/test_forecast_anomalies.py:155",
+        "tests/test_forecast_anomalies.py:170",
+        "tests/test_forecast_anomalies.py:208",
+        "tests/test_forecast.py:198"
+      ],
+      "notes": "Default opt-in preserves forward values and history. Missing gaps fail explicitly without filling. Tested budget failure at entry and during evidence projection, bridge caps, zeros and partial tails."
+    },
+    {
+      "criterion": "Public schemas, a single-call compatibility adapter and migration guidance document independent selectors, baseline labels, explicit materiality and version negotiation without changing Guard or saved notifications.",
+      "status": "covered",
+      "evidence": [
+        "schemas/historical-anomalies-request.schema.json",
+        "schemas/historical-anomalies-result.schema.json",
+        "examples/library/usagetap_forecast.py:16",
+        "docs/historical-anomalies.md",
+        "docs/usagetap-forecast-migration.md"
+      ],
+      "notes": "Reviewed exact model schemas and single-call adapter; legacy response shape is retained without opt-in. Guide specifies two stacked independent selectors, defaults, version refusal, signed baseline labels, native qualification and retained caller materiality/severity policy. No UsageTap source changes were made."
+    }
+  ],
+  "verification_evidence": [
+    "Primary agent self-review in this session; not an independent reviewer approval.",
+    "Python 3.12.9 source suite: 417 passed in 47.52s.",
+    "Clean Python 3.12 wheel and sdist installs outside checkout: 36 evidence regressions each, plus Guard/forecast/evidence smoke, dependency and entry-point checks.",
+    "Linux x86_64 Lambda Python 3.12: hash-required installation and public smoke/benchmark passed with networking disabled; four maximum-size evidence cases took 1.60s total.",
+    "docs/historical-anomalies-validation.md records artifact hashes, runtime image digest, commands and interpretation limits.",
+    "Stable 0.7.0 preflight after owner authorization: 417 source tests passed in 37.22s. Release documentation and version pins re-inspected; no detector implementation changes."
+  ],
+  "remaining_gaps": [
+    "A separately approved stable release and separately reviewed UsageTap adoption are required before enabling the consumer detector."
+  ],
+  "done": false
+}
