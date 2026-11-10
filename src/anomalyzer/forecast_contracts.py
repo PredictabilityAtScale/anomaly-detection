@@ -160,6 +160,8 @@ class HistoricalAnomalyPoint(Contract):
 
 
 class HistoricalDetectorSettings(HistoricalAnomalySettings):
+    forecast_baseline: Literal["legacy", "recent-level-v1"] = "legacy"
+    level_baseline: dict[str, Any] | None = None
     recipe: Literal["seasonal-residual-v1"] = "seasonal-residual-v1"
     training_size: int
     calibration_size: Literal[14] = 14
@@ -232,6 +234,7 @@ class HistoricalAnomalies(Contract):
 
 
 class ForecastSettings(Contract):
+    baseline: Literal["legacy", "recent-level-v1"] = "legacy"
     horizon: int = Field(default=30, ge=1, le=6000, strict=True)
     trend: Literal["auto", "none", "linear", "exponential"] = "auto"
     seasonality: Literal["auto"] | ForecastSeasonality = "auto"
@@ -272,6 +275,8 @@ class ForecastCounts(Contract):
 
 
 class ForecastModel(Contract):
+    level_baseline: dict[str, Any] | None = None
+    historical_level_baseline: dict[str, Any] | None = None
     method: Literal["anomalyzer"] = "anomalyzer"
     engine_version: str
     trend_kind: Literal["none", "linear", "exponential"]

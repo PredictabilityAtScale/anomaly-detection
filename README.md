@@ -48,6 +48,14 @@ historical analysis so callers can choose forecasting and detection independentl
 See the [0.7.0 release notes](docs/releases/0.7.0.md). Consumer adoption requires
 verified release assets and a separate integration change.
 
+Version **0.8.0** adds an explicit `baseline="recent-level-v1"` option for
+no-trend, no-cycle forecasts. Bounded chronological selection compares simple
+exponential smoothing with persistence; weak improvement retains persistence.
+Historical selection and residual calibration freeze separately from the current
+forecast fit. Existing calls and standalone detector recipes retain their behavior.
+See [0.8.0 notes](docs/releases/0.8.0.md) and the
+[selection and tradeoffs](docs/forecasting.md#smoothed-recent-level-opt-in-since-080).
+
 > [!NOTE]
 > Anomalyzer is an alpha release. Validate thresholds and detector behavior on
 > representative historical data before using its output for operational decisions.

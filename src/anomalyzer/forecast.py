@@ -11,6 +11,7 @@ from pydantic import ValidationError
 
 from ._version import __version__
 from .baseline import robust_expected_value
+from .level import recent_level, select_level
 from .budget import RuntimeBudget
 from .contracts import Dataset, Request, Settings
 from .forecast_contracts import (
@@ -59,7 +60,7 @@ def _historical(values, config, budget):
         selection_window = (0, selection_size - 1)
     else:
         period = config.seasonality.period
-        training = max(28, period)
+        training = max(56 if config.baseline == "recent-level-v1" and config.seasonality.period == 1 and config.trend in ("auto", "none") else 28, period)
         inference = {"status": "explicit", "selected_lag": period, "selection_window": None}
     if n <= training:
         return expected, eligible, maturity, selection_window, (0, training - 1) if n == training else None, inference, {"status": "not_assessed", "reason": "no post-training observations"}, {}, None
@@ -69,7 +70,8 @@ def _historical(values, config, budget):
         trend=config.trend, outlier_handling=config.outlier_handling,
         **(config.historical_anomalies.model_dump(exclude={"schema_version"}) if config.historical_anomalies else {}),
         max_points=config.max_points, max_runtime_seconds=max(1e-9, budget.remaining)))
-    result = analyze_dataset(request.datasets[0], request.config, request.context, budget)
+    result = analyze_dataset(request.datasets[0], request.config, request.context, budget,
+        **({"forecast_baseline": config.baseline} if config.baseline != "legacy" else {}))
     method = result.methods[0]
     if method.status not in ("completed", "insufficient_history"):
         # analyze catches its own timeout; restore the stable budget reason.
@@ -165,6 +167,9 @@ def forecast_series(
             return unavailable("insufficient_history")
         trend, diagnostics = fit_trend(fitted, period, config.trend, 1e-8,
                                        budget.check, config.outlier_handling)
+        level_selection = (select_level(fitted, config.outlier_handling, budget.check, start=start,
+            applicable=period == 1 and trend.kind == "none" and config.trend in ("auto", "none"))
+            if config.baseline == "recent-level-v1" else None)
         m, anchor = len(fitted), len(fitted) - 1
         # Screening changes the trend fit internally. Reference values stay
         # measured values: robust references trim the outer matching values;
@@ -177,6 +182,8 @@ def forecast_series(
             cycle.append(robust_expected_value(fitted, target, period, 0, trend, 4)
                          if config.outlier_handling == "robust" else
                          fitted[target - period] + trend.change(target - period, target))
+        if level_selection and level_selection["kind"] == "simple_exponential_smoothing":
+            cycle = [recent_level(fitted, m, level_selection["alpha"], config.outlier_handling)]
         level = math.fsum(cycle[p] - trend.change(anchor, m + p) for p in range(period)) / period
         offsets = [cycle[p] - level - trend.change(anchor, m + p) for p in range(period)]
         n, h = len(data.values), config.horizon
@@ -224,6 +231,8 @@ def forecast_series(
             historical_evidence_maturity=maturity, future_origin_index=n, predicted_timestamps=timestamps,
             historical_anomalies=evidence,
             model=ForecastModel(engine_version=__version__, trend_kind=trend.kind,
+                level_baseline=level_selection,
+                historical_level_baseline=(analysis.methods[0].diagnostics.get("level_baseline") if analysis else None),
                 trend_parameters={"coefficient": trend.coefficient, "rate": trend.rate,
                                   "origin": start + trend.origin, "anchor": start + anchor, "level": level},
                 season_length=period, season_inference=inference, fit_window=(start, observed - 1),
@@ -235,7 +244,7 @@ def forecast_series(
                     "screened_original_indices": excluded,
                     "historical_reference_adjustments": history_policy,
                     "downweighted_count": diagnostics.get("downweighted_count", 0),
-                    "reference_policy": "trim_outer_two_of_four_recency_weighted" if config.outlier_handling == "robust" else "previous_matching_observation",
+                    "reference_policy": "ses_of_policy_references" if level_selection and level_selection["kind"] == "simple_exponential_smoothing" else "trim_outer_two_of_four_recency_weighted" if config.outlier_handling == "robust" else "previous_matching_observation",
                     "actuals_modified": False, "historical_replacements_used_for_forecast": False}),
             limitations=list(LIMITATIONS))
     except TimeoutError:

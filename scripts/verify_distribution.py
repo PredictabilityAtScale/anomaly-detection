@@ -41,7 +41,7 @@ def main():
         # Run the same evidence regressions against installed artifacts, with
         # test inputs/schemas copied outside the checkout and no source package.
         consumer = outside / "consumer"
-        for relative in ("tests/test_forecast_anomalies.py", "examples/library/usagetap_forecast.py"):
+        for relative in ("tests/test_forecast_anomalies.py", "tests/test_recent_level.py", "examples/library/usagetap_forecast.py"):
             target = consumer / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / relative, target)
@@ -77,7 +77,7 @@ def main():
                 "analyze", "list_findings", "get_evidence", "compare_distributions", "monitor_distributions", "compare_seasonal_distributions"}
             run(["uv", "pip", "install", "--python", python, "--require-hashes", "-r", test_dependencies], outside, env=env)
             run([python, "-I", "-m", "pytest", "-q", "-p", "no:cacheprovider",
-                 consumer / "tests/test_forecast_anomalies.py"], consumer, env=env)
+                 consumer / "tests/test_forecast_anomalies.py", consumer / "tests/test_recent_level.py"], consumer, env=env)
     print("Clean wheel and sdist consumer checks passed")
 
 

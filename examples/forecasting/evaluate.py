@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def evaluate_case(case):
     results = []
-    for handling in ("include", "robust"):
+    for policy, handling in ((p, h) for p in ("legacy", "recent-level-v1") for h in ("include", "robust")):
         folds, errors, baseline_errors, actual_absolute = [], [], [], []
         for origin in case["origins"]:
             horizon = case["horizon"]
@@ -27,7 +27,7 @@ def evaluate_case(case):
             actual = case["values"][origin:origin + horizon]
             assert len(actual) == horizon
             result = forecast_series(history, {**case["config"], "outlier_handling": handling,
-                                               "horizon": horizon, "max_runtime_seconds": 30})
+                                               "horizon": horizon, "baseline": policy, "max_runtime_seconds": 30})
             if result.status != "completed":
                 folds.append({"origin": origin, "status": result.status, "reason": result.reason})
                 continue
@@ -40,10 +40,13 @@ def evaluate_case(case):
             folds.append({"origin": origin, "status": result.status,
                           "training_window": [0, origin - 1], "holdout_window": [origin, origin + horizon - 1],
                           "mae": math.fsum(fold_errors) / horizon,
-                          "trend": result.model.trend_kind, "season_length": result.model.season_length})
-        results.append({"case": case["name"], "outlier_handling": handling,
+                          "trend": result.model.trend_kind, "season_length": result.model.season_length,
+                          "level_selection": ({k: result.model.level_baseline[k] for k in ("kind", "alpha", "status", "selection_window")} if getattr(result.model, "level_baseline", None) else None),
+                          "one_step_absolute_error": fold_errors[0]})
+        results.append({"case": case["name"], "outlier_handling": handling, "baseline_policy": policy,
             "evaluated_points": len(errors), "folds": folds,
             "mae": math.fsum(errors) / len(errors) if errors else None,
+            "one_step_mae": math.fsum(f["one_step_absolute_error"] for f in folds if f["status"] == "completed") / sum(f["status"] == "completed" for f in folds) if errors else None,
             "baseline_mae": math.fsum(baseline_errors) / len(errors) if errors else None,
             "wape": math.fsum(errors) / math.fsum(actual_absolute) if math.fsum(actual_absolute) else None})
     return results
@@ -83,10 +86,11 @@ def main():
         cases, metadata = private_evidence(args.private_evidence)
     else:
         cases = list(synthetic_cases())
-        metadata["fixture_sha256"] = hashlib.sha256(Path(__file__).with_name("fixtures.py").read_bytes()).hexdigest()
-    report = {"method": "Fixed chronological origins; hyperparameters declared before hold-outs; overlapping folds are not independent samples.",
+        metadata["fixture_hash_encoding"] = "UTF-8 with LF line endings"
+        metadata["fixture_sha256"] = hashlib.sha256(Path(__file__).with_name("fixtures.py").read_text(encoding="utf-8").encode("utf-8")).hexdigest()
+    report = {"method": "Nested chronological origins: each forecast selects only within its observed prefix; outer hold-outs never select parameters. Fixed candidate grid and thresholds; overlapping folds are not independent samples.",
               "source": "private local evidence" if args.private_evidence else "anonymous deterministic synthetic fixtures",
-              "limitations": "MAE/WAPE are held-out errors, not fit diagnostics or calibrated uncertainty. WAPE is null for all-zero actuals. Synthetic performance does not establish customer accuracy or justify changing the default.",
+              "limitations": "MAE/WAPE are held-out errors, not fit diagnostics or calibrated uncertainty. WAPE is null for all-zero actuals. Synthetic performance does not establish customer accuracy or justify changing the default. Results include all declared seeds, endpoint spikes, real steps and a random walk; no statistical significance or universal improvement is claimed.",
               **metadata, "results": [row for case in cases for row in evaluate_case(case)]}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8")

@@ -30,3 +30,25 @@ def synthetic_cases():
     yield {"name": "daily_annual_positional", "values": [20 + 5 * math.sin(2 * math.pi * i / 365) for i in range(1530)],
            "origins": [1095, 1200, 1460], "horizon": 30,
            "config": {"seasonality": {"period": 365}, "max_training_points": 1460, "trend": "none"}, "baseline_period": 365}
+
+    # Declared stress cases; selection sees only each outer training prefix.
+    for seed in (42, 1729, 123):
+        generator = random.Random(seed)
+        stationary = [100 + generator.uniform(-10, 10) for _ in range(112)]
+        yield {"name": f"stationary_seed_{seed}", "values": stationary,
+               "origins": [56, 70, 84], "horizon": 7, "config": {"trend": "none"}, "baseline_period": 1}
+    generator = random.Random(42)
+    stationary = [100 + generator.uniform(-10, 10) for _ in range(112)]
+    stress = {
+        "noisy_endpoint_spikes": [v + (200 if i in (55, 69, 83) else 0) for i, v in enumerate(stationary)],
+        "noisy_recent_step": [v + (100 if i >= 54 else 0) for i, v in enumerate(stationary)],
+        "random_walk": [],
+    }
+    generator = random.Random(314)
+    value = 100.
+    for _ in range(112):
+        value += generator.uniform(-5, 5)
+        stress["random_walk"].append(value)
+    for name, values in stress.items():
+        yield {"name": name, "values": values, "origins": [56, 70, 84], "horizon": 7,
+               "config": {"trend": "none"}, "baseline_period": 1}

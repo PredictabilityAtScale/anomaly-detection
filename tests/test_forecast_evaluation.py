@@ -32,7 +32,7 @@ def test_evaluation_passes_only_observed_prefixes_to_forecast(monkeypatch):
     values = [float(i) for i in range(30)]
     result = evaluation.evaluate_case({"name": "synthetic", "values": values,
         "origins": [10, 20], "horizon": 5, "baseline_period": 1, "config": {}})
-    assert seen == [values[:10], values[:20], values[:10], values[:20]]
+    assert seen == [values[:10], values[:20]] * 4
     for row in result:
         assert row["mae"] == row["baseline_mae"] == 3
         assert all(fold["training_window"][1] < fold["holdout_window"][0] for fold in row["folds"])
@@ -41,12 +41,15 @@ def test_evaluation_passes_only_observed_prefixes_to_forecast(monkeypatch):
 def test_committed_anonymous_errors_reproduce_and_disclose_regime_weakness():
     report = json.loads((ROOT / "docs/forecast-evaluation.json").read_text())
     assert report["source"] == "anonymous deterministic synthetic fixtures"
-    assert report["fixture_sha256"] == hashlib.sha256((DIRECTORY / "fixtures.py").read_bytes()).hexdigest()
+    assert report["fixture_hash_encoding"] == "UTF-8 with LF line endings"
+    assert report["fixture_sha256"] == hashlib.sha256((DIRECTORY / "fixtures.py").read_text(encoding="utf-8").encode("utf-8")).hexdigest()
     actual = [row for case in fixtures.synthetic_cases() for row in evaluation.evaluate_case(case)]
-    assert len(actual) == len(report["results"]) == 26
+    assert len(actual) == len(report["results"]) == len(list(fixtures.synthetic_cases())) * 4
     for row, saved in zip(actual, report["results"]):
         assert row["case"] == saved["case"]
         assert row["outlier_handling"] == saved["outlier_handling"]
+        assert row["baseline_policy"] == saved["baseline_policy"]
+        assert row["one_step_mae"] == pytest.approx(saved["one_step_mae"])
         assert row["evaluated_points"] == saved["evaluated_points"]
         assert all(fold["status"] == "completed" for fold in row["folds"])
         assert row["mae"] == pytest.approx(saved["mae"], abs=1e-7)
@@ -62,3 +65,16 @@ def test_private_evaluation_refuses_public_output_before_reading_data():
     assert result.returncode == 2
     assert "ignored .tmp directory" in result.stderr
     assert not (ROOT / "docs/must-not-exist-private.json").exists()
+
+
+def test_nested_evaluation_retains_losses_and_declared_model_regressions():
+    results = json.loads((ROOT / "docs/forecast-evaluation.json").read_text())["results"]
+    def row(case, policy, handling="include"):
+        return next(r for r in results if r["case"] == case and r["baseline_policy"] == policy and r["outlier_handling"] == handling)
+    for name in ("stationary_seed_42", "noisy_endpoint_spikes"):
+        assert row(name, "recent-level-v1")["mae"] < row(name, "legacy")["mae"]
+    for name in ("stationary_seed_123", "noisy_recent_step"):
+        assert row(name, "recent-level-v1")["mae"] > row(name, "legacy")["mae"]
+    for name in ("flat", "zero", "linear_up", "linear_down_signed", "exponential", "weekly", "hourly_daily", "monthly_annual", "daily_annual_positional", "random_walk"):
+        for handling in ("include", "robust"):
+            assert row(name, "recent-level-v1", handling)["mae"] == row(name, "legacy", handling)["mae"]

@@ -117,6 +117,7 @@ calendar effects require a future explicit model.
 | horizon | 30 | 1–6000 future bucket positions |
 | trend | auto | auto, none, linear or exponential; unsupported trend fits can select none |
 | seasonality | auto | auto or `{"period": P}`, integer P from 1–1500 |
+| baseline | legacy | legacy or recent-level-v1, described below |
 | outlier_handling | robust | robust or include, described below |
 | trend_adjustment_pct | 0 | -50 through +200; multiply only future learned trend change by 1 + pct/100 |
 | lower_bound | null | Optional finite bound for expected/predicted, no implicit nonnegative assumption |
@@ -190,8 +191,9 @@ the existing conservative inference primitive. Its discovery excludes the final
 reserved point; both discovery and confirmation windows are reported. Trend is
 frozen from the same K-point training prefix. No historical expectation is
 published before K: lag selection used information from that prefix. With an
-explicit period, historical training is `max(28, period)` and no inference is
-performed. If training is incomplete, history stays null/unavailable while a
+explicit period under the default `legacy` baseline, historical training is
+`max(28, period)` and no inference is performed. The opt-in recent-level
+training rule is described below. If training is incomplete, history stays null/unavailable while a
 current scenario may already be available.
 
 Subsequent expectations use earlier seasonal references and the frozen trend.
@@ -245,10 +247,10 @@ python examples/forecasting/evaluate.py --output docs/forecast-evaluation.json
 python -m pytest -q tests/test_forecast.py tests/test_forecast_evaluation.py
 ```
 
-[`fixtures.py`](../examples/forecasting/fixtures.py) defines 13 deterministic
+[`fixtures.py`](../examples/forecasting/fixtures.py) defines 19 deterministic
 synthetic series; [`forecast-evaluation.json`](forecast-evaluation.json) records
-26 case/policy runs with three chronological origins each, selected trends/lags,
-windows, MAE, WAPE and last-observation/seasonal-naive baseline errors. Every
+76 case/baseline/policy runs with three chronological origins each, selected trends/lags,
+windows, one-step MAE, multi-step MAE, WAPE and last-observation/seasonal-naive baseline errors. Every
 fit ends before its holdout. WAPE is null when the actual denominator is zero.
 Overlapping folds are not independent trials. Exact simple trends and declared
 cycles are expected favorable cases. Sustained shifts and changing slopes expose
@@ -256,22 +258,117 @@ substantial weaknesses: for example, shift MAE is approximately 11.33 (include)
 and 10.36 (robust), versus 2.38 for last-observation persistence on that synthetic
 fixture. Do not interpret exact synthetic fits as production accuracy.
 
-The user-supplied local evidence was read in full and replayed separately. Only
-the 30 exported chart buckets establish complete observations for local holdouts;
-the hidden prefix of the original 86-bucket fit is unavailable. The reduced raw
-export contains seven daily totals with unknown completeness, timezone and
-filter scope; six overlapping dates disagree with the chart. They are not merged,
-not treated as a continuous extension and not used as complete holdouts. The
-original and fresh 30-day projections are scenarios with no supplied future
-actuals. Private inputs and detailed private evaluation stay local/untracked;
-only independently generated synthetic fixtures belong in this repository.
+Private inputs, metadata, replay scripts and detailed results remain local in
+ignored `.tmp/`; they are not evaluation fixtures or release artifacts. No future
+actual outcomes are available for a supplied forward scenario. The optional
+`--private-evidence` mode accepts the older JSON evidence-export shape and refuses
+output outside `.tmp/`. It does not parse arbitrary customer CSV exports.
+Keep UsageTap's Current method as the comparison default until representative,
+reconciled history and reviewed outcomes support a change. See the
+[migration checklist](usagetap-forecast-migration.md).
 
-The private script accepts `--private-evidence <local-path>` only with output
-under ignored `.tmp/`. It runs six-bucket chronological holdouts at visible
-origins 16, 20 and 24 and compares both policies with persistence. Those small,
-overlapping holdouts do not justify choosing a default. Outlier-policy sensitivity
-is material even without screened extremes: lag-one include anchors to the last
-observation, while robust references trim and average recent values. A preferred
-upward trend was not imposed. Keep UsageTap's Current method as the comparison
-default until representative, reconciled history and reviewed outcomes support
-a change. See the [exact migration checklist](usagetap-forecast-migration.md).
+## Smoothed recent level (opt-in since 0.8.0)
+
+```python
+result = forecast_series(values, {
+    "baseline": "recent-level-v1", "horizon": 7,
+    "outlier_handling": "include", "historical_anomalies": {},
+})
+print(result.model.level_baseline)
+print(result.model.historical_level_baseline)
+```
+
+`baseline` defaults to `legacy`. Installing 0.8.0 alone changes neither forecast
+numerics nor standalone `analyze`, adaptive recipes, distribution detectors or
+Guard settings. The explicit versioned option changes eligible historical
+expectations as well as forecasts. Contract names stay `forecast-v1` and
+`historical-anomalies-v1`; consumers must negotiate the exact engine version and
+new config before sending it. Older versions reject the new setting.
+
+Selection runs only if the selected trend is `none`, the season length is one,
+and the requested trend is `auto` or `none`. Explicit seasonal periods greater
+than one and explicit linear/exponential requests keep their existing models.
+No weekly cycle or trend is imposed. This does not fix a missed cycle or prove
+that no cycle exists. The diagnostic says no stable cycle or trend was selected;
+it describes model selection, not the underlying process.
+
+Include persistence uses the last measured value. SES initializes its level at
+the first observation of the preceding at most 56 observations, then updates
+`level = alpha * observation + (1-alpha) * level`. Its future scenario repeats
+that smoothed level at every horizon, including through partial tails. Every
+historical target uses only preceding observations and the same bounded-window
+initialization. The window slides; this is a recent-level SES baseline, not an
+unbounded-state ETS fit or a forecast interval model.
+
+Outlier handling remains independent. Include feeds every measured observation
+to smoothing, without exclusions or labels. Robust feeds the existing causal
+four-reference trimmed/recency-weighted level policy to smoothing (before four
+observations it uses the last reference); this is smoothing of robust references,
+not ordinary SES of all raw values. Existing robust training/calibration screening
+and model-only future-reference replacement still apply in historical analysis.
+Selection scores predictions against the original held-out measurements under
+both policies. Smoothing itself never creates `outlier_indices` or incidents.
+`kind=persistence` in robust mode means the retained robust reference policy,
+not a claim that the result equals the last raw observation.
+
+The deterministic selector uses the last at most 56 complete fit observations.
+It tries alpha values 0.1, 0.25, 0.5 and 0.75 against persistence. It takes up to
+six disjoint seven-target chronological folds ending at the selection endpoint,
+with at least eight earlier fit observations per fold and at least three folds
+(minimum 29 observations). A fold uses its training prefix only, then repeats
+its frozen level over all seven holdouts. All candidates see the same folds.
+Selection requires seven-step aggregate MAE to improve by more than 5%, wins on
+at least two thirds of folds, and aggregate one-step MAE no more than 5% worse.
+A numerical tolerance of `1e-12 * max(1, persistence_MAE)` protects ties.
+Unsupported, short-history or tied results retain persistence. Among supported
+candidates minimum MAE wins; exact candidate ties choose the smaller alpha.
+These conservative thresholds are engineering gates, not significance tests.
+Folds within selection are not independent evidence of production accuracy.
+
+The objective is always seven **buckets**, regardless of requested output
+horizon or interval; a daily bucket gives a seven-day objective. This preserves
+forecast horizon-prefix invariance. Longer horizons and other cadences may need
+a separately versioned objective after evaluation. Alpha, kind, status, reason,
+window, fold windows in original coordinates, candidate losses and gates are
+returned in `model.level_baseline`. `not_applicable` explains other model choices.
+At most 5 candidates x 6 folds x 56 updates are needed for each selection; each
+historical prediction reads at most 56 references. Existing point/runtime limits
+and cooperative budget failure semantics apply, including atomic unavailable
+results. This adds no numerical dependencies.
+
+Historical selection freezes on the original historical training prefix, before
+any exposed target or calibration observation. Auto season selection uses its
+existing fixed prefix `min(max_training_points, max_inference_points)`. For an
+explicit period of one with eligible recent-level selection, the historical
+training prefix is now 56 observations (legacy uses 28). Other explicit model
+training boundaries stay unchanged. If a configured prefix is shorter than 29,
+persistence is frozen; later data do not mature that model selection retroactively.
+Earlier targets remain unavailable. The next 14 residuals calibrate the selected
+baseline; only subsequent targets can be calibrated/triggering. Readiness uses
+those matching residuals, not legacy residuals or current-fit reconstruction.
+Provisional point rows remain point-time evidence; robust calibration rebuilding
+is a later reference operation with its own cutoff, as before.
+
+`model.historical_level_baseline` and native
+`resolved_settings.forecast_baseline` / `resolved_settings.level_baseline` record
+this frozen selection. It participates in origin/calibration fingerprints.
+Current and historical selections can differ: both have their own data cutoffs.
+Today's selected model is never applied retrospectively. Appending or changing
+a suffix with the same origin/settings cannot change earlier Expected, point
+scores, maturity or first-detection patterns. Changing the input's leading origin,
+settings or engine version creates new provenance; retain old findings unchanged.
+Signed native expectations versus lower-bounded display expectations, original
+indices, missing rejection and partial-tail availability retain their contracts.
+
+The nested outer evaluation records all 19 fixtures under both baseline choices
+and both outlier policies, including three stationary random seeds, isolated
+endpoint spikes, a recent real step and a random walk. The new option helps some
+stationary and spike cases, slightly worsens one stationary seed, and substantially
+lags the noisy real step. Persistence remains selected for the declared random
+walk. Trend/seasonal reference fixtures retain their forward outputs. Full scores,
+including regressions, are committed; no seed or origin was removed for appearance.
+A held-out win on synthetic data is not a promise of accuracy, a calibrated
+uncertainty statement, or evidence of health when anomalies are absent.
+
+Method references: [simple exponential smoothing](https://otexts.com/fpp3/exponential-smoothing.html)
+and [rolling-origin time-series validation](https://otexts.com/fpp3/tscv.html).

@@ -23,9 +23,10 @@ def historical_anomalies(data, config, selection, training_window, inference, an
     method = analysis.methods[0] if analysis is not None else None
     training = (training_window[1] + 1 if training_window is not None else
                 min(config.max_training_points, config.max_inference_points)
-                if config.seasonality == "auto" else max(28, config.seasonality.period))
+                if config.seasonality == "auto" else max(56 if config.baseline == "recent-level-v1" and config.seasonality.period == 1 and config.trend in ("auto", "none") else 28, config.seasonality.period))
     calibrated_at = training + 14
-    settings = HistoricalDetectorSettings(recipe="seasonal-residual-v1", training_size=training,
+    settings = HistoricalDetectorSettings(forecast_baseline=config.baseline,
+                    level_baseline=method.diagnostics.get("level_baseline") if method else None, recipe="seasonal-residual-v1", training_size=training,
                     calibration_size=14, trend=config.trend,
                     season_length=inference["selected_lag"] if inference else None,
                     outlier_handling=config.outlier_handling, robust_reference_seasons=4,

@@ -260,6 +260,28 @@
           "title": "Scale Floor",
           "type": "number"
         },
+        "forecast_baseline": {
+          "default": "legacy",
+          "enum": [
+            "legacy",
+            "recent-level-v1"
+          ],
+          "title": "Forecast Baseline",
+          "type": "string"
+        },
+        "level_baseline": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Level Baseline"
+        },
         "recipe": {
           "const": "seasonal-residual-v1",
           "default": "seasonal-residual-v1",
