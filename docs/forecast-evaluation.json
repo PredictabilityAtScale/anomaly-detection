@@ -2,7 +2,8 @@
   "method": "Nested chronological origins: each forecast selects only within its observed prefix; outer hold-outs never select parameters. Fixed candidate grid and thresholds; overlapping folds are not independent samples.",
   "source": "anonymous deterministic synthetic fixtures",
   "limitations": "MAE/WAPE are held-out errors, not fit diagnostics or calibrated uncertainty. WAPE is null for all-zero actuals. Synthetic performance does not establish customer accuracy or justify changing the default. Results include all declared seeds, endpoint spikes, real steps and a random walk; no statistical significance or universal improvement is claimed.",
-  "fixture_sha256": "8d9de58ec2a7c7e5ce434ed29604705584a1e4c7f3da17f3643809a5f296d789",
+  "fixture_hash_encoding": "UTF-8 with LF line endings",
+  "fixture_sha256": "e5c59889fdcc60b28dde39f5c9f7119bc17f8052523c527a9ba5912bd45b988a",
   "results": [
     {
       "case": "flat",

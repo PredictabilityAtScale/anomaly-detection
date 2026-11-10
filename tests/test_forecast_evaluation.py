@@ -41,7 +41,8 @@ def test_evaluation_passes_only_observed_prefixes_to_forecast(monkeypatch):
 def test_committed_anonymous_errors_reproduce_and_disclose_regime_weakness():
     report = json.loads((ROOT / "docs/forecast-evaluation.json").read_text())
     assert report["source"] == "anonymous deterministic synthetic fixtures"
-    assert report["fixture_sha256"] == hashlib.sha256((DIRECTORY / "fixtures.py").read_bytes()).hexdigest()
+    assert report["fixture_hash_encoding"] == "UTF-8 with LF line endings"
+    assert report["fixture_sha256"] == hashlib.sha256((DIRECTORY / "fixtures.py").read_text(encoding="utf-8").encode("utf-8")).hexdigest()
     actual = [row for case in fixtures.synthetic_cases() for row in evaluation.evaluate_case(case)]
     assert len(actual) == len(report["results"]) == len(list(fixtures.synthetic_cases())) * 4
     for row, saved in zip(actual, report["results"]):

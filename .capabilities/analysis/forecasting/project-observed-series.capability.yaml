@@ -192,5 +192,5 @@ agent:
           Atomic unavailable behavior tested. Caller transport timeout remains
           necessary.
     done: false
-    input_fingerprint: d0a8fd5ab9da8e3b45f2b8b8300556d06daf3a424a1a0e854abd24b662a232bd
+    input_fingerprint: 2cd65320694ddba3283e9b048dc3b050c19e59307b0e86b791830a308bd88d7f
     mode: quick

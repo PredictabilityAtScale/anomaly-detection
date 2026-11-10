@@ -86,7 +86,8 @@ def main():
         cases, metadata = private_evidence(args.private_evidence)
     else:
         cases = list(synthetic_cases())
-        metadata["fixture_sha256"] = hashlib.sha256(Path(__file__).with_name("fixtures.py").read_bytes()).hexdigest()
+        metadata["fixture_hash_encoding"] = "UTF-8 with LF line endings"
+        metadata["fixture_sha256"] = hashlib.sha256(Path(__file__).with_name("fixtures.py").read_text(encoding="utf-8").encode("utf-8")).hexdigest()
     report = {"method": "Nested chronological origins: each forecast selects only within its observed prefix; outer hold-outs never select parameters. Fixed candidate grid and thresholds; overlapping folds are not independent samples.",
               "source": "private local evidence" if args.private_evidence else "anonymous deterministic synthetic fixtures",
               "limitations": "MAE/WAPE are held-out errors, not fit diagnostics or calibrated uncertainty. WAPE is null for all-zero actuals. Synthetic performance does not establish customer accuracy or justify changing the default. Results include all declared seeds, endpoint spikes, real steps and a random walk; no statistical significance or universal improvement is claimed.",

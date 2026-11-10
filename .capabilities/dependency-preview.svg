@@ -423,7 +423,7 @@
         </text>
         <text class="meta" y="35">analysis/expectations</text>
       </g>
-      <g class="node full" data-capability="analysis/forecasting/expose-native-historical-anomalies" transform="translate(115.0 865.0)">
+      <g class="node partial" data-capability="analysis/forecasting/expose-native-historical-anomalies" transform="translate(115.0 865.0)">
         <title>Choose native historical detection independently of forecasting</title>
         <circle class="node-halo" r="49" />
         <circle class="node-ring" r="41" />
