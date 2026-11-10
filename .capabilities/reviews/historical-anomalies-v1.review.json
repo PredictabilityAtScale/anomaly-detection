@@ -55,7 +55,8 @@
     "Python 3.12.9 source suite: 417 passed in 47.52s.",
     "Clean Python 3.12 wheel and sdist installs outside checkout: 36 evidence regressions each, plus Guard/forecast/evidence smoke, dependency and entry-point checks.",
     "Linux x86_64 Lambda Python 3.12: hash-required installation and public smoke/benchmark passed with networking disabled; four maximum-size evidence cases took 1.60s total.",
-    "docs/historical-anomalies-validation.md records artifact hashes, runtime image digest, commands and interpretation limits."
+    "docs/historical-anomalies-validation.md records artifact hashes, runtime image digest, commands and interpretation limits.",
+    "Stable 0.7.0 preflight after owner authorization: 417 source tests passed in 37.22s. Release documentation and version pins re-inspected; no detector implementation changes."
   ],
   "remaining_gaps": [
     "A separately approved stable release and separately reviewed UsageTap adoption are required before enabling the consumer detector."

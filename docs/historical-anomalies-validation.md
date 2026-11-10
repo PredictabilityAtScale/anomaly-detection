@@ -5,6 +5,12 @@ Review build **0.7.0.dev0**, based on current main/released 0.6.0
 checks, not a released version, deployment certification or forecast accuracy
 claim. No tags/releases/assets were created or replaced.
 
+Stable 0.7.0 preflight after owner authorization also passed **417 tests in
+37.22s**. The supported-Python, installed-artifact and offline Lambda PR jobs
+passed on the development revision; the versioned PR and tag workflows repeat
+those checks for stable release bytes. The artifact hashes below identify the
+earlier development build, not the stable release.
+
 | Check | Observed result |
 | --- | --- |
 | Python 3.12.9 source suite | **417 passed in 47.52s**: all previous 381 tests plus 36 new evidence regressions. |

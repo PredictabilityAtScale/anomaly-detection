@@ -105,6 +105,9 @@ agent:
         evidence cases took 1.60s total."
       - docs/historical-anomalies-validation.md records artifact hashes, runtime
         image digest, commands and interpretation limits.
+      - "Stable 0.7.0 preflight after owner authorization: 417 source tests
+        passed in 37.22s. Release documentation and version pins re-inspected;
+        no detector implementation changes."
     intent_summary: An opt-in versioned forecast extension exposes native historical
       point and pattern evidence from the same frozen historical analysis.
     criteria:
@@ -169,5 +172,5 @@ agent:
           labels, native qualification and retained caller materiality/severity
           policy. No UsageTap source changes were made.
     done: false
-    input_fingerprint: 8eca7c54463c08a7c8abe8f7eee62d4069fefe5b7254bff4d88cda327402fde3
+    input_fingerprint: cd2bc2fbcd116f63ddc5d5e9a26db85f78060fd65da941147959cf39d8be685f
     mode: quick

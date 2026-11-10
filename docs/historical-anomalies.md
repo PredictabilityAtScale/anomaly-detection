@@ -1,15 +1,15 @@
-# Native historical anomalies with forecast_series (proposed 0.7.0)
+# Native historical anomalies with forecast_series (0.7.0)
 
-This unreleased additive API lets a caller select its forecast method and its
+This additive API lets a caller select its forecast method and its
 anomaly detector independently. One public `forecast_series` call returns a
 scenario and, when requested, native evidence from its existing historical
 analysis. It performs no second analysis, inference or historical fit. The
 historical model is separate from the trailing forward scenario model.
 `analyze`, distribution APIs and Guard recipes keep their existing behavior.
 
-The proposed stable artifact is **0.7.0**, using `forecast-v1` plus the opt-in
-**`historical-anomalies-v1`** extension. This checkout is `0.7.0.dev0` for review;
-it is not a deployable release. Released v0.6.0 and earlier assets remain intact.
+The API requires **0.7.0**, using `forecast-v1` plus the opt-in
+**`historical-anomalies-v1`** extension. Use the verified immutable release
+artifact, not an earlier development build. Released v0.6.0 and earlier assets remain intact.
 Changing these evidence semantics requires a new evidence contract version;
 do not infer support from the presence of the old forecast function.
 

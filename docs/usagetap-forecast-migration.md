@@ -1,6 +1,7 @@
 # UsageTap: independent forecast and anomaly detector
 
-This is a review handoff, not authorization to release, deploy or edit UsageTap.
+This is a consumer migration handoff. Library publication does not deploy UsageTap;
+consumer integration belongs in a separate UsageTap PR.
 UsageTap deployed Anomalyzer **0.6.0** through PRs #461/#462 and master merge
 `bc6bc783b300c4b4665594fb4697f5ee281846bf`. Its existing Python statistics Lambda
 calls one public `forecast_series`; there is no hosted API service. Keep that
@@ -8,13 +9,13 @@ deployment and `usage-forecast-v1` usable while reviewing this extension.
 
 ## Artifact and compatibility contract
 
-Recommend **0.7.0** as an additive minor release: `forecast-v1` plus opt-in
-`historical-anomalies-v1`. Review source uses **0.7.0.dev0**, which the proposed
-adapter intentionally refuses. No 0.7.0 artifact is released by this PR. Preserve
+Use **0.7.0**, an additive minor release: `forecast-v1` plus opt-in
+`historical-anomalies-v1`. The adapter refuses the earlier **0.7.0.dev0**
+review build. Verify the immutable stable release before adoption. Preserve
 v0.6.0 at `b30eec0cbce0c2e275b63943a2d4bd34c43f35ea`, its immutable assets and
 all prior releases. Never replace a 0.6.0 asset to add this feature.
 
-Before adoption, separately authorize a reviewed release with exact source
+Before adoption, verify the published release with exact source
 revision, `anomalyzer-0.7.0-py3-none-any.whl`, sdist, `SHA256SUMS`,
 `release-manifest.json`, `runtime-dependencies.txt`, `requirements-offline.txt`
 and `requirements-guard-py312-linux-x86_64.txt`. Verify installed wheel/sdist,
