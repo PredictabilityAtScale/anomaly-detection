@@ -1,0 +1,421 @@
+{
+  "$defs": {
+    "ForecastCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "method": {
+          "enum": [
+            "naive",
+            "seasonal_naive",
+            "mean",
+            "median",
+            "ses",
+            "local_trend",
+            "damped_local_trend",
+            "anomalyzer"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "training_window": {
+          "anyOf": [
+            {
+              "maximum": 6000,
+              "minimum": 8,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Training Window"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maximum": 1500,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "alpha": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 1,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alpha"
+        },
+        "damping": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 1,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Damping"
+        },
+        "outlier_handling": {
+          "default": "include",
+          "enum": [
+            "include",
+            "robust"
+          ],
+          "title": "Outlier Handling",
+          "type": "string"
+        },
+        "trend": {
+          "anyOf": [
+            {
+              "enum": [
+                "auto",
+                "none",
+                "linear",
+                "exponential"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trend"
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "enum": [
+                "legacy",
+                "recent-level-v1"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline"
+        }
+      },
+      "required": [
+        "id",
+        "method"
+      ],
+      "title": "ForecastCandidate",
+      "type": "object"
+    },
+    "ForecastCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "complete": {
+          "minimum": 0,
+          "title": "Complete",
+          "type": "integer"
+        },
+        "partial": {
+          "minimum": 0,
+          "title": "Partial",
+          "type": "integer"
+        },
+        "missing": {
+          "minimum": 0,
+          "title": "Missing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "complete",
+        "partial",
+        "missing"
+      ],
+      "title": "ForecastCounts",
+      "type": "object"
+    },
+    "ModelForecastInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate": {
+          "$ref": "#/$defs/ForecastCandidate"
+        },
+        "fit_window": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Fit Window",
+          "type": "array"
+        },
+        "anchor_index": {
+          "title": "Anchor Index",
+          "type": "integer"
+        },
+        "period": {
+          "minimum": 1,
+          "title": "Period",
+          "type": "integer"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "candidate",
+        "fit_window",
+        "anchor_index",
+        "period",
+        "parameters"
+      ],
+      "title": "ModelForecastInfo",
+      "type": "object"
+    },
+    "ModelForecastSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "horizon": {
+          "default": 14,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "trend_adjustment_pct": {
+          "default": 0,
+          "maximum": 200,
+          "minimum": -50,
+          "title": "Trend Adjustment Pct",
+          "type": "number"
+        },
+        "max_points": {
+          "default": 6000,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Max Points",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 10,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "ModelForecastSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "forecast-model-v1",
+      "default": "forecast-model-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "forecast_model",
+      "default": "forecast_model",
+      "title": "Task",
+      "type": "string"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "unavailable"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "invalid_input",
+            "unsupported_contract",
+            "insufficient_history",
+            "missing_history",
+            "analysis_incomplete",
+            "budget_exceeded",
+            "nonfinite_result",
+            "analysis_failed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "request_fingerprint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Fingerprint"
+    },
+    "resolved_config": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelForecastSettings"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "counts": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ForecastCounts"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "predicted": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Predicted"
+    },
+    "trend": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trend"
+    },
+    "seasonal_component": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seasonal Component"
+    },
+    "predicted_timestamps": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Predicted Timestamps"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelForecastInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "engine_version",
+    "status"
+  ],
+  "title": "ModelForecastResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

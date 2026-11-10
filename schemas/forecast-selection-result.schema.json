@@ -1,0 +1,825 @@
+{
+  "$defs": {
+    "ForecastCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "method": {
+          "enum": [
+            "naive",
+            "seasonal_naive",
+            "mean",
+            "median",
+            "ses",
+            "local_trend",
+            "damped_local_trend",
+            "anomalyzer"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "training_window": {
+          "anyOf": [
+            {
+              "maximum": 6000,
+              "minimum": 8,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Training Window"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "maximum": 1500,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period"
+        },
+        "alpha": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 1,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alpha"
+        },
+        "damping": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 1,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Damping"
+        },
+        "outlier_handling": {
+          "default": "include",
+          "enum": [
+            "include",
+            "robust"
+          ],
+          "title": "Outlier Handling",
+          "type": "string"
+        },
+        "trend": {
+          "anyOf": [
+            {
+              "enum": [
+                "auto",
+                "none",
+                "linear",
+                "exponential"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trend"
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "enum": [
+                "legacy",
+                "recent-level-v1"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline"
+        }
+      },
+      "required": [
+        "id",
+        "method"
+      ],
+      "title": "ForecastCandidate",
+      "type": "object"
+    },
+    "ForecastCandidateScore": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate": {
+          "$ref": "#/$defs/ForecastCandidate"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "invalid_input",
+                "unsupported_contract",
+                "insufficient_history",
+                "missing_history",
+                "analysis_incomplete",
+                "budget_exceeded",
+                "nonfinite_result",
+                "analysis_failed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "loss": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Loss"
+        },
+        "mae": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mae"
+        },
+        "rmse": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rmse"
+        },
+        "wape": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wape"
+        },
+        "bias": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bias"
+        },
+        "by_lead_mae": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "By Lead Mae"
+        },
+        "folds": {
+          "items": {
+            "$ref": "#/$defs/ForecastFoldScore"
+          },
+          "title": "Folds",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate",
+        "status"
+      ],
+      "title": "ForecastCandidateScore",
+      "type": "object"
+    },
+    "ForecastCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "complete": {
+          "minimum": 0,
+          "title": "Complete",
+          "type": "integer"
+        },
+        "partial": {
+          "minimum": 0,
+          "title": "Partial",
+          "type": "integer"
+        },
+        "missing": {
+          "minimum": 0,
+          "title": "Missing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "complete",
+        "partial",
+        "missing"
+      ],
+      "title": "ForecastCounts",
+      "type": "object"
+    },
+    "ForecastFoldScore": {
+      "additionalProperties": false,
+      "properties": {
+        "training_window": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Training Window",
+          "type": "array"
+        },
+        "holdout_window": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Holdout Window",
+          "type": "array"
+        },
+        "mae": {
+          "minimum": 0,
+          "title": "Mae",
+          "type": "number"
+        },
+        "rmse": {
+          "minimum": 0,
+          "title": "Rmse",
+          "type": "number"
+        },
+        "wape": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Wape"
+        },
+        "bias": {
+          "title": "Bias",
+          "type": "number"
+        },
+        "total_absolute_error": {
+          "minimum": 0,
+          "title": "Total Absolute Error",
+          "type": "number"
+        }
+      },
+      "required": [
+        "training_window",
+        "holdout_window",
+        "mae",
+        "rmse",
+        "bias",
+        "total_absolute_error"
+      ],
+      "title": "ForecastFoldScore",
+      "type": "object"
+    },
+    "ForecastSelectionSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "horizon": {
+          "default": 14,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "trend_adjustment_pct": {
+          "default": 0,
+          "maximum": 200,
+          "minimum": -50,
+          "title": "Trend Adjustment Pct",
+          "type": "number"
+        },
+        "max_points": {
+          "default": 6000,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Max Points",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 10,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        },
+        "objective": {
+          "default": "mae",
+          "enum": [
+            "mae",
+            "rmse",
+            "total_absolute_error"
+          ],
+          "title": "Objective",
+          "type": "string"
+        },
+        "folds": {
+          "default": 3,
+          "maximum": 8,
+          "minimum": 3,
+          "title": "Folds",
+          "type": "integer"
+        },
+        "min_training_points": {
+          "default": 28,
+          "maximum": 6000,
+          "minimum": 8,
+          "title": "Min Training Points",
+          "type": "integer"
+        }
+      },
+      "title": "ForecastSelectionSettings",
+      "type": "object"
+    },
+    "ModelForecastInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate": {
+          "$ref": "#/$defs/ForecastCandidate"
+        },
+        "fit_window": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Fit Window",
+          "type": "array"
+        },
+        "anchor_index": {
+          "title": "Anchor Index",
+          "type": "integer"
+        },
+        "period": {
+          "minimum": 1,
+          "title": "Period",
+          "type": "integer"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "candidate",
+        "fit_window",
+        "anchor_index",
+        "period",
+        "parameters"
+      ],
+      "title": "ModelForecastInfo",
+      "type": "object"
+    },
+    "ModelForecastResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "forecast-model-v1",
+          "default": "forecast-model-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "const": "forecast_model",
+          "default": "forecast_model",
+          "title": "Task",
+          "type": "string"
+        },
+        "engine_version": {
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "invalid_input",
+                "unsupported_contract",
+                "insufficient_history",
+                "missing_history",
+                "analysis_incomplete",
+                "budget_exceeded",
+                "nonfinite_result",
+                "analysis_failed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "request_fingerprint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Fingerprint"
+        },
+        "resolved_config": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelForecastSettings"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "counts": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ForecastCounts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "predicted": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predicted"
+        },
+        "trend": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trend"
+        },
+        "seasonal_component": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seasonal Component"
+        },
+        "predicted_timestamps": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predicted Timestamps"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelForecastInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "engine_version",
+        "status"
+      ],
+      "title": "ModelForecastResult",
+      "type": "object"
+    },
+    "ModelForecastSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "horizon": {
+          "default": 14,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "trend_adjustment_pct": {
+          "default": 0,
+          "maximum": 200,
+          "minimum": -50,
+          "title": "Trend Adjustment Pct",
+          "type": "number"
+        },
+        "max_points": {
+          "default": 6000,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Max Points",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 10,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "ModelForecastSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "forecast-selection-v1",
+      "default": "forecast-selection-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "select_forecast",
+      "default": "select_forecast",
+      "title": "Task",
+      "type": "string"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "unavailable"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "invalid_input",
+            "unsupported_contract",
+            "insufficient_history",
+            "missing_history",
+            "analysis_incomplete",
+            "budget_exceeded",
+            "nonfinite_result",
+            "analysis_failed"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "no_viable_candidate",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "request_fingerprint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Fingerprint"
+    },
+    "resolved_config": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ForecastSelectionSettings"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "scores": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ForecastCandidateScore"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scores"
+    },
+    "selected_candidate": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ForecastCandidate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "forecast": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelForecastResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "engine_version",
+    "status"
+  ],
+  "title": "ForecastSelectionResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

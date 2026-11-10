@@ -1,5 +1,10 @@
 # Public forecasting API (0.6.0)
 
+For how forecasts support anomaly detection, see
+[What counts as an anomaly?](../README.md#what-counts-as-an-anomaly).
+Residuals contain ordinary noise, model error and possible anomalies; forecast
+accuracy and the ability to detect a change require separate evaluation.
+
 `forecast_series(dataset, settings=None)` is a local, deterministic Python API
 with a separate `forecast-v1` JSON contract. It returns a validated
 `ForecastResult`; it does not dispatch through or alter `analyze`, distributions,
@@ -372,3 +377,185 @@ uncertainty statement, or evidence of health when anomalies are absent.
 
 Method references: [simple exponential smoothing](https://otexts.com/fpp3/exponential-smoothing.html)
 and [rolling-origin time-series validation](https://otexts.com/fpp3/tscv.html).
+
+## Explicit models and horizon-aware selection (0.9.0)
+
+These additive APIs have their own `forecast-model-v1` and
+`forecast-selection-v1` contracts. They do not change `forecast_series`,
+standalone analyzer recipes, historical Expected, calibration or notifications.
+They return forward predictions and a current-model decomposition, without
+historical anomaly evidence. A dependency upgrade does not activate selection.
+
+Choose an explicit model to reproduce UsageTap Current's daily forecast:
+
+```python
+from anomalyzer import forecast_with_model
+
+result = forecast_with_model(values, {
+    "id": "local", "method": "local_trend",
+}, {"horizon": 14, "lower_bound": 0})
+if result.status == "completed":
+    print(result.predicted)
+    print(result.model.parameters)  # level, slope, slope/seasonal windows
+```
+
+Or compare the bounded default catalog, choose the candidate with the smallest
+full-horizon validation error, and refit it to the available observations:
+
+```python
+from anomalyzer import select_forecast, forecast_with_model
+
+selection = select_forecast(values, {
+    "horizon": 14, "objective": "mae", "lower_bound": 0,
+    "max_runtime_seconds": 2.5,
+})
+if selection.status == "completed":
+    print(selection.selected_candidate)
+    print(selection.forecast.predicted)
+    for score in selection.scores:
+        print(score.candidate.id, score.status, score.loss, score.by_lead_mae)
+    # Retain the explicitly selected settings for a later fixed scenario.
+    adjusted = forecast_with_model(values, selection.selected_candidate, {
+        "horizon": 14, "lower_bound": 0, "trend_adjustment_pct": 25,
+    })
+else:
+    print(selection.reason)  # Never silently substitute another engine.
+```
+
+`values` must contain real ordered observations. These examples need at least
+70 complete observations with the default three 14-bucket folds and minimum
+28-bucket initial prefix. Explicit models need eight complete observations;
+seasonal-naive additionally requires its full period inside the fit window.
+Pass a `ForecastDataset` or dataset dictionary to specify interval, timezone,
+timestamps and statuses. Bare lists use daily positional buckets.
+
+### Candidate models and settings
+
+| Method | Forward behavior | Candidate settings |
+| --- | --- | --- |
+| `naive` | Repeat the last complete observation | Training window |
+| `seasonal_naive` | Repeat the final measured cycle | Period and training window |
+| `mean`, `median` | Repeat the recent mean or median | Training window |
+| `ses` | Repeat a bounded simple-exponential-smoothed level | Alpha and training window |
+| `local_trend` | Recent robust slope plus centered seasonal offsets | Period and training window |
+| `damped_local_trend` | Same fit, damping the future slope contribution | Period, window and damping |
+| `anomalyzer` | Existing `forecast_series` forward behavior | Window, optional explicit period, trend, baseline, robust/include policy |
+
+Every `ForecastCandidate` requires a unique `id` and `method`. Numeric parameters
+reject booleans, strings and nonfinite values. `alpha` belongs only to `ses`
+(default .25); `damping` belongs only to `damped_local_trend` (default .9).
+`trend`, `baseline` and robust outlier handling belong only to `anomalyzer`.
+Unused method-specific settings are rejected. Complete actual observations are
+never changed. Robust handling within the native family retains that family's
+existing disclosed policy; it is not UsageTap's optional outlier-exclusion mode.
+
+Unspecified training windows resolve by interval: hour 1344, day 56, week 52,
+month/year 36. Periodic local and seasonal-naive methods use hour 168, day 7,
+week 4, month 12 and year 1 unless a period is declared. Those periods are
+assumptions, not automatic cycle discovery. Native `anomalyzer` retains auto
+seasonality unless a period is specified. A year has no UsageTap compatibility
+claim. Multiple simultaneous seasons, irregular cycles, ARIMA and full ETS
+estimation are outside this catalog.
+
+`default_forecast_candidates(interval)` exposes the 15 deterministic candidates:
+naive, seasonal-naive, two-period recent mean/median (minimum eight buckets),
+SES alphas .1/.25/.5/.75, local trend, local damping .8/.95, and both existing
+native baselines under include and robust policies. Pass your own list of
+1–32 candidates to `select_forecast(..., candidates=[...])` to tune a bounded
+set of windows, periods, alphas, damping or native settings. The candidate list
+and its tie order are part of the request fingerprint.
+
+### UsageTap parity and components
+
+`local_trend` ports UsageTap Current's `fitLocalTrend`, `fitLocalModel` and fixed
+projection with outlier exclusion disabled. Two recent periods support a median
+slope from matching seasonal positions; fewer than three pairs use the original
+pairwise slope fallback (maximum lag 24). The anchor is the median of recent
+observations projected to the final complete position. Three recent periods
+support phase medians; supported offsets are centered and multiplied by .8.
+The fit is frozen throughout the projection. Synthetic predictions never become
+training observations.
+
+The committed synthetic [parity fixture](../tests/fixtures/usagetap_current.json)
+records outputs from unmodified UsageTap source at its cited revision, across
+hour/day/week/month, short history, mixed movement, decline, shifts, endpoint
+spikes and scenario adjustment. No customer history is included. With complete
+unfiltered input, resolved interval windows and `lower_bound=0`, predictions
+match Current numerically. No parity is claimed for UsageTap's missing-value
+handling, optional outlier exclusions or UI rounding.
+
+`trend` and `seasonal_component` each contain N+H entries; `predicted` has H.
+The trend component remains signed even when the prediction is lower-bounded;
+clamp a separate chart copy to reproduce UsageTap's nonnegative trend display.
+Trend adjustment scales the future learned change only; historical components
+and seasonal offsets stay unchanged. Damped trend uses
+`slope * sum(damping**j, j=1..lead)` from the last complete anchor. Damping one
+equals the undamped local trend. The native family retains its current additive
+decomposition. These fitted historical components are not causal expectations.
+
+Known partial tails preserve their original positions and timestamps but never
+enter fitting or scoring. Training windows end at the last complete observation;
+partial elapsed positions advance the projection from that anchor. Missing
+history, including a missing tail, is unavailable; no gap is filled or compressed.
+Calendar validation and future timestamps reuse the existing forecast calendar
+contract. Original input positions are retained in all fit and holdout windows.
+
+### Selection evidence and limits
+
+Selection takes three disjoint, full-horizon folds by default (configurable to
+3–8). For N complete observations, horizon H and F folds, origins are
+`N-F*H, ..., N-H`. The first prefix must contain at least `min_training_points`
+(default 28, minimum eight); otherwise selection returns `insufficient_history`.
+For example, an 86-observation, 14-step request evaluates origins 44, 58 and 72.
+Each candidate fits only the observations preceding each origin, including
+performing any native trend/season discovery inside that prefix. Each uses the
+same H original holdout measurements and lower bound. Failures cannot improve
+a candidate's rank by removing difficult folds: every ranked candidate must
+complete every fold. Failed candidates retain reasons and any completed folds,
+without an aggregate rankable loss. No viable candidate returns
+`no_viable_candidate` with the failed candidate evidence.
+
+The declared objective is one of:
+
+- `mae`: mean absolute error over all holdout points, the default.
+- `rmse`: root mean squared error pooled over all holdout points.
+- `total_absolute_error`: mean absolute difference between each forecast's
+  whole-horizon total and its actual total. Errors within one horizon can cancel;
+  this objective does not optimize the daily shape.
+
+Every successful score includes MAE, RMSE, WAPE as a fraction (null when all
+actual magnitudes sum to zero), signed prediction-minus-actual bias, per-lead
+MAE and per-fold windows/metrics. Candidate order resolves numerical ties within
+`1e-12 * max(1, incumbent_loss)`. There is no hidden one-step regression veto.
+All folds have equal weight. More recent weighting or asymmetric incident costs
+would require a new explicit policy, not an inferred setting.
+
+The comparison horizon is the requested forecast horizon. Changing it can
+change the selected model and therefore predictions at shared future positions.
+Explicitly reusing the selected candidate through `forecast_with_model` preserves
+fixed-scenario horizon prefixes. Selection rejects a nonzero trend adjustment:
+first compare unadjusted models, then apply caller scenarios to the chosen model.
+
+Limits are 6000 input/future points, at most 32 candidates and eight folds, and
+one shared cooperative runtime budget (default ten seconds, configurable up to
+3600). The budget includes validation, all comparisons, final refit and result
+construction. Callers must provide an appropriate hard deadline; the default
+does not certify an existing four-second Lambda transport. Budget/numerical
+failures return unavailable without a selected model or partial scores. Strict
+requests and results are exported as four `forecast-model-*` /
+`forecast-selection-*` JSON schemas. Typed requests, canonical dictionaries and
+JSON strings carry their own settings; do not also pass separate arguments.
+
+The winning validation loss has already been used to choose the model. It is
+not an unbiased forecast-accuracy estimate or a guarantee of future performance.
+Run [the nested synthetic example](../examples/forecasting/select_models.py) with
+`python examples/forecasting/select_models.py`: each outer holdout follows an
+entire selection performed on its earlier prefix. Retain losses on unseen shifts
+and changing direction. Representative production histories and incident tests
+remain necessary. See the forecasting text's
+[multi-step chronological validation guidance](https://otexts.com/fpp3/tscv.html).
+
+Anomaly integration must separately establish causal expected values and matching
+residual calibration before changing a reference. Optimizing forecast MAE does
+not optimize false alerts, missed shifts or detection delay. Preserve existing
+detector behavior and retained findings while reviewing a new forecast model.
