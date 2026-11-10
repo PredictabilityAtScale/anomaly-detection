@@ -81,7 +81,9 @@ def test_changed_artifact_fails_checksum_verification(monkeypatch, tmp_path):
         "version": release.version(), "source_revision": "a" * 40, "tag": f"v{release.version()}",
         "artifacts": {"wheel.whl": {"sha256": "0" * 64, "size": 21}}}))
     with pytest.raises(AssertionError, match="wheel.whl"):
-        release.verify(tmp_path, "a" * 40, f"v{release.version()}")
+        # Exercise checksum verification on review builds too; a dev build
+        # deliberately cannot pass the separate stable-tag publication gate.
+        release.verify(tmp_path, "a" * 40)
 
 
 @pytest.mark.parametrize("already_created", [False, True])

@@ -1,5 +1,11 @@
 # Release and use Anomalyzer
 
+Current review source is **0.7.0.dev0**; see the
+[unreleased 0.7.0 proposal](0.7.0-proposal.md). The 0.6.0 instructions below are
+historical and must not be rerun to replace its released tag or assets. A future
+0.7.0 release needs separate approval, a stable version PR and fresh artifact
+verification. This evidence API PR does not authorize publication.
+
 Anomalyzer is a normal Python dependency. This checkout prepares version
 **0.6.0** ([release notes](0.6.0.md), [public forecasting API](../forecasting.md),
 [UsageTap forecast migration](../usagetap-forecast-migration.md)).

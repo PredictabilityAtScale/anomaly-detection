@@ -1,0 +1,649 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "HistoricalAnomalyPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "period_status": {
+          "enum": [
+            "complete",
+            "partial",
+            "missing"
+          ],
+          "title": "Period Status",
+          "type": "string"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Observed"
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable"
+          ],
+          "title": "Availability",
+          "type": "string"
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "warmup",
+                "partial"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unavailable Reason"
+        },
+        "available_from_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Available From Index"
+        },
+        "reference_cutoff_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reference Cutoff Index"
+        },
+        "expected": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected"
+        },
+        "residual": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual"
+        },
+        "standardized_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Standardized Score"
+        },
+        "score_semantics": {
+          "title": "Score Semantics",
+          "type": "string"
+        },
+        "triggers": {
+          "items": {
+            "const": "point",
+            "type": "string"
+          },
+          "title": "Triggers",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "increase",
+                "decrease",
+                "flat"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "maturity": {
+          "default": "unavailable",
+          "enum": [
+            "unavailable",
+            "reference_only",
+            "provisional",
+            "calibrated"
+          ],
+          "title": "Maturity",
+          "type": "string"
+        },
+        "calibration_samples": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Calibration Samples",
+          "type": "integer"
+        },
+        "calibration_cutoff_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibration Cutoff Index"
+        }
+      },
+      "required": [
+        "index",
+        "period_status",
+        "observed",
+        "availability",
+        "score_semantics"
+      ],
+      "title": "HistoricalAnomalyPoint",
+      "type": "object"
+    },
+    "HistoricalCalibration": {
+      "additionalProperties": false,
+      "properties": {
+        "available_from_index": {
+          "title": "Available From Index",
+          "type": "integer"
+        },
+        "cutoff_index": {
+          "title": "Cutoff Index",
+          "type": "integer"
+        },
+        "samples": {
+          "title": "Samples",
+          "type": "integer"
+        },
+        "center": {
+          "title": "Center",
+          "type": "number"
+        },
+        "scale": {
+          "title": "Scale",
+          "type": "number"
+        },
+        "raw_scale": {
+          "title": "Raw Scale",
+          "type": "number"
+        }
+      },
+      "required": [
+        "available_from_index",
+        "cutoff_index",
+        "samples",
+        "center",
+        "scale",
+        "raw_scale"
+      ],
+      "title": "HistoricalCalibration",
+      "type": "object"
+    },
+    "HistoricalDetectorSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "historical-anomalies-v1",
+          "default": "historical-anomalies-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "point_threshold": {
+          "default": 3.0,
+          "exclusiveMinimum": 0,
+          "title": "Point Threshold",
+          "type": "number"
+        },
+        "cusum_k": {
+          "default": 0.5,
+          "exclusiveMinimum": 0,
+          "title": "Cusum K",
+          "type": "number"
+        },
+        "cusum_h": {
+          "default": 5.0,
+          "exclusiveMinimum": 0,
+          "title": "Cusum H",
+          "type": "number"
+        },
+        "moving_range_threshold": {
+          "default": 3.686,
+          "exclusiveMinimum": 0,
+          "title": "Moving Range Threshold",
+          "type": "number"
+        },
+        "scale_floor": {
+          "default": 1e-08,
+          "exclusiveMinimum": 0,
+          "title": "Scale Floor",
+          "type": "number"
+        },
+        "recipe": {
+          "const": "seasonal-residual-v1",
+          "default": "seasonal-residual-v1",
+          "title": "Recipe",
+          "type": "string"
+        },
+        "training_size": {
+          "title": "Training Size",
+          "type": "integer"
+        },
+        "calibration_size": {
+          "const": 14,
+          "default": 14,
+          "title": "Calibration Size",
+          "type": "integer"
+        },
+        "trend": {
+          "enum": [
+            "auto",
+            "none",
+            "linear",
+            "exponential"
+          ],
+          "title": "Trend",
+          "type": "string"
+        },
+        "season_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Season Length"
+        },
+        "outlier_handling": {
+          "enum": [
+            "robust",
+            "include"
+          ],
+          "title": "Outlier Handling",
+          "type": "string"
+        },
+        "robust_reference_seasons": {
+          "const": 4,
+          "default": 4,
+          "title": "Robust Reference Seasons",
+          "type": "integer"
+        },
+        "reference_exclusion_threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reference Exclusion Threshold"
+        }
+      },
+      "required": [
+        "training_size",
+        "trend",
+        "season_length",
+        "outlier_handling",
+        "reference_exclusion_threshold"
+      ],
+      "title": "HistoricalDetectorSettings",
+      "type": "object"
+    },
+    "HistoricalPattern": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "rule": {
+          "enum": [
+            "adjacent_point_anomalies",
+            "cusum",
+            "moving_range",
+            "nelson_rule_2",
+            "nelson_rule_3",
+            "nelson_rule_4",
+            "nelson_rule_5",
+            "nelson_rule_6",
+            "nelson_rule_8"
+          ],
+          "title": "Rule",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "consecutive_run",
+            "location_shift",
+            "variation_shift",
+            "residual_trend",
+            "systematic_oscillation",
+            "mixture_pattern"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "increase",
+            "decrease",
+            "mixed"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "start_index": {
+          "title": "Start Index",
+          "type": "integer"
+        },
+        "detection_index": {
+          "title": "Detection Index",
+          "type": "integer"
+        },
+        "available_from_index": {
+          "title": "Available From Index",
+          "type": "integer"
+        },
+        "triggering_indices": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Triggering Indices",
+          "type": "array"
+        },
+        "peak_standardized_score": {
+          "title": "Peak Standardized Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "rule",
+        "kind",
+        "direction",
+        "start_index",
+        "detection_index",
+        "available_from_index",
+        "triggering_indices",
+        "peak_standardized_score"
+      ],
+      "title": "HistoricalPattern",
+      "type": "object"
+    },
+    "HistoricalReferenceAdjustment": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "title": "Index",
+          "type": "integer"
+        },
+        "available_from_index": {
+          "title": "Available From Index",
+          "type": "integer"
+        },
+        "reason": {
+          "enum": [
+            "extreme_training_residual",
+            "extreme_calibration_residual",
+            "extreme_calibrated_residual"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "number"
+        },
+        "replacement": {
+          "title": "Replacement",
+          "type": "number"
+        }
+      },
+      "required": [
+        "index",
+        "available_from_index",
+        "reason",
+        "observed",
+        "replacement"
+      ],
+      "title": "HistoricalReferenceAdjustment",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "historical-anomalies-v1",
+      "default": "historical-anomalies-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "availability": {
+      "enum": [
+        "available",
+        "unavailable"
+      ],
+      "title": "Availability",
+      "type": "string"
+    },
+    "unavailable_reason": {
+      "anyOf": [
+        {
+          "const": "warmup",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Unavailable Reason"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "recipe": {
+      "const": "seasonal-residual-v1",
+      "default": "seasonal-residual-v1",
+      "title": "Recipe",
+      "type": "string"
+    },
+    "origin_fingerprint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Origin Fingerprint"
+    },
+    "calibration_fingerprint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Calibration Fingerprint"
+    },
+    "resolved_settings": {
+      "$ref": "#/$defs/HistoricalDetectorSettings"
+    },
+    "training_window": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Training Window"
+    },
+    "selection_window": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Selection Window"
+    },
+    "frozen_trend": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Frozen Trend"
+    },
+    "calibration": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HistoricalCalibration"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "readiness": {
+      "additionalProperties": true,
+      "title": "Readiness",
+      "type": "object"
+    },
+    "readiness_available_from_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Readiness Available From Index"
+    },
+    "points": {
+      "items": {
+        "$ref": "#/$defs/HistoricalAnomalyPoint"
+      },
+      "title": "Points",
+      "type": "array"
+    },
+    "patterns": {
+      "items": {
+        "$ref": "#/$defs/HistoricalPattern"
+      },
+      "title": "Patterns",
+      "type": "array"
+    },
+    "reference_adjustments": {
+      "items": {
+        "$ref": "#/$defs/HistoricalReferenceAdjustment"
+      },
+      "title": "Reference Adjustments",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "availability",
+    "unavailable_reason",
+    "engine_version",
+    "origin_fingerprint",
+    "calibration_fingerprint",
+    "resolved_settings",
+    "training_window",
+    "selection_window",
+    "frozen_trend",
+    "calibration",
+    "readiness",
+    "readiness_available_from_index",
+    "points",
+    "patterns",
+    "reference_adjustments",
+    "limitations"
+  ],
+  "title": "HistoricalAnomalies",
+  "type": "object"
+}

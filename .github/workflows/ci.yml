@@ -111,3 +111,4 @@ jobs:
             .tmp/lambda-consumer/wheelhouse-SHA256SUMS
             .tmp/lambda-consumer/reports/benchmark.json
             .tmp/lambda-consumer/reports/forecast-smoke.json
+            .tmp/lambda-consumer/reports/historical-anomalies-smoke.json

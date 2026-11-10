@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Opt into native residual evidence; thresholds are statistical, not severity.",
+  "properties": {
+    "schema_version": {
+      "const": "historical-anomalies-v1",
+      "default": "historical-anomalies-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "point_threshold": {
+      "default": 3.0,
+      "exclusiveMinimum": 0,
+      "title": "Point Threshold",
+      "type": "number"
+    },
+    "cusum_k": {
+      "default": 0.5,
+      "exclusiveMinimum": 0,
+      "title": "Cusum K",
+      "type": "number"
+    },
+    "cusum_h": {
+      "default": 5.0,
+      "exclusiveMinimum": 0,
+      "title": "Cusum H",
+      "type": "number"
+    },
+    "moving_range_threshold": {
+      "default": 3.686,
+      "exclusiveMinimum": 0,
+      "title": "Moving Range Threshold",
+      "type": "number"
+    },
+    "scale_floor": {
+      "default": 1e-08,
+      "exclusiveMinimum": 0,
+      "title": "Scale Floor",
+      "type": "number"
+    }
+  },
+  "title": "HistoricalAnomalySettings",
+  "type": "object"
+}

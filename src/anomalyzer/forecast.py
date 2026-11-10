@@ -17,6 +17,7 @@ from .forecast_contracts import (
     ForecastCounts, ForecastDataset, ForecastModel, ForecastRequest,
     ForecastResult, ForecastSettings, advance_bucket,
 )
+from .forecast_evidence import historical_anomalies
 from .recipes import analyze_dataset
 from .seasonality import infer_season_length
 from .trend import fit_trend
@@ -53,7 +54,7 @@ def _historical(values, config, budget):
     if config.seasonality == "auto":
         training = selection_size
         if n < training:
-            return expected, eligible, maturity, None, None, None, {"status": "not_assessed", "reason": "frozen selection prefix incomplete"}, {}
+            return expected, eligible, maturity, None, None, None, {"status": "not_assessed", "reason": "frozen selection prefix incomplete"}, {}, None
         period, inference = _season(values[:selection_size], config)
         selection_window = (0, selection_size - 1)
     else:
@@ -61,11 +62,12 @@ def _historical(values, config, budget):
         training = max(28, period)
         inference = {"status": "explicit", "selected_lag": period, "selection_window": None}
     if n <= training:
-        return expected, eligible, maturity, selection_window, (0, training - 1) if n == training else None, inference, {"status": "not_assessed", "reason": "no post-training observations"}, {}
+        return expected, eligible, maturity, selection_window, (0, training - 1) if n == training else None, inference, {"status": "not_assessed", "reason": "no post-training observations"}, {}, None
     budget.check()
     request = Request(datasets=[Dataset(values=values)], config=Settings(
         season_length=period, training_size=training, calibration_size=14,
         trend=config.trend, outlier_handling=config.outlier_handling,
+        **(config.historical_anomalies.model_dump(exclude={"schema_version"}) if config.historical_anomalies else {}),
         max_points=config.max_points, max_runtime_seconds=max(1e-9, budget.remaining)))
     result = analyze_dataset(request.datasets[0], request.config, request.context, budget)
     method = result.methods[0]
@@ -85,7 +87,7 @@ def _historical(values, config, budget):
         eligible[index] = maturity[index] == "calibrated"
     return (expected, eligible, maturity, selection_window, (0, training - 1),
             inference, method.diagnostics.get("detection_readiness", {"status": "not_assessed"}),
-            method.diagnostics.get("outlier_handling", {}))
+            method.diagnostics.get("outlier_handling", {}), result)
 
 
 def forecast_series(
@@ -191,7 +193,9 @@ def forecast_series(
             if index >= n:
                 value = component + offset
                 predicted.append(max(config.lower_bound, value) if config.lower_bound is not None else value)
-        expected, eligible, maturity, selection, training, hist_inference, readiness, history_policy = _historical(values, config, budget)
+        expected, eligible, maturity, selection, training, hist_inference, readiness, history_policy, analysis = _historical(values, config, budget)
+        evidence = (historical_anomalies(data, config, selection, training, hist_inference, analysis, budget)
+                    if config.historical_anomalies is not None else None)
         tail = n - observed
         expected.extend([None] * tail)
         eligible.extend([False] * tail)
@@ -218,6 +222,7 @@ def forecast_series(
             expected=expected, eligible=eligible, predicted=predicted, trend=components,
             seasonal_component=seasonal, outlier_indices=sorted(set(excluded + historical_excluded)),
             historical_evidence_maturity=maturity, future_origin_index=n, predicted_timestamps=timestamps,
+            historical_anomalies=evidence,
             model=ForecastModel(engine_version=__version__, trend_kind=trend.kind,
                 trend_parameters={"coefficient": trend.coefficient, "rate": trend.rate,
                                   "origin": start + trend.origin, "anchor": start + anchor, "level": level},

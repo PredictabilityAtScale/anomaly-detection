@@ -66,6 +66,9 @@ def check_archives(dist):
                      "schemas/forecast-request.schema.json", "schemas/forecast-result.schema.json",
                      "docs/forecasting.md", "docs/usagetap-forecast-migration.md"):
             assert prefix + path in names, path
+        for path in ("examples/library/historical_anomalies_smoke.py", "docs/historical-anomalies.md",
+                     "schemas/historical-anomalies-request.schema.json", "schemas/historical-anomalies-result.schema.json"):
+            assert prefix + path in names, path
         metadata = BytesParser().parsebytes(archive.extractfile(prefix + "PKG-INFO").read())
         assert metadata["Version"] == ver and metadata["Name"] == "anomalyzer"
     lock = tomllib.loads((ROOT / "uv.lock").read_text())

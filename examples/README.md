@@ -1,5 +1,10 @@
 # Try the anomaly detector
 
+The proposed [native forecast evidence API](../docs/historical-anomalies.md)
+has a public-only [installed artifact smoke](library/historical_anomalies_smoke.py)
+and [single-call UsageTap compatibility adapter](library/usagetap_forecast.py).
+The adapter refuses development builds and requires a separately verified 0.7.0.
+
 Version 0.4.0 adds [distribution fixtures](distributions/) for numeric shape
 changes at an unchanged mean, an ordinary control, whole categorical mix,
 weighted descriptive composition and bounded causal replay. Run
