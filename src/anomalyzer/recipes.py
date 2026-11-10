@@ -7,6 +7,7 @@ import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from .baseline import adaptive_expected_value, expected_value, robust_expected_value
+from .level import recent_level, select_level
 from .budget import RuntimeBudget
 from .contracts import Dataset, Request, RequestV11, Result, MethodResult, Settings
 from .evidence import anomaly_patterns, episodes
@@ -54,7 +55,8 @@ def _analyze_seasonal(request: Request) -> Result:
 
 
 def analyze_dataset(dataset: Dataset, settings: Settings, context,
-                    budget: RuntimeBudget | None = None) -> Result:
+                    budget: RuntimeBudget | None = None, *,
+                    forecast_baseline: str = "legacy") -> Result:
     """Emit causal seasonal evidence, and flag only fully calibrated scores."""
     from .sparse import analyze_sparse, uses_policy
     if uses_policy(dataset):
@@ -138,6 +140,7 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
             total_calibration = 0
             for segment_number, (segment_start, segment_stop) in enumerate(zip(boundaries, boundaries[1:])):
                 trend = Trend()
+                level_selection = None
                 calibration = []
                 center = scale = raw_scale = None
                 segment_errors = []
@@ -158,6 +161,9 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                     "status": "insufficient_history",
                 }
                 def forecast(at_index: int) -> float:
+                    if level_selection and level_selection["kind"] == "simple_exponential_smoothing":
+                        return recent_level(reference_values, at_index, level_selection["alpha"],
+                                            cfg.outlier_handling, segment_start)
                     if adaptive:
                         return adaptive_expected_value(
                             reference_values, at_index, cfg.season_length,
@@ -192,6 +198,19 @@ def analyze_dataset(dataset: Dataset, settings: Settings, context,
                                 values[segment_start:index], cfg.season_length,
                                 cfg.trend, cfg.scale_floor, check_budget,
                                 cfg.outlier_handling)
+                        if forecast_baseline == "recent-level-v1":
+                            level_selection = select_level(values[segment_start:index],
+                                cfg.outlier_handling, check_budget, start=segment_start,
+                                applicable=not adaptive and trend.kind == "none" and cfg.season_length == 1 and cfg.trend in ("auto", "none"))
+                            method.diagnostics["level_baseline"] = level_selection
+                            segment["level_baseline"] = level_selection
+                            method.parameters["forecast_baseline"] = forecast_baseline
+                            method.parameters["level_baseline"] = level_selection
+                            if level_selection["kind"] == "simple_exponential_smoothing":
+                                method.parameters["baseline_update"] = (
+                                    "bounded causal recent-level smoothing with frozen training-prefix alpha; "
+                                    "include uses measured values, robust uses policy-adjusted references; "
+                                    "residual calibration is frozen against this baseline")
                         local_excluded = trend_diagnostics.get(
                             "excluded_positions", [])
                         for local_position in local_excluded:

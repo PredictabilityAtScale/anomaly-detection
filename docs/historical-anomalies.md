@@ -185,3 +185,11 @@ record the native setting explicitly rather than claiming identical algorithms.
 Pattern presentation requires its own explicit consumer policy. See the
 [migration guide](usagetap-forecast-migration.md) for independent selectors,
 baseline labels, cache metadata and the single-call adapter.
+
+
+Since 0.8.0, the forecast-only `baseline="recent-level-v1"` option may select a
+smoothed historical reference on the frozen training prefix. Native residuals,
+calibration, maturity and readiness use that reference; the forward fit cannot
+rewrite it. `resolved_settings.forecast_baseline` and `level_baseline` disclose
+its version and selection. Default `legacy` and standalone detector recipes keep
+their existing numerical behavior. See the [baseline selection contract](forecasting.md#smoothed-recent-level-opt-in-since-080).

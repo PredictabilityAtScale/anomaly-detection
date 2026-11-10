@@ -1,5 +1,6 @@
 """Offline installed artifact check using only the supported public API."""
 import json
+import random
 import time
 
 from anomalyzer import HistoricalAnomalySettings, __version__, forecast_series
@@ -24,6 +25,17 @@ def main():
         payload = result.model_dump_json()
         assert len(payload.encode()) < 6 * 1024 * 1024  # synchronous Lambda response limit
         assert time.perf_counter() - before < 4  # includes public result serialization
+    # New baseline at all bridge caps, against the installed Lambda bundle.
+    for interval, window, horizon in [("hour",1344,168), ("day",56,90), ("week",52,26), ("month",36,24)]:
+        rng = random.Random(42)
+        values = [100 + rng.uniform(-10, 10) for _ in range(6000)]
+        before = time.perf_counter()
+        result = forecast_series({"values": values, "interval": interval},
+            dict(baseline="recent-level-v1", trend="none", max_training_points=window,
+                 horizon=horizon, historical_anomalies={}, outlier_handling="robust"))
+        assert result.status == "completed", result.reason
+        assert len(result.model_dump_json().encode()) < 6 * 1024 * 1024
+        assert time.perf_counter() - before < 4
     values = [100.] * 80 + [300.] * 12
     base = forecast_series(values, {"historical_anomalies": {}}).historical_anomalies
     prefix = forecast_series(values[:85], {"historical_anomalies": {}}).historical_anomalies

@@ -180,3 +180,61 @@ statistical qualification, business materiality, severity, confidence, accuracy
 and health are distinct. No forced growth or calibrated forecast confidence
 interval is claimed. Validation evidence accompanies the review PR; release
 and consumer adoption remain separate reviewed actions.
+
+
+## 0.8.0 recent-level migration
+
+Adopt only the published, immutable 0.8.0 release assets after tag CI and
+`verify-published` pass. This repository distributes through GitHub Releases,
+not PyPI. Pin the exact wheel URL/hash, source revision and transitive lock;
+rebuild the packaged Linux/Python 3.12 Lambda dependency with the released
+`requirements-guard-py312-linux-x86_64.txt`. Update exact-version guards,
+bridge response validation, engine/version headers and serialization together.
+Validate against the installed bundle, not an editable checkout.
+
+The compatibility example now pins `VERSION="0.8.0"` and accepts optional
+`levelBaseline="recent-level-v1"`; omitted/`legacy` retains previous numerical
+behavior and bridge response keys. Unknown baseline versions are unavailable.
+The public library setting is `baseline="recent-level-v1"`. The bridge returns
+optional `model.levelBaseline` and `model.historicalLevelBaseline` only when the
+new option is requested. These carry kind/alpha/status/reason and chronological
+selection provenance. Native `resolved_settings` adds `forecast_baseline` and
+`level_baseline`. Schema-aware consumers must tolerate/validate those fields.
+Public contract names are unchanged; do not infer support from the name alone.
+
+Activate this option for the Anomalyzer forecast method, retain Current as the
+comparison method and retain the user's independent outlier controls. Do not
+silently switch the forecasting method or detector choice. Explain the actual
+selected baseline: e.g. "No stable cycle detected; forecast uses a smoothed
+recent level" when selected, or "Recent-level validation retained persistence"
+when retained. For robust mode explain that the reference policy also trims
+recent references. Expose alpha, selection/training/calibration windows and
+readiness in inspectable model details rather than presenting them as accuracy.
+A smoother line is not sufficient reason to change the comparison default.
+
+Expected and native evidence must come from the same library call and selected
+historical baseline. The current forward selection can differ from the frozen
+historical selection; do not reconstruct historical Expected with today's fit.
+Explicit eligible lag-one training moves from 28 to 56 points, followed by 14
+calibration residuals; auto prefix lengths retain their configured boundaries.
+Warmup targets remain unavailable and calibration targets provisional. Low-bound
+display Expected and signed native Expected retain their distinct semantics.
+Keep partial buckets and original indices; missing periods remain unavailable.
+Retain first-detection patterns and calibration support/cutoffs. No anomalies
+means no qualifying departures under that reference, not healthy usage.
+
+Do not send this option into standalone Guard analyzer recipes. Keep Guard
+settings, existing saved findings, detector versions, notification provenance and
+Current comparison calculations intact. New engine/config evidence needs new
+fingerprints, not overwritten old evidence. Review storage/cache identities to
+include baseline version and engine version. Keep real step-change lag visible:
+there is no reliable advance test that distinguishes a new regime from a spike.
+
+Run baseline legacy/new and robust/include contract tests, frozen-prefix and
+calibration replays, all bridge interval/size caps, partial/missing and schema
+round-trips against the installed artifact. The public nested evaluation reports
+wins and losses without tuning on outer holdouts; its seeds do not establish
+customer accuracy. Private user exports and local reports remain untracked and
+outside Lambda/public artifacts. Application and infrastructure changes belong
+in UsageTap's staging -> master PR workflow; do not deploy locally, push to
+master directly, or publish SDK/observer packages as part of this migration.

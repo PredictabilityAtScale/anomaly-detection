@@ -1,0 +1,60 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "An opt-in versioned forecast extension exposes native historical point and pattern evidence from the same frozen historical analysis.",
+  "criteria": [
+    {
+      "criterion": "One forecast call reuses its historical analysis and returns typed native signed reference, residual, score, triggers, maturity, calibration support, availability and detector provenance in original input positions; explicit recent-level selection is frozen before calibration, whose residuals and readiness use that selected baseline rather than the current forward fit.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast_evidence.py:16",
+        "src/anomalyzer/recipes.py:160",
+        "tests/test_recent_level.py:28"
+      ],
+      "notes": "Reviewed single-analysis reuse and matching selected-baseline calibration/readiness; independent include-mode residual/scale replay matches native scores. Native settings disclose the frozen baseline."
+    },
+    {
+      "criterion": "Frozen-origin earlier point evidence and first-detection pattern snapshots survive changed or appended suffixes; provisional evidence cannot trigger, and retrospective screening is separate from anomaly qualification.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast_evidence.py:51",
+        "tests/test_recent_level.py:28",
+        "tests/test_forecast_anomalies.py:30"
+      ],
+      "notes": "Both legacy and recent-level tests preserve earlier point-time rows and first-detection patterns. Calibration exclusions remain separately cutoff-annotated operations, not incident labels."
+    },
+    {
+      "criterion": "Opt-in defaults preserve existing forecast arrays, signed decomposition, horizon prefixes and adjustment semantics; missing gaps and budget failures return unavailable without fabricated or partial evidence.",
+      "status": "covered",
+      "evidence": [
+        "tests/test_recent_level.py:108",
+        "tests/test_recent_level.py:136",
+        "tests/test_recent_level.py:60"
+      ],
+      "notes": "Default legacy behavior and standalone recipes remain unchanged. Explicit seasonal/trend outputs, horizon prefixes, partial tails and unavailable failures are covered; recent-level changes only with explicit config."
+    },
+    {
+      "criterion": "Public schemas, a single-call compatibility adapter and migration guidance document independent selectors, baseline labels, explicit materiality and version negotiation without changing Guard or saved notifications.",
+      "status": "covered",
+      "evidence": [
+        "schemas/forecast-result.schema.json:1",
+        "schemas/historical-anomalies-result.schema.json:1",
+        "examples/library/usagetap_forecast.py:10",
+        "docs/usagetap-forecast-migration.md:1"
+      ],
+      "notes": "Reviewed additive optional schema/settings fields, exact 0.8.0 bridge guard, independent method/outlier controls, real step lag, versioned caches and retention of old finding provenance. UsageTap implementation is a separate post-publication task."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent self-review of the changed behavior and declared references; this is not independent delegated approval.",
+    "Python 3.12.9 full source suite: 435 passed in 58.73s with --basetemp=.tmp/pytest-080-release; default system TEMP denied access, so no product change was made for that environment issue.",
+    "After the reference-performance optimization and final bridge tests: 24 focused recent-level/evaluation tests passed in 8.66s, including exact equivalence to the existing robust reference policy.",
+    "Nested evaluation reproduces all 76 baseline/policy rows across 19 deterministic anonymous fixtures; losses for one stationary seed and a recent real step are retained.",
+    "Public demo, agentic demo, distribution demo and installed-API smoke checks passed. Private replay remained only in ignored .tmp and never entered published evidence.",
+    "Clean Python 3.12.9 wheel and sdist installs outside checkout passed Guard/forecast/native smoke, dependency/entry-point checks and all 56 native/recent-level regressions per artifact. Max-size bridge smoke covers both legacy and new baseline paths; tag CI must repeat on Linux."
+  ],
+  "remaining_gaps": [
+    "Release 0.8.0 must pass tag CI on Python 3.11-3.13 and the offline Linux/Python 3.12 Lambda bundle before publication; local preflight does not certify publication.",
+    "Synthetic selection and retrospective local replay do not establish production accuracy. Separately validate UsageTap adoption and retain Current comparison/Guard provenance."
+  ],
+  "done": false
+}

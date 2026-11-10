@@ -116,6 +116,15 @@
     "ForecastSettings": {
       "additionalProperties": false,
       "properties": {
+        "baseline": {
+          "default": "legacy",
+          "enum": [
+            "legacy",
+            "recent-level-v1"
+          ],
+          "title": "Baseline",
+          "type": "string"
+        },
         "horizon": {
           "default": 30,
           "maximum": 6000,

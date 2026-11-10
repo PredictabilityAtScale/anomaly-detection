@@ -31,6 +31,32 @@
     "ForecastModel": {
       "additionalProperties": false,
       "properties": {
+        "level_baseline": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Level Baseline"
+        },
+        "historical_level_baseline": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Historical Level Baseline"
+        },
         "method": {
           "const": "anomalyzer",
           "default": "anomalyzer",
@@ -201,6 +227,15 @@
     "ForecastSettings": {
       "additionalProperties": false,
       "properties": {
+        "baseline": {
+          "default": "legacy",
+          "enum": [
+            "legacy",
+            "recent-level-v1"
+          ],
+          "title": "Baseline",
+          "type": "string"
+        },
         "horizon": {
           "default": 30,
           "maximum": 6000,
@@ -799,6 +834,28 @@
           "exclusiveMinimum": 0,
           "title": "Scale Floor",
           "type": "number"
+        },
+        "forecast_baseline": {
+          "default": "legacy",
+          "enum": [
+            "legacy",
+            "recent-level-v1"
+          ],
+          "title": "Forecast Baseline",
+          "type": "string"
+        },
+        "level_baseline": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Level Baseline"
         },
         "recipe": {
           "const": "seasonal-residual-v1",

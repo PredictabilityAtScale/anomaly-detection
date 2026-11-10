@@ -1,4 +1,4 @@
-"""Proposed usage-forecast-v1 bridge for the separately released 0.7.0 wheel.
+"""Proposed usage-forecast-v1 bridge for the separately released 0.8.0 wheel.
 
 Copy only after releasing and reviewing the pinned upstream artifact. No AWS
 client, credentials, customer identity or Guard profile is needed here.
@@ -7,7 +7,7 @@ import math
 
 from anomalyzer import __version__, forecast_series
 
-VERSION = "0.7.0"
+VERSION = "0.8.0"
 CONTRACT = "usage-forecast-v1"
 WINDOWS = {"hour": 1344, "day": 56, "week": 52, "month": 36}
 MAX_HORIZONS = {"hour": 168, "day": 90, "week": 26, "month": 24}
@@ -20,6 +20,9 @@ def forecast_usage(event, context=None):
     if not isinstance(event, dict):
         return unavailable("invalid_input")
     if __version__ != VERSION or event.get("contract") != CONTRACT:
+        return unavailable("unsupported_contract")
+    baseline = event.get("levelBaseline", "legacy")
+    if baseline not in ("legacy", "recent-level-v1"):
         return unavailable("unsupported_contract")
     evidence = event.get("historicalAnomalies")
     if "historicalAnomalies" in event:
@@ -56,7 +59,7 @@ def forecast_usage(event, context=None):
     if seconds <= 0:
         return unavailable("budget_exceeded")
     result = forecast_series({"values": values, "period_statuses": statuses, "interval": interval}, {
-        "horizon": horizon, "trend": "auto", "seasonality": "auto",
+        "horizon": horizon, "trend": "auto", "seasonality": "auto", "baseline": baseline,
         "outlier_handling": "robust" if event["excludeExtremeOutliers"] else "include",
         "trend_adjustment_pct": adjustment, "lower_bound": 0,
         "max_training_points": WINDOWS[interval], "max_inference_points": 768,
@@ -80,6 +83,9 @@ def forecast_usage(event, context=None):
                 f"Forecast fit window (original positions): {model.fit_window}",
                 f"Historical training window: {model.historical_training_window}",
                 "Legacy null tail assumed partial; transport cannot distinguish missing from partial."]}}
+    if baseline != "legacy":
+        response["model"]["levelBaseline"] = model.level_baseline
+        response["model"]["historicalLevelBaseline"] = model.historical_level_baseline
     if evidence is not None:
         response["historicalAnomalies"] = result.historical_anomalies.model_dump(mode="json")
     return response
