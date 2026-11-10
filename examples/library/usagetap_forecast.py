@@ -1,4 +1,4 @@
-"""Proposed usage-forecast-v1 bridge for the separately released 0.8.0 wheel.
+"""Proposed usage-forecast-v1 bridge for the separately released 0.9.0 wheel.
 
 Copy only after releasing and reviewing the pinned upstream artifact. No AWS
 client, credentials, customer identity or Guard profile is needed here.
@@ -7,7 +7,7 @@ import math
 
 from anomalyzer import __version__, forecast_series
 
-VERSION = "0.8.0"
+VERSION = "0.9.0"
 CONTRACT = "usage-forecast-v1"
 WINDOWS = {"hour": 1344, "day": 56, "week": 52, "month": 36}
 MAX_HORIZONS = {"hour": 168, "day": 90, "week": 26, "month": 24}

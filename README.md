@@ -14,6 +14,43 @@ Declared relationships expose changes such as falling conversion or rising unit
 cost even when the source metrics look ordinary. Every finding can be traced to
 its observations, reference, calculation, and limitations.
 
+### What counts as an anomaly?
+
+A useful way to think about a time series is:
+
+```text
+observed = trend + seasonality + cycle + residual
+```
+
+**Trend** is the underlying level and direction. **Seasonality** repeats at a
+regular interval, such as a weekly pattern. A **cycle** varies over a longer or
+less regular period. The **residual** is what the model has not explained: it can
+contain ordinary random noise, model error, and possible anomalies. This is a
+conceptual decomposition; Anomalyzer does not automatically estimate a separate
+irregular-cycle component, and unsupported cycles remain unexplained.
+
+We want to detect **unusual residual behavior**, while allowing ordinary noise.
+A large residual can flag an isolated spike or drop. Runs of smaller residuals
+on one side of expectation can reveal a sustained shift; other patterns can
+reveal changing direction or variability. A finding is evidence to investigate,
+not proof of a particular cause. Missed seasonality, incomplete data, or a poor
+trend model can also produce surprising residuals.
+
+Trend and seasonality can themselves change abnormally. For example, if normal
+usage is around 100 and suddenly becomes 300, a model that immediately moves its
+expected level to 300 can absorb the change and hide the incident. A dependable
+reference therefore needs a declared adaptation policy and must use only
+observations available **before** the point being assessed. Its ordinary forecast
+misses need matching residual calibration before anomaly thresholds are applied.
+A current fitted trend drawn backward through history is a model reconstruction,
+not evidence of what could have been predicted at each earlier point.
+
+**Lower forecast error can improve the reference, but does not by itself prove
+better anomaly detection.** Evaluate forecast accuracy on chronological holdouts
+at the intended horizon, and separately check detection delay, missed changes,
+and false alerts on representative incidents and ordinary variation. Neither a
+flat trend nor an absence of detected anomalies establishes normality.
+
 Analysis runs at the supplied sample cadence, independently of how an application
 aggregates its charts. Incomplete periods stay visibly incomplete; evidence
 maturity and caller-supplied policy determine eligibility for further action.
@@ -55,6 +92,18 @@ Historical selection and residual calibration freeze separately from the current
 forecast fit. Existing calls and standalone detector recipes retain their behavior.
 See [0.8.0 notes](docs/releases/0.8.0.md) and the
 [selection and tradeoffs](docs/forecasting.md#smoothed-recent-level-opt-in-since-080).
+
+Version **0.9.0** adds opt-in forward-only APIs:
+`forecast_with_model` for explicit methods and `select_forecast` for automatic
+method/setting comparison. The catalog includes UsageTap Current's local trend,
+naive and seasonal-naive baselines, recent mean/median, exponential smoothing,
+damped local trend, and existing Anomalyzer models. Selection scores identical
+full-horizon chronological holdouts, exposes the candidate losses and settings,
+and refits the selected candidate. Existing forecast defaults and anomaly
+references remain unchanged. See the
+[model catalog and selection API](docs/forecasting.md#explicit-models-and-horizon-aware-selection-090)
+for examples, completeness rules, and limits, and the
+[0.9.0 release notes](docs/releases/0.9.0.md) for adoption requirements.
 
 > [!NOTE]
 > Anomalyzer is an alpha release. Validate thresholds and detector behavior on
@@ -1419,10 +1468,11 @@ Pytest and jsonschema are development-only dependencies. StatsForecast, SciPy,
 NumPy, pandas, Numba/LLVM, and their forecasting dependencies have been removed.
 
 The historical plan and product brief describe broader possibilities, not current
-commitments. Forecasts are internal expectations for scoring; there is no
-standalone forecasting API, automatic relationship discovery, EWMA detector,
-ensemble, or incident-probability estimate. The local MCP adapter is included;
-no hosted service or model API is required.
+commitments. The public Python APIs provide fixed-fit forecasts and opt-in model
+selection alongside separate historical anomaly references. Automatic relationship
+discovery, an EWMA detector, forecast ensembles, ARIMA, multiple simultaneous
+seasonal components, and incident probabilities are not implemented. The local
+MCP adapter is included; no hosted service or model API is required.
 
 The [problem framing](cli-plan.md) explains why chart aggregation should not
 set the response time. The core already scores eligible samples at the supplied

@@ -1,0 +1,99 @@
+title: Compare forecast methods on chronological horizon-matched holdouts
+status: implemented
+summary: Opt into an explicit forecast model or compare bounded method and
+  setting candidates before projecting the supplied series.
+intent: Make UsageTap-compatible recent local forecasting available in
+  Anomalyzer and choose settings using observable forecast error without
+  changing existing anomaly references or default forecasts.
+acceptance:
+  - An explicit local-trend model reproduces UsageTap Current with outlier
+    exclusion disabled, including its recent robust slope, centered seasonal
+    offsets, future-only trend adjustment and positional bucket alignment.
+  - Explicit naive, seasonal-naive, mean, median, smoothing, damped local trend
+    and existing Anomalyzer models expose their settings and separate trend and
+    seasonal components without modifying actual observations.
+  - Selection evaluates every ranked candidate on the same earlier training
+    prefixes and full requested-horizon holdouts, reports losses and failed
+    candidates, and deterministically selects the smallest declared objective
+    with stable ties.
+  - Partial tails never enter fitting or scoring, missing history is
+    unavailable, and insufficient validation history or budget exhaustion never
+    fabricates a selected or partially evaluated model.
+  - Existing forecast and anomaly APIs retain their behavior; selection scores
+    do not claim future optimality, calibrated anomaly evidence or uncertainty,
+    and selected-model accuracy requires separate outer holdouts.
+guidance:
+  - Forecast adaptation can absorb incidents. Do not substitute these forward
+    models into historical anomaly evidence or recalibrate detector thresholds
+    as part of forecast selection.
+  - A different requested horizon may select a different model; fixed explicitly
+    selected models retain horizon prefixes.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/forecasting/compare-forecast-models
+  # run deterministic review only: capabilitykit review analysis/forecasting/compare-forecast-models --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/forecasting/compare-forecast-models --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/forecasting/compare-forecast-models --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/forecasting/project-observed-series
+  implementation:
+    references:
+      - src/anomalyzer/forecast_selection.py
+      - src/anomalyzer/forecast_selection_contracts.py
+      - src/anomalyzer/__init__.py
+      - tests/test_forecast_selection.py
+      - tests/fixtures/usagetap_current.json
+      - examples/forecasting/select_models.py
+      - examples/library/forecast_smoke.py
+      - schemas/forecast-model-request.schema.json
+      - schemas/forecast-model-result.schema.json
+      - schemas/forecast-selection-request.schema.json
+      - schemas/forecast-selection-result.schema.json
+      - scripts/export_schemas.py
+      - scripts/verify_distribution.py
+      - README.md
+      - docs/forecasting.md
+      - docs/releases/0.9.0.md
+      - docs/usagetap-forecast-migration.md
+  verification:
+    automated:
+      - id: original-usagetap-parity
+        description: Match independently captured UsageTap predictions and
+          signed/clamped trend semantics across four intervals and scenario
+          adjustments.
+        command: python -m pytest -q -p no:cacheprovider
+          tests/test_forecast_selection.py -k "usagetap or components or
+          native_family"
+      - id: horizon-selection
+        description: Enforce prior-only training, identical full-horizon targets,
+          objective metrics, stable ties, and independent outer evaluation.
+        command: python -m pytest -q -p no:cacheprovider
+          tests/test_forecast_selection.py -k "holdout or horizon or losses or
+          ties"
+      - id: completeness-contracts-budgets
+        description: Reject invalid and missing input, preserve partial time and
+          calendar alignment, and prevent partial budget/numerical results.
+        command: python -m pytest -q -p no:cacheprovider
+          tests/test_forecast_selection.py
+      - id: existing-forecast-history
+        description: Preserve existing default forecast outputs, causal historical
+          evidence, native calibration and recent-level policy behavior.
+        command: python -m pytest -q -p no:cacheprovider tests/test_forecast.py
+          tests/test_forecast_anomalies.py tests/test_recent_level.py
+    manual:
+      - Review UsageTap parity scope, candidate assumptions and outer holdout
+        losses; confirm documentation distinguishes current fitted components
+        and selection error from causal anomaly references, ordinary noise,
+        detection quality and future accuracy.
+    gaps:
+      - Production accuracy, incident detection delay and false-alert behavior
+        require representative consumer evidence before changing anomaly
+        references or recommending a new default.
+      - Source verification does not certify publication; release CI must
+        qualify supported Python versions and installed/offline Linux artifacts
+        before adoption.

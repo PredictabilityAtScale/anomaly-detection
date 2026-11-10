@@ -180,7 +180,7 @@ def test_bridge_opt_in_discloses_selected_baselines_and_rejects_unknown_versions
     spec = importlib.util.spec_from_file_location("recent_level_bridge", path)
     bridge = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(bridge)
-    assert bridge.VERSION == __version__ == "0.8.0"
+    assert bridge.VERSION == __version__ == "0.9.0"
     event = dict(contract="usage-forecast-v1", values=noisy(), interval="day", horizon=7,
                  excludeExtremeOutliers=False, historicalAnomalies={"schema_version": "historical-anomalies-v1"})
     legacy = bridge.forecast_usage(event)

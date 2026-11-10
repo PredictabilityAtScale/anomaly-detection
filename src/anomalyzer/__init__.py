@@ -8,6 +8,13 @@ from .forecast_contracts import (
     HistoricalDetectorSettings,
 )
 from .forecast import forecast_series
+from .forecast_selection_contracts import (
+    ForecastCandidate, ModelForecastSettings, ForecastSelectionSettings,
+    ModelForecastRequest, ModelForecastResult, ModelForecastInfo,
+    ForecastSelectionRequest, ForecastSelectionResult, ForecastCandidateScore,
+    ForecastFoldScore, default_forecast_candidates,
+)
+from .forecast_selection import forecast_with_model, select_forecast
 from .contracts import DataPolicy, DatasetV11, SampleRevision, Request, RequestV11, Result, ResultV11
 from .agent import analyze_relationships, analyze_series, get_case, replay_policy
 from .recipes import analyze, analyze_dataset
@@ -28,6 +35,10 @@ __all__ = [
     "HistoricalDetectorSettings",
     "ForecastDataset", "ForecastSeasonality", "ForecastSettings", "ForecastRequest",
     "ForecastCounts", "ForecastModel", "ForecastResult", "forecast_series",
+    "ForecastCandidate", "ModelForecastSettings", "ForecastSelectionSettings",
+    "ModelForecastRequest", "ModelForecastResult", "ModelForecastInfo",
+    "ForecastSelectionRequest", "ForecastSelectionResult", "ForecastCandidateScore",
+    "ForecastFoldScore", "default_forecast_candidates", "forecast_with_model", "select_forecast",
     "DataPolicy", "DatasetV11", "SampleRevision",
     "Request", "RequestV11", "Result", "ResultV11", "analyze",
     "analyze_dataset", "analyze_series", "analyze_relationships", "get_case",

@@ -69,6 +69,11 @@ def check_archives(dist):
         for path in ("examples/library/historical_anomalies_smoke.py", "docs/historical-anomalies.md",
                      "schemas/historical-anomalies-request.schema.json", "schemas/historical-anomalies-result.schema.json"):
             assert prefix + path in names, path
+        for path in ("examples/forecasting/select_models.py", "tests/test_forecast_selection.py",
+                     "tests/fixtures/usagetap_current.json", "schemas/forecast-model-request.schema.json",
+                     "schemas/forecast-model-result.schema.json", "schemas/forecast-selection-request.schema.json",
+                     "schemas/forecast-selection-result.schema.json"):
+            assert prefix + path in names, path
         metadata = BytesParser().parsebytes(archive.extractfile(prefix + "PKG-INFO").read())
         assert metadata["Version"] == ver and metadata["Name"] == "anomalyzer"
     lock = tomllib.loads((ROOT / "uv.lock").read_text())

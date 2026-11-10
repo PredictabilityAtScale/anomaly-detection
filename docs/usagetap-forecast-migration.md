@@ -1,5 +1,48 @@
 # UsageTap: independent forecast and anomaly detector
 
+## 0.9.0 model-selection adoption
+
+Anomalyzer 0.9.0 adds a separate `select_forecast` API. The older migration
+sections below retain the historical/native-evidence contract; upgrading the
+compatibility adapter's version alone does **not** activate this new feature.
+
+1. Verify the immutable v0.9.0 release, source revision, checksums and installed /
+   offline Linux checks. Pin the actual wheel and transitive dependency hashes
+   in UsageTap's Linux statistics bundle and coordinate all strict engine pins.
+2. In a separate UsageTap change, explicitly route an automatic Anomalyzer
+   forecast choice to `select_forecast(dataset, settings)`. Pass original complete
+   observations and real partial/missing statuses, interval, timezone, horizon,
+   lower bound and a budget within the caller's hard deadline. No customer
+   identity is needed by the numerical API. Keep Current available for comparison.
+3. Use `selection.forecast.predicted`, `.trend` and `.seasonal_component` for the
+   forward scenario. Carry `selected_candidate`, all candidate scores, objective,
+   fold windows, request fingerprint and engine version through strict transport,
+   caches, export and diagnostics. Add an explicit local-trend choice through
+   `forecast_with_model` when callers want the UsageTap Current-compatible model.
+4. Keep the selected anomaly detector's earlier expectations and matching
+   calibration independent. New selection has no historical anomaly evidence.
+   Do not fabricate Expected from a current fit or replace stored incidents.
+   Continue using the existing native historical extension where selected, with
+   explicit reference provenance separate from the forward selected model.
+5. Score unadjusted forecasts, then use the selected candidate in
+   `forecast_with_model` for a requested trend adjustment. Do not shorten the
+   validation horizon or remove difficult folds to obtain a result: three
+   14-step folds require at least 70 complete observations, and longer horizons
+   need correspondingly more history. Render unavailable reasons explicitly.
+6. Verify original Current parity, original-bucket alignment, bound/adjustment
+   semantics, engine and method cache keys, failed/short-history handling and
+   maximum runtime cases through the actual TS/Python bundle. Reassess on
+   independent chronological outer holdouts. Preserve Guard behavior and saved
+   findings. Follow UsageTap's staging-to-master release policy.
+
+Current-model trend components are reconstructions across supplied history.
+Prefer a clearly labeled current-model component or the forecast portion of the
+line; do not imply that a flat current level was the historical causal trend.
+See [the new API](forecasting.md#explicit-models-and-horizon-aware-selection-090)
+and [forecasting versus anomaly detection](../README.md#what-counts-as-an-anomaly).
+
+## Prior historical-evidence migration
+
 This is a consumer migration handoff. Library publication does not deploy UsageTap;
 consumer integration belongs in a separate UsageTap PR.
 UsageTap deployed Anomalyzer **0.6.0** through PRs #461/#462 and master merge

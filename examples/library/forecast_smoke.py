@@ -3,7 +3,7 @@ import json
 import math
 import random
 
-from anomalyzer import ForecastDataset, ForecastRequest, forecast_series
+from anomalyzer import ForecastDataset, ForecastRequest, forecast_series, forecast_with_model, select_forecast
 
 
 def main():
@@ -26,7 +26,16 @@ def main():
     assert level.model.historical_level_baseline["kind"] == "simple_exponential_smoothing"
     assert level.expected == forecast_series(stationary + [500.], config).expected[:-1]
     assert level.historical_anomalies.resolved_settings.forecast_baseline == "recent-level-v1"
+    local = forecast_with_model(values, {"id": "local", "method": "local_trend"}, {"horizon": 14})
+    assert local.status == "completed", local.reason
+    assert all(math.isclose(v, 53 + .5*i) for i,v in enumerate(local.predicted))
+    selected = select_forecast(values, {"horizon": 14, "max_runtime_seconds": 2.5})
+    assert selected.status == "completed", selected.reason
+    assert len(selected.scores) == 15 and len(selected.forecast.predicted) == 14
+    assert all(math.isclose(v, 53 + .5*i) for i,v in enumerate(selected.forecast.predicted))
+    assert "expected" not in selected.forecast.model_dump()
     print(json.dumps({"forecast": "passed", "engine_version": result.engine_version,
+                      "model_selection": "passed", "selected_candidate": selected.selected_candidate.id,
                       "request_fingerprint": result.request_fingerprint}))
 
 
