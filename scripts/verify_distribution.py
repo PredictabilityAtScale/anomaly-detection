@@ -34,6 +34,8 @@ def main():
         assert not outside.is_relative_to(ROOT)
         smoke = outside / "guard_smoke.py"
         shutil.copyfile(ROOT / "examples/library/guard_smoke.py", smoke)
+        forecast_smoke = outside / "forecast_smoke.py"
+        shutil.copyfile(ROOT / "examples/library/forecast_smoke.py", forecast_smoke)
         for index, artifact in enumerate(artifacts):
             venv = outside / f"venv-{index}"
             run(["uv", "venv", "--python", args.python, venv], outside, env=env)
@@ -48,6 +50,7 @@ def main():
                 run(["uv", "pip", "install", "--python", python, "--no-deps", artifact], outside, env=env)
             run(["uv", "pip", "check", "--python", python], outside, env=env)
             run([python, "-I", smoke, "--expect-prefix", venv], outside, env=env)
+            run([python, "-I", forecast_smoke], outside, env=env)
             cli = scripts / ("anomalyzer.exe" if os.name == "nt" else "anomalyzer")
             mcp = scripts / ("anomalyzer-mcp.exe" if os.name == "nt" else "anomalyzer-mcp")
             run([cli, "--help"], outside, env=env, stdout=subprocess.DEVNULL)

@@ -1,0 +1,557 @@
+{
+  "$defs": {
+    "ForecastCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "complete": {
+          "minimum": 0,
+          "title": "Complete",
+          "type": "integer"
+        },
+        "partial": {
+          "minimum": 0,
+          "title": "Partial",
+          "type": "integer"
+        },
+        "missing": {
+          "minimum": 0,
+          "title": "Missing",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "complete",
+        "partial",
+        "missing"
+      ],
+      "title": "ForecastCounts",
+      "type": "object"
+    },
+    "ForecastModel": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "anomalyzer",
+          "default": "anomalyzer",
+          "title": "Method",
+          "type": "string"
+        },
+        "engine_version": {
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "trend_kind": {
+          "enum": [
+            "none",
+            "linear",
+            "exponential"
+          ],
+          "title": "Trend Kind",
+          "type": "string"
+        },
+        "trend_parameters": {
+          "additionalProperties": true,
+          "title": "Trend Parameters",
+          "type": "object"
+        },
+        "season_length": {
+          "minimum": 1,
+          "title": "Season Length",
+          "type": "integer"
+        },
+        "season_inference": {
+          "additionalProperties": true,
+          "title": "Season Inference",
+          "type": "object"
+        },
+        "fit_window": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Fit Window",
+          "type": "array"
+        },
+        "effective_trend_window": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Effective Trend Window"
+        },
+        "historical_selection_window": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Historical Selection Window"
+        },
+        "historical_training_window": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Historical Training Window"
+        },
+        "historical_inference": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Historical Inference"
+        },
+        "historical_readiness": {
+          "additionalProperties": true,
+          "title": "Historical Readiness",
+          "type": "object"
+        },
+        "outlier_policy": {
+          "additionalProperties": true,
+          "title": "Outlier Policy",
+          "type": "object"
+        }
+      },
+      "required": [
+        "engine_version",
+        "trend_kind",
+        "trend_parameters",
+        "season_length",
+        "season_inference",
+        "fit_window",
+        "effective_trend_window",
+        "historical_selection_window",
+        "historical_training_window",
+        "historical_inference",
+        "historical_readiness",
+        "outlier_policy"
+      ],
+      "title": "ForecastModel",
+      "type": "object"
+    },
+    "ForecastSeasonality": {
+      "additionalProperties": false,
+      "properties": {
+        "period": {
+          "maximum": 1500,
+          "minimum": 1,
+          "title": "Period",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "period"
+      ],
+      "title": "ForecastSeasonality",
+      "type": "object"
+    },
+    "ForecastSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "horizon": {
+          "default": 30,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "trend": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "none",
+            "linear",
+            "exponential"
+          ],
+          "title": "Trend",
+          "type": "string"
+        },
+        "seasonality": {
+          "anyOf": [
+            {
+              "const": "auto",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/ForecastSeasonality"
+            }
+          ],
+          "default": "auto",
+          "title": "Seasonality"
+        },
+        "outlier_handling": {
+          "default": "robust",
+          "enum": [
+            "robust",
+            "include"
+          ],
+          "title": "Outlier Handling",
+          "type": "string"
+        },
+        "trend_adjustment_pct": {
+          "default": 0.0,
+          "maximum": 200,
+          "minimum": -50,
+          "title": "Trend Adjustment Pct",
+          "type": "number"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "max_training_points": {
+          "default": 56,
+          "maximum": 6000,
+          "minimum": 8,
+          "title": "Max Training Points",
+          "type": "integer"
+        },
+        "max_inference_points": {
+          "default": 768,
+          "maximum": 4096,
+          "minimum": 8,
+          "title": "Max Inference Points",
+          "type": "integer"
+        },
+        "max_points": {
+          "default": 6000,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Max Points",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 2.5,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "ForecastSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "forecast-v1",
+      "default": "forecast-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "forecast",
+      "default": "forecast",
+      "title": "Task",
+      "type": "string"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "unavailable"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "invalid_input",
+            "unsupported_contract",
+            "insufficient_history",
+            "missing_history",
+            "analysis_incomplete",
+            "budget_exceeded",
+            "nonfinite_result",
+            "analysis_failed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "request_fingerprint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Fingerprint"
+    },
+    "resolved_config": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ForecastSettings"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "counts": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ForecastCounts"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "forecast_applicability": {
+      "default": "unavailable",
+      "enum": [
+        "scenario_available",
+        "unavailable"
+      ],
+      "title": "Forecast Applicability",
+      "type": "string"
+    },
+    "expected": {
+      "anyOf": [
+        {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected"
+    },
+    "eligible": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "boolean"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Eligible"
+    },
+    "predicted": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Predicted"
+    },
+    "trend": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trend"
+    },
+    "seasonal_component": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seasonal Component"
+    },
+    "outlier_indices": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Outlier Indices"
+    },
+    "historical_evidence_maturity": {
+      "anyOf": [
+        {
+          "items": {
+            "enum": [
+              "unavailable",
+              "reference_only",
+              "provisional",
+              "calibrated"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Historical Evidence Maturity"
+    },
+    "future_origin_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Future Origin Index"
+    },
+    "predicted_timestamps": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Predicted Timestamps"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ForecastModel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "engine_version",
+    "status"
+  ],
+  "title": "ForecastResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

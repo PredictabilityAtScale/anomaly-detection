@@ -1,0 +1,237 @@
+{
+  "$defs": {
+    "ForecastDataset": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "default": "series",
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "units": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Units"
+        },
+        "values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "maxItems": 6000,
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        },
+        "period_statuses": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "complete",
+                  "partial",
+                  "missing"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period Statuses"
+        },
+        "interval": {
+          "default": "day",
+          "enum": [
+            "hour",
+            "day",
+            "week",
+            "month",
+            "year"
+          ],
+          "title": "Interval",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "UTC",
+          "title": "Timezone",
+          "type": "string"
+        },
+        "timestamps": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamps"
+        }
+      },
+      "required": [
+        "values"
+      ],
+      "title": "ForecastDataset",
+      "type": "object"
+    },
+    "ForecastSeasonality": {
+      "additionalProperties": false,
+      "properties": {
+        "period": {
+          "maximum": 1500,
+          "minimum": 1,
+          "title": "Period",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "period"
+      ],
+      "title": "ForecastSeasonality",
+      "type": "object"
+    },
+    "ForecastSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "horizon": {
+          "default": 30,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "trend": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "none",
+            "linear",
+            "exponential"
+          ],
+          "title": "Trend",
+          "type": "string"
+        },
+        "seasonality": {
+          "anyOf": [
+            {
+              "const": "auto",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/ForecastSeasonality"
+            }
+          ],
+          "default": "auto",
+          "title": "Seasonality"
+        },
+        "outlier_handling": {
+          "default": "robust",
+          "enum": [
+            "robust",
+            "include"
+          ],
+          "title": "Outlier Handling",
+          "type": "string"
+        },
+        "trend_adjustment_pct": {
+          "default": 0.0,
+          "maximum": 200,
+          "minimum": -50,
+          "title": "Trend Adjustment Pct",
+          "type": "number"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "max_training_points": {
+          "default": 56,
+          "maximum": 6000,
+          "minimum": 8,
+          "title": "Max Training Points",
+          "type": "integer"
+        },
+        "max_inference_points": {
+          "default": 768,
+          "maximum": 4096,
+          "minimum": 8,
+          "title": "Max Inference Points",
+          "type": "integer"
+        },
+        "max_points": {
+          "default": 6000,
+          "maximum": 6000,
+          "minimum": 1,
+          "title": "Max Points",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 2.5,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "ForecastSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "forecast-v1",
+      "default": "forecast-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "forecast",
+      "default": "forecast",
+      "title": "Task",
+      "type": "string"
+    },
+    "dataset": {
+      "$ref": "#/$defs/ForecastDataset"
+    },
+    "config": {
+      "$ref": "#/$defs/ForecastSettings"
+    }
+  },
+  "required": [
+    "dataset"
+  ],
+  "title": "ForecastRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

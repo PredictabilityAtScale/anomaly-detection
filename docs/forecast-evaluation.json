@@ -1,0 +1,1438 @@
+{
+  "method": "Fixed chronological origins; hyperparameters declared before hold-outs; overlapping folds are not independent samples.",
+  "source": "anonymous deterministic synthetic fixtures",
+  "limitations": "MAE/WAPE are held-out errors, not fit diagnostics or calibrated uncertainty. WAPE is null for all-zero actuals. Synthetic performance does not establish customer accuracy or justify changing the default.",
+  "fixture_sha256": "dc56d3aadafac828381bfbfe075af8ee71ad5702281249ec6931b45df0e976a8",
+  "results": [
+    {
+      "case": "flat",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": 0.0
+    },
+    {
+      "case": "flat",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": 0.0
+    },
+    {
+      "case": "zero",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": null
+    },
+    {
+      "case": "zero",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 1
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": null
+    },
+    {
+      "case": "linear_up",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 1.522591576628786e-15,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 2.5376526277146436e-15,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 1.0150610510858574e-15,
+          "trend": "linear",
+          "season_length": 1
+        }
+      ],
+      "mae": 1.691768418476429e-15,
+      "baseline_mae": 3.0,
+      "wape": 4.166917286887756e-17
+    },
+    {
+      "case": "linear_up",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 1.522591576628786e-15,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 2.5376526277146436e-15,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 1.0150610510858574e-15,
+          "trend": "linear",
+          "season_length": 1
+        }
+      ],
+      "mae": 1.691768418476429e-15,
+      "baseline_mae": 3.0,
+      "wape": 4.166917286887756e-17
+    },
+    {
+      "case": "linear_down_signed",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 1.3322676295501878e-15,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 1.1419436824715897e-15,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 1.9032394707859826e-15,
+          "trend": "linear",
+          "season_length": 1
+        }
+      ],
+      "mae": 1.45915026093592e-15,
+      "baseline_mae": 3.0,
+      "wape": 1.376556849939547e-16
+    },
+    {
+      "case": "linear_down_signed",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 9.198990775465584e-16,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 2.157004733557447e-15,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 1.9032394707859826e-15,
+          "trend": "linear",
+          "season_length": 1
+        }
+      ],
+      "mae": 1.660047760629996e-15,
+      "baseline_mae": 3.0,
+      "wape": 1.566082793047166e-16
+    },
+    {
+      "case": "exponential",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 5.718092666029406e-12,
+          "trend": "exponential",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 6.7646206096989256e-12,
+          "trend": "exponential",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 8.006040275176929e-12,
+          "trend": "exponential",
+          "season_length": 1
+        }
+      ],
+      "mae": 6.82958451696842e-12,
+      "baseline_mae": 2.2053137898294426,
+      "wape": 2.698532627450456e-13
+    },
+    {
+      "case": "exponential",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 6.5565330942263245e-12,
+          "trend": "exponential",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 7.759380439763065e-12,
+          "trend": "exponential",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 9.178435789181094e-12,
+          "trend": "exponential",
+          "season_length": 1
+        }
+      ],
+      "mae": 7.83144977439016e-12,
+      "baseline_mae": 2.2053137898294426,
+      "wape": 3.0943936170530423e-13
+    },
+    {
+      "case": "weekly",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 7
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 7
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 7
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": 0.0
+    },
+    {
+      "case": "weekly",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 7
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 7
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 7
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": 0.0
+    },
+    {
+      "case": "no_stable_season",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.47493866319867195,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.7975556972616715,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.6977783137296161,
+          "trend": "none",
+          "season_length": 1
+        }
+      ],
+      "mae": 0.6567575580633198,
+      "baseline_mae": 0.6567575580633198,
+      "wape": 0.03293725825381583
+    },
+    {
+      "case": "no_stable_season",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.5275728104405566,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 0.4440930929984341,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.5374141293583045,
+          "trend": "none",
+          "season_length": 1
+        }
+      ],
+      "mae": 0.5030266775990984,
+      "baseline_mae": 0.6567575580633198,
+      "wape": 0.025227451721298744
+    },
+    {
+      "case": "isolated_spikes",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 10.071428571428571,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 10.071428571428575,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 1.5,
+          "trend": "none",
+          "season_length": 1
+        }
+      ],
+      "mae": 7.214285714285715,
+      "baseline_mae": 7.214285714285715,
+      "wape": 0.17589690003483108
+    },
+    {
+      "case": "isolated_spikes",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 8.65157428528505,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 8.667614988265196,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 0.09348122854671256,
+          "trend": "linear",
+          "season_length": 1
+        }
+      ],
+      "mae": 5.804223500698986,
+      "baseline_mae": 7.214285714285715,
+      "wape": 0.14151711774605677
+    },
+    {
+      "case": "sustained_shift",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 7.142857142857143,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 23.2532009835688,
+          "trend": "exponential",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 3.603896103896104,
+          "trend": "linear",
+          "season_length": 1
+        }
+      ],
+      "mae": 11.333318076774017,
+      "baseline_mae": 2.380952380952381,
+      "wape": 0.44074014743010065
+    },
+    {
+      "case": "sustained_shift",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 7.142857142857143,
+          "trend": "none",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 19.64306235700399,
+          "trend": "exponential",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 4.308658008658013,
+          "trend": "linear",
+          "season_length": 1
+        }
+      ],
+      "mae": 10.364859169506381,
+      "baseline_mae": 2.380952380952381,
+      "wape": 0.40307785659191486
+    },
+    {
+      "case": "changing_slope",
+      "outlier_handling": "include",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.4999999999999999,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 5.154904306220096,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 9.643108286873227,
+          "trend": "exponential",
+          "season_length": 1
+        }
+      ],
+      "mae": 5.099337531031107,
+      "baseline_mae": 4.416666666666667,
+      "wape": 0.19279158907490013
+    },
+    {
+      "case": "changing_slope",
+      "outlier_handling": "robust",
+      "evaluated_points": 42,
+      "folds": [
+        {
+          "origin": 56,
+          "status": "completed",
+          "training_window": [
+            0,
+            55
+          ],
+          "holdout_window": [
+            56,
+            69
+          ],
+          "mae": 0.4999999999999999,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 70,
+          "status": "completed",
+          "training_window": [
+            0,
+            69
+          ],
+          "holdout_window": [
+            70,
+            83
+          ],
+          "mae": 6.276590893196882,
+          "trend": "linear",
+          "season_length": 1
+        },
+        {
+          "origin": 84,
+          "status": "completed",
+          "training_window": [
+            0,
+            83
+          ],
+          "holdout_window": [
+            84,
+            97
+          ],
+          "mae": 10.424066014588417,
+          "trend": "exponential",
+          "season_length": 1
+        }
+      ],
+      "mae": 5.7335523025951,
+      "baseline_mae": 4.416666666666667,
+      "wape": 0.21676946323610966
+    },
+    {
+      "case": "hourly_daily",
+      "outlier_handling": "include",
+      "evaluated_points": 72,
+      "folds": [
+        {
+          "origin": 168,
+          "status": "completed",
+          "training_window": [
+            0,
+            167
+          ],
+          "holdout_window": [
+            168,
+            191
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 24
+        },
+        {
+          "origin": 192,
+          "status": "completed",
+          "training_window": [
+            0,
+            191
+          ],
+          "holdout_window": [
+            192,
+            215
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 24
+        },
+        {
+          "origin": 216,
+          "status": "completed",
+          "training_window": [
+            0,
+            215
+          ],
+          "holdout_window": [
+            216,
+            239
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 24
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": 0.0
+    },
+    {
+      "case": "hourly_daily",
+      "outlier_handling": "robust",
+      "evaluated_points": 72,
+      "folds": [
+        {
+          "origin": 168,
+          "status": "completed",
+          "training_window": [
+            0,
+            167
+          ],
+          "holdout_window": [
+            168,
+            191
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 24
+        },
+        {
+          "origin": 192,
+          "status": "completed",
+          "training_window": [
+            0,
+            191
+          ],
+          "holdout_window": [
+            192,
+            215
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 24
+        },
+        {
+          "origin": 216,
+          "status": "completed",
+          "training_window": [
+            0,
+            215
+          ],
+          "holdout_window": [
+            216,
+            239
+          ],
+          "mae": 0.0,
+          "trend": "none",
+          "season_length": 24
+        }
+      ],
+      "mae": 0.0,
+      "baseline_mae": 0.0,
+      "wape": 0.0
+    },
+    {
+      "case": "monthly_annual",
+      "outlier_handling": "include",
+      "evaluated_points": 36,
+      "folds": [
+        {
+          "origin": 48,
+          "status": "completed",
+          "training_window": [
+            0,
+            47
+          ],
+          "holdout_window": [
+            48,
+            59
+          ],
+          "mae": 4.588921835117314e-15,
+          "trend": "none",
+          "season_length": 12
+        },
+        {
+          "origin": 60,
+          "status": "completed",
+          "training_window": [
+            0,
+            59
+          ],
+          "holdout_window": [
+            60,
+            71
+          ],
+          "mae": 8.141635513917814e-15,
+          "trend": "none",
+          "season_length": 12
+        },
+        {
+          "origin": 72,
+          "status": "completed",
+          "training_window": [
+            0,
+            71
+          ],
+          "holdout_window": [
+            72,
+            83
+          ],
+          "mae": 7.993605777301127e-15,
+          "trend": "none",
+          "season_length": 12
+        }
+      ],
+      "mae": 6.908054375445418e-15,
+      "baseline_mae": 6.908054375445418e-15,
+      "wape": 3.4540271877227093e-16
+    },
+    {
+      "case": "monthly_annual",
+      "outlier_handling": "robust",
+      "evaluated_points": 36,
+      "folds": [
+        {
+          "origin": 48,
+          "status": "completed",
+          "training_window": [
+            0,
+            47
+          ],
+          "holdout_window": [
+            48,
+            59
+          ],
+          "mae": 4.144832625267251e-15,
+          "trend": "none",
+          "season_length": 12
+        },
+        {
+          "origin": 60,
+          "status": "completed",
+          "training_window": [
+            0,
+            59
+          ],
+          "holdout_window": [
+            60,
+            71
+          ],
+          "mae": 7.105427357601002e-15,
+          "trend": "none",
+          "season_length": 12
+        },
+        {
+          "origin": 72,
+          "status": "completed",
+          "training_window": [
+            0,
+            71
+          ],
+          "holdout_window": [
+            72,
+            83
+          ],
+          "mae": 7.993605777301127e-15,
+          "trend": "none",
+          "season_length": 12
+        }
+      ],
+      "mae": 6.41462192005646e-15,
+      "baseline_mae": 6.908054375445418e-15,
+      "wape": 3.20731096002823e-16
+    },
+    {
+      "case": "daily_annual_positional",
+      "outlier_handling": "include",
+      "evaluated_points": 90,
+      "folds": [
+        {
+          "origin": 1095,
+          "status": "completed",
+          "training_window": [
+            0,
+            1094
+          ],
+          "holdout_window": [
+            1095,
+            1124
+          ],
+          "mae": 6.0396132539608514e-15,
+          "trend": "none",
+          "season_length": 365
+        },
+        {
+          "origin": 1200,
+          "status": "completed",
+          "training_window": [
+            0,
+            1199
+          ],
+          "holdout_window": [
+            1200,
+            1229
+          ],
+          "mae": 2.723747153747051e-15,
+          "trend": "none",
+          "season_length": 365
+        },
+        {
+          "origin": 1460,
+          "status": "completed",
+          "training_window": [
+            0,
+            1459
+          ],
+          "holdout_window": [
+            1460,
+            1489
+          ],
+          "mae": 8.526512829121202e-15,
+          "trend": "none",
+          "season_length": 365
+        }
+      ],
+      "mae": 5.763291078943035e-15,
+      "baseline_mae": 5.763291078943035e-15,
+      "wape": 2.587749321852901e-16
+    },
+    {
+      "case": "daily_annual_positional",
+      "outlier_handling": "robust",
+      "evaluated_points": 90,
+      "folds": [
+        {
+          "origin": 1095,
+          "status": "completed",
+          "training_window": [
+            0,
+            1094
+          ],
+          "holdout_window": [
+            1095,
+            1124
+          ],
+          "mae": 6.0396132539608514e-15,
+          "trend": "none",
+          "season_length": 365
+        },
+        {
+          "origin": 1200,
+          "status": "completed",
+          "training_window": [
+            0,
+            1199
+          ],
+          "holdout_window": [
+            1200,
+            1229
+          ],
+          "mae": 2.723747153747051e-15,
+          "trend": "none",
+          "season_length": 365
+        },
+        {
+          "origin": 1460,
+          "status": "completed",
+          "training_window": [
+            0,
+            1459
+          ],
+          "holdout_window": [
+            1460,
+            1489
+          ],
+          "mae": 7.815970093361103e-15,
+          "trend": "none",
+          "season_length": 365
+        }
+      ],
+      "mae": 5.526443500356335e-15,
+      "baseline_mae": 5.763291078943035e-15,
+      "wape": 2.4814034593110013e-16
+    }
+  ]
+}
