@@ -33,6 +33,14 @@ through scheduled windows and reports insufficient history or an explicit fallba
 See [chapter 27](#27-compare-the-8am-batch-with-earlier-mornings) and the
 [seasonal selection handoff](docs/seasonal-distributions.md).
 
+Version **0.6.0** adds the [public forecasting API](docs/forecasting.md):
+`forecast_series(dataset, settings)` and a separate `forecast-v1` JSON contract.
+It projects observations as fixed-fit scenarios, preserves partial calendar
+buckets, and separates fitted components from causal historical expectations.
+See the [0.6.0 notes](docs/releases/0.6.0.md) and
+[UsageTap migration checklist](docs/usagetap-forecast-migration.md). Existing
+0.5.0 wheels do not include this source addition.
+
 > [!NOTE]
 > Anomalyzer is an alpha release. Validate thresholds and detector behavior on
 > representative historical data before using its output for operational decisions.

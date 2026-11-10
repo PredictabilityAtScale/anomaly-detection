@@ -1,0 +1,184 @@
+title: Project an observed series as an inspectable scenario
+status: implemented
+summary: Forecast ordered calendar buckets through a validated public Python and
+  JSON contract.
+intent: Give callers a fixed-fit scenario while keeping causal historical
+  evidence, completeness and limitations explicit.
+acceptance:
+  - Complete zeros and signed measurements remain observations; partial tails
+    preserve time and missing periods return unavailable without filling or
+    compression.
+  - Forecasts and fitted components use observations only, retain common horizon
+    prefixes and apply scenario adjustment only to future learned trend changes.
+  - Historical expectations use a frozen prefix selection and never change when
+    later observations change or are appended with the same settings.
+  - Results expose original indices, fit and inference windows, outlier policy
+    effects and separate forecast applicability from anomaly maturity without
+    confidence claims.
+  - Validated calendar inputs honor local calendar boundaries including DST and
+    variable months; invalid, budget and numerical failures never return a
+    completed partial forecast.
+guidance:
+  - Scenarios and fit diagnostics do not establish accuracy or health. Keep the
+    UsageTap comparison rollout until reconciled representative chronological
+    evidence supports a default change.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/forecasting/project-observed-series
+  # run deterministic review only: capabilitykit review analysis/forecasting/project-observed-series --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/forecasting/project-observed-series --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/forecasting/project-observed-series --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/expectations/model-seasonal-level-and-growth
+    - analysis/expectations/select-season-length
+    - analysis/expectations/protect-reference-from-extremes
+    - analysis/evidence/calibrate-departures
+  implementation:
+    references:
+      - src/anomalyzer/forecast.py
+      - src/anomalyzer/forecast_contracts.py
+      - src/anomalyzer/__init__.py
+      - schemas/forecast-request.schema.json
+      - schemas/forecast-result.schema.json
+      - tests/test_forecast.py
+      - tests/test_forecast_evaluation.py
+      - examples/forecasting/fixtures.py
+      - examples/forecasting/evaluate.py
+      - examples/library/usagetap_forecast.py
+      - docs/forecasting.md
+      - docs/usagetap-forecast-migration.md
+      - docs/forecast-evaluation.json
+  verification:
+    automated:
+      - id: completeness-calendar
+        description: Validate statuses, signed values, calendar cadence and DST while
+          preserving original bucket positions.
+        command: python -m pytest -q -p no:cacheprovider tests/test_forecast.py -k
+          "calendar or partial or missing or zero or signed or month or dst"
+      - id: fixed-scenario
+        description: Verify fixed-fit horizons, learned-trend adjustments, robust policy
+          sensitivity and bounded bridge lengths.
+        command: python -m pytest -q -p no:cacheprovider tests/test_forecast.py -k
+          "projection or horizon or adjustment or robust or bridge"
+      - id: causal-history
+        description: Changing later observations and appending history cannot change
+          earlier qualified expectations or maturity.
+        command: python -m pytest -q -p no:cacheprovider tests/test_forecast.py -k
+          "contaminate or historical_reference"
+      - id: failures-evaluation
+        description: Validate explicit unavailable failures, schemas and chronological
+          evaluation methodology with anonymous evidence.
+        command: python -m pytest -q -p no:cacheprovider tests/test_forecast.py
+          tests/test_forecast_evaluation.py
+    manual:
+      - Inspect selection/training windows, outlier policy sensitivity and
+        chronological errors alongside the privacy and missing-history limits;
+        confirm a scenario is not presented as calibrated accuracy or evidence
+        of health.
+    gaps:
+      - Representative reconciled production histories and reviewed outcomes are
+        still needed before recommending Anomalyzer as UsageTap's default
+        forecasting method.
+      - The separate 0.6.0 release must run supported-Python and offline Linux
+        Lambda artifact checks; local source tests do not certify that
+        deployment.
+  review:
+    depth: partial
+    source: coding-agent
+    gaps:
+      - Representative reconciled production histories and reviewed outcomes are
+        required before changing UsageTap's Current comparison default.
+      - The 0.6.0 release workflow must pass supported-Python and offline Linux
+        Lambda artifact checks before publication.
+    evidence:
+      - Primary Codex agent inspected the declared implementation and examples
+        in this implementation session; this is a self-review, not an
+        independent delegated review.
+      - "0.6.0 source: .venv/Scripts/python.exe -m pytest -q -p no:cacheprovider
+        --basetemp=.tmp/forecast-release-060 --tb=short: 381 passed in 30.68s."
+      - Before the version bump, clean Python 3.12 wheel and sdist installations
+        outside the checkout passed both Guard and forecast smoke checks.
+        Versioned release CI must repeat artifact checks before publication.
+      - Anonymous evaluation replays all 26 case/policy results. Private
+        evidence was replayed only into ignored .tmp and excluded from
+        publication inputs.
+    intent_summary: A public forecast-v1 API produces observation-only fixed
+      scenarios with separate frozen causal history, explicit completeness,
+      calendar validation and inspectable policy limits.
+    criteria:
+      - criterion: Complete zeros and signed measurements remain observations; partial
+          tails preserve time and missing periods return unavailable without
+          filling or compression.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_contracts.py:59
+          - src/anomalyzer/forecast.py:143
+          - tests/test_forecast.py:27
+          - tests/test_forecast.py:110
+          - tests/test_forecast.py:116
+        notes: Inspected status validation and contiguous-tail slicing. Numeric partials
+          and null partials retain original positions; missing tails and
+          internal gaps are unavailable. No customer measurements enter
+          committed fixtures.
+      - criterion: Forecasts and fitted components use observations only, retain common
+          horizon prefixes and apply scenario adjustment only to future learned
+          trend changes.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast.py:154
+          - src/anomalyzer/forecast.py:179
+          - tests/test_forecast.py:49
+          - tests/test_forecast.py:308
+        notes: Current fit is frozen on complete measured observations. Tests cover
+          linear/exponential partial tails, common horizons and unchanged
+          history/seasonal components under scenario adjustment.
+      - criterion: Historical expectations use a frozen prefix selection and never
+          change when later observations change or are appended with the same
+          settings.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast.py:48
+          - tests/test_forecast.py:198
+          - docs/forecasting.md:168
+        notes: Inspected the fixed original prefix, explicit lag into analyze_dataset
+          and suppressed preselection evidence. Changed-suffix and
+          appended-prefix tests cover auto/explicit seasonality and both outlier
+          policies. Leading-origin or settings changes are outside this promise.
+      - criterion: Results expose original indices, fit and inference windows, outlier
+          policy effects and separate forecast applicability from anomaly
+          maturity without confidence claims.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_contracts.py:148
+          - src/anomalyzer/forecast.py:216
+          - tests/test_forecast.py:93
+          - tests/test_forecast.py:180
+          - tests/test_forecast.py:225
+          - docs/forecast-evaluation.json:1
+        notes: Reviewed unioned original screening/reference-adjustment indices, fitted
+          versus causal components, counts, fingerprint, readiness and null
+          unavailable series. Anonymous chronological errors disclose weak
+          regime-change behavior; production accuracy is not established.
+      - criterion: Validated calendar inputs honor local calendar boundaries including
+          DST and variable months; invalid, budget and numerical failures never
+          return a completed partial forecast.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_contracts.py:21
+          - src/anomalyzer/forecast_contracts.py:59
+          - src/anomalyzer/forecast_contracts.py:193
+          - tests/test_forecast.py:164
+          - tests/test_forecast.py:241
+          - tests/test_forecast.py:258
+          - tests/test_forecast.py:263
+        notes: Inspected local calendar advancement, UTC hourly fold handling, strict
+          contiguous bucket checks and failure mapping. Budget checks are
+          cooperative, explicitly requiring an external transport deadline.
+    done: false
+    input_fingerprint: d260657bc414a7d688f1df3f2a8f4df3793849be5e39c832b7a193ef07cac74d
+    mode: quick

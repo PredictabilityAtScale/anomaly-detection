@@ -1,0 +1,47 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "A public forecast-v1 API produces observation-only fixed scenarios with separate frozen causal history, explicit completeness, calendar validation and inspectable policy limits.",
+  "criteria": [
+    {
+      "criterion": "Complete zeros and signed measurements remain observations; partial tails preserve time and missing periods return unavailable without filling or compression.",
+      "status": "covered",
+      "evidence": ["src/anomalyzer/forecast_contracts.py:59", "src/anomalyzer/forecast.py:143", "tests/test_forecast.py:27", "tests/test_forecast.py:110", "tests/test_forecast.py:116"],
+      "notes": "Inspected status validation and contiguous-tail slicing. Numeric partials and null partials retain original positions; missing tails and internal gaps are unavailable. No customer measurements enter committed fixtures."
+    },
+    {
+      "criterion": "Forecasts and fitted components use observations only, retain common horizon prefixes and apply scenario adjustment only to future learned trend changes.",
+      "status": "covered",
+      "evidence": ["src/anomalyzer/forecast.py:154", "src/anomalyzer/forecast.py:179", "tests/test_forecast.py:49", "tests/test_forecast.py:308"],
+      "notes": "Current fit is frozen on complete measured observations. Tests cover linear/exponential partial tails, common horizons and unchanged history/seasonal components under scenario adjustment."
+    },
+    {
+      "criterion": "Historical expectations use a frozen prefix selection and never change when later observations change or are appended with the same settings.",
+      "status": "covered",
+      "evidence": ["src/anomalyzer/forecast.py:48", "tests/test_forecast.py:198", "docs/forecasting.md:168"],
+      "notes": "Inspected the fixed original prefix, explicit lag into analyze_dataset and suppressed preselection evidence. Changed-suffix and appended-prefix tests cover auto/explicit seasonality and both outlier policies. Leading-origin or settings changes are outside this promise."
+    },
+    {
+      "criterion": "Results expose original indices, fit and inference windows, outlier policy effects and separate forecast applicability from anomaly maturity without confidence claims.",
+      "status": "covered",
+      "evidence": ["src/anomalyzer/forecast_contracts.py:148", "src/anomalyzer/forecast.py:216", "tests/test_forecast.py:93", "tests/test_forecast.py:180", "tests/test_forecast.py:225", "docs/forecast-evaluation.json:1"],
+      "notes": "Reviewed unioned original screening/reference-adjustment indices, fitted versus causal components, counts, fingerprint, readiness and null unavailable series. Anonymous chronological errors disclose weak regime-change behavior; production accuracy is not established."
+    },
+    {
+      "criterion": "Validated calendar inputs honor local calendar boundaries including DST and variable months; invalid, budget and numerical failures never return a completed partial forecast.",
+      "status": "covered",
+      "evidence": ["src/anomalyzer/forecast_contracts.py:21", "src/anomalyzer/forecast_contracts.py:59", "src/anomalyzer/forecast_contracts.py:193", "tests/test_forecast.py:164", "tests/test_forecast.py:241", "tests/test_forecast.py:258", "tests/test_forecast.py:263"],
+      "notes": "Inspected local calendar advancement, UTC hourly fold handling, strict contiguous bucket checks and failure mapping. Budget checks are cooperative, explicitly requiring an external transport deadline."
+    }
+  ],
+  "verification_evidence": [
+    "Primary Codex agent inspected the declared implementation and examples in this implementation session; this is a self-review, not an independent delegated review.",
+    "0.6.0 source: .venv/Scripts/python.exe -m pytest -q -p no:cacheprovider --basetemp=.tmp/forecast-release-060 --tb=short: 381 passed in 30.68s.",
+    "Before the version bump, clean Python 3.12 wheel and sdist installations outside the checkout passed both Guard and forecast smoke checks. Versioned release CI must repeat artifact checks before publication.",
+    "Anonymous evaluation replays all 26 case/policy results. Private evidence was replayed only into ignored .tmp and excluded from publication inputs."
+  ],
+  "remaining_gaps": [
+    "Representative reconciled production histories and reviewed outcomes are required before changing UsageTap's Current comparison default.",
+    "The 0.6.0 release workflow must pass supported-Python and offline Linux Lambda artifact checks before publication."
+  ],
+  "done": false
+}

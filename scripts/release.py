@@ -61,7 +61,10 @@ def check_archives(dist):
         prefix = f"anomalyzer-{ver}/"
         assert {prefix + "src/" + name for name in expected_modules} <= names
         for path in ("pyproject.toml", "LICENSE", "README.md", "uv.lock",
-                     "examples/library/guard_smoke.py", "scripts/verify_distribution.py"):
+                     "examples/library/guard_smoke.py", "scripts/verify_distribution.py",
+                     "examples/library/forecast_smoke.py", "examples/library/usagetap_forecast.py",
+                     "schemas/forecast-request.schema.json", "schemas/forecast-result.schema.json",
+                     "docs/forecasting.md", "docs/usagetap-forecast-migration.md"):
             assert prefix + path in names, path
         metadata = BytesParser().parsebytes(archive.extractfile(prefix + "PKG-INFO").read())
         assert metadata["Version"] == ver and metadata["Name"] == "anomalyzer"

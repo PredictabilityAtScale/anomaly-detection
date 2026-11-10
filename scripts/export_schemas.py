@@ -6,6 +6,7 @@ from anomalyzer.distribution_contracts import (
     DistributionRequest, DistributionResult, DistributionMonitorRequest, DistributionMonitorResult,
 )
 from anomalyzer.seasonal_distributions import SeasonalDistributionRequest, SeasonalDistributionResult
+from anomalyzer.forecast_contracts import ForecastRequest, ForecastResult
 
 directory = Path(__file__).resolve().parents[1] / "schemas"
 directory.mkdir(exist_ok=True)
@@ -19,6 +20,8 @@ for name, contract in (("request-1.1", RequestV11), ("result-1.1", ResultV11)):
     (directory / f"{name}.schema.json").write_text(
         json.dumps(schema, indent=2) + "\n", encoding="utf-8")
 for name, contract in (("distribution-request", DistributionRequest),
+                       ("forecast-request", ForecastRequest),
+                       ("forecast-result", ForecastResult),
                        ("distribution-result", DistributionResult),
                        ("distribution-monitor-request", DistributionMonitorRequest),
                        ("distribution-monitor-result", DistributionMonitorResult),

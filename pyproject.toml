@@ -51,5 +51,6 @@ packages = ["src/anomalyzer"]
 include = [
     "/src", "/tests", "/schemas", "/examples", "/scripts",
     "/.agents/skills/anomaly-detection", "/docs/releases", "/docs/sparse-data.md", "/docs/distribution-detection.md", "/docs/seasonal-distributions.md",
+    "/docs/forecasting.md", "/docs/forecast-evaluation.json", "/docs/usagetap-forecast-migration.md",
     "/README.md", "/CONTRIBUTING.md", "/LICENSE", "/pyproject.toml", "/uv.lock",
 ]

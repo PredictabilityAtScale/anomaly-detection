@@ -28,8 +28,9 @@ docker run --rm --platform linux/amd64 --entrypoint /bin/bash \
 docker run --rm --platform linux/amd64 --network none --entrypoint /bin/bash \
   -v "$bundle/package:/var/task:ro" \
   -v "$root/examples/library/guard_smoke.py:/tmp/guard_smoke.py:ro" \
+  -v "$root/examples/library/forecast_smoke.py:/tmp/forecast_smoke.py:ro" \
   -v "$root/examples/library/benchmark_sparse.py:/tmp/benchmark_sparse.py:ro" \
   -v "$bundle/reports:/reports" \
   -w /var/task "$image" -euc \
-  'PYTHONPATH=/var/task python /tmp/guard_smoke.py --expect-prefix /var/task && PYTHONPATH=/var/task python /tmp/benchmark_sparse.py --output /reports/benchmark.json >/dev/null' \
+  'PYTHONPATH=/var/task python /tmp/guard_smoke.py --expect-prefix /var/task && PYTHONPATH=/var/task python /tmp/forecast_smoke.py >/reports/forecast-smoke.json && PYTHONPATH=/var/task python /tmp/benchmark_sparse.py --output /reports/benchmark.json >/dev/null' \
   | tee "$bundle/smoke.json"

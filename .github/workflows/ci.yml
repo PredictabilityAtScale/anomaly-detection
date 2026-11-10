@@ -110,3 +110,4 @@ jobs:
             .tmp/lambda-consumer/requirements-offline.txt
             .tmp/lambda-consumer/wheelhouse-SHA256SUMS
             .tmp/lambda-consumer/reports/benchmark.json
+            .tmp/lambda-consumer/reports/forecast-smoke.json
