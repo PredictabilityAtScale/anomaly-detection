@@ -1,0 +1,2 @@
+series_id,resolution,method,index,timestamp,event_id,expected,point_flag,pattern_first_detection,classifications,signal_maturity,readiness,target_status
+series,,assessment_only,0,2026-01-01T00:00:00+00:00,,,false,,criterion_violation,observation_only,not_assessed,insufficient_history

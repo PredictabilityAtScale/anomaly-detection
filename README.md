@@ -143,6 +143,9 @@ The checked-in [single-series examples](examples/README.md) cover ordinary
 behavior, spikes, drops, growth, sustained shifts, and explicit regime resets.
 The [agentic evidence examples](examples/agentic/README.md) cover ratios, lagged
 responses, explicit policy rules, and incomplete-data gating.
+The [portable comparison pack](examples/comparison/README.md) follows all 27
+progression chapters with labelled CSVs, forecast holdouts, and actual Anomalyzer
+baselines for importing into other tools.
 
 ## Use the anomaly-detection skill
 

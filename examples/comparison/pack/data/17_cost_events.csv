@@ -1,0 +1,13 @@
+series_id,index,timestamp,value,is_anomaly,anomaly_kind,anomaly_scope,anomaly_id,score_anomaly,split,anomaly_free_value,coverage,reported_value,value_origin,event_id,event_sequence,reset_before,population,weight,available_at,revision_id,units,observation_basis
+series,0,2026-01-01T00:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,supplied,,,false,,,,,dollars_per_call,event_index
+series,1,2026-01-01T01:00:00+00:00,0.11,false,,,,true,not_applicable,,complete,0.11,supplied,,,false,,,,,dollars_per_call,event_index
+series,2,2026-01-01T08:00:00+00:00,0.09,false,,,,true,not_applicable,,complete,0.09,supplied,,,false,,,,,dollars_per_call,event_index
+series,3,2026-01-02T11:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,supplied,,,false,,,,,dollars_per_call,event_index
+series,4,2026-01-04T08:00:00+00:00,0.09,false,,,,true,not_applicable,,complete,0.09,supplied,,,false,,,,,dollars_per_call,event_index
+series,5,2026-01-05T04:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,supplied,,,false,,,,,dollars_per_call,event_index
+series,6,2026-01-06T10:00:00+00:00,0.11,false,,,,true,not_applicable,,complete,0.11,supplied,,,false,,,,,dollars_per_call,event_index
+series,7,2026-01-08T12:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,supplied,,,false,,,,,dollars_per_call,event_index
+series,8,2026-01-10T04:00:00+00:00,0.09,false,,,,true,not_applicable,,complete,0.09,supplied,,,false,,,,,dollars_per_call,event_index
+series,9,2026-01-13T12:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,supplied,,,false,,,,,dollars_per_call,event_index
+series,10,2026-01-15T14:00:00+00:00,0.11,false,,,,true,not_applicable,,complete,0.11,supplied,,,false,,,,,dollars_per_call,event_index
+series,11,2026-01-18T22:00:00+00:00,0.8,true,spike_or_drop,point,17_cost_events:series:spike_or_drop:11,true,not_applicable,,complete,0.8,supplied,,,false,,,,,dollars_per_call,event_index

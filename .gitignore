@@ -2,6 +2,9 @@
 __pycache__/
 .pytest_cache/
 .tmp/
+# Local verification scratch directories
+/.review-tmp-*/
+/.tmp-*/
 .coverage
 coverage.xml
 htmlcov/

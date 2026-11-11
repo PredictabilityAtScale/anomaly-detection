@@ -1,0 +1,13 @@
+series_id,resolution,method,index,timestamp,event_id,expected,point_flag,pattern_first_detection,classifications,signal_maturity,readiness,target_status
+series,,assessment_only,0,2026-01-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,1,2026-01-01T01:00:00+00:00,,,false,,change,early,not_assessed,insufficient_history
+series,,assessment_only,8,2026-01-01T08:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,35,2026-01-02T11:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,80,2026-01-04T08:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,100,2026-01-05T04:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,130,2026-01-06T10:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,180,2026-01-08T12:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,220,2026-01-10T04:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,300,2026-01-13T12:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,350,2026-01-15T14:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+series,,assessment_only,430,2026-01-18T22:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history

@@ -1,0 +1,1276 @@
+{
+  "schema_version": "distribution-v1",
+  "task": "compare_seasonal_distributions",
+  "status": "completed",
+  "kind": "numeric",
+  "entity": {
+    "application": "synthetic-scheduled-batch"
+  },
+  "units": "cache_read_fraction",
+  "input_fingerprint": "dff1ef07dcb168ef162b6c54ca88ce856e973e7ccb426ef152bc2f0bbc848d78",
+  "selection_id": "f9502cdec8da36525d701400894971fecfb2b48e1eb49f63d5079242ea153fae",
+  "reference_id": "7951086e51cdaf6d4ecca34acf82a6d4fe8e00f1438503777e6474b077677139",
+  "change_detected": false,
+  "selection": {
+    "policy": {
+      "timezone": "America/Los_Angeles",
+      "matching": "daily",
+      "lookback_days": 28,
+      "min_windows": 3,
+      "max_windows": 14,
+      "min_samples_per_window": 8,
+      "fallback": "none"
+    },
+    "resolved_matching": "daily",
+    "fallback_used": false,
+    "attempts": [
+      {
+        "matching": "daily",
+        "selected_windows": 3,
+        "measured_samples": 96,
+        "support_sufficient": true
+      }
+    ],
+    "windows": [
+      {
+        "date": "2026-10-29",
+        "status": "selected",
+        "reason": null,
+        "sample_ids": [
+          "2026-10-29-8-000",
+          "2026-10-29-8-001",
+          "2026-10-29-8-002",
+          "2026-10-29-8-003",
+          "2026-10-29-8-004",
+          "2026-10-29-8-005",
+          "2026-10-29-8-006",
+          "2026-10-29-8-007",
+          "2026-10-29-8-008",
+          "2026-10-29-8-009",
+          "2026-10-29-8-010",
+          "2026-10-29-8-011",
+          "2026-10-29-8-012",
+          "2026-10-29-8-013",
+          "2026-10-29-8-014",
+          "2026-10-29-8-015",
+          "2026-10-29-8-016",
+          "2026-10-29-8-017",
+          "2026-10-29-8-018",
+          "2026-10-29-8-019",
+          "2026-10-29-8-020",
+          "2026-10-29-8-021",
+          "2026-10-29-8-022",
+          "2026-10-29-8-023",
+          "2026-10-29-8-024",
+          "2026-10-29-8-025",
+          "2026-10-29-8-026",
+          "2026-10-29-8-027",
+          "2026-10-29-8-028",
+          "2026-10-29-8-029",
+          "2026-10-29-8-030",
+          "2026-10-29-8-031"
+        ],
+        "measured_samples": 32,
+        "start": "2026-10-29T15:00:00+00:00",
+        "end": "2026-10-29T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-28",
+        "status": "selected",
+        "reason": null,
+        "sample_ids": [
+          "2026-10-28-8-000",
+          "2026-10-28-8-001",
+          "2026-10-28-8-002",
+          "2026-10-28-8-003",
+          "2026-10-28-8-004",
+          "2026-10-28-8-005",
+          "2026-10-28-8-006",
+          "2026-10-28-8-007",
+          "2026-10-28-8-008",
+          "2026-10-28-8-009",
+          "2026-10-28-8-010",
+          "2026-10-28-8-011",
+          "2026-10-28-8-012",
+          "2026-10-28-8-013",
+          "2026-10-28-8-014",
+          "2026-10-28-8-015",
+          "2026-10-28-8-016",
+          "2026-10-28-8-017",
+          "2026-10-28-8-018",
+          "2026-10-28-8-019",
+          "2026-10-28-8-020",
+          "2026-10-28-8-021",
+          "2026-10-28-8-022",
+          "2026-10-28-8-023",
+          "2026-10-28-8-024",
+          "2026-10-28-8-025",
+          "2026-10-28-8-026",
+          "2026-10-28-8-027",
+          "2026-10-28-8-028",
+          "2026-10-28-8-029",
+          "2026-10-28-8-030",
+          "2026-10-28-8-031"
+        ],
+        "measured_samples": 32,
+        "start": "2026-10-28T15:00:00+00:00",
+        "end": "2026-10-28T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-27",
+        "status": "selected",
+        "reason": null,
+        "sample_ids": [
+          "2026-10-27-8-000",
+          "2026-10-27-8-001",
+          "2026-10-27-8-002",
+          "2026-10-27-8-003",
+          "2026-10-27-8-004",
+          "2026-10-27-8-005",
+          "2026-10-27-8-006",
+          "2026-10-27-8-007",
+          "2026-10-27-8-008",
+          "2026-10-27-8-009",
+          "2026-10-27-8-010",
+          "2026-10-27-8-011",
+          "2026-10-27-8-012",
+          "2026-10-27-8-013",
+          "2026-10-27-8-014",
+          "2026-10-27-8-015",
+          "2026-10-27-8-016",
+          "2026-10-27-8-017",
+          "2026-10-27-8-018",
+          "2026-10-27-8-019",
+          "2026-10-27-8-020",
+          "2026-10-27-8-021",
+          "2026-10-27-8-022",
+          "2026-10-27-8-023",
+          "2026-10-27-8-024",
+          "2026-10-27-8-025",
+          "2026-10-27-8-026",
+          "2026-10-27-8-027",
+          "2026-10-27-8-028",
+          "2026-10-27-8-029",
+          "2026-10-27-8-030",
+          "2026-10-27-8-031"
+        ],
+        "measured_samples": 32,
+        "start": "2026-10-27T15:00:00+00:00",
+        "end": "2026-10-27T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-26",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-26T15:00:00+00:00",
+        "end": "2026-10-26T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-25",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-25T15:00:00+00:00",
+        "end": "2026-10-25T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-24",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-24T15:00:00+00:00",
+        "end": "2026-10-24T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-23",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-23T15:00:00+00:00",
+        "end": "2026-10-23T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-22",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-22T15:00:00+00:00",
+        "end": "2026-10-22T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-21",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-21T15:00:00+00:00",
+        "end": "2026-10-21T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-20",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-20T15:00:00+00:00",
+        "end": "2026-10-20T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-19",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-19T15:00:00+00:00",
+        "end": "2026-10-19T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-18",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-18T15:00:00+00:00",
+        "end": "2026-10-18T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-17",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-17T15:00:00+00:00",
+        "end": "2026-10-17T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-16",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-16T15:00:00+00:00",
+        "end": "2026-10-16T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-15",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-15T15:00:00+00:00",
+        "end": "2026-10-15T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-14",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-14T15:00:00+00:00",
+        "end": "2026-10-14T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-13",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-13T15:00:00+00:00",
+        "end": "2026-10-13T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-12",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-12T15:00:00+00:00",
+        "end": "2026-10-12T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-11",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-11T15:00:00+00:00",
+        "end": "2026-10-11T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-10",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-10T15:00:00+00:00",
+        "end": "2026-10-10T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-09",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-09T15:00:00+00:00",
+        "end": "2026-10-09T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-08",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-08T15:00:00+00:00",
+        "end": "2026-10-08T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-07",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-07T15:00:00+00:00",
+        "end": "2026-10-07T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-06",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-06T15:00:00+00:00",
+        "end": "2026-10-06T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-05",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-05T15:00:00+00:00",
+        "end": "2026-10-05T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-04",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-04T15:00:00+00:00",
+        "end": "2026-10-04T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-03",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-03T15:00:00+00:00",
+        "end": "2026-10-03T15:05:00+00:00"
+      },
+      {
+        "date": "2026-10-02",
+        "status": "excluded",
+        "reason": "insufficient_window_support",
+        "sample_ids": [],
+        "measured_samples": 0,
+        "start": "2026-10-02T15:00:00+00:00",
+        "end": "2026-10-02T15:05:00+00:00"
+      }
+    ],
+    "reference_windows": 3,
+    "reference_measured_samples": 96,
+    "current_measured_samples": 32,
+    "reference_sample_ids": [
+      "2026-10-27-8-000",
+      "2026-10-27-8-001",
+      "2026-10-27-8-002",
+      "2026-10-27-8-003",
+      "2026-10-27-8-004",
+      "2026-10-27-8-005",
+      "2026-10-27-8-006",
+      "2026-10-27-8-007",
+      "2026-10-27-8-008",
+      "2026-10-27-8-009",
+      "2026-10-27-8-010",
+      "2026-10-27-8-011",
+      "2026-10-27-8-012",
+      "2026-10-27-8-013",
+      "2026-10-27-8-014",
+      "2026-10-27-8-015",
+      "2026-10-27-8-016",
+      "2026-10-27-8-017",
+      "2026-10-27-8-018",
+      "2026-10-27-8-019",
+      "2026-10-27-8-020",
+      "2026-10-27-8-021",
+      "2026-10-27-8-022",
+      "2026-10-27-8-023",
+      "2026-10-27-8-024",
+      "2026-10-27-8-025",
+      "2026-10-27-8-026",
+      "2026-10-27-8-027",
+      "2026-10-27-8-028",
+      "2026-10-27-8-029",
+      "2026-10-27-8-030",
+      "2026-10-27-8-031",
+      "2026-10-28-8-000",
+      "2026-10-28-8-001",
+      "2026-10-28-8-002",
+      "2026-10-28-8-003",
+      "2026-10-28-8-004",
+      "2026-10-28-8-005",
+      "2026-10-28-8-006",
+      "2026-10-28-8-007",
+      "2026-10-28-8-008",
+      "2026-10-28-8-009",
+      "2026-10-28-8-010",
+      "2026-10-28-8-011",
+      "2026-10-28-8-012",
+      "2026-10-28-8-013",
+      "2026-10-28-8-014",
+      "2026-10-28-8-015",
+      "2026-10-28-8-016",
+      "2026-10-28-8-017",
+      "2026-10-28-8-018",
+      "2026-10-28-8-019",
+      "2026-10-28-8-020",
+      "2026-10-28-8-021",
+      "2026-10-28-8-022",
+      "2026-10-28-8-023",
+      "2026-10-28-8-024",
+      "2026-10-28-8-025",
+      "2026-10-28-8-026",
+      "2026-10-28-8-027",
+      "2026-10-28-8-028",
+      "2026-10-28-8-029",
+      "2026-10-28-8-030",
+      "2026-10-28-8-031",
+      "2026-10-29-8-000",
+      "2026-10-29-8-001",
+      "2026-10-29-8-002",
+      "2026-10-29-8-003",
+      "2026-10-29-8-004",
+      "2026-10-29-8-005",
+      "2026-10-29-8-006",
+      "2026-10-29-8-007",
+      "2026-10-29-8-008",
+      "2026-10-29-8-009",
+      "2026-10-29-8-010",
+      "2026-10-29-8-011",
+      "2026-10-29-8-012",
+      "2026-10-29-8-013",
+      "2026-10-29-8-014",
+      "2026-10-29-8-015",
+      "2026-10-29-8-016",
+      "2026-10-29-8-017",
+      "2026-10-29-8-018",
+      "2026-10-29-8-019",
+      "2026-10-29-8-020",
+      "2026-10-29-8-021",
+      "2026-10-29-8-022",
+      "2026-10-29-8-023",
+      "2026-10-29-8-024",
+      "2026-10-29-8-025",
+      "2026-10-29-8-026",
+      "2026-10-29-8-027",
+      "2026-10-29-8-028",
+      "2026-10-29-8-029",
+      "2026-10-29-8-030",
+      "2026-10-29-8-031"
+    ],
+    "current_sample_ids": [
+      "2026-10-30-8-000",
+      "2026-10-30-8-001",
+      "2026-10-30-8-002",
+      "2026-10-30-8-003",
+      "2026-10-30-8-004",
+      "2026-10-30-8-005",
+      "2026-10-30-8-006",
+      "2026-10-30-8-007",
+      "2026-10-30-8-008",
+      "2026-10-30-8-009",
+      "2026-10-30-8-010",
+      "2026-10-30-8-011",
+      "2026-10-30-8-012",
+      "2026-10-30-8-013",
+      "2026-10-30-8-014",
+      "2026-10-30-8-015",
+      "2026-10-30-8-016",
+      "2026-10-30-8-017",
+      "2026-10-30-8-018",
+      "2026-10-30-8-019",
+      "2026-10-30-8-020",
+      "2026-10-30-8-021",
+      "2026-10-30-8-022",
+      "2026-10-30-8-023",
+      "2026-10-30-8-024",
+      "2026-10-30-8-025",
+      "2026-10-30-8-026",
+      "2026-10-30-8-027",
+      "2026-10-30-8-028",
+      "2026-10-30-8-029",
+      "2026-10-30-8-030",
+      "2026-10-30-8-031"
+    ],
+    "excluded_samples": [
+      {
+        "id": "2026-10-27-21-000",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-001",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-002",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-003",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-004",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-005",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-006",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-007",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-008",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-009",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-010",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-011",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-012",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-013",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-014",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-015",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-016",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-017",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-018",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-019",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-020",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-021",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-022",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-023",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-024",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-025",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-026",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-027",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-028",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-029",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-030",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-27-21-031",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-000",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-001",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-002",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-003",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-004",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-005",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-006",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-007",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-008",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-009",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-010",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-011",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-012",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-013",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-014",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-015",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-016",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-017",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-018",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-019",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-020",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-021",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-022",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-023",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-024",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-025",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-026",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-027",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-028",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-029",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-030",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-28-21-031",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-000",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-001",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-002",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-003",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-004",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-005",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-006",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-007",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-008",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-009",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-010",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-011",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-012",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-013",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-014",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-015",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-016",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-017",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-018",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-019",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-020",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-021",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-022",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-023",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-024",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-025",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-026",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-027",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-028",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-029",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-030",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-29-21-031",
+        "reason": "outside_matching_clock_window"
+      },
+      {
+        "id": "2026-10-30-21-000",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-001",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-002",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-003",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-004",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-005",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-006",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-007",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-008",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-009",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-010",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-011",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-012",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-013",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-014",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-015",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-016",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-017",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-018",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-019",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-020",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-021",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-022",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-023",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-024",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-025",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-026",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-027",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-028",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-029",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-030",
+        "reason": "at_or_after_assessed_end"
+      },
+      {
+        "id": "2026-10-30-21-031",
+        "reason": "at_or_after_assessed_end"
+      }
+    ],
+    "current_window": {
+      "start": "2026-10-30T15:00:00+00:00",
+      "end": "2026-10-30T16:00:00+00:00",
+      "assessed_end": "2026-10-30T15:05:00+00:00",
+      "partial": true,
+      "local_start": "2026-10-30T08:00:00-07:00",
+      "local_assessed_end": "2026-10-30T08:05:00-07:00"
+    },
+    "weighting": "pooled_events; higher-volume windows contribute more observations",
+    "selection_version": "explicit-seasonal-v1"
+  },
+  "testing": {
+    "alpha": 0.01,
+    "max_comparisons": 1,
+    "comparison_index": 0,
+    "correction": "bonferroni",
+    "threshold": 0.01,
+    "allocation_policy": "caller-held family; selection and fallback do not reset its budget"
+  },
+  "comparison": {
+    "schema_version": "distribution-v1",
+    "task": "compare_distributions",
+    "status": "completed",
+    "kind": "numeric",
+    "entity": {
+      "application": "synthetic-scheduled-batch"
+    },
+    "units": "cache_read_fraction",
+    "reference_id": "7951086e51cdaf6d4ecca34acf82a6d4fe8e00f1438503777e6474b077677139",
+    "current_id": "8a56568d11962137c615a6b39e4205c7da819e9be16355f78ca59b7653f7dc35",
+    "input_fingerprint": "80e3766e12ef30098a9e3f7747bab7f619cce1121a430e0e1efd06b632b71efe",
+    "method": "ks_tie_exact",
+    "statistic": 0.0,
+    "p_value": 1.0,
+    "adjusted_p_value": 1.0,
+    "threshold": 0.01,
+    "statistical_change": false,
+    "practical_change": false,
+    "change_detected": false,
+    "reference": {
+      "sample_count": 96,
+      "sample_ids": [
+        "2026-10-27-8-000",
+        "2026-10-27-8-001",
+        "2026-10-27-8-002",
+        "2026-10-27-8-003",
+        "2026-10-27-8-004",
+        "2026-10-27-8-005",
+        "2026-10-27-8-006",
+        "2026-10-27-8-007",
+        "2026-10-27-8-008",
+        "2026-10-27-8-009",
+        "2026-10-27-8-010",
+        "2026-10-27-8-011",
+        "2026-10-27-8-012",
+        "2026-10-27-8-013",
+        "2026-10-27-8-014",
+        "2026-10-27-8-015",
+        "2026-10-27-8-016",
+        "2026-10-27-8-017",
+        "2026-10-27-8-018",
+        "2026-10-27-8-019",
+        "2026-10-27-8-020",
+        "2026-10-27-8-021",
+        "2026-10-27-8-022",
+        "2026-10-27-8-023",
+        "2026-10-27-8-024",
+        "2026-10-27-8-025",
+        "2026-10-27-8-026",
+        "2026-10-27-8-027",
+        "2026-10-27-8-028",
+        "2026-10-27-8-029",
+        "2026-10-27-8-030",
+        "2026-10-27-8-031",
+        "2026-10-28-8-000",
+        "2026-10-28-8-001",
+        "2026-10-28-8-002",
+        "2026-10-28-8-003",
+        "2026-10-28-8-004",
+        "2026-10-28-8-005",
+        "2026-10-28-8-006",
+        "2026-10-28-8-007",
+        "2026-10-28-8-008",
+        "2026-10-28-8-009",
+        "2026-10-28-8-010",
+        "2026-10-28-8-011",
+        "2026-10-28-8-012",
+        "2026-10-28-8-013",
+        "2026-10-28-8-014",
+        "2026-10-28-8-015",
+        "2026-10-28-8-016",
+        "2026-10-28-8-017",
+        "2026-10-28-8-018",
+        "2026-10-28-8-019",
+        "2026-10-28-8-020",
+        "2026-10-28-8-021",
+        "2026-10-28-8-022",
+        "2026-10-28-8-023",
+        "2026-10-28-8-024",
+        "2026-10-28-8-025",
+        "2026-10-28-8-026",
+        "2026-10-28-8-027",
+        "2026-10-28-8-028",
+        "2026-10-28-8-029",
+        "2026-10-28-8-030",
+        "2026-10-28-8-031",
+        "2026-10-29-8-000",
+        "2026-10-29-8-001",
+        "2026-10-29-8-002",
+        "2026-10-29-8-003",
+        "2026-10-29-8-004",
+        "2026-10-29-8-005",
+        "2026-10-29-8-006",
+        "2026-10-29-8-007",
+        "2026-10-29-8-008",
+        "2026-10-29-8-009",
+        "2026-10-29-8-010",
+        "2026-10-29-8-011",
+        "2026-10-29-8-012",
+        "2026-10-29-8-013",
+        "2026-10-29-8-014",
+        "2026-10-29-8-015",
+        "2026-10-29-8-016",
+        "2026-10-29-8-017",
+        "2026-10-29-8-018",
+        "2026-10-29-8-019",
+        "2026-10-29-8-020",
+        "2026-10-29-8-021",
+        "2026-10-29-8-022",
+        "2026-10-29-8-023",
+        "2026-10-29-8-024",
+        "2026-10-29-8-025",
+        "2026-10-29-8-026",
+        "2026-10-29-8-027",
+        "2026-10-29-8-028",
+        "2026-10-29-8-029",
+        "2026-10-29-8-030",
+        "2026-10-29-8-031"
+      ],
+      "excluded_ids": [],
+      "unknown_count": 0,
+      "incomplete_count": 0,
+      "interval": [
+        "2026-10-27T15:00:00+00:00",
+        "2026-10-29T15:00:31+00:00"
+      ],
+      "mean": 0.8,
+      "median": 0.8,
+      "minimum": 0.8,
+      "maximum": 0.8,
+      "zero_fraction": 0.0
+    },
+    "current": {
+      "sample_count": 32,
+      "sample_ids": [
+        "2026-10-30-8-000",
+        "2026-10-30-8-001",
+        "2026-10-30-8-002",
+        "2026-10-30-8-003",
+        "2026-10-30-8-004",
+        "2026-10-30-8-005",
+        "2026-10-30-8-006",
+        "2026-10-30-8-007",
+        "2026-10-30-8-008",
+        "2026-10-30-8-009",
+        "2026-10-30-8-010",
+        "2026-10-30-8-011",
+        "2026-10-30-8-012",
+        "2026-10-30-8-013",
+        "2026-10-30-8-014",
+        "2026-10-30-8-015",
+        "2026-10-30-8-016",
+        "2026-10-30-8-017",
+        "2026-10-30-8-018",
+        "2026-10-30-8-019",
+        "2026-10-30-8-020",
+        "2026-10-30-8-021",
+        "2026-10-30-8-022",
+        "2026-10-30-8-023",
+        "2026-10-30-8-024",
+        "2026-10-30-8-025",
+        "2026-10-30-8-026",
+        "2026-10-30-8-027",
+        "2026-10-30-8-028",
+        "2026-10-30-8-029",
+        "2026-10-30-8-030",
+        "2026-10-30-8-031"
+      ],
+      "excluded_ids": [],
+      "unknown_count": 0,
+      "incomplete_count": 0,
+      "interval": [
+        "2026-10-30T15:00:00+00:00",
+        "2026-10-30T15:00:31+00:00"
+      ],
+      "mean": 0.8,
+      "median": 0.8,
+      "minimum": 0.8,
+      "maximum": 0.8,
+      "zero_fraction": 0.0
+    },
+    "details": {
+      "statistic_location": null,
+      "cdf_sign": 0,
+      "effect_semantics": "maximum absolute CDF share difference; not a mean shift or probability",
+      "permutation_method": "exact_tie_conditional"
+    },
+    "testing": {
+      "alpha": 0.01,
+      "max_comparisons": 1,
+      "comparison_index": 0,
+      "correction": "bonferroni",
+      "assume_exchangeable": true,
+      "min_effect": 0.05,
+      "missing_current": "exclude"
+    },
+    "reasons": [
+      "No finding under the configured statistical and practical thresholds; this does not establish normality."
+    ],
+    "limitations": [
+      "Inference assumes independent, exchangeable observations from comparable populations under the null; IDs do not establish independence.",
+      "Clustering, serial dependence, changing traffic mix and informative missingness can invalidate statistical interpretation; use representative chronological replay.",
+      "The testing family covers only declared comparisons; caller owns budgets across metrics, monitors, reference selection, restarts and deployments.",
+      "No finding establishes cause, abuse, incident probability or business impact; no finding does not establish normality."
+    ],
+    "business_impact": "unresolved"
+  },
+  "reasons": [
+    "No finding under the configured statistical and practical thresholds; this does not establish normality."
+  ],
+  "limitations": [
+    "Inference assumes independent, exchangeable observations from comparable populations under the null; IDs do not establish independence.",
+    "Clustering, serial dependence, changing traffic mix and informative missingness can invalidate statistical interpretation; use representative chronological replay.",
+    "The testing family covers only declared comparisons; caller owns budgets across metrics, monitors, reference selection, restarts and deployments.",
+    "No finding establishes cause, abuse, incident probability or business impact; no finding does not establish normality.",
+    "Matching is caller-declared, never discovered. Collection completeness and as-of availability are caller responsibilities; a closed clock window does not prove complete telemetry.",
+    "Matching local time does not remove within-run/day dependence. This version does not perform block resampling or validate exchangeability.",
+    "Keep separate rate and overall composition checks to detect a missing, shifted or enlarged scheduled batch; no cross-midnight or offset-transition windows are inferred."
+  ],
+  "business_impact": "unresolved"
+}

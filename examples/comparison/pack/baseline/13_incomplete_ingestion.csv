@@ -1,0 +1,11 @@
+series_id,resolution,method,index,timestamp,event_id,expected,point_flag,pattern_first_detection,classifications,signal_maturity,readiness,target_status
+ingestion_completeness,,assessment_only,0,2026-04-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+ingestion_completeness,,assessment_only,1,2026-04-02T00:00:00+00:00,,,false,,change,early,not_assessed,insufficient_history
+ingestion_completeness,,assessment_only,2,2026-04-03T00:00:00+00:00,,,false,,change,early,not_assessed,insufficient_history
+usage_events,,dataset:usage_events:seasonal_naive,1,2026-04-02T00:00:00+00:00,,100.0,false,,change,reference_only,not_assessed,insufficient_history
+usage_events,,dataset:usage_events:seasonal_naive,2,2026-04-03T00:00:00+00:00,,102.0,false,,departure_candidate,reference_only,not_assessed,insufficient_history
+usage_events,,dataset:usage_events:seasonal_naive,3,2026-04-04T00:00:00+00:00,,98.0,false,,departure_candidate,reference_only,not_assessed,insufficient_history
+usage_events,,assessment_only,0,2026-04-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+confirmed_usage_drop,,assessment_only,0,2026-04-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_evidence
+confirmed_usage_drop,,assessment_only,1,2026-04-02T00:00:00+00:00,,,false,,change,early,not_assessed,insufficient_evidence
+confirmed_usage_drop,,assessment_only,2,2026-04-03T00:00:00+00:00,,,false,,change,early,not_assessed,insufficient_evidence

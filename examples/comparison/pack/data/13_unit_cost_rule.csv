@@ -1,0 +1,13 @@
+series_id,index,timestamp,value,is_anomaly,anomaly_kind,anomaly_scope,anomaly_id,score_anomaly,split,anomaly_free_value,coverage,reported_value,value_origin,event_id,event_sequence,reset_before,population,weight,available_at,revision_id,units,observation_basis
+infrastructure_cost,0,2026-03-01T00:00:00+00:00,10,false,,,,true,not_applicable,,complete,10,supplied,,,false,,,,,usd,calendar
+infrastructure_cost,1,2026-03-02T00:00:00+00:00,11,false,,,,true,not_applicable,,complete,11,supplied,,,false,,,,,usd,calendar
+infrastructure_cost,2,2026-03-03T00:00:00+00:00,9,false,,,,true,not_applicable,,complete,9,supplied,,,false,,,,,usd,calendar
+infrastructure_cost,3,2026-03-04T00:00:00+00:00,11,false,,,,true,not_applicable,,complete,11,supplied,,,false,,,,,usd,calendar
+successful_requests,0,2026-03-01T00:00:00+00:00,100,false,,,,true,not_applicable,,complete,100,supplied,,,false,,,,,requests,calendar
+successful_requests,1,2026-03-02T00:00:00+00:00,110,false,,,,true,not_applicable,,complete,110,supplied,,,false,,,,,requests,calendar
+successful_requests,2,2026-03-03T00:00:00+00:00,90,false,,,,true,not_applicable,,complete,90,supplied,,,false,,,,,requests,calendar
+successful_requests,3,2026-03-04T00:00:00+00:00,70,false,,,,true,not_applicable,,complete,70,supplied,,,false,,,,,requests,calendar
+unit_cost,0,2026-03-01T00:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,declared_relationship,,,false,,,,,usd_per_request,declared_relationship
+unit_cost,1,2026-03-02T00:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,declared_relationship,,,false,,,,,usd_per_request,declared_relationship
+unit_cost,2,2026-03-03T00:00:00+00:00,0.1,false,,,,true,not_applicable,,complete,0.1,declared_relationship,,,false,,,,,usd_per_request,declared_relationship
+unit_cost,3,2026-03-04T00:00:00+00:00,0.15714285714285714,true,rule_violation,relationship,13_unit_cost_rule:unit_cost:rule_violation:3,true,not_applicable,,complete,0.15714285714285714,declared_relationship,,,false,,,,,usd_per_request,declared_relationship

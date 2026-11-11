@@ -1,0 +1,2 @@
+series_id,index,timestamp,value,is_anomaly,anomaly_kind,anomaly_scope,anomaly_id,score_anomaly,split,anomaly_free_value,coverage,reported_value,value_origin,event_id,event_sequence,reset_before,population,weight,available_at,revision_id,units,observation_basis
+series,0,2026-01-01T00:00:00+00:00,100.0,true,rule_violation,point,20_first_rule:series:rule_violation:0,true,not_applicable,,complete,100.0,supplied,,,false,,,,,measured_units,calendar

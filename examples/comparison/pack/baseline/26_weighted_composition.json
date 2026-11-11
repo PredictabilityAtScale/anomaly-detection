@@ -1,0 +1,79 @@
+{
+  "schema_version": "distribution-v1",
+  "task": "compare_distributions",
+  "status": "descriptive",
+  "kind": "categorical",
+  "entity": {
+    "application": "synthetic-weighted-example",
+    "meter": "pages"
+  },
+  "units": "pages",
+  "reference_id": "3fd17446e9c23194b30deaef4c454e6c17ff5974c098ff92f4bdfbe6473bda66",
+  "current_id": "7922391d4146f37fd98bc916c633f1474d776a22de9d95b0ce6444779ca7be50",
+  "input_fingerprint": "d22e444ea2059a9c43b4deb9afa63aa56d4570b4b72dc4d11bc008dd4b2670cd",
+  "method": "jensen_shannon_descriptive",
+  "statistic": 0.5310044064107189,
+  "p_value": null,
+  "adjusted_p_value": null,
+  "threshold": 0.01,
+  "statistical_change": false,
+  "practical_change": true,
+  "change_detected": false,
+  "reference": {
+    "sample_count": null,
+    "sample_ids": [],
+    "excluded_ids": [],
+    "unknown_count": 0,
+    "incomplete_count": 0,
+    "total_weight": 1000.0,
+    "sampling_unit": "event (not consumed units)",
+    "interval": null
+  },
+  "current": {
+    "sample_count": null,
+    "sample_ids": [],
+    "excluded_ids": [],
+    "unknown_count": 0,
+    "incomplete_count": 0,
+    "total_weight": 1000.0,
+    "sampling_unit": "event (not consumed units)",
+    "interval": null
+  },
+  "details": {
+    "categories": [
+      {
+        "category": "export",
+        "reference_share": 0.1,
+        "current_share": 0.9,
+        "share_change": 0.8
+      },
+      {
+        "category": "search",
+        "reference_share": 0.9,
+        "current_share": 0.1,
+        "share_change": -0.8
+      }
+    ],
+    "total_variation": 0.8,
+    "effect_semantics": "Jensen-Shannon divergence in bits (0..1); category contributions are descriptive, not independent tests"
+  },
+  "testing": {
+    "alpha": 0.01,
+    "max_comparisons": 1,
+    "comparison_index": 0,
+    "correction": "bonferroni",
+    "assume_exchangeable": false,
+    "min_effect": 0.05,
+    "missing_current": "exclude"
+  },
+  "reasons": [
+    "Consumed units/weights are not independent event counts; no statistical test or finding is produced."
+  ],
+  "limitations": [
+    "Inference assumes independent, exchangeable observations from comparable populations under the null; IDs do not establish independence.",
+    "Clustering, serial dependence, changing traffic mix and informative missingness can invalidate statistical interpretation; use representative chronological replay.",
+    "The testing family covers only declared comparisons; caller owns budgets across metrics, monitors, reference selection, restarts and deployments.",
+    "No finding establishes cause, abuse, incident probability or business impact; no finding does not establish normality."
+  ],
+  "business_impact": "unresolved"
+}

@@ -1,0 +1,5 @@
+series_id,index,timestamp,value,is_anomaly,anomaly_kind,anomaly_scope,anomaly_id,score_anomaly,split,anomaly_free_value,coverage,reported_value,value_origin,event_id,event_sequence,reset_before,population,weight,available_at,revision_id,units,observation_basis
+population,0,,search,false,,,,false,not_applicable,,complete,search,supplied,search,,false,reference,900,,,pages,aggregate_category
+population,1,,export,false,,,,false,not_applicable,,complete,export,supplied,export,,false,reference,100,,,pages,aggregate_category
+population,2,,search,true,composition_change,population,26_weighted_composition:population,false,not_applicable,,complete,search,supplied,search,,false,current,100,,,pages,aggregate_category
+population,3,,export,true,composition_change,population,26_weighted_composition:population,false,not_applicable,,complete,export,supplied,export,,false,current,900,,,pages,aggregate_category

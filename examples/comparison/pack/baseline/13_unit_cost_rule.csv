@@ -1,0 +1,13 @@
+series_id,resolution,method,index,timestamp,event_id,expected,point_flag,pattern_first_detection,classifications,signal_maturity,readiness,target_status
+infrastructure_cost,,dataset:infrastructure_cost:seasonal_naive,1,2026-03-02T00:00:00+00:00,,10.0,false,,change,reference_only,not_assessed,insufficient_history
+infrastructure_cost,,dataset:infrastructure_cost:seasonal_naive,2,2026-03-03T00:00:00+00:00,,11.0,false,,departure_candidate,reference_only,not_assessed,insufficient_history
+infrastructure_cost,,dataset:infrastructure_cost:seasonal_naive,3,2026-03-04T00:00:00+00:00,,9.0,false,,change,reference_only,not_assessed,insufficient_history
+infrastructure_cost,,assessment_only,0,2026-03-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+successful_requests,,dataset:successful_requests:seasonal_naive,1,2026-03-02T00:00:00+00:00,,100.0,false,,change,reference_only,not_assessed,insufficient_history
+successful_requests,,dataset:successful_requests:seasonal_naive,2,2026-03-03T00:00:00+00:00,,110.0,false,,departure_candidate,reference_only,not_assessed,insufficient_history
+successful_requests,,dataset:successful_requests:seasonal_naive,3,2026-03-04T00:00:00+00:00,,90.0,false,,departure_candidate,reference_only,not_assessed,insufficient_history
+successful_requests,,assessment_only,0,2026-03-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history
+unit_cost,,relationship:unit_cost:seasonal_naive,1,2026-03-02T00:00:00+00:00,,0.1,false,,change,reference_only,not_assessed,insufficient_history
+unit_cost,,relationship:unit_cost:seasonal_naive,2,2026-03-03T00:00:00+00:00,,0.1,false,,change,reference_only,not_assessed,insufficient_history
+unit_cost,,relationship:unit_cost:seasonal_naive,3,2026-03-04T00:00:00+00:00,,0.1,false,,criterion_violation,reference_only,not_assessed,insufficient_history
+unit_cost,,assessment_only,0,2026-03-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,insufficient_history

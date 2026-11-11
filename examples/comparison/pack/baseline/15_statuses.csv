@@ -1,0 +1,12 @@
+series_id,resolution,method,index,timestamp,event_id,expected,point_flag,pattern_first_detection,classifications,signal_maturity,readiness,target_status
+series,,dataset:series:sparse_seasonal,5,2026-01-01T05:00:00+00:00,,9.0,false,,change,reference_only,caution,completed
+series,,dataset:series:sparse_seasonal,6,2026-01-01T06:00:00+00:00,,9.0,false,,departure_candidate,reference_only,caution,completed
+series,,dataset:series:sparse_seasonal,7,2026-01-01T07:00:00+00:00,,9.0,false,,departure_candidate,reference_only,caution,completed
+series,,dataset:series:sparse_seasonal,8,2026-01-01T08:00:00+00:00,,9.0,false,,departure_candidate,calibrated,caution,completed
+series,,dataset:series:sparse_seasonal,10,2026-01-01T10:00:00+00:00,,9.0,false,,observation,calibrated,caution,completed
+series,,dataset:series:sparse_seasonal,11,2026-01-01T11:00:00+00:00,,9.0,false,,change,calibrated,caution,completed
+series,,dataset:series:sparse_seasonal,12,2026-01-01T12:00:00+00:00,,9.0,false,,departure_candidate,calibrated,caution,completed
+series,,assessment_only,0,2026-01-01T00:00:00+00:00,,,false,,observation,observation_only,not_assessed,completed
+series,,assessment_only,1,2026-01-01T01:00:00+00:00,,,false,,change,early,not_assessed,completed
+series,,assessment_only,3,2026-01-01T03:00:00+00:00,,,false,,observation,observation_only,not_assessed,completed
+series,,assessment_only,4,2026-01-01T04:00:00+00:00,,,false,,change,early,not_assessed,completed
