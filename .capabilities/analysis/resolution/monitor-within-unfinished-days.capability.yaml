@@ -73,64 +73,79 @@ agent:
       - Inspect the partial aggregate's observed_aggregate and
         intraday_evidence_refs together with the two method namespaces.
   review:
-    depth: verified
+    depth: partial
     source: coding-agent
+    gaps:
+      - Implement mean/last in schema 1.1 or explicitly scope criterion 1 to
+        schema 1.0.
+      - Provide schema 1.1 partial-marker evidence links or explicitly document
+        its source-index and incomplete-grid representation as an accepted
+        alternative.
+      - Reject non-dividing schema 1.1 cadences or revise criterion 5 to permit
+        daily-view unavailability.
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Multi-resolution analysis keeps native finalized subperiod
-      evidence and completed fixed 24-hour aggregates, with a separate marker
-      for the unfinished day.
+      - "Manual Python assertions: schema 1.0 returned two completed days,
+        observed partial aggregate 12, and 12 references resolving to intraday
+        evidence."
+      - "Manual Python assertions: schema 1.1 reported partial observed_sum 12
+        with aggregate_value null; mean and last returned explicit daily-view
+        restrictions; a 5h request returned native analysis rather than
+        rejection."
+      - "Manual Python assertions: a schema 1.1 unfinished source value
+        contributed neither native evidence nor usable daily children."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Expose finalized sub-day changes alongside completed 24-hour
+      aggregates and separately report unfinished-day progress.
     criteria:
       - criterion: Callers can select sum, mean, or last aggregation for completed and
           partial periods.
-        status: covered
+        status: partial
         evidence:
-          - src/anomalyzer/contracts.py:18
-          - src/anomalyzer/recipes.py:539
-          - tests/test_capability_behaviors.py:178
-        notes: Parameterized assertions check independently known completed and partial
-          values for all three aggregation choices.
+          - src/anomalyzer/recipes.py:575
+          - tests/test_capability_behaviors.py:175
+          - src/anomalyzer/sparse_views.py:82
+        notes: Schema 1.0 supports all three; schema 1.1 makes the completed-day view
+          unavailable for mean and last.
       - criterion: Regular timestamped sub-day samples produce distinct native and
           completed-period analysis views.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:617
-          - src/anomalyzer/recipes.py:667
-          - src/anomalyzer/recipes.py:680
           - tests/test_analysis.py:170
-        notes: Separate datasets, configurations, and namespaces preserve the two
-          correlated views.
+          - src/anomalyzer/sparse_views.py:146
+          - src/anomalyzer/sparse_views.py:178
       - criterion: A trailing partial aggregate reports observed progress and links its
           native evidence while remaining outside the completed-period series.
-        status: covered
+        status: partial
         evidence:
-          - src/anomalyzer/recipes.py:639
-          - src/anomalyzer/recipes.py:690
-          - tests/test_analysis.py:170
-        notes: The marker contains finalized progress, observed aggregate, native
-          evidence references, and an explicit exclusion flag.
+          - src/anomalyzer/recipes.py:672
+          - src/anomalyzer/recipes.py:719
+          - src/anomalyzer/sparse_views.py:120
+          - src/anomalyzer/sparse_views.py:125
+        notes: Schema 1.0 provides the linked marker. Schema 1.1 reports observed_sum
+          and source indexes, but lacks native evidence references and retains
+          an incomplete null slot in the daily grid.
       - criterion: An explicitly unfinished source sample is excluded from both analysis
           views.
         status: covered
         evidence:
           - src/anomalyzer/validation.py:44
-          - src/anomalyzer/recipes.py:564
           - tests/test_analysis.py:200
-        notes: Both child datasets use prepared finalized observations; tests verify
-          counts and retention of the excluded original value.
+          - src/anomalyzer/sparse.py:144
+          - src/anomalyzer/sparse_views.py:111
       - criterion: A source cadence that does not evenly divide 24 hours is rejected.
-        status: covered
+        status: partial
         evidence:
-          - src/anomalyzer/recipes.py:572
+          - src/anomalyzer/recipes.py:608
           - tests/test_analysis.py:221
-        notes: A five-hour cadence raises the specific dividing-cadence error.
-    done: true
-    input_fingerprint: cdcdea1166a4e3d2523b594bec938142135e17a6b4279732e52819a486d1b4f2
+          - src/anomalyzer/sparse_views.py:79
+        notes: Schema 1.0 rejects it. Schema 1.1 accepts the request, analyzes native
+          samples, and reports the daily view unavailable.
+    done: false
+    input_fingerprint: bc74f454f133c9bfa0dd9b03f84b6cfc77257f0cebf1cb225269cb4d36f04337
     mode: quick

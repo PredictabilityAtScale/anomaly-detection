@@ -1,0 +1,72 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Preserve distinct calls at their original timestamps with stable replayable identities, while preventing retries and arbitrary tie ordering from creating misleading evidence.",
+  "criteria": [
+    {
+      "criterion": "Identified event-index sources retain every distinct event and its original time, reject repeated logical IDs and preserve calendar and legacy semantics.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:300",
+        "src/anomalyzer/events.py:63",
+        "src/anomalyzer/events.py:134",
+        "src/anomalyzer/sparse.py:46",
+        "tests/test_sparse.py:88",
+        "tests/test_sparse.py:287",
+        "tests/test_sparse.py:446"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Without a trusted sequence, whole timestamp cohorts share prior-time point references and ties cannot establish change, Nelson or CUSUM continuity.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/events.py:146",
+        "src/anomalyzer/sparse.py:233",
+        "src/anomalyzer/sparse.py:249",
+        "src/anomalyzer/sparse.py:280",
+        "src/anomalyzer/sparse.py:321",
+        "src/anomalyzer/orchestrator.py:142",
+        "tests/test_events.py:108"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Explicit trusted sequence metadata establishes a validated event order, not independence, elapsed cadence or operational authority.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:296",
+        "src/anomalyzer/contracts.py:306",
+        "src/anomalyzer/contracts.py:318",
+        "src/anomalyzer/events.py:84",
+        "src/anomalyzer/events.py:246",
+        "src/anomalyzer/sparse.py:352",
+        "tests/test_events.py:121"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Event-specific evidence and case identities survive deterministic replay; availability and identified corrections retain as-of provenance and bounded results.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/events.py:90",
+        "src/anomalyzer/events.py:253",
+        "src/anomalyzer/cases.py:46",
+        "src/anomalyzer/cases.py:106",
+        "src/anomalyzer/mcp_views.py:377",
+        "tests/test_events.py:144",
+        "tests/test_events.py:206",
+        "tests/test_events.py:302",
+        "tests/test_events.py:361"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python -m pytest -q tests/test_events.py — 36 passed.",
+    ".venv/Scripts/python -m pytest -q tests/test_sparse.py -k 'duplicate_aggregation or legacy_schema or event_timestamp_ties or event_index_keeps' — 5 passed.",
+    "Visually inspected progression figures 23–24 and reviewed docs/sparse-data.md:135–228: exact timestamps, layout versus trusted order, retry ownership, correction provenance and overlapping-evidence limits are explicit.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

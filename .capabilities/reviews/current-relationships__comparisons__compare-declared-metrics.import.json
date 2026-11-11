@@ -1,0 +1,57 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Expose changes between caller-declared metrics through derived comparisons with traceable source evidence and single-resolution analysis.",
+  "criteria": [
+    {
+      "criterion": "Ratios retain the computed value, formula, and original source indexes for each sample.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:92",
+        "src/anomalyzer/relationships.py:162",
+        "src/anomalyzer/alignment.py:26",
+        "tests/test_agentic.py:211"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Differences, supplied-scale residuals, and all/any threshold conditions produce the declared derived values.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:105",
+        "src/anomalyzer/relationships.py:142",
+        "src/anomalyzer/contracts.py:366",
+        "tests/test_agentic.py:266"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Missing sources and zero denominators remain unavailable with a reason rather than becoming zero.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:97",
+        "src/anomalyzer/relationships.py:150",
+        "src/anomalyzer/relationships.py:172",
+        "tests/test_agentic.py:226"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Derived series can be analyzed with the frozen or adaptive single-resolution recipe.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/orchestrator.py:174",
+        "src/anomalyzer/recipes.py:98",
+        "tests/test_agentic.py:171",
+        "tests/test_examples.py:17"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Executed conversion.json through analyze: the frozen recipe completed and triggered only the relationship at index 14; conversion fell from 0.1 to 8/130 while neither source metric triggered.",
+    "Reversed conversion example source inputs and executed analyze again: assertions confirmed original source indexes and the declared formula for every lineage sample.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

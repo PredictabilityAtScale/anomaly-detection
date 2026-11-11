@@ -1,0 +1,75 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Detect changes in numeric distributions and category composition using explicit populations and bounded causal monitoring while preserving source support and separating statistical evidence from business impact.",
+  "criteria": [
+    {
+      "criterion": "Numeric comparisons use a tie-aware two-sample empirical distribution test and report effect size, population support and source identities.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/distributions.py:72",
+        "src/anomalyzer/distributions.py:33",
+        "src/anomalyzer/distributions.py:153",
+        "tests/test_distributions.py:35"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Categorical comparisons assess the whole composition and explain changed shares without treating consumed quantities as independent observations.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/distributions.py:119",
+        "src/anomalyzer/distributions.py:194",
+        "src/anomalyzer/distributions.py:199",
+        "tests/test_distributions.py:105"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Causal monitoring freezes an earlier reference, compares bounded recent windows and accounts for all planned looks and window sizes in its testing budget.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/distributions.py:238",
+        "src/anomalyzer/distributions.py:242",
+        "src/anomalyzer/distributions.py:256",
+        "tests/test_distributions.py:208"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Unknown observations and untrusted tied timestamps cannot silently establish sequence continuity, and insufficient or unfinished evidence cannot establish normality.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/distribution_contracts.py:156",
+        "src/anomalyzer/distributions.py:165",
+        "src/anomalyzer/distributions.py:219",
+        "src/anomalyzer/distributions.py:240",
+        "tests/test_distributions.py:223"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Results separate statistical evidence, practical effect thresholds and business impact, with inspectable assumptions and reproducible calculations.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/distributions.py:159",
+        "src/anomalyzer/distributions.py:207",
+        "src/anomalyzer/distribution_contracts.py:205",
+        "tests/test_distributions.py:80",
+        "tests/test_distributions.py:144"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "All 31 distribution tests passed across the initial run and isolated retry; the initial temporary-directory permissions error was resolved using a fresh --basetemp.",
+    ".\\.venv\\Scripts\\python.exe -m pytest -q -p no:cacheprovider --basetemp <fresh-directory> tests/test_distributions.py::test_cli_mcp_api_and_schemas_agree — 1 passed.",
+    ".\\.venv\\Scripts\\python.exe examples/run_distribution_demo.py — passed.",
+    "Manually checked README chapters 25–26, renderer code, fixtures and both PNGs against engine output: unchanged means, population support, first detection at index 182, category shares and weighted-report limits agree.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Production detection delay, false-finding burden and validity under clustered or dependent traffic require representative caller-owned replay.",
+    "Population comparability, exchangeability and testing-budget continuity across monitors, resets and deployments remain caller responsibilities."
+  ],
+  "done": true
+}

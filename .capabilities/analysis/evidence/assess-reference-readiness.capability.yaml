@@ -68,16 +68,21 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Readiness diagnostics report supported, caution, or not_assessed
-      based on the training pattern and calibration evidence.
+      - .venv/Scripts/python.exe -m pytest -q tests/test_readiness.py — 6
+        passed; exit code 0.
+      - Manual inspection confirmed readiness uses training and calibration
+        inputs once per segment, does not gate completion, and reports caution
+        reasons even without findings.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Expose weak baseline expectations through training and
+      calibration readiness diagnostics, even when analysis completes without
+      anomalies.
     criteria:
       - criterion: Repeating seasonal structure with stable calibration can yield
           supported readiness.
@@ -85,35 +90,30 @@ agent:
         evidence:
           - src/anomalyzer/readiness.py:128
           - tests/test_readiness.py:8
-        notes: Assertions establish repeated seasonality, strong calibration
-          improvement, and supported readiness.
       - criterion: Unstable declared seasonality or a drifting calibration center yields
           caution without making an otherwise completed run fail.
         status: covered
         evidence:
           - src/anomalyzer/readiness.py:113
           - src/anomalyzer/readiness.py:122
-          - tests/test_readiness.py:28
+          - src/anomalyzer/recipes.py:488
           - tests/test_readiness.py:41
-        notes: Completed analyses retain caution reasons for weak seasonal repetition or
-          calibration-center drift.
+          - tests/test_readiness.py:73
       - criterion: Insufficient calibration support yields not_assessed, including when
           the run otherwise completes.
         status: covered
         evidence:
           - src/anomalyzer/readiness.py:77
+          - src/anomalyzer/readiness.py:142
           - tests/test_readiness.py:56
           - tests/test_readiness.py:63
-        notes: Both uncalibrated history and a completed run with three calibration
-          samples return not_assessed.
       - criterion: Later evaluation changes do not rewrite the segment's
           training-and-calibration readiness assessment.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:327
-          - tests/test_readiness.py:8
-        notes: Readiness reads training/calibration inputs once; tests compare identical
-          segment and aggregate assessments after a later shift.
+          - src/anomalyzer/recipes.py:267
+          - src/anomalyzer/recipes.py:363
+          - tests/test_readiness.py:21
     done: true
-    input_fingerprint: d01367627e058ea39c78ee0e3616061a2e0725d06e8acd0b84b46a9655431e57
+    input_fingerprint: f363472f267b91bf8bca7b02fc4945b9ea60a682b50bb274d0c5dea67b66f191
     mode: quick

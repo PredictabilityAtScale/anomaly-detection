@@ -1,0 +1,58 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Prepare observations in UTC chronological order, enforce calendar and event identity contracts, and expose cutoff and cadence decisions to callers.",
+  "criteria": [
+    {
+      "criterion": "Calendar datasets provide timestamps and frequency; positional datasets provide neither. Explicit schema-1.1 event-index sources retain timestamps without a calendar frequency.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:77",
+        "src/anomalyzer/contracts.py:304",
+        "tests/test_sparse.py:176"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Local timestamps require a timezone, and ambiguous or nonexistent daylight-saving times require an explicit offset.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:8",
+        "tests/test_analysis.py:500"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Calendar duplicate timestamps require an aggregation policy; identified event-index calls can share original timestamps while duplicate logical IDs are rejected and arbitrary tie order supplies no sequence evidence.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:87",
+        "src/anomalyzer/contracts.py:312",
+        "src/anomalyzer/events.py:112",
+        "src/anomalyzer/sparse.py:321",
+        "src/anomalyzer/orchestrator.py:142",
+        "tests/test_events.py:108"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "An as_of cutoff excludes later observations, and cadence is checked as a fixed elapsed duration.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/validation.py:105",
+        "src/anomalyzer/sparse.py:63",
+        "src/anomalyzer/sparse.py:104",
+        "src/anomalyzer/events.py:112",
+        "tests/test_mcp.py:191"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python.exe -m pytest -q tests/test_analysis.py::test_timestamp_metadata_is_all_or_nothing tests/test_analysis.py::test_local_time tests/test_analysis.py::test_duplicate_sort_and_cutoff tests/test_analysis.py::test_weekly_cadence tests/test_events.py::test_distinct_same_time_calls_keep_values_references_and_cases tests/test_events.py::test_unordered_ties_break_change_and_pattern_continuity_but_keep_ranges tests/test_events.py::test_trusted_sequence_is_explicit_and_enables_order_without_changing_time tests/test_events.py::test_repeat_replay_and_duplicate_delivery_do_not_create_new_logical_events tests/test_sparse.py::test_event_timestamp_ties_are_rejected_without_fabricated_offsets tests/test_mcp.py::test_single_series_context_matches_python_cli_and_mcp — 10 passed.",
+    "Manual runtime check confirmed sorting, aggregation and cutoff transformations, the UTC window, and preserved resolved context.",
+    "Manual runtime checks confirmed null propagation for sum/mean aggregation, rejection of a 23-hour DST interval as regular daily cadence, and acceptance of explicit offsets.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

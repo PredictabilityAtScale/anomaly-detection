@@ -1,0 +1,53 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Check caller-declared numerical limits, including before calibration, while distinguishing exact violations from statistical anomalies and policy-authorized actions.",
+  "criteria": [
+    {
+      "criterion": "Values outside an inclusive acceptable range are violations, while values on the boundary are accepted.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:25",
+        "tests/test_capability_behaviors.py:66"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Absolute and relative changes must exceed their declared maximum to violate a rule.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:28",
+        "tests/test_capability_behaviors.py:69"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Relative-change checks require a nonzero previous value and do not bridge missing observations.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:32",
+        "src/anomalyzer/early.py:63",
+        "tests/test_capability_behaviors.py:87"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Violations identify the exact declared rule and remain action-ineligible unless policy explicitly permits them.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/early.py:37",
+        "src/anomalyzer/early.py:136",
+        "src/anomalyzer/contracts.py:419",
+        "tests/test_agentic.py:49",
+        "tests/test_cli.py:134"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python.exe -m pytest -q tests/test_capability_behaviors.py::test_explicit_rules_respect_boundaries tests/test_capability_behaviors.py::test_relative_rule_does_not_compare_across_zero_or_missing_values tests/test_agentic.py::test_explicit_rule_is_exact_but_not_actionable_without_policy tests/test_cli.py::test_schema_11_readable_case_distinguishes_explicit_rule — 6 passed.",
+    "Ran .venv/Scripts/python.exe -m anomalyzer analyze examples/agentic/unit-cost.json and manually confirmed that output names review-above-13c and its declared [0, 0.13] bound, reports detection readiness as not_assessed, and leaves cause and business impact unresolved.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

@@ -1,0 +1,55 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Limit extreme observations’ influence on fitted expectations and future seasonal references while preserving their observed values and anomaly evidence.",
+  "criteria": [
+    {
+      "criterion": "Robust seasonal references reduce the influence of an extreme prior matching seasonal value.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/baseline.py:30",
+        "src/anomalyzer/baseline.py:39",
+        "tests/test_analysis.py:25"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Training and calibration diagnostics identify excluded extreme observations.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/trend.py:195",
+        "src/anomalyzer/recipes.py:462",
+        "tests/test_trend.py:65"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "An extreme evaluated sample remains evidence while its expected value is used in future references.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:414",
+        "src/anomalyzer/recipes.py:428",
+        "tests/test_trend.py:23"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Callers can choose include mode to retain raw extreme observations and inspect the resulting echo behavior.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cli.py:132",
+        "src/anomalyzer/recipes.py:423",
+        "tests/test_cli.py:95"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Manual source review traced separate observed and reference values, exclusion diagnostics, and expected-value replacement.",
+    "Inspected tests asserting trimmed-reference invariance, training/calibration exclusions, preserved anomaly triggers, and robust versus include seasonal echoes.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Automated checks were inspected but not rerun during this review."
+  ],
+  "done": true
+}

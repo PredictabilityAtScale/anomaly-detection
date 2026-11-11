@@ -69,55 +69,66 @@ agent:
       - Read both target-level statuses and errors before interpreting a partial
         run; check source dataset errors when a relationship source failed.
   review:
-    depth: verified
+    depth: partial
     source: coding-agent
+    gaps:
+      - Require a declared shared cadence for all relationships, or explicitly
+        scope the capability to exclude event-index relationships.
+      - Enforce unique source timestamps and reject duplicate aggregation for
+        relationship lineage, or revise the capability to document the
+        implemented exceptions.
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Declared relationships require exact UTC timestamp alignment,
-      shared cadence and entity scope, and compatible declared units.
+      - Manually inspected all six implementation references and related
+        timestamp normalization, sparse-policy, and event relationship paths.
+      - .venv/Scripts/python.exe -m pytest -q
+        tests/test_sparse.py::test_duplicate_relationship_lineage_lists_all_original_inputs
+        tests/test_events.py::test_pointwise_relationships_align_logical_events_and_expose_source_ids
+        — 2 passed; confirms the duplicate-lineage and tied-event exceptions.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Prevent misleading relationship evidence by comparing sources
+      with matching periods, entity scope, cadence, and compatible difference
+      units.
     criteria:
       - criterion: Related datasets use identical normalized timestamps, the same
           declared cadence, and matching entity metadata.
-        status: covered
+        status: partial
         evidence:
-          - src/anomalyzer/alignment.py:42
-          - tests/test_capability_behaviors.py:30
-        notes: Parameterized assertions require specific errors for timestamp, cadence,
-          and entity mismatches.
+          - src/anomalyzer/alignment.py:46
+          - src/anomalyzer/contracts.py:306
+          - tests/test_events.py:256
+        notes: Timestamp and entity equality are enforced, but event-index relationships
+          accept sources without any declared cadence.
       - criterion: Relationship sources are timestamped and have unique timestamps;
           implicit resampling and duplicate aggregation are not accepted for
           lineage.
-        status: covered
+        status: partial
         evidence:
-          - src/anomalyzer/alignment.py:23
-          - src/anomalyzer/alignment.py:44
-          - tests/test_capability_behaviors.py:30
-        notes: Positional sources fail exact alignment; even an explicit duplicate-mean
-          setting is rejected for relationship source lineage.
+          - src/anomalyzer/alignment.py:26
+          - src/anomalyzer/alignment.py:48
+          - tests/test_sparse.py:435
+          - tests/test_events.py:18
+          - tests/test_events.py:256
+        notes: "Timestamped sources are required, but explicit data policies bypass
+          duplicate rejection: aggregated duplicates enter lineage, and
+          identified events can share timestamps."
       - criterion: Difference relationships require identical declared source units and
           matching output units.
         status: covered
         evidence:
-          - src/anomalyzer/relationships.py:41
-          - tests/test_agentic.py:242
-        notes: Source and output unit checks are explicit. Tests cover mismatched source
-          units and successful matching units.
+          - src/anomalyzer/relationships.py:48
       - criterion: An invalid relationship is reported as failed while valid sibling
           dataset results remain available.
         status: covered
         evidence:
-          - src/anomalyzer/orchestrator.py:171
-          - tests/test_capability_behaviors.py:30
-          - tests/test_capability_behaviors.py:159
-        notes: Relationship errors remain target-specific, healthy dataset results
-          survive, and the overall mixed run is partial.
-    done: true
-    input_fingerprint: 06321ab5806a8276cc3954df5d6f4dd7f059f67600038854569787ff51b420d6
+          - src/anomalyzer/orchestrator.py:155
+          - src/anomalyzer/orchestrator.py:237
+          - tests/test_capability_behaviors.py:53
+    done: false
+    input_fingerprint: abb099a22e0a039d3dc98c693537c2bf0c21b4c88e3c821d86241c7d9d99cfdb
     mode: quick

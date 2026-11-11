@@ -66,55 +66,62 @@ agent:
       - Review discovery's interpretation guidance and confirm the client can
         start anomalyzer-mcp in the installed Python environment.
   review:
-    depth: verified
+    depth: tested
     source: coding-agent
+    gaps:
+      - The capability summary says three advertised tools; implementation and
+        tests now advertise six, including all three required tools.
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: The local stdio MCP server advertises three read-only
-      investigation tools with schemas and interpretation guidance.
+      - .venv/Scripts/python.exe -m pytest -q
+        tests/test_mcp.py::test_mcp_lists_read_only_tools
+        tests/test_mcp.py::test_mcp_stdio_legacy_handshake_and_tool_listing
+        tests/test_mcp.py::test_mcp_modern_discovery_and_stateless_tool_listing
+        tests/test_mcp.py::test_mcp_tool_call_returns_structured_content
+        tests/test_mcp.py::test_mcp_invalid_tool_input_is_a_tool_error
+        tests/test_mcp.py::test_paged_tool_inputs_enforce_schema_in_both_protocols
+        — 7 passed.
+      - Started installed .venv/Scripts/anomalyzer-mcp.exe and checked
+        initialization, discovery guidance, and read-only tool listing.
+      - Reviewed interpretation guidance covering readiness, overlapping
+        findings, session limits, and caller-owned monitoring and actions.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Let local agent clients discover and invoke read-only analysis
+      and evidence tools through an explicit MCP contract with interpretation
+      guidance and safe error responses.
     criteria:
       - criterion: Tool discovery advertises analyze, list_findings, and get_evidence as
           read-only with input and output schemas.
         status: covered
         evidence:
-          - src/anomalyzer/mcp.py:63
-          - tests/test_mcp.py:27
-        notes: Discovery exposes three read-only tools with the same strict argument
-          contracts used at dispatch and advertised output schemas.
+          - src/anomalyzer/mcp.py:100
+          - src/anomalyzer/mcp.py:306
       - criterion: Legacy initialization and modern stateless discovery return supported
           protocol metadata and interpretation guidance.
         status: covered
         evidence:
-          - src/anomalyzer/mcp.py:228
-          - tests/test_mcp.py:248
-          - tests/test_mcp.py:268
-        notes: Legacy initialization and modern stateless discovery tests establish
-          protocol metadata and evidence interpretation guidance.
+          - src/anomalyzer/mcp.py:56
+          - src/anomalyzer/mcp.py:278
+          - src/anomalyzer/mcp.py:290
       - criterion: Analysis tool calls return structured content together with compact
           text.
         status: covered
         evidence:
-          - src/anomalyzer/mcp.py:162
-          - tests/test_mcp.py:39
-        notes: The manual conversion call returns a compact headline and structured run
-          ID, counts, readiness, and preview.
+          - src/anomalyzer/mcp.py:212
+          - src/anomalyzer/mcp.py:228
+          - src/anomalyzer/mcp_views.py:240
       - criterion: Invalid tool input and unknown session run IDs return structured
           errors rather than fabricated results.
         status: covered
         evidence:
-          - src/anomalyzer/mcp.py:156
-          - src/anomalyzer/mcp.py:257
-          - tests/test_mcp.py:235
+          - src/anomalyzer/mcp.py:206
+          - src/anomalyzer/mcp.py:315
           - tests/test_mcp.py:367
-        notes: Tests reject invalid cursor/limit types, unknown fields, numeric run IDs,
-          and missing session runs in both protocols without fabricated results.
     done: true
-    input_fingerprint: 7bd92d238f4f9545372c6c35e78aefea60c585bea0a4a8bb99096ab6cef27f96
+    input_fingerprint: 7c9acc68e9f0d0bcf1b64f15b9fb333238b4c1523b8b2e7aba350bb0312c7c80
     mode: quick

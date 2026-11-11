@@ -1,0 +1,78 @@
+{
+  "capabilityId": "analysis/resolution/monitor-within-unfinished-days",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\resolution\\monitor-within-unfinished-days.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Expose finalized sub-day changes alongside completed 24-hour aggregates and separately report unfinished-day progress.",
+      "criteria": [
+        {
+          "criterion": "Callers can select sum, mean, or last aggregation for completed and partial periods.",
+          "status": "partial",
+          "evidence": [
+            "src/anomalyzer/recipes.py:575",
+            "tests/test_capability_behaviors.py:175",
+            "src/anomalyzer/sparse_views.py:82"
+          ],
+          "notes": "Schema 1.0 supports all three; schema 1.1 makes the completed-day view unavailable for mean and last."
+        },
+        {
+          "criterion": "Regular timestamped sub-day samples produce distinct native and completed-period analysis views.",
+          "status": "covered",
+          "evidence": [
+            "tests/test_analysis.py:170",
+            "src/anomalyzer/sparse_views.py:146",
+            "src/anomalyzer/sparse_views.py:178"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "A trailing partial aggregate reports observed progress and links its native evidence while remaining outside the completed-period series.",
+          "status": "partial",
+          "evidence": [
+            "src/anomalyzer/recipes.py:672",
+            "src/anomalyzer/recipes.py:719",
+            "src/anomalyzer/sparse_views.py:120",
+            "src/anomalyzer/sparse_views.py:125"
+          ],
+          "notes": "Schema 1.0 provides the linked marker. Schema 1.1 reports observed_sum and source indexes, but lacks native evidence references and retains an incomplete null slot in the daily grid."
+        },
+        {
+          "criterion": "An explicitly unfinished source sample is excluded from both analysis views.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/validation.py:44",
+            "tests/test_analysis.py:200",
+            "src/anomalyzer/sparse.py:144",
+            "src/anomalyzer/sparse_views.py:111"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "A source cadence that does not evenly divide 24 hours is rejected.",
+          "status": "partial",
+          "evidence": [
+            "src/anomalyzer/recipes.py:608",
+            "tests/test_analysis.py:221",
+            "src/anomalyzer/sparse_views.py:79"
+          ],
+          "notes": "Schema 1.0 rejects it. Schema 1.1 accepts the request, analyzes native samples, and reports the daily view unavailable."
+        }
+      ],
+      "verification_evidence": [
+        "Manual Python assertions: schema 1.0 returned two completed days, observed partial aggregate 12, and 12 references resolving to intraday evidence.",
+        "Manual Python assertions: schema 1.1 reported partial observed_sum 12 with aggregate_value null; mean and last returned explicit daily-view restrictions; a 5h request returned native analysis rather than rejection.",
+        "Manual Python assertions: a schema 1.1 unfinished source value contributed neither native evidence nor usable daily children."
+      ],
+      "remaining_gaps": [
+        "Implement mean/last in schema 1.1 or explicitly scope criterion 1 to schema 1.0.",
+        "Provide schema 1.1 partial-marker evidence links or explicitly document its source-index and incomplete-grid representation as an accepted alternative.",
+        "Reject non-dividing schema 1.1 cadences or revise criterion 5 to permit daily-view unavailability."
+      ],
+      "done": false
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "partial"
+  }
+}

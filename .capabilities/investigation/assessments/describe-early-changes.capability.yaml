@@ -68,55 +68,57 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Short histories yield observations, changes, and departure
-      candidates with explicit comparison populations and limits.
+      - "Runtime manual check using .venv/Scripts/python.exe: analyzed
+        [10,12,11,20] and replayed permissive policy; candidate compared against
+        three preceding observations with range [10,12] and median 11."
+      - "Inspected candidate output: maturity early, explicit
+        established/not_established claims, criterion_met=false,
+        action_eligible=false, notification_eligible=false, and zero cases."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Provide inspectable short-history observations, changes, and
+      departure candidates with explicit comparison limits and no unsupported
+      action eligibility.
     criteria:
       - criterion: The first observation records a value, the second records a change,
           and later departures from the prior range can be candidates.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:73
-          - src/anomalyzer/early.py:96
+          - src/anomalyzer/early.py:87
+          - src/anomalyzer/early.py:110
+          - src/anomalyzer/early.py:154
           - tests/test_agentic.py:35
-        notes: Assertions establish observation/change/change/departure_candidate for
-          [10,12,11,20].
       - criterion: Descriptive assessments use preceding observations and remain
           unchanged when future samples are appended.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:50
-          - src/anomalyzer/early.py:141
-          - tests/test_agentic.py:35
-        notes: Each assessment precedes the prior-history update; tests compare complete
-          serialized assessments for every prefix.
+          - src/anomalyzer/early.py:152
+          - src/anomalyzer/early.py:163
+          - src/anomalyzer/orchestrator.py:137
+          - tests/test_agentic.py:43
       - criterion: Missing values break the comparison history, and zero previous values
           do not create relative-change evidence.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:53
-          - src/anomalyzer/early.py:58
+          - src/anomalyzer/early.py:32
+          - src/anomalyzer/early.py:63
+          - src/anomalyzer/early.py:70
           - tests/test_capability_behaviors.py:87
-        notes: The zero comparison has no relative change; after a missing value,
-          comparison samples reset to zero.
       - criterion: Early candidates remain non-triggering and ineligible for action even
           under a permissive policy.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:105
+          - src/anomalyzer/early.py:120
+          - src/anomalyzer/early.py:136
+          - src/anomalyzer/agent.py:53
           - src/anomalyzer/cases.py:35
           - tests/test_capability_behaviors.py:134
-          - tests/test_mcp.py:341
-        notes: Candidates have criterion_met=false and remain
-          action/notification-ineligible after policy replay, without creating
-          cases.
+          - tests/test_mcp.py:108
     done: true
-    input_fingerprint: debdeeeaea559950f53461a4298cb9c2e3a1681f83a43e8a981ed9b51968a4d0
+    input_fingerprint: b00507e14dcf9c748bc51ac51ae6da06f5f585c766f01887a57ef13457db6185
     mode: quick

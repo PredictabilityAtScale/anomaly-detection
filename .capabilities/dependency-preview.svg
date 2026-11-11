@@ -138,7 +138,7 @@
       <path class="link committed" d="M1308.1,290.5 Q1162.1,456.5 1188.0,676.0" />
     </g>
     <g id="nodes">
-      <g class="node partial" data-capability="analysis/evidence/calibrate-departures" transform="translate(522.3 542.5)">
+      <g class="node full" data-capability="analysis/evidence/calibrate-departures" transform="translate(522.3 542.5)">
         <title>Understand how much history supports a finding</title>
         <circle class="node-halo" r="86" />
         <circle class="node-ring" r="78" />
@@ -149,7 +149,7 @@
         </text>
         <text class="meta" y="66">analysis/evidence</text>
       </g>
-      <g class="node partial" data-capability="data/inputs/accept-analysis-requests" transform="translate(770.2 299.4)">
+      <g class="node full" data-capability="data/inputs/accept-analysis-requests" transform="translate(770.2 299.4)">
         <title>Bring my metrics into an analysis</title>
         <circle class="node-halo" r="81" />
         <circle class="node-ring" r="73" />
@@ -160,7 +160,7 @@
         </text>
         <text class="meta" y="61">data/inputs</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/model-seasonal-level-and-growth" transform="translate(599.6 176.0)">
+      <g class="node full" data-capability="analysis/expectations/model-seasonal-level-and-growth" transform="translate(599.6 176.0)">
         <title>Account for ordinary seasonal patterns and growth</title>
         <circle class="node-halo" r="66" />
         <circle class="node-ring" r="58" />
@@ -182,7 +182,7 @@
         </text>
         <text class="meta" y="46">interfaces/cli</text>
       </g>
-      <g class="node partial" data-capability="analysis/detection/identify-residual-patterns" transform="translate(127.0 171.0)">
+      <g class="node full" data-capability="analysis/detection/identify-residual-patterns" transform="translate(127.0 171.0)">
         <title>Spot sustained shifts and changing patterns</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
@@ -193,7 +193,7 @@
         </text>
         <text class="meta" y="41">analysis/detection</text>
       </g>
-      <g class="node partial" data-capability="interfaces/python/analyze-through-public-api" transform="translate(704.2 171.0)">
+      <g class="node full" data-capability="interfaces/python/analyze-through-public-api" transform="translate(704.2 171.0)">
         <title>Embed local analysis in my application</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
@@ -204,7 +204,7 @@
         </text>
         <text class="meta" y="41">interfaces/python</text>
       </g>
-      <g class="node partial" data-capability="investigation/cases/group-related-evidence" transform="translate(1171.8 171.0)">
+      <g class="node full" data-capability="investigation/cases/group-related-evidence" transform="translate(1171.8 171.0)">
         <title>Investigate related findings together</title>
         <circle class="node-halo" r="61" />
         <circle class="node-ring" r="53" />
@@ -215,7 +215,7 @@
         </text>
         <text class="meta" y="41">investigation/cases</text>
       </g>
-      <g class="node partial" data-capability="analysis/detection/compare-distributions" transform="translate(956.3 595.6)">
+      <g class="node full" data-capability="analysis/detection/compare-distributions" transform="translate(956.3 595.6)">
         <title>Detect changes across populations of observations</title>
         <circle class="node-halo" r="59" />
         <circle class="node-ring" r="51" />
@@ -226,7 +226,7 @@
         </text>
         <text class="meta" y="39">analysis/detection</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/protect-reference-from-extremes" transform="translate(247.4 166.0)">
+      <g class="node full" data-capability="analysis/expectations/protect-reference-from-extremes" transform="translate(247.4 166.0)">
         <title>Limit how extreme values distort later comparisons</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -248,7 +248,7 @@
         </text>
         <text class="meta" y="42">analysis/forecasting</text>
       </g>
-      <g class="node partial" data-capability="data/quality/analyze-sparse-observations" transform="translate(730.8 736.6)">
+      <g class="node full" data-capability="data/quality/analyze-sparse-observations" transform="translate(730.8 736.6)">
         <title>Assess sparse observations without inventing consumption</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -259,7 +259,7 @@
         </text>
         <text class="meta" y="36">data/quality</text>
       </g>
-      <g class="node partial" data-capability="data/quality/prepare-timestamped-series" transform="translate(638.5 622.1)">
+      <g class="node full" data-capability="data/quality/prepare-timestamped-series" transform="translate(638.5 622.1)">
         <title>Analyze observations in the right time order</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -270,7 +270,7 @@
         </text>
         <text class="meta" y="36">data/quality</text>
       </g>
-      <g class="node partial" data-capability="interfaces/mcp/investigate-findings-and-evidence" transform="translate(946.4 313.7)">
+      <g class="node full" data-capability="interfaces/mcp/investigate-findings-and-evidence" transform="translate(946.4 313.7)">
         <title>Let an agent inspect the evidence behind a finding</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -281,7 +281,7 @@
         </text>
         <text class="meta" y="36">interfaces/mcp</text>
       </g>
-      <g class="node partial" data-capability="investigation/assessments/describe-early-changes" transform="translate(847.4 166.0)">
+      <g class="node full" data-capability="investigation/assessments/describe-early-changes" transform="translate(847.4 166.0)">
         <title>Spot early changes with a short history</title>
         <circle class="node-halo" r="56" />
         <circle class="node-ring" r="48" />
@@ -303,7 +303,7 @@
         </text>
         <text class="meta" y="36">relationships/quality</text>
       </g>
-      <g class="node partial" data-capability="analysis/detection/match-seasonal-populations" transform="translate(120.0 502.0)">
+      <g class="node full" data-capability="analysis/detection/match-seasonal-populations" transform="translate(120.0 502.0)">
         <title>Compare behavior with explicitly matched prior time windows</title>
         <circle class="node-halo" r="54" />
         <circle class="node-ring" r="46" />
@@ -325,7 +325,7 @@
         </text>
         <text class="meta" y="31">analysis/expectations</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/select-season-length" transform="translate(396.7 161.0)">
+      <g class="node full" data-capability="analysis/expectations/select-season-length" transform="translate(396.7 161.0)">
         <title>Choose the repeating cycle for a fair comparison</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -336,7 +336,7 @@
         </text>
         <text class="meta" y="31">analysis/expectations</text>
       </g>
-      <g class="node partial" data-capability="data/quality/exclude-incomplete-periods" transform="translate(584.1 367.3)">
+      <g class="node full" data-capability="data/quality/exclude-incomplete-periods" transform="translate(584.1 367.3)">
         <title>Avoid mistaking unfinished periods for drops</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -347,7 +347,7 @@
         </text>
         <text class="meta" y="31">data/quality</text>
       </g>
-      <g class="node partial" data-capability="interfaces/mcp/connect-read-only-local-server" transform="translate(1022.7 161.0)">
+      <g class="node full" data-capability="interfaces/mcp/connect-read-only-local-server" transform="translate(1022.7 161.0)">
         <title>Give an agent read-only access to local analysis</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -358,7 +358,7 @@
         </text>
         <text class="meta" y="31">interfaces/mcp</text>
       </g>
-      <g class="node partial" data-capability="investigation/rules/check-declared-numerical-rules" transform="translate(1096.2 312.4)">
+      <g class="node full" data-capability="investigation/rules/check-declared-numerical-rules" transform="translate(1096.2 312.4)">
         <title>Find values that break my stated limits</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -369,7 +369,7 @@
         </text>
         <text class="meta" y="31">investigation/rules</text>
       </g>
-      <g class="node partial" data-capability="relationships/comparisons/compare-declared-metrics" transform="translate(1323.0 242.8)">
+      <g class="node full" data-capability="relationships/comparisons/compare-declared-metrics" transform="translate(1323.0 242.8)">
         <title>Find changes in conversion, unit cost, and metric gaps</title>
         <circle class="node-halo" r="51" />
         <circle class="node-ring" r="43" />
@@ -380,7 +380,7 @@
         </text>
         <text class="meta" y="31">relationships/comparisons</text>
       </g>
-      <g class="node partial" data-capability="analysis/detection/report-point-anomaly-episodes" transform="translate(207.7 406.1)">
+      <g class="node full" data-capability="analysis/detection/report-point-anomaly-episodes" transform="translate(207.7 406.1)">
         <title>Find unusual spikes and drops</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -391,7 +391,7 @@
         </text>
         <text class="meta" y="26">analysis/detection</text>
       </g>
-      <g class="node partial" data-capability="analysis/evidence/assess-reference-readiness" transform="translate(476.3 229.5)">
+      <g class="node full" data-capability="analysis/evidence/assess-reference-readiness" transform="translate(476.3 229.5)">
         <title>Know when the expected baseline is weak</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -402,7 +402,7 @@
         </text>
         <text class="meta" y="26">analysis/evidence</text>
       </g>
-      <g class="node partial" data-capability="analysis/expectations/adapt-to-changing-growth" transform="translate(452.3 354.3)">
+      <g class="node full" data-capability="analysis/expectations/adapt-to-changing-growth" transform="translate(452.3 354.3)">
         <title>Follow evolving growth while exposing unusual values</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -424,7 +424,7 @@
         </text>
         <text class="meta" y="35">analysis/expectations</text>
       </g>
-      <g class="node uncovered" data-capability="analysis/forecasting/compare-forecast-models" transform="translate(358.9 441.2)">
+      <g class="node partial" data-capability="analysis/forecasting/compare-forecast-models" transform="translate(358.9 441.2)">
         <title>Compare forecast methods on chronological horizon-matched holdouts</title>
         <circle class="node-halo" r="52" />
         <circle class="node-ring" r="44" />
@@ -490,7 +490,7 @@
         </text>
         <text class="meta" y="35">data/cohorts</text>
       </g>
-      <g class="node partial" data-capability="data/quality/identify-distinct-events" transform="translate(191.0 544.2)">
+      <g class="node full" data-capability="data/quality/identify-distinct-events" transform="translate(191.0 544.2)">
         <title>Inspect distinct events sharing an original timestamp</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -589,7 +589,7 @@
         </text>
         <text class="meta" y="35">execution/state</text>
       </g>
-      <g class="node partial" data-capability="interfaces/cli/explain-findings-in-readable-output" transform="translate(1098.3 617.1)">
+      <g class="node full" data-capability="interfaces/cli/explain-findings-in-readable-output" transform="translate(1098.3 617.1)">
         <title>Understand findings in a readable summary</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -611,7 +611,7 @@
         </text>
         <text class="meta" y="35">interfaces/export</text>
       </g>
-      <g class="node partial" data-capability="interfaces/python/install-versioned-library" transform="translate(1145.4 453.7)">
+      <g class="node full" data-capability="interfaces/python/install-versioned-library" transform="translate(1145.4 453.7)">
         <title>Install a versioned analysis library</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -622,7 +622,7 @@
         </text>
         <text class="meta" y="26">interfaces/python</text>
       </g>
-      <g class="node partial" data-capability="interfaces/skill/guide-anomaly-investigation" transform="translate(691.3 868.0)">
+      <g class="node full" data-capability="interfaces/skill/guide-anomaly-investigation" transform="translate(691.3 868.0)">
         <title>Ask an agent to explain unusual changes in my metrics</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -677,7 +677,7 @@
         </text>
         <text class="meta" y="35">investigation/history</text>
       </g>
-      <g class="node partial" data-capability="investigation/policy/replay-action-eligibility" transform="translate(1037.5 732.0)">
+      <g class="node full" data-capability="investigation/policy/replay-action-eligibility" transform="translate(1037.5 732.0)">
         <title>Change action eligibility without rerunning analysis</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />
@@ -710,7 +710,7 @@
         </text>
         <text class="meta" y="35">relationships/cohorts</text>
       </g>
-      <g class="node partial" data-capability="relationships/comparisons/evaluate-delayed-response" transform="translate(1328.0 572.0)">
+      <g class="node full" data-capability="relationships/comparisons/evaluate-delayed-response" transform="translate(1328.0 572.0)">
         <title>Check whether a metric follows its expected delayed response</title>
         <circle class="node-halo" r="46" />
         <circle class="node-ring" r="38" />

@@ -73,165 +73,69 @@ agent:
         incident ownership; inspect readiness and evidence limits before
         adopting.
   review:
-    depth: partial
-    source: deterministic-assessment
+    depth: tested
+    source: coding-agent
     gaps:
-      - Wheel and source distributions carry the complete Python package,
-        license, public API, CLI and read-only MCP entry points with one
-        authoritative version. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - Clean consumers outside the source checkout can install either
-        distribution and exercise contracts, recipes, assessments,
-        relationships, readiness and cases. Review the cited evidence. If it is
-        correct, save agent.review evidence or make the criterion/reference
-        wording more explicit.
-      - Version tags agree with package metadata and published release assets
-        include SHA-256 checksums, source revision and pinned transitive
-        dependencies. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - A Linux Python 3.12 build bundles compatible binary dependencies and
-        executes the consumer example with networking disabled. Review the cited
-        evidence. If it is correct, save agent.review evidence or make the
-        criterion/reference wording more explicit.
-    intent_summary: Implementation evidence synchronized from deterministic
-      assessment for interfaces/python/install-versioned-library.
+      - Current-version archive inventory, clean wheel/sdist installations and
+        Linux offline execution were not rerun; root dist contains older 0.1.0
+        artifacts.
+      - Actual published assets and hosted workflow results were not
+        independently checked.
+    evidence:
+      - .venv/Scripts/python.exe -m pytest -q tests/test_release.py -p
+        no:cacheprovider --basetemp <fresh-review-directory>/pytest — 16 passed;
+        TEMP and TMP used a fresh writable directory.
+      - "Inspected docs/releases/README.md:239: Guard retains scheduling,
+        persistence, domain severity, incidents and notifications; adoption
+        requires reviewing readiness and evidence limits."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Applications can pin and roll back an identifiable Anomalyzer
+      dependency that provides local analysis with packaged dependencies.
     criteria:
       - criterion: Wheel and source distributions carry the complete Python package,
           license, public API, CLI and read-only MCP entry points with one
           authoritative version.
-        status: partial
+        status: covered
         evidence:
-          - src/anomalyzer/_version.py:1
-          - scripts/release.py:1
-          - scripts/release.py:20
-          - scripts/release.py:39
-          - scripts/release.py:48
-          - scripts/release.py:54
-          - scripts/publish_release.py:21
-          - scripts/publish_release.py:34
-          - scripts/publish_release.py:42
-          - scripts/publish_release.py:53
-          - scripts/verify_lambda.sh:15
-          - scripts/verify_lambda.sh:18
-          - scripts/verify_lambda.sh:20
-          - scripts/verify_lambda.sh:26
-          - scripts/verify_lambda.sh:28
-          - examples/library/guard_smoke.py:74
-          - .github/workflows/ci.yml:14
-          - .github/workflows/ci.yml:19
-          - .github/workflows/ci.yml:27
-          - .github/workflows/ci.yml:43
-          - .github/workflows/ci.yml:48
-          - .github/workflows/release.yml:31
-          - .github/workflows/release.yml:52
-          - .github/workflows/release.yml:61
-          - docs/releases/README.md:16
-          - docs/releases/README.md:17
-          - docs/releases/README.md:18
-          - docs/releases/README.md:21
-          - docs/releases/README.md:22
-          - tests/test_release.py:60
-          - tests/test_release.py:71
-          - tests/test_release.py:81
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
+          - pyproject.toml:37
+          - pyproject.toml:44
+          - scripts/release.py:37
+          - src/anomalyzer/__init__.py:18
+          - src/anomalyzer/mcp.py:219
       - criterion: Clean consumers outside the source checkout can install either
           distribution and exercise contracts, recipes, assessments,
           relationships, readiness and cases.
-        status: partial
+        status: covered
         evidence:
-          - scripts/verify_distribution.py:1
-          - scripts/verify_distribution.py:48
-          - examples/library/guard_smoke.py:32
-          - examples/library/guard_smoke.py:49
-          - examples/library/guard_smoke.py:65
-          - examples/library/guard_smoke.py:69
-          - examples/library/guard_smoke.py:76
-          - .github/workflows/ci.yml:59
-          - .github/workflows/release.yml:60
-          - docs/releases/README.md:17
-          - docs/releases/README.md:99
-          - docs/releases/README.md:217
-          - docs/releases/README.md:220
-          - docs/releases/README.md:222
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
+          - scripts/verify_distribution.py:28
+          - scripts/verify_distribution.py:54
+          - examples/library/guard_smoke.py:36
+          - examples/library/guard_smoke.py:63
+          - examples/library/guard_smoke.py:91
       - criterion: Version tags agree with package metadata and published release assets
           include SHA-256 checksums, source revision and pinned transitive
           dependencies.
-        status: partial
+        status: covered
         evidence:
-          - pyproject.toml:26
-          - pyproject.toml:33
-          - scripts/release.py:34
-          - scripts/release.py:81
-          - scripts/release.py:82
-          - scripts/release.py:85
-          - scripts/release.py:92
-          - scripts/publish_release.py:1
-          - scripts/publish_release.py:18
-          - scripts/publish_release.py:19
-          - scripts/publish_release.py:20
-          - scripts/publish_release.py:40
-          - scripts/verify_distribution.py:47
-          - scripts/verify_lambda.sh:25
-          - examples/library/guard_smoke.py:39
-          - .github/workflows/ci.yml:44
-          - .github/workflows/ci.yml:47
-          - .github/workflows/ci.yml:48
-          - .github/workflows/ci.yml:51
-          - .github/workflows/ci.yml:53
-          - .github/workflows/release.yml:34
-          - .github/workflows/release.yml:36
-          - .github/workflows/release.yml:39
-          - .github/workflows/release.yml:40
-          - .github/workflows/release.yml:48
-          - docs/releases/README.md:8
-          - docs/releases/README.md:16
-          - docs/releases/README.md:18
-          - docs/releases/README.md:19
-          - docs/releases/README.md:23
-          - tests/test_release.py:1
-          - tests/test_release.py:21
-          - tests/test_release.py:23
-          - tests/test_release.py:52
-          - tests/test_release.py:81
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
+          - scripts/release.py:27
+          - scripts/release.py:86
+          - .github/workflows/ci.yml:55
+          - scripts/publish_release.py:32
+          - scripts/publish_release.py:70
       - criterion: A Linux Python 3.12 build bundles compatible binary dependencies and
           executes the consumer example with networking disabled.
-        status: partial
+        status: covered
         evidence:
-          - pyproject.toml:26
-          - pyproject.toml:33
-          - scripts/release.py:81
-          - scripts/release.py:82
-          - scripts/publish_release.py:54
-          - scripts/verify_distribution.py:47
-          - scripts/verify_lambda.sh:6
-          - scripts/verify_lambda.sh:18
-          - scripts/verify_lambda.sh:20
-          - .github/workflows/ci.yml:29
-          - .github/workflows/ci.yml:32
-          - .github/workflows/ci.yml:33
-          - .github/workflows/ci.yml:53
-          - .github/workflows/ci.yml:54
-          - .github/workflows/release.yml:62
-          - docs/releases/README.md:16
-          - docs/releases/README.md:19
-          - docs/releases/README.md:62
-          - docs/releases/README.md:63
-          - docs/releases/README.md:79
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
-    done: false
+          - scripts/verify_lambda.sh:4
+          - scripts/verify_lambda.sh:15
+          - scripts/verify_lambda.sh:28
+          - examples/library/guard_smoke.py:36
+    done: true
+    input_fingerprint: a2b9f819cc37af5ab7b61d740d471baa180bc9065038b484d898f7d7714ea953
+    mode: quick

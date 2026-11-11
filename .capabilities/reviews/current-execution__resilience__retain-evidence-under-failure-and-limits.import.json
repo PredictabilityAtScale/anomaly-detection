@@ -1,0 +1,60 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Preserve usable evidence and clearly explain failures or resource limits that prevent analysis from completing.",
+  "criteria": [
+    {
+      "criterion": "A method failure preserves evidence completed before the failure and reports the error.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:436",
+        "src/anomalyzer/recipes.py:484",
+        "tests/test_analysis.py:509"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Runtime budgets are checked cooperatively and produce an explicit stop reason.",
+      "status": "partial",
+      "evidence": [
+        "src/anomalyzer/budget.py:18",
+        "src/anomalyzer/recipes.py:183",
+        "src/anomalyzer/recipes.py:544",
+        "src/anomalyzer/recipes.py:803"
+      ],
+      "notes": "Standard analysis reports runtime_budget, but multi-resolution analysis reports method_failure when both child methods exceed their runtime budgets."
+    },
+    {
+      "criterion": "CLI byte limits and execution failures produce distinct error exits.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/io.py:9",
+        "src/anomalyzer/cli.py:460",
+        "tests/test_cli.py:108"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "A failed dataset or relationship leaves healthy sibling results available and marks the overall run partial.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/orchestrator.py:161",
+        "src/anomalyzer/orchestrator.py:237",
+        "src/anomalyzer/orchestrator.py:251",
+        "tests/test_capability_behaviors.py:159",
+        "tests/test_capability_behaviors.py:30"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Focused pytest execution: method failure/budget, dataset sibling preservation, and five relationship alignment failure cases passed (7 tests).",
+    "CLI limit/exit test passed with an isolated --basetemp after the default temporary directory caused a setup permission error.",
+    "Manual Python reproduction with multi-resolution-v1 and max_runtime_seconds=1e-12: both methods reported budget_exceeded, while the overall stop_reason was method_failure.",
+    "Inspected CLI help and result limitations: runtime enforcement is explicitly described as cooperative.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Multi-resolution result aggregation must preserve runtime_budget as the overall stop reason when child methods exhaust their budgets; add a focused regression check."
+  ],
+  "done": false
+}

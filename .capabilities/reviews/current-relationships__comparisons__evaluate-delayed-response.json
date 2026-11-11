@@ -1,0 +1,58 @@
+{
+  "capabilityId": "relationships/comparisons/evaluate-delayed-response",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\relationships\\comparisons\\evaluate-delayed-response.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Check whether the current response matches a declared multiple of an earlier predictor, preserving lineage and withholding values until required evidence is available.",
+      "criteria": [
+        {
+          "criterion": "A supplied lag and coefficient use the predictor at the declared earlier sample position.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:123",
+            "tests/test_agentic.py:254"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Derived values retain response and predictor source indexes and source cutoffs in lineage.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:162",
+            "src/anomalyzer/relationships.py:189",
+            "src/anomalyzer/orchestrator.py:228"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "When requested, the coefficient is fitted once from a declared training prefix and remains frozen.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:54",
+            "tests/test_agentic.py:294",
+            "tests/test_agentic.py:349"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Samples lacking the earlier predictor or awaiting coefficient training remain unavailable.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:130",
+            "tests/test_agentic.py:330"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Executed and manually inspected examples/agentic/lagged-response.json: leading values were null, null; supplied coefficient was 2; first usable sample at index 2 had residual 0, response index 2, predictor index 0, and source cutoff 2026-02-03T00:00:00+00:00."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Agents receive a compact analysis summary and can page through findings to inspect numerical evidence, readiness, and relationship lineage.",
+  "criteria": [
+    {
+      "criterion": "The analyze tool returns a compact headline, finding preview, and run ID for subsequent evidence requests.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp.py:228",
+        "src/anomalyzer/mcp_views.py:262",
+        "tests/test_mcp.py:61"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "list_findings pages through cases, candidates, episodes, patterns, and data-quality findings.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp_views.py:140",
+        "src/anomalyzer/mcp_views.py:275",
+        "tests/test_mcp.py:319"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "get_evidence exposes the selected finding's numerical support and relationship source lineage.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp_views.py:300",
+        "src/anomalyzer/mcp_views.py:319",
+        "src/anomalyzer/mcp_views.py:350",
+        "tests/test_mcp.py:79"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Unavailable latest evidence and non-triggering early candidates remain visible, while large pattern sample sets are paginated.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/mcp_views.py:179",
+        "src/anomalyzer/mcp_views.py:213",
+        "src/anomalyzer/mcp_views.py:354",
+        "tests/test_mcp.py:87",
+        "tests/test_mcp.py:137",
+        "tests/test_mcp.py:341"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python.exe -m pytest -q tests/test_mcp.py::test_agent_can_drill_into_relationship_case tests/test_mcp.py::test_schema_11_episode_is_paged_and_has_relationship_evidence tests/test_mcp.py::test_agent_sees_unavailable_latest_evidence tests/test_mcp.py::test_short_history_candidate_is_visible_without_a_case tests/test_mcp.py::test_sparse_insufficient_history_keeps_descriptive_candidate_visible tests/test_mcp.py::test_get_evidence_pages_pattern_samples — 6 passed.",
+    "Manually followed analyze → list_findings → get_evidence for examples/agentic/conversion.json; the decrease headline agrees with observed 8/130 versus expected 0.1, and lineage identifies both source values at index 14.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

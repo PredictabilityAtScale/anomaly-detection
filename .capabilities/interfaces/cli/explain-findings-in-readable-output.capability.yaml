@@ -63,55 +63,57 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Readable CLI output distinguishes point episodes, pattern
-      findings, cases, explicit rule violations, and reference readiness.
+      - .venv/Scripts/python.exe -m pytest -q
+        tests/test_cli.py::test_readable_output_distinguishes_episodes_from_patterns
+        tests/test_cli.py::test_schema_11_relationship_request_through_cli
+        tests/test_cli.py::test_schema_11_readable_case_distinguishes_explicit_rule
+        — 3 passed; nonblocking pytest cache permission warning.
+      - "Executed and manually inspected readable output for
+        examples/agentic/conversion.json and examples/agentic/unit-cost.json:
+        numerical comparisons, entity scopes, units, investigation questions,
+        explicit rule boundary, unassessed readiness, and claim limits are
+        visible."
+      - "Inspected src/anomalyzer/cli.py:458: --format json exposes the full
+        structured result."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Help CLI users understand findings, supporting numerical
+      evidence, and claim limits without parsing full JSON.
     criteria:
       - criterion: Point-anomaly episode counts and residual-pattern findings are
           labeled separately.
         status: covered
         evidence:
-          - src/anomalyzer/cli.py:347
-          - src/anomalyzer/cli.py:405
+          - src/anomalyzer/cli.py:372
+          - src/anomalyzer/cli.py:399
+          - src/anomalyzer/cli.py:434
           - tests/test_cli.py:143
-        notes: Readable tests distinguish zero-episode residual shifts from a spike
-          episode and retain the overlap warning.
       - criterion: Relationship cases identify entity scope, observed and expected
           values, declared units, and investigation questions.
         status: covered
         evidence:
-          - src/anomalyzer/cli.py:291
-          - src/anomalyzer/cli.py:308
-          - src/anomalyzer/cli.py:331
+          - src/anomalyzer/cli.py:302
+          - src/anomalyzer/cli.py:315
+          - src/anomalyzer/cli.py:341
           - tests/test_cli.py:117
-          - examples/agentic/conversion.json
-        notes: Conversion output identifies site=demo, observed/expected
-          orders_per_visit, the relationship, and a collection-completeness
-          investigation question.
       - criterion: Explicit numerical rules are named with their boundaries instead of
           appearing as statistical anomaly claims.
         status: covered
         evidence:
-          - src/anomalyzer/cli.py:318
+          - src/anomalyzer/cli.py:328
           - tests/test_cli.py:134
-          - examples/agentic/unit-cost.json
-        notes: Unit-cost output names review-above-13c and its [0, 0.13] boundary as a
-          declared rule crossing.
       - criterion: Readiness status remains visible, including when it was not assessed.
         status: covered
         evidence:
-          - src/anomalyzer/cli.py:352
-          - src/anomalyzer/cli.py:399
-          - tests/test_cli.py:134
-        notes: Readable output includes not_assessed and its supporting reasons without
-          claiming measured alert accuracy.
+          - src/anomalyzer/cli.py:377
+          - src/anomalyzer/cli.py:389
+          - src/anomalyzer/cli.py:423
+          - tests/test_cli.py:140
     done: true
-    input_fingerprint: 98108868b000972fd9b3c3f082846fbd3f3b08c399ef7ed424c23245d6935fef
+    input_fingerprint: 12d7846078f154a7bb3a061cf70457cbea457557404560dcd0220d9866eeb36e
     mode: quick

@@ -62,20 +62,28 @@ agent:
       - Compare examples/location_shift_up.json with its point episodes and
         pattern findings, allowing for overlapping residual rules.
   review:
-    depth: verified
+    depth: tested
     source: coding-agent
+    gaps:
+      - Focused automated tests were inspected but not rerun; current runtime
+        verification covered the upward example only.
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Residual rules identify location shifts, trends, oscillation,
-      mixture patterns, and short-term variation beyond isolated point
-      departures.
+      - "Executed analyze() on examples/location_shift_up.json: completed with
+        zero triggered points and zero point episodes; upward Nelson rules 5, 6,
+        and 2 detected at indices 61, 63, and 68, and CUSUM at 62."
+      - "Manually compared example findings: overlapping location rules and a
+        separate oscillation finding retain distinct meanings; descriptions
+        limit location claims to residual process location."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Detect accumulating residual changes and explain whether they
+      indicate location shifts, trends, oscillation, mixture, or short-term
+      variation.
     criteria:
       - criterion: Nelson location rules and CUSUM can identify a sustained residual
           location shift without any point-threshold crossing.
@@ -84,35 +92,28 @@ agent:
           - src/anomalyzer/evidence.py:118
           - src/anomalyzer/evidence.py:189
           - tests/test_analysis.py:293
-        notes: Tests assert no point triggers or episodes and exact upward/downward
-          detection positions for Nelson rules and CUSUM.
       - criterion: CUSUM reports the first detection position, direction, accumulated
           score, and configured threshold.
         status: covered
         evidence:
           - src/anomalyzer/evidence.py:211
           - src/anomalyzer/evidence.py:230
+          - src/anomalyzer/recipes.py:529
           - tests/test_analysis.py:350
-        notes: The known accumulation detects at index 16 and reports peak CUSUM
-          approximately 6, threshold 5, and increase direction.
       - criterion: Trend, oscillation, and mixture findings retain their specific
           pattern meanings.
         status: covered
         evidence:
           - src/anomalyzer/evidence.py:70
           - src/anomalyzer/evidence.py:122
+          - src/anomalyzer/evidence.py:134
           - tests/test_analysis.py:340
-        notes: Separate predicates and descriptions preserve the three meanings and
-          explicitly limit location/distribution claims.
       - criterion: Moving-range findings identify variation changes separately from
           location changes.
         status: covered
         evidence:
           - src/anomalyzer/evidence.py:234
           - tests/test_analysis.py:360
-        notes: Adjacent standardized-residual differences produce variation_shift
-          findings; the test checks magnitude, detection index, and
-          interpretation.
     done: true
-    input_fingerprint: 63716eb67db6b73964b79897d8c81f2891df2586ff213c95ea81c5699b8abbea
+    input_fingerprint: 0e18b50ef90d1b3664a1c2bf88eb0166f818e795a48057cb901217d0add5cea9
     mode: quick

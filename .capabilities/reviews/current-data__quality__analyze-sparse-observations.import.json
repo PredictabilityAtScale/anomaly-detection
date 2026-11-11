@@ -1,0 +1,64 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Analyze sparse histories using eligible measurements and explicit source policies while preserving timestamps, provenance, gaps, incomplete periods and evidence limits.",
+  "criteria": [
+    {
+      "criterion": "Bounded calendar preparation preserves phase, original values and coverage; only an explicit additive-volume empty policy authorizes zero conversion.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:254",
+        "src/anomalyzer/sparse.py:104",
+        "src/anomalyzer/sparse.py:134",
+        "tests/test_sparse.py:45"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Frozen eligible training and calibration support point references across gaps, while pattern and change comparisons respect gaps and explicit resets.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/sparse.py:211",
+        "src/anomalyzer/sparse.py:243",
+        "src/anomalyzer/sparse.py:273",
+        "src/anomalyzer/sparse.py:320",
+        "src/anomalyzer/evidence.py:35",
+        "src/anomalyzer/early.py:57"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Event-index profiles preserve real event timestamps and reject calendar seasonality; unavailable relationship inputs and zero denominators stay unavailable.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/sparse.py:127",
+        "src/anomalyzer/sparse.py:205",
+        "src/anomalyzer/relationships.py:97",
+        "src/anomalyzer/events.py:127",
+        "src/anomalyzer/events.py:147"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "As-of replay respects supplied arrival/revision timestamps and sparse multi-resolution views retain useful siblings without inventing complete totals.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/sparse.py:94",
+        "src/anomalyzer/sparse.py:135",
+        "src/anomalyzer/sparse_views.py:111",
+        "src/anomalyzer/sparse_views.py:150",
+        "tests/test_sparse.py:244",
+        "tests/test_sparse.py:454"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python -m pytest -q tests/test_sparse.py -k \"zero or omitted or grid or duplicate or expansion or phase or gap or reset or event or revision or arrival or rule or relationship or daily or parity\" — 36 passed, 10 deselected.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Progression figures 14–22 were reviewed through renderer code but were not visually inspected.",
+    "The full examples/run_demo.py reproduction was not executed."
+  ],
+  "done": true
+}

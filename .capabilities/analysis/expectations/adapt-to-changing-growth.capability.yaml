@@ -63,55 +63,58 @@ agent:
       - Inspect the adaptive recipe's rolling-window parameters and frozen
         calibration before interpreting its final expectation.
   review:
-    depth: verified
+    depth: tested
     source: coding-agent
+    gaps:
+      - Automated checks were inspected but not rerun during this review.
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: The adaptive recipe updates each expectation from a bounded
-      window of earlier observations while retaining frozen residual
-      calibration.
+      - Manual source check confirmed rolling references exclude the scored
+        index and respect the configured window.
+      - Manual source check confirmed calibration center and scale are
+        initialized once per segment and reused for evaluation scores.
+      - Manual source check confirmed robust mode replaces isolated extremes
+        with their expectations and admits the third consecutive same-direction
+        extreme without resetting calibration.
+      - Inspected all four focused tests, including comparative growth error and
+        next-season echo assertions.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Adapt expectations to changing growth using bounded prior
+      observations while preserving frozen calibration and isolating unusual
+      values.
     criteria:
       - criterion: Each rolling expectation uses only observations before the sample
           being scored.
         status: covered
         evidence:
           - src/anomalyzer/baseline.py:61
+          - src/anomalyzer/recipes.py:168
           - tests/test_analysis.py:48
-        notes: All rolling-reference positions precede the scored index. The independent
-          expectation remains unchanged after future values are appended.
       - criterion: Persistent growth changes can be followed more closely than by the
           frozen default recipe.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:145
-          - src/anomalyzer/recipes.py:370
+          - src/anomalyzer/baseline.py:63
+          - src/anomalyzer/recipes.py:408
           - tests/test_analysis.py:58
-        notes: The test requires adaptive held-out MAE below half the frozen recipe's
-          MAE and a close final expectation.
       - criterion: An isolated extreme value is held out of future model references
           rather than creating a seasonal echo.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:378
+          - src/anomalyzer/recipes.py:394
+          - src/anomalyzer/recipes.py:414
           - tests/test_analysis.py:81
-        notes: The isolated spike is excluded from model references; its next seasonal
-          expectation closely matches the control. Persistent third misses are
-          admitted as guidance explicitly permits.
       - criterion: Conflicting trend choices and slope lookbacks exceeding the adaptive
           window are rejected.
         status: covered
         evidence:
           - src/anomalyzer/contracts.py:41
           - tests/test_analysis.py:104
-        notes: Both incompatible explicit trend selection and excessive slope lookback
-          raise specific validation errors.
     done: true
-    input_fingerprint: 984422f1fd3ab3d22cf7b4ba9d0bd06629fc228a8e53d7ad44439cd8d35ec0db
+    input_fingerprint: e566ed80f60981362565216fbbf21c856ad78fae193ba5501433496d33275a39
     mode: quick

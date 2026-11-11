@@ -1,0 +1,112 @@
+{
+  "capabilityId": "interfaces/skill/visualize-analysis-on-request",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\interfaces\\skill\\visualize-analysis-on-request.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Provide explicitly requested charts that make structured anomaly evidence easier to inspect while preserving its meaning and limitations.",
+      "criteria": [
+        {
+          "criterion": "1. Default to text, require an explicit visualization request, and separate quick and detailed figure instructions.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/SKILL.md:65",
+            ".agents/skills/anomaly-detection/SKILL.md:189",
+            ".agents/skills/anomaly-detection/SKILL.md:226"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "2. Render one dataset's observations, expectations, actual triggers, and labeled initialization, units, and reviewed reset boundaries.",
+          "status": "partial",
+          "evidence": [
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:81",
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:151",
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:162",
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:183",
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:228"
+          ],
+          "notes": "Reset boundaries appear as dashed lines without a reset label or legend entry; the other required elements are implemented."
+        },
+        {
+          "criterion": "3. Reject multi-dataset results and require explicit overwrite of an existing output.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:84",
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:247",
+            ".agents/skills/anomaly-detection/scripts/quick_chart.py:251",
+            "tests/test_skill_chart.py:63",
+            "tests/test_skill_chart.py:68"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "4. Preserve indices, evidence maturity, detection timing, incomplete status, and interpretation limits in detailed figures.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/references/visualization.md:31",
+            ".agents/skills/anomaly-detection/references/visualization.md:34",
+            ".agents/skills/anomaly-detection/references/visualization.md:45",
+            ".agents/skills/anomaly-detection/references/visualization.md:86",
+            ".agents/skills/anomaly-detection/SKILL.md:124"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "tests/test_skill_chart.py: observed-evidence, provisional-evidence, reviewed-reset, and multi-dataset checks passed; the overwrite test initially encountered a temporary-directory permission error.",
+        ".venv/Scripts/python.exe -m pytest -q -p no:cacheprovider tests/test_skill_chart.py::test_chart_cli_requires_explicit_overwrite --basetemp <unique workspace directory> — 1 passed.",
+        "Manually reviewed the Skill's request gating and detailed figure instructions against the acceptance criteria."
+      ],
+      "remaining_gaps": [
+        "Add a reset-boundary label or legend entry and an assertion checking it; the existing reset test checks line counts and initialization labels only.",
+        "Rendered visual inspection of the spike chart remains outstanding."
+      ],
+      "done": false
+    },
+    "valid": false,
+    "issues": [
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The Skill defaults to text and requires an explicit visualization request; quick charts and publication-quality figures have separate instructions.",
+        "criterion": "The Skill defaults to text and requires an explicit visualization request; quick charts and publication-quality figures have separate instructions."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The dependency-free quick chart fallback renders one resolved dataset's observed values and available expectations, marks only triggered evidence, and labels training, calibration, units, and reviewed reset boundaries.",
+        "criterion": "The dependency-free quick chart fallback renders one resolved dataset's observed values and available expectations, marks only triggered evidence, and labels training, calibration, units, and reviewed reset boundaries."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The fallback rejects unsupported multi-dataset results and protects an existing output file unless overwrite is explicitly requested.",
+        "criterion": "The fallback rejects unsupported multi-dataset results and protects an existing output file unless overwrite is explicitly requested."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: Detailed figure instructions preserve source indices, provisional-versus-calibrated evidence, pattern detection timing, and incomplete or failed run status, without presenting scores as probabilities or flags as proven causes.",
+        "criterion": "Detailed figure instructions preserve source indices, provisional-versus-calibrated evidence, pattern detection timing, and incomplete or failed run status, without presenting scores as probabilities or flags as proven causes."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 1. Default to text, require an explicit visualization request, and separate quick and detailed figure instructions.",
+        "criterion": "1. Default to text, require an explicit visualization request, and separate quick and detailed figure instructions."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 2. Render one dataset's observations, expectations, actual triggers, and labeled initialization, units, and reviewed reset boundaries.",
+        "criterion": "2. Render one dataset's observations, expectations, actual triggers, and labeled initialization, units, and reviewed reset boundaries."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 3. Reject multi-dataset results and require explicit overwrite of an existing output.",
+        "criterion": "3. Reject multi-dataset results and require explicit overwrite of an existing output."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 4. Preserve indices, evidence maturity, detection timing, incomplete status, and interpretation limits in detailed figures.",
+        "criterion": "4. Preserve indices, evidence maturity, detection timing, incomplete status, and interpretation limits in detailed figures."
+      }
+    ],
+    "depth": "partial"
+  }
+}

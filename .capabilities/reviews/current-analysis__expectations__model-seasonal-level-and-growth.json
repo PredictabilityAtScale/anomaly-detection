@@ -1,0 +1,68 @@
+{
+  "capabilityId": "analysis/expectations/model-seasonal-level-and-growth",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\expectations\\model-seasonal-level-and-growth.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Use earlier seasonal matches and a training-fitted trend to distinguish unusual departures from ordinary repetition and growth.",
+      "criteria": [
+        {
+          "criterion": "A supplied season length selects earlier matching seasonal observations for the reference.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/baseline.py:26",
+            "src/anomalyzer/baseline.py:31",
+            "src/anomalyzer/recipes.py:174",
+            "tests/test_analysis.py:21"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Automatic trend selection represents suitable linear and compound growth without flagging ordinary growth as point anomalies; automatic exponential selection requires consistent improvement on training-only chronological holdouts and otherwise retains a simpler trend.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/trend.py:121",
+            "src/anomalyzer/trend.py:211",
+            "src/anomalyzer/trend.py:230",
+            "src/anomalyzer/trend.py:255",
+            "src/anomalyzer/trend.py:274",
+            "tests/test_trend.py:11"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "The fitted trend remains frozen after training within a regime; later changed values do not rewrite that fit.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:141",
+            "src/anomalyzer/recipes.py:185",
+            "src/anomalyzer/recipes.py:197",
+            "tests/test_trend.py:36"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Callers can explicitly select none, linear, or exponential trend, and unsupported trend modes are rejected.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/contracts.py:20",
+            "src/anomalyzer/recipes.py:46",
+            "src/anomalyzer/trend.py:88",
+            "tests/test_trend.py:42",
+            "tests/test_trend.py:57"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        ".venv/Scripts/python.exe -m pytest -q tests/test_analysis.py::test_forecast_independent_reference tests/test_trend.py::test_trend_and_anomalies tests/test_trend.py::test_auto_exponential_requires_chronological_support tests/test_trend.py::test_chronological_confirmation_preserves_compound_seasonal_growth tests/test_trend.py::test_auto_exponential_without_training_holdouts_retains_simpler_trend tests/test_trend.py::test_exponential_confirmation_uses_bounded_training_suffix tests/test_trend.py::test_frozen_fit_and_legacy_mode tests/test_trend.py::test_explicit_modes_and_validation tests/test_trend.py::test_short_history_constant_and_signed_linear — 18 passed.",
+        "Executed examples/growth_up.json and examples/compound.json through analyze: both completed with zero observations; selected linear and exponential respectively. Inspected compound confirmation: three chronological holdouts within training, exponential won all folds, and mean absolute error improved from 1.3808 to 0.4076."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

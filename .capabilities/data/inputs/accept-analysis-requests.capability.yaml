@@ -72,58 +72,63 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Callers can submit ordered numeric values or versioned requests
-      containing datasets, settings, context, and declared relationships.
+      - .venv/Scripts/python.exe -m pytest -q
+        tests/test_analysis.py::test_bare_values_with_separate_settings
+        tests/test_analysis.py::test_constant_and_schema
+        tests/test_agentic.py::test_schema_11_requires_explicit_entity_scope
+        tests/test_analysis.py::test_invalid_config
+        tests/test_analysis.py::test_invalid_values
+        tests/test_analysis.py::test_checked_in_schemas
+        tests/test_agentic.py::test_v11_checked_in_schemas_exist
+        tests/test_agentic.py::test_ratio_lineage_and_early_relationship_departure
+        — 18 passed.
+      - Inspected all four published schema files; passing equality tests
+        compare their complete contents with the corresponding public Python
+        contracts.
+      - "Manually checked README.md:279 and README.md:575: both schema versions,
+        required entity scope, and four-dataset/four-relationship limits are
+        documented."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Callers can supply ordered observations or versioned requests
+      whose contracts define datasets, settings, context, and explicit
+      relationships before analysis.
     criteria:
       - criterion: Ordered value lists work with separate settings, while schema 1.0
           requests describe one dataset.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:21
+          - src/anomalyzer/recipes.py:36
           - src/anomalyzer/contracts.py:96
           - tests/test_analysis.py:234
-        notes: Bare-list settings are validated; schema 1.0 limits datasets to exactly
-          one.
       - criterion: Schema 1.1 datasets declare a nonempty entity scope and support
           explicit relationships between named datasets.
         status: covered
         evidence:
-          - src/anomalyzer/contracts.py:240
-          - src/anomalyzer/contracts.py:335
-          - tests/test_agentic.py:192
-        notes: Entity scope is required, relationship kinds are discriminated, and
-          references must name distinct known datasets.
+          - src/anomalyzer/contracts.py:288
+          - src/anomalyzer/contracts.py:424
+          - src/anomalyzer/contracts.py:434
+          - tests/test_agentic.py:211
       - criterion: Unknown settings, unsupported recipes, nonfinite values, booleans,
           and numeric strings are rejected.
         status: covered
         evidence:
-          - src/anomalyzer/contracts.py:7
+          - src/anomalyzer/contracts.py:8
+          - src/anomalyzer/contracts.py:12
           - src/anomalyzer/contracts.py:71
-          - tests/test_analysis.py:526
+          - tests/test_analysis.py:525
           - tests/test_analysis.py:531
-        notes: Assertions reject each listed category; missing null values remain a
-          separate accepted representation.
       - criterion: Published schema 1.0 and 1.1 request and result schemas match the
           public Python contracts.
         status: covered
         evidence:
-          - schemas/request.schema.json
-          - schemas/result.schema.json
-          - schemas/request-1.1.schema.json
-          - schemas/result-1.1.schema.json
           - tests/test_analysis.py:547
           - tests/test_agentic.py:317
-        notes: Tests and independent inspection compare each complete published schema
-          with its contract-generated schema. Python cross-field validators
-          supplement JSON Schema constraints.
     done: true
-    input_fingerprint: 3546cd8f436812ff11c9352a855926677b55cc6287e40f6a5041bd613173e5b4
+    input_fingerprint: 559dccab528e5cf2196cc1324817f1f56a871546da026944ed5d588178ee74e1
     mode: quick

@@ -1,0 +1,55 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Expose weak baseline expectations through training and calibration readiness diagnostics, even when analysis completes without anomalies.",
+  "criteria": [
+    {
+      "criterion": "Repeating seasonal structure with stable calibration can yield supported readiness.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:128",
+        "tests/test_readiness.py:8"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Unstable declared seasonality or a drifting calibration center yields caution without making an otherwise completed run fail.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:113",
+        "src/anomalyzer/readiness.py:122",
+        "src/anomalyzer/recipes.py:488",
+        "tests/test_readiness.py:41",
+        "tests/test_readiness.py:73"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Insufficient calibration support yields not_assessed, including when the run otherwise completes.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/readiness.py:77",
+        "src/anomalyzer/readiness.py:142",
+        "tests/test_readiness.py:56",
+        "tests/test_readiness.py:63"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Later evaluation changes do not rewrite the segment's training-and-calibration readiness assessment.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:267",
+        "src/anomalyzer/recipes.py:363",
+        "tests/test_readiness.py:21"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python.exe -m pytest -q tests/test_readiness.py — 6 passed; exit code 0.",
+    "Manual inspection confirmed readiness uses training and calibration inputs once per segment, does not gate completion, and reports caution reasons even without findings.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

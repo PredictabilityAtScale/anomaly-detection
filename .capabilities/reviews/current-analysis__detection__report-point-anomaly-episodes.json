@@ -1,0 +1,63 @@
+{
+  "capabilityId": "analysis/detection/report-point-anomaly-episodes",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\analysis\\detection\\report-point-anomaly-episodes.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Identify calibrated spikes and drops, preserve their numerical evidence, and distinguish isolated departures from consecutive runs.",
+      "criteria": [
+        {
+          "criterion": "A sufficiently extreme calibrated sample records a point trigger and the expectation it departed from.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/recipes.py:380",
+            "src/anomalyzer/recipes.py:424"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Repeated runs of the same fixed request preserve numerical evidence; future samples do not change earlier scoring for declared settings.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/baseline.py:31",
+            "src/anomalyzer/recipes.py:197",
+            "src/anomalyzer/recipes.py:343",
+            "tests/test_analysis.py:441"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Adjacent point departures form a consecutive-run pattern with the contributing sample positions.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:95",
+            "src/anomalyzer/evidence.py:104",
+            "tests/test_analysis.py:274"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Separated point departures remain separate episodes, and positional episode intervals use integer coordinates.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:12",
+            "src/anomalyzer/evidence.py:22",
+            "tests/test_analysis.py:263",
+            "tests/test_analysis.py:369"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Manual Python check of examples/spike.json: sample 65 records observed=135.2, expected≈94.875 and a point trigger; its episode contains [65], with no consecutive-run pattern.",
+        "Manual Python assertions: repeated example requests produce identical method evidence; appending seven extreme future samples preserves all earlier method evidence with the explicitly declared season length.",
+        "Manual Python assertions: an isolated drop and three adjacent spikes produce episodes [55] and [67,68,69], one consecutive-run pattern [67,68,69], and integer positional interval endpoints."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "verified"
+  }
+}

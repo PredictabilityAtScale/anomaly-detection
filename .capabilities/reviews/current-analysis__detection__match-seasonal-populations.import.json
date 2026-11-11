@@ -1,0 +1,74 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Compare current events with explicitly declared prior local-calendar windows at equivalent clock progress, exposing selection evidence while preserving existing distribution tests and testing allocations.",
+  "criteria": [
+    {
+      "criterion": "Explicit daily, same-weekday or weekday/weekend matching selects only earlier local-calendar windows and records selected and excluded observations.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonal_distributions.py:119",
+        "src/anomalyzer/seasonal_distributions.py:151",
+        "src/anomalyzer/seasonal_distributions.py:195",
+        "tests/test_seasonal_distributions.py:75"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "A partial current window is compared with the same local-clock progress in prior windows, with explicit handling of timezone and daylight-saving boundaries.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonal_distributions.py:79",
+        "src/anomalyzer/seasonal_distributions.py:107",
+        "src/anomalyzer/seasonal_distributions.py:134",
+        "src/anomalyzer/seasonal_distributions.py:159",
+        "tests/test_seasonal_distributions.py:149"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Minimum measured support across distinct prior windows gates inference; any broader daily fallback is declared in advance and visibly reported.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonal_distributions.py:170",
+        "src/anomalyzer/seasonal_distributions.py:178",
+        "src/anomalyzer/seasonal_distributions.py:185",
+        "src/anomalyzer/seasonal_distributions.py:238",
+        "tests/test_seasonal_distributions.py:95"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Selected numeric or categorical events reuse the existing distribution tests and retain the caller's repeated-comparison allocation without creating a fresh testing budget.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonal_distributions.py:222",
+        "src/anomalyzer/seasonal_distributions.py:241",
+        "tests/test_seasonal_distributions.py:95",
+        "tests/test_seasonal_distributions.py:204"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Reference selection is deterministic and inspectable, with no automatic season discovery, inferred business comparability or claim that seasonal matching removes within-batch dependence.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/seasonal_distributions.py:142",
+        "src/anomalyzer/seasonal_distributions.py:205",
+        "src/anomalyzer/seasonal_distributions.py:225",
+        "tests/test_seasonal_distributions.py:122"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python -m pytest -q tests/test_seasonal_distributions.py — 24 passed, including Python/CLI/MCP/schema parity; one cache-write warning.",
+    ".venv/Scripts/python examples/run_distribution_demo.py — passed all assertions, including the seasonal fixture.",
+    "Compared README chapter 27, its PNG, renderer, and real-engine fixture output: three prior 08:00–08:05 windows, 96 reference events, 32 current events, matched p=1 without a finding; broad-history KS=0.5 and p≈2.77e-8 with a finding.",
+    "Inspected support/fallback reporting and documented collection-completeness, exchangeability, and within-batch-dependence limits.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Representative chronological UsageTap traffic is still needed to qualify false-finding burden and dependent-batch behavior; matching does not validate exchangeability or provide block resampling."
+  ],
+  "done": true
+}

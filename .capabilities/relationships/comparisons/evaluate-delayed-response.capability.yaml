@@ -70,51 +70,47 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: A lagged-response relationship compares current response with a
-      supplied or training-fitted multiple of an earlier predictor.
+      - "Executed and manually inspected examples/agentic/lagged-response.json:
+        leading values were null, null; supplied coefficient was 2; first usable
+        sample at index 2 had residual 0, response index 2, predictor index 0,
+        and source cutoff 2026-02-03T00:00:00+00:00."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Check whether the current response matches a declared multiple
+      of an earlier predictor, preserving lineage and withholding values until
+      required evidence is available.
     criteria:
       - criterion: A supplied lag and coefficient use the predictor at the declared
           earlier sample position.
         status: covered
         evidence:
-          - src/anomalyzer/relationships.py:115
+          - src/anomalyzer/relationships.py:123
           - tests/test_agentic.py:254
-        notes: Supplied lag/coefficient uses the declared earlier predictor position and
-          preserves the expected response residual.
       - criterion: Derived values retain response and predictor source indexes and
           source cutoffs in lineage.
         status: covered
         evidence:
-          - src/anomalyzer/relationships.py:152
-          - tests/test_agentic.py:254
-          - examples/agentic/lagged-response.json
-        notes: Available and pending lineage retains existing source indexes and
-          timestamp cutoffs; missing predictors do not become zero.
+          - src/anomalyzer/relationships.py:162
+          - src/anomalyzer/relationships.py:189
+          - src/anomalyzer/orchestrator.py:228
       - criterion: When requested, the coefficient is fitted once from a declared
           training prefix and remains frozen.
         status: covered
         evidence:
-          - src/anomalyzer/relationships.py:47
+          - src/anomalyzer/relationships.py:54
           - tests/test_agentic.py:294
-          - tests/test_agentic.py:330
-        notes: The coefficient is fitted once after the complete declared prefix; the
-          independent 20/7 result and prefix-invariance assertions pass.
+          - tests/test_agentic.py:349
       - criterion: Samples lacking the earlier predictor or awaiting coefficient
           training remain unavailable.
         status: covered
         evidence:
-          - src/anomalyzer/relationships.py:122
+          - src/anomalyzer/relationships.py:130
           - tests/test_agentic.py:330
-        notes: Short prefixes retain null derived values and explicit unavailable
-          reasons, while an unidentifiable completed fit has a visible error.
     done: true
-    input_fingerprint: fc4516ef6ab903dfa4918268d97049aff04fbf9556620ccb8259ff830ba85785
+    input_fingerprint: 0bceccc67db6383038aaa5e8f79df04fe941930da02ea55c4c4dcbd958ed5dd4
     mode: quick

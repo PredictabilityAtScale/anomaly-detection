@@ -1,0 +1,56 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Adapt expectations to changing growth using bounded prior observations while preserving frozen calibration and isolating unusual values.",
+  "criteria": [
+    {
+      "criterion": "Each rolling expectation uses only observations before the sample being scored.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/baseline.py:61",
+        "src/anomalyzer/recipes.py:168",
+        "tests/test_analysis.py:48"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Persistent growth changes can be followed more closely than by the frozen default recipe.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/baseline.py:63",
+        "src/anomalyzer/recipes.py:408",
+        "tests/test_analysis.py:58"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "An isolated extreme value is held out of future model references rather than creating a seasonal echo.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:394",
+        "src/anomalyzer/recipes.py:414",
+        "tests/test_analysis.py:81"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Conflicting trend choices and slope lookbacks exceeding the adaptive window are rejected.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/contracts.py:41",
+        "tests/test_analysis.py:104"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Manual source check confirmed rolling references exclude the scored index and respect the configured window.",
+    "Manual source check confirmed calibration center and scale are initialized once per segment and reused for evaluation scores.",
+    "Manual source check confirmed robust mode replaces isolated extremes with their expectations and admits the third consecutive same-direction extreme without resetting calibration.",
+    "Inspected all four focused tests, including comparative growth error and next-season echo assertions.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Automated checks were inspected but not rerun during this review."
+  ],
+  "done": true
+}

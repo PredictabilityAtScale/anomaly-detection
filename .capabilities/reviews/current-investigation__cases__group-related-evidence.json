@@ -1,0 +1,72 @@
+{
+  "capabilityId": "investigation/cases/group-related-evidence",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\investigation\\cases\\group-related-evidence.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Group related evidence into explainable cases by event and entity while keeping derived relationships from inflating independent-source confirmation.",
+      "criteria": [
+        {
+          "criterion": "Evidence for different declared entities remains in separate cases even at the same event time.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cases.py:43",
+            "tests/test_agentic.py:69"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Criteria met in multiple source datasets can raise numerical severity and identify the contributing sources.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cases.py:73",
+            "src/anomalyzer/cases.py:100",
+            "tests/test_agentic.py:85"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "A derived relationship adds context without counting as an additional independent source for severity.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/cases.py:73",
+            "src/anomalyzer/cases.py:129",
+            "tests/test_agentic.py:100"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Adaptive location-shift rules can create an early grouped case without a point trigger, using only evidence available at detection.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/early.py:227",
+            "src/anomalyzer/early.py:254",
+            "src/anomalyzer/early.py:265",
+            "src/anomalyzer/orchestrator.py:147",
+            "tests/test_agentic.py:122",
+            "tests/test_agentic.py:146"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Manual source tracing confirmed entity-aware grouping, dataset-only independent-source counting, and named source explanations.",
+        "Inspected adaptive assessment construction: only location-shift patterns qualify, earliest detection is selected, and referenced residuals are bounded by detection.",
+        "Inspected case construction for contributing targets, evidence references, explanations, investigation questions, and explicit limits on causal and business-impact claims."
+      ],
+      "remaining_gaps": [
+        "Focused tests were inspected but not executed in this review.",
+        "The requested manual inspection of a generated case and comparison with a point-anomaly episode was not performed."
+      ],
+      "done": true
+    },
+    "valid": false,
+    "issues": [
+      {
+        "code": "review-inputs-changed",
+        "message": "Capability or implementation changed during review. Run the review again."
+      }
+    ],
+    "depth": "partial"
+  }
+}

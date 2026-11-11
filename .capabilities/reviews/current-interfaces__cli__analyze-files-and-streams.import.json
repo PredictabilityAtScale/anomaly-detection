@@ -1,0 +1,69 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Enable scripted and interactive analysis of local CSV and JSON inputs with configurable settings, safe output handling, and meaningful exit codes.",
+  "criteria": [
+    {
+      "criterion": "The methods command lists supported analysis recipes and residual detectors.",
+      "status": "partial",
+      "evidence": [
+        "src/anomalyzer/registry.py:35",
+        "src/anomalyzer/registry.py:95",
+        "src/anomalyzer/cli.py:361"
+      ],
+      "notes": "JSON output lists recipes and detectors, but default readable output omits all ten residual detectors."
+    },
+    {
+      "criterion": "Equivalent file and stdin JSON inputs produce equivalent request fingerprints and analysis semantics.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/io.py:9",
+        "src/anomalyzer/cli.py:249",
+        "src/anomalyzer/recipes.py:95"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "CSV supports positional or timestamped selected values, treats empty cells as missing, and rejects varying unmapped entity columns.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/io.py:33",
+        "src/anomalyzer/io.py:56",
+        "src/anomalyzer/io.py:64"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Settings resolve in embedded-request, settings-file, then CLI-flag precedence; bare JSON values can use CLI configuration.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cli.py:252",
+        "src/anomalyzer/cli.py:263",
+        "tests/test_cli.py:51"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Output files require explicit overwrite permission, and invalid input is distinguished from execution failure by exit status.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/io.py:71",
+        "src/anomalyzer/cli.py:460",
+        "src/anomalyzer/__main__.py:3",
+        "tests/test_cli.py:108"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Manual methods comparison confirmed JSON lists all ten detectors and readable output omits them.",
+    "Manual spike analysis in text and JSON modes returned exit 0, results on stdout, and empty stderr.",
+    "Manual malformed-JSON check returned exit 2, a diagnostic on stderr, and empty stdout.",
+    "Direct build_request check confirmed settings-file configuration overrides embedded configuration without CLI flags.",
+    "Manual bare-array file/stdin analysis with --season-length 7 produced identical fingerprints and equivalent complete results after excluding run IDs and runtime measurements.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Include residual detectors in readable methods output and add a regression check; the existing discovery test checks JSON output only."
+  ],
+  "done": false
+}

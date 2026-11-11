@@ -1,0 +1,120 @@
+{
+  "capabilityId": "interfaces/skill/guide-anomaly-investigation",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\interfaces\\skill\\guide-anomaly-investigation.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Guide an agent through local Anomalyzer analysis and concise explanations that preserve data semantics and distinguish findings from interpretation limits.",
+      "criteria": [
+        {
+          "criterion": "Use the installed Anomalyzer CLI with executable fallbacks and structured JSON rather than inventing a detector.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/SKILL.md:8",
+            ".agents/skills/anomaly-detection/SKILL.md:13",
+            ".agents/skills/anomaly-detection/SKILL.md:41",
+            "src/anomalyzer/cli.py:457",
+            "tests/test_cli.py:13"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Preserve missing data, select one entity and unit, and explicitly declare compatible related-metric sources.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/SKILL.md:24",
+            ".agents/skills/anomaly-detection/SKILL.md:32",
+            "tests/test_cli.py:58",
+            "tests/test_agentic.py:211",
+            "tests/test_agentic.py:226"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Lead with changes and observed-versus-expected values, then explain readiness, maturity, overlap, and limitations without invented confidence or causes.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/agents/openai.yaml:4",
+            ".agents/skills/anomaly-detection/SKILL.md:65",
+            ".agents/skills/anomaly-detection/SKILL.md:108",
+            ".agents/skills/anomaly-detection/SKILL.md:124",
+            ".agents/skills/anomaly-detection/SKILL.md:134",
+            "tests/test_mcp.py:79"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Describe optional MCP analyze, list_findings, and get_evidence, session lifetime, read-only access, and caller-owned notifications and actions.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/SKILL.md:54",
+            ".agents/skills/anomaly-detection/SKILL.md:173",
+            ".agents/skills/anomaly-detection/SKILL.md:183",
+            "src/anomalyzer/mcp.py:185",
+            "src/anomalyzer/mcp.py:228",
+            "tests/test_mcp.py:54"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        ".venv/Scripts/anomalyzer.exe --version succeeded: anomalyzer 0.9.1.",
+        "Executed the conversion example through the installed Python module CLI with --format json; valid JSON returned with completed status.",
+        "Executed MCP analyze → list_findings → get_evidence for conversion; assertions confirmed observed 8/130, expected 0.1, source indexes 14, supported_departure classification, and not_assessed readiness.",
+        "Manually compared conversion evidence with the Skill's maturity, readiness, correlation, causality, and caller-owned action instructions; checked all advertised MCP tools carry readOnlyHint."
+      ],
+      "remaining_gaps": [
+        "No end-to-end agent-host response was evaluated; prose adherence remains unmeasured, as permitted by the contract."
+      ],
+      "done": true
+    },
+    "valid": false,
+    "issues": [
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The Skill directs analysis through the installed Anomalyzer CLI, with executable fallback paths and structured JSON output, rather than a newly invented detector.",
+        "criterion": "The Skill directs analysis through the installed Anomalyzer CLI, with executable fallback paths and structured JSON output, rather than a newly invented detector."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The Skill instructs callers to preserve missing data, select one entity and unit, and explicitly declare compatible sources for related-metric analysis.",
+        "criterion": "The Skill instructs callers to preserve missing data, select one entity and unit, and explicitly declare compatible sources for related-metric analysis."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The default response instructions lead with changes and observed-versus-expected values, then explain readiness, evidence maturity, overlapping findings, and material limitations without inventing confidence percentages or causes.",
+        "criterion": "The default response instructions lead with changes and observed-versus-expected values, then explain readiness, evidence maturity, overlapping findings, and material limitations without inventing confidence percentages or causes."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The Skill describes MCP analyze, list_findings, and get_evidence as an optional evidence workflow and makes session lifetime, read-only access, and caller-owned notification and action delivery explicit.",
+        "criterion": "The Skill describes MCP analyze, list_findings, and get_evidence as an optional evidence workflow and makes session lifetime, read-only access, and caller-owned notification and action delivery explicit."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: Use the installed Anomalyzer CLI with executable fallbacks and structured JSON rather than inventing a detector.",
+        "criterion": "Use the installed Anomalyzer CLI with executable fallbacks and structured JSON rather than inventing a detector."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: Preserve missing data, select one entity and unit, and explicitly declare compatible related-metric sources.",
+        "criterion": "Preserve missing data, select one entity and unit, and explicitly declare compatible related-metric sources."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: Lead with changes and observed-versus-expected values, then explain readiness, maturity, overlap, and limitations without invented confidence or causes.",
+        "criterion": "Lead with changes and observed-versus-expected values, then explain readiness, maturity, overlap, and limitations without invented confidence or causes."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: Describe optional MCP analyze, list_findings, and get_evidence, session lifetime, read-only access, and caller-owned notifications and actions.",
+        "criterion": "Describe optional MCP analyze, list_findings, and get_evidence, session lifetime, read-only access, and caller-owned notifications and actions."
+      },
+      {
+        "code": "review-inputs-changed",
+        "message": "Capability or implementation changed during review. Run the review again."
+      }
+    ],
+    "depth": "partial"
+  }
+}

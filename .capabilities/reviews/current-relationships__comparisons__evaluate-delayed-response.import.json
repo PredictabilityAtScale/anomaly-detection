@@ -1,0 +1,50 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Check whether the current response matches a declared multiple of an earlier predictor, preserving lineage and withholding values until required evidence is available.",
+  "criteria": [
+    {
+      "criterion": "A supplied lag and coefficient use the predictor at the declared earlier sample position.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:123",
+        "tests/test_agentic.py:254"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Derived values retain response and predictor source indexes and source cutoffs in lineage.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:162",
+        "src/anomalyzer/relationships.py:189",
+        "src/anomalyzer/orchestrator.py:228"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "When requested, the coefficient is fitted once from a declared training prefix and remains frozen.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:54",
+        "tests/test_agentic.py:294",
+        "tests/test_agentic.py:349"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Samples lacking the earlier predictor or awaiting coefficient training remain unavailable.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/relationships.py:130",
+        "tests/test_agentic.py:330"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Executed and manually inspected examples/agentic/lagged-response.json: leading values were null, null; supplied coefficient was 2; first usable sample at index 2 had residual 0, response index 2, predictor index 0, and source cutoff 2026-02-03T00:00:00+00:00.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

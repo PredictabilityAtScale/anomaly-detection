@@ -1,0 +1,64 @@
+{
+  "capabilityId": "relationships/quality/require-compatible-sources",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\relationships\\quality\\require-compatible-sources.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Prevent misleading relationship evidence by comparing sources with matching periods, entity scope, cadence, and compatible difference units.",
+      "criteria": [
+        {
+          "criterion": "Related datasets use identical normalized timestamps, the same declared cadence, and matching entity metadata.",
+          "status": "partial",
+          "evidence": [
+            "src/anomalyzer/alignment.py:46",
+            "src/anomalyzer/contracts.py:306",
+            "tests/test_events.py:256"
+          ],
+          "notes": "Timestamp and entity equality are enforced, but event-index relationships accept sources without any declared cadence."
+        },
+        {
+          "criterion": "Relationship sources are timestamped and have unique timestamps; implicit resampling and duplicate aggregation are not accepted for lineage.",
+          "status": "partial",
+          "evidence": [
+            "src/anomalyzer/alignment.py:26",
+            "src/anomalyzer/alignment.py:48",
+            "tests/test_sparse.py:435",
+            "tests/test_events.py:18",
+            "tests/test_events.py:256"
+          ],
+          "notes": "Timestamped sources are required, but explicit data policies bypass duplicate rejection: aggregated duplicates enter lineage, and identified events can share timestamps."
+        },
+        {
+          "criterion": "Difference relationships require identical declared source units and matching output units.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/relationships.py:48"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "An invalid relationship is reported as failed while valid sibling dataset results remain available.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/orchestrator.py:155",
+            "src/anomalyzer/orchestrator.py:237",
+            "tests/test_capability_behaviors.py:53"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Manually inspected all six implementation references and related timestamp normalization, sparse-policy, and event relationship paths.",
+        ".venv/Scripts/python.exe -m pytest -q tests/test_sparse.py::test_duplicate_relationship_lineage_lists_all_original_inputs tests/test_events.py::test_pointwise_relationships_align_logical_events_and_expose_source_ids — 2 passed; confirms the duplicate-lineage and tied-event exceptions."
+      ],
+      "remaining_gaps": [
+        "Require a declared shared cadence for all relationships, or explicitly scope the capability to exclude event-index relationships.",
+        "Enforce unique source timestamps and reject duplicate aggregation for relationship lineage, or revise the capability to document the implemented exceptions."
+      ],
+      "done": false
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "partial"
+  }
+}

@@ -69,53 +69,56 @@ agent:
     depth: verified
     source: coding-agent
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Acceptable ranges and maximum absolute or relative changes
-      identify explicit criterion violations, including before calibration.
+      - .venv/Scripts/python.exe -m pytest -q
+        tests/test_capability_behaviors.py::test_explicit_rules_respect_boundaries
+        tests/test_capability_behaviors.py::test_relative_rule_does_not_compare_across_zero_or_missing_values
+        tests/test_agentic.py::test_explicit_rule_is_exact_but_not_actionable_without_policy
+        tests/test_cli.py::test_schema_11_readable_case_distinguishes_explicit_rule
+        — 6 passed.
+      - Ran .venv/Scripts/python.exe -m anomalyzer analyze
+        examples/agentic/unit-cost.json and manually confirmed that output names
+        review-above-13c and its declared [0, 0.13] bound, reports detection
+        readiness as not_assessed, and leaves cause and business impact
+        unresolved.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Check caller-declared numerical limits, including before
+      calibration, while distinguishing exact violations from statistical
+      anomalies and policy-authorized actions.
     criteria:
       - criterion: Values outside an inclusive acceptable range are violations, while
           values on the boundary are accepted.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:22
-          - src/anomalyzer/contracts.py:209
-          - tests/test_capability_behaviors.py:74
-        notes: Boundary values 10 and 20 are accepted; 9 and 21 violate the declared
-          range.
+          - src/anomalyzer/early.py:25
+          - tests/test_capability_behaviors.py:66
       - criterion: Absolute and relative changes must exceed their declared maximum to
           violate a rule.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:25
-          - tests/test_capability_behaviors.py:74
-        notes: Parameterized tests distinguish equality to the threshold from strict
-          exceedance for both change rules.
+          - src/anomalyzer/early.py:28
+          - tests/test_capability_behaviors.py:69
       - criterion: Relative-change checks require a nonzero previous value and do not
           bridge missing observations.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:29
-          - src/anomalyzer/early.py:53
+          - src/anomalyzer/early.py:32
+          - src/anomalyzer/early.py:63
           - tests/test_capability_behaviors.py:87
-        notes: Zero/missing predecessors suppress relative comparisons, and missing
-          values reset comparison history.
       - criterion: Violations identify the exact declared rule and remain
           action-ineligible unless policy explicitly permits them.
         status: covered
         evidence:
-          - src/anomalyzer/early.py:34
-          - src/anomalyzer/early.py:121
+          - src/anomalyzer/early.py:37
+          - src/anomalyzer/early.py:136
+          - src/anomalyzer/contracts.py:419
           - tests/test_agentic.py:49
           - tests/test_cli.py:134
-        notes: Violation records retain rule ID/kind/bounds; default eligibility is
-          false and replay requires explicit permission.
     done: true
-    input_fingerprint: 60d24e84faee9c1e2ae8f9337d17334b37c89305093404da2e84c51526111d0b
+    input_fingerprint: 39d0558af3b2e111eb2140b7d48581aa7080e8532a95025e50106568a52d1170
     mode: quick

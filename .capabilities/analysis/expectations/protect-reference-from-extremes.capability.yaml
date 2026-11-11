@@ -64,56 +64,55 @@ agent:
       - Inspect excluded_from_model, reference_action, and outlier-handling
         diagnostics alongside the original observed value.
   review:
-    depth: verified
+    depth: tested
     source: coding-agent
+    gaps:
+      - Automated checks were inspected but not rerun during this review.
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Robust mode limits extreme observations' influence on trend
-      fitting, residual calibration, and later seasonal references.
+      - Manual source review traced separate observed and reference values,
+        exclusion diagnostics, and expected-value replacement.
+      - Inspected tests asserting trimmed-reference invariance,
+        training/calibration exclusions, preserved anomaly triggers, and robust
+        versus include seasonal echoes.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Limit extreme observations’ influence on fitted expectations and
+      future seasonal references while preserving their observed values and
+      anomaly evidence.
     criteria:
       - criterion: Robust seasonal references reduce the influence of an extreme prior
           matching seasonal value.
         status: covered
         evidence:
+          - src/anomalyzer/baseline.py:30
           - src/anomalyzer/baseline.py:39
           - tests/test_analysis.py:25
-        notes: Assertions check a independently computed weighted reference and
-          invariance when an already-trimmed high value becomes more extreme.
       - criterion: Training and calibration diagnostics identify excluded extreme
           observations.
         status: covered
         evidence:
-          - src/anomalyzer/trend.py:178
-          - src/anomalyzer/recipes.py:287
+          - src/anomalyzer/trend.py:195
+          - src/anomalyzer/recipes.py:462
           - tests/test_trend.py:65
-        notes: Tests identify exact training/calibration exclusions and compare their
-          influence on trend selection and residual scale.
       - criterion: An extreme evaluated sample remains evidence while its expected value
           is used in future references.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:378
-          - src/anomalyzer/recipes.py:392
-          - tests/test_analysis.py:263
-          - tests/test_trend.py:11
-        notes: The observed departure and trigger survive; only reference_values
-          receives the prior expectation, preventing the next seasonal echo.
+          - src/anomalyzer/recipes.py:414
+          - src/anomalyzer/recipes.py:428
+          - tests/test_trend.py:23
       - criterion: Callers can choose include mode to retain raw extreme observations
           and inspect the resulting echo behavior.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:151
-          - src/anomalyzer/recipes.py:475
+          - src/anomalyzer/cli.py:132
+          - src/anomalyzer/recipes.py:423
           - tests/test_cli.py:95
-        notes: CLI assertions distinguish robust triggers {65} from include-mode
-          triggers {65, 72}.
     done: true
-    input_fingerprint: 183b8696fdc9786878b3e54c4a9e5f68180b47e157528bef953274a3487d49a7
+    input_fingerprint: 1396ac6f5e0f4e45466aee14c5e1e1097e3243026aade2c17600d81fd580ab8a
     mode: quick

@@ -1,0 +1,63 @@
+{
+  "cached": true,
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Detect accumulating residual changes and explain whether they indicate location shifts, trends, oscillation, mixture, or short-term variation.",
+      "criteria": [
+        {
+          "criterion": "Nelson location rules and CUSUM can identify a sustained residual location shift without any point-threshold crossing.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:118",
+            "src/anomalyzer/evidence.py:189",
+            "tests/test_analysis.py:293"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "CUSUM reports the first detection position, direction, accumulated score, and configured threshold.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:211",
+            "src/anomalyzer/evidence.py:230",
+            "src/anomalyzer/recipes.py:529",
+            "tests/test_analysis.py:350"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Trend, oscillation, and mixture findings retain their specific pattern meanings.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:70",
+            "src/anomalyzer/evidence.py:122",
+            "src/anomalyzer/evidence.py:134",
+            "tests/test_analysis.py:340"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "Moving-range findings identify variation changes separately from location changes.",
+          "status": "covered",
+          "evidence": [
+            "src/anomalyzer/evidence.py:234",
+            "tests/test_analysis.py:360"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Executed analyze() on examples/location_shift_up.json: completed with zero triggered points and zero point episodes; upward Nelson rules 5, 6, and 2 detected at indices 61, 63, and 68, and CUSUM at 62.",
+        "Manually compared example findings: overlapping location rules and a separate oscillation finding retain distinct meanings; descriptions limit location claims to residual process location."
+      ],
+      "remaining_gaps": [
+        "Focused automated tests were inspected but not rerun; current runtime verification covered the upward example only."
+      ],
+      "done": true
+    },
+    "valid": true,
+    "issues": [],
+    "depth": "tested"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Group related findings into explainable, entity-scoped cases while preserving detection-time evidence and avoiding independent-source credit for derived relationships.",
+  "criteria": [
+    {
+      "criterion": "Evidence for different declared entities remains in separate cases even at the same event time.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cases.py:42",
+        "tests/test_agentic.py:69"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Criteria met in multiple source datasets can raise numerical severity and identify the contributing sources.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cases.py:73",
+        "tests/test_agentic.py:85"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "A derived relationship adds context without counting as an additional independent source for severity.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/cases.py:73",
+        "src/anomalyzer/cases.py:100",
+        "tests/test_agentic.py:100"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Adaptive location-shift rules can create an early grouped case without a point trigger, using only evidence available at detection.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/orchestrator.py:149",
+        "src/anomalyzer/early.py:227",
+        "src/anomalyzer/early.py:254",
+        "tests/test_agentic.py:122",
+        "tests/test_agentic.py:146"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python.exe -m pytest -q tests/test_agentic.py::test_cases_are_scoped_by_entity_at_the_same_event_time tests/test_agentic.py::test_two_source_datasets_escalate_case_severity tests/test_agentic.py::test_relationship_evidence_explains_but_does_not_double_count_severity tests/test_agentic.py::test_adaptive_location_shift_creates_one_early_case_without_point_trigger tests/test_agentic.py::test_location_case_severity_does_not_use_future_pattern_peak — 5 passed.",
+    "Inspected case construction for contributing targets, explanations, evidence references, investigation questions, and impact limitations; confirmed location assessments exclude diagnostic pattern kinds and require no point trigger.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

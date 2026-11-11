@@ -1,0 +1,61 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Guide agents through local Anomalyzer analysis and concise explanations that preserve data semantics and distinguish numerical evidence from confidence, causes, and action authority.",
+  "criteria": [
+    {
+      "criterion": "The Skill directs analysis through the installed Anomalyzer CLI, with executable fallback paths and structured JSON output, rather than a newly invented detector.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/SKILL.md:8",
+        ".agents/skills/anomaly-detection/SKILL.md:13",
+        ".agents/skills/anomaly-detection/SKILL.md:41",
+        "src/anomalyzer/cli.py:457"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "The Skill instructs callers to preserve missing data, select one entity and unit, and explicitly declare compatible sources for related-metric analysis.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/SKILL.md:24",
+        ".agents/skills/anomaly-detection/SKILL.md:32",
+        "tests/test_cli.py:58",
+        "tests/test_agentic.py:226",
+        "tests/test_agentic.py:242"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "The default response instructions lead with changes and observed-versus-expected values, then explain readiness, evidence maturity, overlapping findings, and material limitations without inventing confidence percentages or causes.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/agents/openai.yaml:4",
+        ".agents/skills/anomaly-detection/SKILL.md:65",
+        ".agents/skills/anomaly-detection/SKILL.md:108",
+        ".agents/skills/anomaly-detection/SKILL.md:134",
+        ".agents/skills/anomaly-detection/SKILL.md:171"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "The Skill describes MCP analyze, list_findings, and get_evidence as an optional evidence workflow and makes session lifetime, read-only access, and caller-owned notification and action delivery explicit.",
+      "status": "covered",
+      "evidence": [
+        ".agents/skills/anomaly-detection/SKILL.md:54",
+        ".agents/skills/anomaly-detection/SKILL.md:173",
+        "src/anomalyzer/mcp.py:185",
+        "src/anomalyzer/mcp.py:228",
+        "tests/test_mcp.py:54"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Executed .venv/Scripts/anomalyzer.exe analyze examples/agentic/conversion.json --format json successfully.",
+    "Executed MCP analyze → list_findings → get_evidence; asserted CLI agreement, observed conversion 8/130 versus expected 0.1, source indexes, and not_assessed readiness.",
+    "Manually compared Skill guidance with returned evidence: calibrated departure remained distinct from baseline readiness, confidence probability, cause, and action eligibility.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

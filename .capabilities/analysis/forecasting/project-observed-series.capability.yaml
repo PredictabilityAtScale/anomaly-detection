@@ -101,45 +101,45 @@ agent:
     depth: partial
     source: coding-agent
     gaps:
-      - Release 0.8.0 must pass tag CI on Python 3.11-3.13 and the offline
-        Linux/Python 3.12 Lambda bundle before publication; local preflight does
-        not certify publication.
-      - Synthetic selection and retrospective local replay do not establish
-        production accuracy. Separately validate UsageTap adoption and retain
-        Current comparison/Guard provenance.
+      - Reject nonexistent generated calendar boundaries before returning
+        completed, with a regression covering midnight DST transitions.
+      - Representative reconciled production histories and reviewed outcomes
+        remain necessary before changing UsageTap's comparison default.
+      - Supported-Python and offline Linux Lambda release-artifact checks were
+        not established by this source review.
     evidence:
-      - Primary Codex agent self-review of the changed behavior and declared
-        references; this is not independent delegated approval.
-      - "Python 3.12.9 full source suite: 435 passed in 58.73s with
-        --basetemp=.tmp/pytest-080-release; default system TEMP denied access,
-        so no product change was made for that environment issue."
-      - "After the reference-performance optimization and final bridge tests: 24
-        focused recent-level/evaluation tests passed in 8.66s, including exact
-        equivalence to the existing robust reference policy."
-      - Nested evaluation reproduces all 76 baseline/policy rows across 19
-        deterministic anonymous fixtures; losses for one stationary seed and a
-        recent real step are retained.
-      - Public demo, agentic demo, distribution demo and installed-API smoke
-        checks passed. Private replay remained only in ignored .tmp and never
-        entered published evidence.
-      - Clean Python 3.12.9 wheel and sdist installs outside checkout passed
-        Guard/forecast/native smoke, dependency/entry-point checks and all 56
-        native/recent-level regressions per artifact. Max-size bridge smoke
-        covers both legacy and new baseline paths; tag CI must repeat on Linux.
-    intent_summary: Forecast ordered calendar buckets through a validated public
-      Python and JSON contract.
+      - .venv/Scripts/python.exe -m pytest -q -p no:cacheprovider
+        tests/test_forecast.py tests/test_recent_level.py -k "frozen_selection
+        or constant_ties or selection_is_chronological or horizon_prefix or
+        contaminate or historical_reference or calendar or month or dst or
+        budget_and_numerical or json_models or runtime_size" — 38 passed, 53
+        deselected.
+      - Manual runtime reproduction confirmed the nonexistent-midnight forecast
+        timestamp and its rejection when supplied back as input.
+      - Inspected every implementation reference and traced historical
+        selection, residual rebuilding and evidence projection; checked
+        evaluation windows, disclosed policy regressions, privacy limits and
+        comparison-default guidance.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Provide inspectable fixed-fit forecasts from complete
+      observations while preserving calendar positions, causal historical
+      evidence, policy diagnostics and explicit limitations.
     criteria:
       - criterion: Complete zeros and signed measurements remain observations; partial
           tails preserve time and missing periods return unavailable without
           filling or compression.
         status: covered
         evidence:
-          - src/anomalyzer/forecast_contracts.py:59
-          - tests/test_forecast.py:27
-          - tests/test_recent_level.py:108
-        notes: Reviewed complete/missing/partial validation and original-coordinate
-          projection. New baseline keeps zero/signed observations and rejects
-          missing history.
+          - src/anomalyzer/forecast_contracts.py:43
+          - src/anomalyzer/forecast.py:147
+          - tests/test_forecast.py:49
+          - tests/test_forecast.py:110
       - criterion: Forecasts use observations only, retain horizon prefixes and adjust
           only future learned trend changes; explicit recent-level-v1 compares
           smoothing against persistence on bounded chronological multi-step
@@ -147,51 +147,49 @@ agent:
           independently of outlier policy.
         status: covered
         evidence:
-          - src/anomalyzer/level.py:13
-          - src/anomalyzer/forecast.py:165
-          - tests/test_recent_level.py:89
-          - tests/test_forecast_evaluation.py:69
-        notes: Reviewed bounded fixed candidate grid, original-coordinate chronological
-          folds, one-step guard, multi-step MAE and persistence ties. Explicit
-          models retain outputs; held-out evaluation includes both improvements
-          and regressions.
+          - src/anomalyzer/forecast.py:156
+          - src/anomalyzer/forecast.py:191
+          - src/anomalyzer/level.py:42
+          - tests/test_recent_level.py:74
+          - tests/test_recent_level.py:108
       - criterion: Historical expectations and matching residual calibration use frozen
           prefix model and baseline selection; later observations cannot change
           earlier targets, with original indices and honest warmup and maturity
           preserved.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:160
           - src/anomalyzer/forecast.py:50
+          - src/anomalyzer/recipes.py:185
+          - src/anomalyzer/recipes.py:285
           - tests/test_recent_level.py:28
-        notes: Reviewed training-prefix selection before calibration, bounded prior-only
-          references and residual rebuilding using that selected baseline. Both
-          policies preserve point-time Expected and native points/patterns
-          across changed/appended suffixes.
       - criterion: Results expose original indices, fit and inference windows, outlier
-          policy effects and separate forecast applicability from anomaly
-          maturity without confidence claims.
+          policy effects that distinguish forward screening from historical
+          reference adjustments, and separate forecast applicability from
+          anomaly maturity without confidence claims.
         status: covered
         evidence:
-          - src/anomalyzer/forecast_contracts.py:277
-          - src/anomalyzer/forecast_evidence.py:16
-          - examples/library/usagetap_forecast.py:10
-          - docs/forecasting.md:275
-        notes: Reviewed separate current/historical selection, params, fold losses,
-          settings/fingerprints and original indices. Diagnostics describe
-          policy selection, not health or accuracy.
+          - src/anomalyzer/forecast.py:228
+          - src/anomalyzer/forecast_contracts.py:319
+          - src/anomalyzer/forecast_evidence.py:116
+          - tests/test_forecast.py:93
+          - tests/test_forecast.py:225
       - criterion: Validated calendar inputs honor local calendar boundaries including
           DST and variable months; invalid, budget and numerical failures never
           return a completed partial forecast.
-        status: covered
+        status: partial
         evidence:
-          - src/anomalyzer/forecast.py:264
-          - tests/test_forecast.py:241
-          - tests/test_recent_level.py:164
-        notes: Existing calendar and finite-result checks remain; new selection and
-          historical prediction are bounded within cooperative runtime checks.
-          Atomic unavailable behavior tested. Caller transport timeout remains
-          necessary.
+          - src/anomalyzer/forecast_contracts.py:21
+          - src/anomalyzer/forecast_contracts.py:75
+          - src/anomalyzer/forecast.py:210
+          - src/anomalyzer/forecast.py:214
+          - tests/test_forecast.py:164
+          - tests/test_forecast.py:265
+        notes: Generated dates are not checked for nonexistent local midnight
+          boundaries. Eight valid daily buckets ending 2018-11-03 in
+          America/Sao_Paulo return completed with 2018-11-04T00:00:00-03:00,
+          which resolves to 01:00 locally and is rejected by the input
+          validator. Validate generated boundaries and return unavailable
+          atomically.
     done: false
-    input_fingerprint: 2cd65320694ddba3283e9b048dc3b050c19e59307b0e86b791830a308bd88d7f
+    input_fingerprint: 31edc6de91e5396ae58fcc5b1b862051d8ebcceab39b690587fb11a3951bf69a
     mode: quick

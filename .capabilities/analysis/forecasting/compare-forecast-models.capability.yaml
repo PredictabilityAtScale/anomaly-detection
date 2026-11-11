@@ -97,3 +97,94 @@ agent:
       - Source verification does not certify publication; release CI must
         qualify supported Python versions and installed/offline Linux artifacts
         before adoption.
+  review:
+    depth: partial
+    source: coding-agent
+    gaps:
+      - "Criterion 3 requires alignment: select the strict minimum with stable
+        exact ties, or explicitly permit tolerance-based ties in the capability;
+        add a regression covering small-scale losses."
+      - Production accuracy, incident detection delay and false-alert behavior
+        still require representative consumer evidence.
+      - Supported-Python, installed wheel/sdist and offline Linux release
+        qualification were not run in this review.
+    evidence:
+      - .venv/Scripts/python.exe -m pytest -q -p no:cacheprovider
+        tests/test_forecast_selection.py tests/test_forecast.py
+        tests/test_forecast_anomalies.py tests/test_recent_level.py — 201
+        passed.
+      - .venv/Scripts/python.exe examples/forecasting/select_models.py —
+        completed successfully.
+      - Inspected every implementation reference, including all four schemas,
+        fixture provenance, exports, distribution checks and examples.
+      - Manually checked documentation separates current fitted components,
+        ordinary noise, selection error, outer accuracy and anomaly calibration.
+      - Executed a small-scale linear-series reproduction confirming the
+        higher-loss selection caused by tie tolerance.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Provide explicit forward models, including UsageTap-compatible
+      local trend, and compare bounded candidates on chronological full-horizon
+      holdouts while preserving existing forecasts and anomaly evidence.
+    criteria:
+      - criterion: An explicit local-trend model reproduces UsageTap Current with
+          outlier exclusion disabled, including its recent robust slope,
+          centered seasonal offsets, future-only trend adjustment and positional
+          bucket alignment.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_selection.py:100
+          - src/anomalyzer/forecast_selection.py:190
+          - tests/test_forecast_selection.py:32
+      - criterion: Explicit naive, seasonal-naive, mean, median, smoothing, damped local
+          trend and existing Anomalyzer models expose their settings and
+          separate trend and seasonal components without modifying actual
+          observations.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_selection_contracts.py:15
+          - src/anomalyzer/forecast_selection.py:144
+          - src/anomalyzer/forecast_selection.py:163
+          - tests/test_forecast_selection.py:51
+      - criterion: Selection evaluates every ranked candidate on the same earlier
+          training prefixes and full requested-horizon holdouts, reports losses
+          and failed candidates, and deterministically selects the smallest
+          declared objective with stable ties.
+        status: partial
+        evidence:
+          - src/anomalyzer/forecast_selection.py:285
+          - src/anomalyzer/forecast_selection.py:292
+          - src/anomalyzer/forecast_selection.py:313
+          - src/anomalyzer/forecast_selection.py:329
+        notes: Shared holdouts, losses and failures are implemented, but the documented
+          tie tolerance can select a strictly higher loss. For values [i*1e-14
+          for i in range(86)] with naive followed by local_trend, selection
+          chooses naive with loss 7.5e-14 over local_trend with loss
+          approximately 9.62e-30.
+      - criterion: Partial tails never enter fitting or scoring, missing history is
+          unavailable, and insufficient validation history or budget exhaustion
+          never fabricates a selected or partially evaluated model.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_selection.py:82
+          - src/anomalyzer/forecast_selection.py:138
+          - src/anomalyzer/forecast_selection.py:285
+          - tests/test_forecast_selection.py:254
+      - criterion: Existing forecast and anomaly APIs retain their behavior; selection
+          scores do not claim future optimality, calibrated anomaly evidence or
+          uncertainty, and selected-model accuracy requires separate outer
+          holdouts.
+        status: covered
+        evidence:
+          - src/anomalyzer/forecast_selection.py:26
+          - tests/test_forecast_selection.py:197
+          - tests/test_forecast_selection.py:208
+          - docs/forecasting.md:564
+    done: false
+    input_fingerprint: 837bc0baf6dcb0b0b9a1730e41ff0509bdd19aad86f61fd955bbe3871b5f2851
+    mode: quick

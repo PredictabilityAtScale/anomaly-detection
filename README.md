@@ -324,9 +324,26 @@ or [.capabilities/dependency-viewer.html](.capabilities/dependency-viewer.html) 
 
 [![Anomalyzer capability dependency graph](.capabilities/dependency-preview.svg)](https://predictabilityatscale.github.io/anomaly-detection/dependency-viewer.html)
 
+To refresh these maps, review changed or unconfirmed implemented capabilities with
+`capabilitykit verify <capability-id> --agent codex --arg exec --handoff stdin`,
+then regenerate the checked-in assets:
+
+```powershell
+capabilitykit check --fix
+capabilitykit graph-viewer
+capabilitykit story-map-viewer
+python scripts/export_capability_preview.py
+```
+
+Commit the capability evidence and generated assets together. The
+[Capability maps workflow](.github/workflows/capability-maps.yml) checks the static
+preview and publishes these files to GitHub Pages after relevant pushes to `main`.
+Its manual **Run workflow** action republishes the checked-in files; it does not
+run semantic agent reviews or regenerate the maps.
+
 ### Future direction
 
-The story map also includes **18 unimplemented stories across six future lanes**.
+The story map also includes **17 unimplemented stories across six future lanes**.
 Each story has a behavior contract, four acceptance criteria, proposed automated
 coverage scenarios, and one manual review focus. Verification scenarios are
 planning guidance: implementation references, runnable checks, and saved review

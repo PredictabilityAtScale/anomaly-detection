@@ -76,138 +76,76 @@ agent:
         presented as a completed total or independent corroboration.
   review:
     depth: partial
-    source: deterministic-assessment
+    source: coding-agent
     gaps:
-      - Callers select related datasets with identical native boundaries, entity
-        scope, declared aggregation semantics, and compatible period
-        definitions. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - Finalized subperiod relationships retain each source value and original
-        source index; unavailable or incomplete sources yield explicit
-        unavailability. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-      - Completed aggregate ratios use aggregated numerators and denominators; a
-        ratio of totals is not silently replaced by an average of individual
-        ratios. Review the cited evidence. If it is correct, save agent.review
-        evidence or make the criterion/reference wording more explicit.
-      - Open-period progress remains separate from completed-period evidence and
-        identifies coverage; correlated resolutions do not count as independent
-        corroboration. Review the cited evidence. If it is correct, save
-        agent.review evidence or make the criterion/reference wording more
-        explicit.
-    intent_summary: Implementation evidence synchronized from deterministic
-      assessment for relationships/resolution/compare-finalized-subperiods.
+      - Require native cadence and boundary compatibility before constructing
+        daily relationships; add a regression check rejecting cross-cadence
+        comparisons.
+      - Chapter 22 uses one metric; the conversion-decline scenario within an
+        unfinished day was not exercised.
+    evidence:
+      - .venv/Scripts/python -m pytest -q
+        tests/test_sparse.py::test_complete_daily_ratio_divides_sums_and_missing_child_invalidates_only_its_view
+        tests/test_sparse.py::test_daily_rules_are_not_silently_reused_from_hourly_rules
+        tests/test_sparse.py::test_multi_resolution_mcp_drilldown_selects_correct_view_and_replays_case_ids
+        tests/test_sparse.py::test_unsupported_daily_relationship_is_explicit_and_does_not_reinterpret_lag
+        — 4 passed.
+      - Inline Python compatibility probe reproduced native failure for
+        hourly/two-hourly sources while completed-period lineage contained
+        ratios [1.0, 1.0].
+      - "Executed unfinished_daily.json and checked chapter 22 rendering logic:
+        completed totals were [null, 24, null], open-day coverage was 11/24
+        finalized children, and the unfinished value remained separate."
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Detect declared related-metric changes within unfinished periods
+      while separating finalized subperiod evidence, completed daily aggregates,
+      and partial progress.
     criteria:
       - criterion: Callers select related datasets with identical native boundaries,
           entity scope, declared aggregation semantics, and compatible period
           definitions.
         status: partial
         evidence:
-          - src/anomalyzer/sparse_views.py:19
-          - src/anomalyzer/sparse_views.py:22
-          - src/anomalyzer/sparse_views.py:139
-          - src/anomalyzer/sparse_views.py:143
-          - src/anomalyzer/sparse_views.py:164
-          - src/anomalyzer/agent.py:14
-          - src/anomalyzer/agent.py:20
-          - src/anomalyzer/agent.py:23
-          - src/anomalyzer/agent.py:29
-          - tests/test_sparse.py:18
-          - tests/test_sparse.py:59
-          - tests/test_sparse.py:87
-          - tests/test_sparse.py:99
-          - tests/test_sparse.py:117
-          - docs/sparse-data.md:31
-          - docs/sparse-data.md:127
-          - docs/sparse-data.md:159
-          - docs/sparse-data.md:199
-          - docs/sparse-data.md:203
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
+          - src/anomalyzer/alignment.py:46
+          - src/anomalyzer/sparse_views.py:82
+          - src/anomalyzer/sparse_views.py:155
+          - src/anomalyzer/sparse_views.py:169
+        notes: "Native comparisons enforce matching cadence, timestamps and entities,
+          but daily aggregation bypasses native compatibility: an
+          hourly/two-hourly pair produces daily ratios despite native alignment
+          failure."
       - criterion: Finalized subperiod relationships retain each source value and
           original source index; unavailable or incomplete sources yield
           explicit unavailability.
-        status: partial
+        status: covered
         evidence:
-          - src/anomalyzer/sparse_views.py:19
-          - src/anomalyzer/sparse_views.py:75
-          - src/anomalyzer/sparse_views.py:94
-          - src/anomalyzer/sparse_views.py:122
-          - src/anomalyzer/sparse_views.py:123
-          - src/anomalyzer/relationships.py:7
-          - src/anomalyzer/relationships.py:19
-          - src/anomalyzer/relationships.py:33
-          - src/anomalyzer/relationships.py:34
-          - src/anomalyzer/relationships.py:36
-          - src/anomalyzer/agent.py:34
-          - tests/test_sparse.py:10
-          - tests/test_sparse.py:40
-          - tests/test_sparse.py:50
-          - tests/test_sparse.py:60
-          - tests/test_sparse.py:62
-          - docs/sparse-data.md:17
-          - docs/sparse-data.md:41
-          - docs/sparse-data.md:68
-          - docs/sparse-data.md:97
-          - docs/sparse-data.md:99
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
+          - src/anomalyzer/alignment.py:33
+          - src/anomalyzer/relationships.py:97
+          - src/anomalyzer/relationships.py:162
+          - src/anomalyzer/relationships.py:174
       - criterion: Completed aggregate ratios use aggregated numerators and
           denominators; a ratio of totals is not silently replaced by an average
           of individual ratios.
-        status: partial
+        status: covered
         evidence:
-          - src/anomalyzer/sparse_views.py:29
-          - src/anomalyzer/sparse_views.py:70
-          - src/anomalyzer/sparse_views.py:82
-          - src/anomalyzer/sparse_views.py:170
-          - src/anomalyzer/relationships.py:90
-          - src/anomalyzer/relationships.py:173
-          - tests/test_sparse.py:230
-          - tests/test_sparse.py:259
-          - tests/test_sparse.py:313
-          - docs/sparse-data.md:41
-          - docs/sparse-data.md:111
-          - docs/sparse-data.md:194
-          - docs/sparse-data.md:197
-          - docs/sparse-data.md:198
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
+          - src/anomalyzer/sparse_views.py:114
+          - src/anomalyzer/relationships.py:104
+          - tests/test_sparse.py:244
       - criterion: Open-period progress remains separate from completed-period evidence
           and identifies coverage; correlated resolutions do not count as
           independent corroboration.
-        status: partial
+        status: covered
         evidence:
-          - src/anomalyzer/sparse_views.py:1
-          - src/anomalyzer/sparse_views.py:29
-          - src/anomalyzer/sparse_views.py:82
-          - src/anomalyzer/sparse_views.py:130
-          - src/anomalyzer/sparse_views.py:159
-          - src/anomalyzer/relationships.py:157
-          - src/anomalyzer/relationships.py:192
-          - src/anomalyzer/agent.py:20
-          - src/anomalyzer/agent.py:47
-          - tests/test_sparse.py:217
-          - tests/test_sparse.py:247
-          - tests/test_sparse.py:251
-          - tests/test_sparse.py:264
-          - tests/test_sparse.py:386
-          - examples/sparse/unfinished_daily.json:208
-          - docs/sparse-data.md:8
-          - docs/sparse-data.md:11
-          - docs/sparse-data.md:37
-          - docs/sparse-data.md:41
-          - docs/sparse-data.md:45
-        notes: Related implementation text was found, but deterministic matching cannot
-          prove the behavior. Review the cited evidence. If it is correct, save
-          agent.review evidence or make the criterion/reference wording more
-          explicit.
+          - src/anomalyzer/sparse_views.py:19
+          - src/anomalyzer/sparse_views.py:111
+          - src/anomalyzer/sparse_views.py:125
+          - src/anomalyzer/agent.py:63
     done: false
+    input_fingerprint: 85fc10b75603c3c6bd78dd62e88a0a1c0297fa3277b52d20e82d4438252379a8
+    mode: quick

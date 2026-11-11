@@ -58,55 +58,68 @@ agent:
       - Inspect the resolved reset positions and segment diagnostics for
         examples/steps_reset.json.
   review:
-    depth: verified
+    depth: partial
     source: coding-agent
+    gaps:
+      - Validate invalid reset declarations before sparse as_of filtering while
+        preserving deferred valid boundaries; add focused regression coverage.
     evidence:
-      - Primary Codex agent re-inspected declared implementation references and
-        criterion evidence in the current session after the outcome-title and
-        deliverable-lane refactor.
-      - ".venv/Scripts/python.exe -m pytest -q: 154 passed in 13.98s;
-        .capabilities/reviews/deliverable-lanes/verification.json."
-      - Executed and inspected CLI examples, time preparation, policy replay,
-        open-day monitoring, and MCP conversion evidence drilldown;
-        .capabilities/reviews/deliverable-lanes/manual-checks.json.
-    intent_summary: Caller-supplied reset points divide a single-resolution series
-      into independently trained and calibrated regimes.
+      - .venv/Scripts/python.exe -m pytest -q
+        tests/test_analysis.py::test_manual_resets_retrain_without_crossing_boundaries
+        tests/test_analysis.py::test_invalid_manual_resets
+        tests/test_cli.py::test_manual_reset_cli — 7 passed.
+      - "Inspected examples/steps_reset.json through analyze(): resolved
+        positions [50, 100], three calibrated segments with separate
+        training/calibration windows, zero observations and patterns."
+      - Direct resolver checks passed for offset-normalized exact timestamps and
+        duplicate/unmatched timestamp rejection.
+      - Confirmed sparse analysis with as_of accepts invalid reset position 999
+        and unmatched date 2099-01-01, resolving both to no boundaries.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Explicit reset boundaries let each regime establish its own
+      baseline, trend, and calibration after a known change.
     criteria:
       - criterion: Integer positions and exact observed dates or timestamps can identify
           reset boundaries.
         status: covered
         evidence:
           - src/anomalyzer/validation.py:129
-          - tests/test_analysis.py:381
-        notes: Positions and observed dates are exercised end to end; timestamp
-          normalization and exact matching are implemented directly.
+          - tests/test_analysis.py:398
       - criterion: Each new regime rebuilds its reference, trend, and calibration
           without crossing earlier boundaries.
         status: covered
         evidence:
-          - src/anomalyzer/recipes.py:119
-          - src/anomalyzer/recipes.py:143
-          - tests/test_analysis.py:381
-        notes: Each segment initializes separate state and passes its own start to
-          forecasts. Tests verify three calibrated regimes and no cross-boundary
-          evidence or findings.
+          - src/anomalyzer/recipes.py:138
+          - src/anomalyzer/recipes.py:163
+          - src/anomalyzer/recipes.py:197
+          - src/anomalyzer/baseline.py:31
+          - tests/test_analysis.py:403
       - criterion: Repeated, out-of-range, or unmatched reset points are rejected.
-        status: covered
+        status: partial
         evidence:
           - src/anomalyzer/contracts.py:51
-          - src/anomalyzer/validation.py:149
-          - tests/test_analysis.py:413
-        notes: Validation rejects literal duplicates and different declarations
-          resolving to the same position, invalid positions, and unmatched
-          dates/timestamps.
+          - src/anomalyzer/validation.py:138
+          - tests/test_analysis.py:412
+          - src/anomalyzer/sparse.py:195
+          - src/anomalyzer/sparse.py:372
+        notes: Standard validation rejects invalid boundaries, but sparse analysis with
+          as_of silently filters some invalid resets before validation.
+          Reproduced acceptance of position 999 and unmatched date 2099-01-01
+          against a 14-sample series.
       - criterion: CLI reset options produce the same resolved positions and suppress
           departures explained by the declared boundaries.
         status: covered
         evidence:
+          - src/anomalyzer/cli.py:135
+          - src/anomalyzer/cli.py:264
           - tests/test_cli.py:82
-          - src/anomalyzer/recipes.py:53
-        notes: CLI assertions establish positions [50, 100] and removal of the
-          unmarked-regime episodes.
-    done: true
-    input_fingerprint: 067063f972c5b70d990d6cb0125892731a97a7f482698d7b331a1a30229ac223
+          - tests/test_analysis.py:390
+    done: false
+    input_fingerprint: ec1dda5495b77cb297549d60bc298373159f75e679242df5178011d782261d70
     mode: quick

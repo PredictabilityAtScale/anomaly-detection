@@ -1,0 +1,69 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Expose causal native historical anomaly evidence through one opt-in forecast call while leaving business materiality, severity and notifications under consumer control.",
+  "criteria": [
+    {
+      "criterion": "One forecast call reuses its historical analysis and returns typed native signed reference, residual, score, triggers, maturity, calibration support, availability and detector provenance in original input positions; explicit recent-level selection is frozen before calibration, whose residuals and readiness use that selected baseline rather than the current forward fit.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast.py:203",
+        "src/anomalyzer/forecast_contracts.py:125",
+        "src/anomalyzer/forecast_evidence.py:45",
+        "src/anomalyzer/recipes.py:201",
+        "src/anomalyzer/recipes.py:363",
+        "tests/test_recent_level.py:28"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Frozen-origin earlier point evidence and first-detection pattern snapshots survive changed or appended suffixes; provisional evidence cannot trigger, and retrospective screening is separate from anomaly qualification.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast_evidence.py:65",
+        "src/anomalyzer/forecast_evidence.py:84",
+        "src/anomalyzer/recipes.py:246",
+        "tests/test_forecast_anomalies.py:30",
+        "tests/test_forecast_anomalies.py:142"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Opt-in defaults preserve existing forecast arrays, signed decomposition, horizon prefixes and adjustment semantics; missing gaps and budget failures return unavailable without fabricated or partial evidence.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast.py:147",
+        "src/anomalyzer/forecast.py:193",
+        "src/anomalyzer/forecast.py:250",
+        "tests/test_forecast_anomalies.py:185",
+        "tests/test_forecast_anomalies.py:208",
+        "tests/test_recent_level.py:108"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Public schemas, a single-call compatibility adapter and migration guidance document independent selectors, baseline labels, explicit materiality and version negotiation without changing Guard or saved notifications.",
+      "status": "partial",
+      "evidence": [
+        "schemas/historical-anomalies-request.schema.json:1",
+        "schemas/historical-anomalies-result.schema.json:480",
+        "examples/library/usagetap_forecast.py:22",
+        "examples/library/usagetap_forecast.py:61",
+        "docs/usagetap-forecast-migration.md:204",
+        "docs/usagetap-forecast-migration.md:264",
+        "tests/test_recent_level.py:60"
+      ],
+      "notes": "Schemas, adapter and consumer boundaries are implemented, but the migration guide says the example now pins 0.8.0 while the actual adapter pins 0.9.1; reconcile the current adoption instructions."
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python.exe -m pytest -q -p no:cacheprovider tests/test_forecast_anomalies.py tests/test_recent_level.py — Python 3.12.9; 56 passed.",
+    "Manual source review confirmed signed versus display references, selected-baseline calibration/readiness, first-detection snapshots and separation of statistical qualification from business severity.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Update migration guidance to identify the current 0.9.1 adapter pin and its relationship to the capability's 0.8.0 release prerequisite.",
+    "Published-artifact provenance, clean wheel/sdist verification and offline Linux Python 3.12 Lambda execution were not established in this review.",
+    "Consumer enablement still requires separately reviewed UsageTap adoption using a verified published artifact."
+  ],
+  "done": false
+}

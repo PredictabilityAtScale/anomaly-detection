@@ -1,0 +1,57 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Applications can call validated local Python analysis while preserving settings, context, declared relationships, and numerical evidence across interfaces.",
+  "criteria": [
+    {
+      "criterion": "analyze accepts bare ordered values with separate validated settings and dispatches canonical schema 1.0, 1.1 or distribution-v1 requests.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/recipes.py:22",
+        "src/anomalyzer/contracts.py:96",
+        "tests/test_analysis.py:234"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "analyze_series preserves supplied settings and event-time context for a single dataset.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/agent.py:11",
+        "tests/test_mcp.py:191",
+        "tests/test_mcp.py:291"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "analyze_relationships preserves the declared multi-dataset relationship semantics.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/agent.py:34",
+        "src/anomalyzer/orchestrator.py:164",
+        "src/anomalyzer/relationships.py:92"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Equivalent requests retain numerical results across Python, CLI, and full-result MCP compatibility calls apart from run IDs and runtime.",
+      "status": "covered",
+      "evidence": [
+        "tests/test_mcp.py:163",
+        "tests/test_mcp.py:217",
+        "tests/test_distributions.py:276",
+        "tests/test_distributions.py:294",
+        "tests/test_seasonal_distributions.py:226"
+      ],
+      "notes": ""
+    }
+  ],
+  "verification_evidence": [
+    "Focused pytest checks passed for canonical parity, bare values, series context, settings preservation, relationship parity, distribution monitoring, and seasonal distributions: 11 cases.",
+    ".venv/Scripts/python.exe -m pytest -q -p no:cacheprovider --basetemp <fresh-directory> tests/test_distributions.py::test_cli_mcp_api_and_schemas_agree — 1 passed; resolved the initial temporary-directory setup error.",
+    "Reviewed README.md:1413 Python examples and executed the canonical example; confirmed a validated Result and serializable JSON.",
+    "Inspected distribution exports, validated contracts, testing-family metadata, and statistical limitations in all referenced source files.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [],
+  "done": true
+}

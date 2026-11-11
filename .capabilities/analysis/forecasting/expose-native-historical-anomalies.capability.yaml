@@ -96,33 +96,30 @@ agent:
     depth: partial
     source: coding-agent
     gaps:
-      - Release 0.8.0 must pass tag CI on Python 3.11-3.13 and the offline
-        Linux/Python 3.12 Lambda bundle before publication; local preflight does
-        not certify publication.
-      - Synthetic selection and retrospective local replay do not establish
-        production accuracy. Separately validate UsageTap adoption and retain
-        Current comparison/Guard provenance.
+      - Update migration guidance to identify the current 0.9.1 adapter pin and
+        its relationship to the capability's 0.8.0 release prerequisite.
+      - Published-artifact provenance, clean wheel/sdist verification and
+        offline Linux Python 3.12 Lambda execution were not established in this
+        review.
+      - Consumer enablement still requires separately reviewed UsageTap adoption
+        using a verified published artifact.
     evidence:
-      - Primary Codex agent self-review of the changed behavior and declared
-        references; this is not independent delegated approval.
-      - "Python 3.12.9 full source suite: 435 passed in 58.73s with
-        --basetemp=.tmp/pytest-080-release; default system TEMP denied access,
-        so no product change was made for that environment issue."
-      - "After the reference-performance optimization and final bridge tests: 24
-        focused recent-level/evaluation tests passed in 8.66s, including exact
-        equivalence to the existing robust reference policy."
-      - Nested evaluation reproduces all 76 baseline/policy rows across 19
-        deterministic anonymous fixtures; losses for one stationary seed and a
-        recent real step are retained.
-      - Public demo, agentic demo, distribution demo and installed-API smoke
-        checks passed. Private replay remained only in ignored .tmp and never
-        entered published evidence.
-      - Clean Python 3.12.9 wheel and sdist installs outside checkout passed
-        Guard/forecast/native smoke, dependency/entry-point checks and all 56
-        native/recent-level regressions per artifact. Max-size bridge smoke
-        covers both legacy and new baseline paths; tag CI must repeat on Linux.
-    intent_summary: An opt-in versioned forecast extension exposes native historical
-      point and pattern evidence from the same frozen historical analysis.
+      - .venv/Scripts/python.exe -m pytest -q -p no:cacheprovider
+        tests/test_forecast_anomalies.py tests/test_recent_level.py — Python
+        3.12.9; 56 passed.
+      - Manual source review confirmed signed versus display references,
+        selected-baseline calibration/readiness, first-detection snapshots and
+        separation of statistical qualification from business severity.
+      - "Primary agent checked the subsequent tracked workspace delta: README
+        additions link the separate comparison pack and document map
+        regeneration/publication; the planned-story count is corrected to 17.
+        These documentation changes do not alter the reviewed behavior. No
+        tracked src/tests/docs implementation changes occurred during this pass.
+        Full repository test run: 521 passed; see
+        .capabilities/reviews/current-tests.log."
+    intent_summary: Expose causal native historical anomaly evidence through one
+      opt-in forecast call while leaving business materiality, severity and
+      notifications under consumer control.
     criteria:
       - criterion: One forecast call reuses its historical analysis and returns typed
           native signed reference, residual, score, triggers, maturity,
@@ -132,51 +129,51 @@ agent:
           rather than the current forward fit.
         status: covered
         evidence:
-          - src/anomalyzer/forecast_evidence.py:16
-          - src/anomalyzer/recipes.py:160
+          - src/anomalyzer/forecast.py:203
+          - src/anomalyzer/forecast_contracts.py:125
+          - src/anomalyzer/forecast_evidence.py:45
+          - src/anomalyzer/recipes.py:201
+          - src/anomalyzer/recipes.py:363
           - tests/test_recent_level.py:28
-        notes: Reviewed single-analysis reuse and matching selected-baseline
-          calibration/readiness; independent include-mode residual/scale replay
-          matches native scores. Native settings disclose the frozen baseline.
       - criterion: Frozen-origin earlier point evidence and first-detection pattern
           snapshots survive changed or appended suffixes; provisional evidence
           cannot trigger, and retrospective screening is separate from anomaly
           qualification.
         status: covered
         evidence:
-          - src/anomalyzer/forecast_evidence.py:51
-          - tests/test_recent_level.py:28
+          - src/anomalyzer/forecast_evidence.py:65
+          - src/anomalyzer/forecast_evidence.py:84
+          - src/anomalyzer/recipes.py:246
           - tests/test_forecast_anomalies.py:30
-        notes: Both legacy and recent-level tests preserve earlier point-time rows and
-          first-detection patterns. Calibration exclusions remain separately
-          cutoff-annotated operations, not incident labels.
+          - tests/test_forecast_anomalies.py:142
       - criterion: Opt-in defaults preserve existing forecast arrays, signed
           decomposition, horizon prefixes and adjustment semantics; missing gaps
           and budget failures return unavailable without fabricated or partial
           evidence.
         status: covered
         evidence:
+          - src/anomalyzer/forecast.py:147
+          - src/anomalyzer/forecast.py:193
+          - src/anomalyzer/forecast.py:250
+          - tests/test_forecast_anomalies.py:185
+          - tests/test_forecast_anomalies.py:208
           - tests/test_recent_level.py:108
-          - tests/test_recent_level.py:136
-          - tests/test_recent_level.py:60
-        notes: Default legacy behavior and standalone recipes remain unchanged. Explicit
-          seasonal/trend outputs, horizon prefixes, partial tails and
-          unavailable failures are covered; recent-level changes only with
-          explicit config.
       - criterion: Public schemas, a single-call compatibility adapter and migration
           guidance document independent selectors, baseline labels, explicit
           materiality and version negotiation without changing Guard or saved
           notifications.
-        status: covered
+        status: partial
         evidence:
-          - schemas/forecast-result.schema.json:1
-          - schemas/historical-anomalies-result.schema.json:1
-          - examples/library/usagetap_forecast.py:10
-          - docs/usagetap-forecast-migration.md:1
-        notes: Reviewed additive optional schema/settings fields, exact 0.8.0 bridge
-          guard, independent method/outlier controls, real step lag, versioned
-          caches and retention of old finding provenance. UsageTap
-          implementation is a separate post-publication task.
+          - schemas/historical-anomalies-request.schema.json:1
+          - schemas/historical-anomalies-result.schema.json:480
+          - examples/library/usagetap_forecast.py:22
+          - examples/library/usagetap_forecast.py:61
+          - docs/usagetap-forecast-migration.md:204
+          - docs/usagetap-forecast-migration.md:264
+          - tests/test_recent_level.py:60
+        notes: Schemas, adapter and consumer boundaries are implemented, but the
+          migration guide says the example now pins 0.8.0 while the actual
+          adapter pins 0.9.1; reconcile the current adoption instructions.
     done: false
-    input_fingerprint: 82ec91d5d9a92bc3c409f725465630b879e89ac417b876bee4c62e26af850f4a
+    input_fingerprint: ea057f962e10207a3f564bae39254cfe348f27089a4e8571d634b2e2dd191530
     mode: quick

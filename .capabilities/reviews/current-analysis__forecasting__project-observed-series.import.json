@@ -1,0 +1,77 @@
+{
+  "source": "coding-agent",
+  "intent_summary": "Provide inspectable fixed-fit forecasts from complete observations while preserving calendar positions, causal historical evidence, policy diagnostics and explicit limitations.",
+  "criteria": [
+    {
+      "criterion": "Complete zeros and signed measurements remain observations; partial tails preserve time and missing periods return unavailable without filling or compression.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast_contracts.py:43",
+        "src/anomalyzer/forecast.py:147",
+        "tests/test_forecast.py:49",
+        "tests/test_forecast.py:110"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Forecasts use observations only, retain horizon prefixes and adjust only future learned trend changes; explicit recent-level-v1 compares smoothing against persistence on bounded chronological multi-step holdouts and retains persistence without supported improvement, independently of outlier policy.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast.py:156",
+        "src/anomalyzer/forecast.py:191",
+        "src/anomalyzer/level.py:42",
+        "tests/test_recent_level.py:74",
+        "tests/test_recent_level.py:108"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Historical expectations and matching residual calibration use frozen prefix model and baseline selection; later observations cannot change earlier targets, with original indices and honest warmup and maturity preserved.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast.py:50",
+        "src/anomalyzer/recipes.py:185",
+        "src/anomalyzer/recipes.py:285",
+        "tests/test_recent_level.py:28"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Results expose original indices, fit and inference windows, outlier policy effects that distinguish forward screening from historical reference adjustments, and separate forecast applicability from anomaly maturity without confidence claims.",
+      "status": "covered",
+      "evidence": [
+        "src/anomalyzer/forecast.py:228",
+        "src/anomalyzer/forecast_contracts.py:319",
+        "src/anomalyzer/forecast_evidence.py:116",
+        "tests/test_forecast.py:93",
+        "tests/test_forecast.py:225"
+      ],
+      "notes": ""
+    },
+    {
+      "criterion": "Validated calendar inputs honor local calendar boundaries including DST and variable months; invalid, budget and numerical failures never return a completed partial forecast.",
+      "status": "partial",
+      "evidence": [
+        "src/anomalyzer/forecast_contracts.py:21",
+        "src/anomalyzer/forecast_contracts.py:75",
+        "src/anomalyzer/forecast.py:210",
+        "src/anomalyzer/forecast.py:214",
+        "tests/test_forecast.py:164",
+        "tests/test_forecast.py:265"
+      ],
+      "notes": "Generated dates are not checked for nonexistent local midnight boundaries. Eight valid daily buckets ending 2018-11-03 in America/Sao_Paulo return completed with 2018-11-04T00:00:00-03:00, which resolves to 01:00 locally and is rejected by the input validator. Validate generated boundaries and return unavailable atomically."
+    }
+  ],
+  "verification_evidence": [
+    ".venv/Scripts/python.exe -m pytest -q -p no:cacheprovider tests/test_forecast.py tests/test_recent_level.py -k \"frozen_selection or constant_ties or selection_is_chronological or horizon_prefix or contaminate or historical_reference or calendar or month or dst or budget_and_numerical or json_models or runtime_size\" — 38 passed, 53 deselected.",
+    "Manual runtime reproduction confirmed the nonexistent-midnight forecast timestamp and its rejection when supplied back as input.",
+    "Inspected every implementation reference and traced historical selection, residual rebuilding and evidence projection; checked evaluation windows, disclosed policy regressions, privacy limits and comparison-default guidance.",
+    "Primary agent checked the subsequent tracked workspace delta: README additions link the separate comparison pack and document map regeneration/publication; the planned-story count is corrected to 17. These documentation changes do not alter the reviewed behavior. No tracked src/tests/docs implementation changes occurred during this pass. Full repository test run: 521 passed; see .capabilities/reviews/current-tests.log."
+  ],
+  "remaining_gaps": [
+    "Reject nonexistent generated calendar boundaries before returning completed, with a regression covering midnight DST transitions.",
+    "Representative reconciled production histories and reviewed outcomes remain necessary before changing UsageTap's comparison default.",
+    "Supported-Python and offline Linux Lambda release-artifact checks were not established by this source review."
+  ],
+  "done": false
+}

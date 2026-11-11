@@ -1,0 +1,110 @@
+{
+  "capabilityId": "interfaces/skill/guide-anomaly-investigation",
+  "filePath": "C:\\Users\\troym\\Git\\Anomalyizer\\.capabilities\\interfaces\\skill\\guide-anomaly-investigation.capability.yaml",
+  "validation": {
+    "review": {
+      "source": "coding-agent",
+      "intent_summary": "Guide agents through local Anomalyzer analysis and concise explanations that preserve data semantics and distinguish numerical evidence from confidence, causes, and action authority.",
+      "criteria": [
+        {
+          "criterion": "1. Use the installed CLI, executable fallbacks, and structured JSON rather than inventing a detector.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/SKILL.md:8",
+            ".agents/skills/anomaly-detection/SKILL.md:13",
+            ".agents/skills/anomaly-detection/SKILL.md:41",
+            "src/anomalyzer/cli.py:457"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "2. Preserve missing data, select one entity and unit, and declare compatible related-metric sources.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/SKILL.md:24",
+            ".agents/skills/anomaly-detection/SKILL.md:32",
+            "tests/test_cli.py:58",
+            "tests/test_agentic.py:226",
+            "tests/test_agentic.py:242"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "3. Lead with changes and observed-versus-expected values, then explain readiness, maturity, overlap, and limitations without inventing confidence or causes.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/agents/openai.yaml:4",
+            ".agents/skills/anomaly-detection/SKILL.md:65",
+            ".agents/skills/anomaly-detection/SKILL.md:108",
+            ".agents/skills/anomaly-detection/SKILL.md:134",
+            ".agents/skills/anomaly-detection/SKILL.md:171"
+          ],
+          "notes": ""
+        },
+        {
+          "criterion": "4. Describe optional MCP evidence drilldown, session lifetime, read-only access, and caller-owned delivery and actions.",
+          "status": "covered",
+          "evidence": [
+            ".agents/skills/anomaly-detection/SKILL.md:54",
+            ".agents/skills/anomaly-detection/SKILL.md:173",
+            "src/anomalyzer/mcp.py:185",
+            "src/anomalyzer/mcp.py:228",
+            "tests/test_mcp.py:54"
+          ],
+          "notes": ""
+        }
+      ],
+      "verification_evidence": [
+        "Executed .venv/Scripts/anomalyzer.exe analyze examples/agentic/conversion.json --format json successfully.",
+        "Executed MCP analyze → list_findings → get_evidence; asserted CLI agreement, observed conversion 8/130 versus expected 0.1, source indexes, and not_assessed readiness.",
+        "Manually compared Skill guidance with returned evidence: calibrated departure remained distinct from baseline readiness, confidence probability, cause, and action eligibility."
+      ],
+      "remaining_gaps": [],
+      "done": true
+    },
+    "valid": false,
+    "issues": [
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The Skill directs analysis through the installed Anomalyzer CLI, with executable fallback paths and structured JSON output, rather than a newly invented detector.",
+        "criterion": "The Skill directs analysis through the installed Anomalyzer CLI, with executable fallback paths and structured JSON output, rather than a newly invented detector."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The Skill instructs callers to preserve missing data, select one entity and unit, and explicitly declare compatible sources for related-metric analysis.",
+        "criterion": "The Skill instructs callers to preserve missing data, select one entity and unit, and explicitly declare compatible sources for related-metric analysis."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The default response instructions lead with changes and observed-versus-expected values, then explain readiness, evidence maturity, overlapping findings, and material limitations without inventing confidence percentages or causes.",
+        "criterion": "The default response instructions lead with changes and observed-versus-expected values, then explain readiness, evidence maturity, overlapping findings, and material limitations without inventing confidence percentages or causes."
+      },
+      {
+        "code": "missing-criterion",
+        "message": "Review is missing acceptance criterion: The Skill describes MCP analyze, list_findings, and get_evidence as an optional evidence workflow and makes session lifetime, read-only access, and caller-owned notification and action delivery explicit.",
+        "criterion": "The Skill describes MCP analyze, list_findings, and get_evidence as an optional evidence workflow and makes session lifetime, read-only access, and caller-owned notification and action delivery explicit."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 1. Use the installed CLI, executable fallbacks, and structured JSON rather than inventing a detector.",
+        "criterion": "1. Use the installed CLI, executable fallbacks, and structured JSON rather than inventing a detector."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 2. Preserve missing data, select one entity and unit, and declare compatible related-metric sources.",
+        "criterion": "2. Preserve missing data, select one entity and unit, and declare compatible related-metric sources."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 3. Lead with changes and observed-versus-expected values, then explain readiness, maturity, overlap, and limitations without inventing confidence or causes.",
+        "criterion": "3. Lead with changes and observed-versus-expected values, then explain readiness, maturity, overlap, and limitations without inventing confidence or causes."
+      },
+      {
+        "code": "unknown-criterion",
+        "message": "Review includes an unknown criterion: 4. Describe optional MCP evidence drilldown, session lifetime, read-only access, and caller-owned delivery and actions.",
+        "criterion": "4. Describe optional MCP evidence drilldown, session lifetime, read-only access, and caller-owned delivery and actions."
+      }
+    ],
+    "depth": "partial"
+  }
+}
