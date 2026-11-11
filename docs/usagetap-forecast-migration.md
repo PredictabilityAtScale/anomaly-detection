@@ -1,5 +1,31 @@
 # UsageTap: independent forecast and anomaly detector
 
+## Historical exponential-reference correction
+
+The 0.9.1 patch adds training-only chronological confirmation before automatic
+exponential trend selection. An in-sample exponential fit to a late ramp can
+otherwise extrapolate rapidly; robust historical replacement can then keep
+feeding that unsupported expectation into subsequent references. Unsupported
+exponential selection now falls back to the automatic none/linear fit, with
+the decision and holdout losses in native `frozen_trend.exponential_validation`.
+Both the forward and historical fits use this rule independently. The historical
+fit and calibration still freeze before evaluated targets; explicit exponential
+requests remain available. This does not guarantee accuracy after future changes.
+
+Consumer adoption requires a new immutable library release and an updated
+UsageTap statistics bundle; editing this repository does not update deployment.
+Coordinate engine pins and invalidate versioned forecast/detector caches, then
+replay the complete original input with the same settings. Preserve the original
+observations and verify native point triggers separately from model adjustments.
+
+The UI's “Model fitting marked ... extreme outlier points across the training
+history” copy incorrectly describes the compatibility `outlierIndices` union.
+That union includes forward screening plus historical training, calibration and
+evaluation-reference adjustments. Label it as model reference adjustments and
+separate the scopes, or count only
+`model.outlier_policy.screened_original_indices` for forward-fit exclusions.
+Reference adjustments alone must not mute actuals or create incidents.
+
 ## 0.9.0 model-selection adoption
 
 Anomalyzer 0.9.0 adds a separate `select_forecast` API. The older migration

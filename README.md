@@ -388,6 +388,13 @@ becomes the reference one week later. This chapter deliberately uses
 
 ### 3. Let growth compound
 
+Automatic exponential trends must also beat a simpler trend on chronological
+holdouts within training. Unsupported or insufficient confirmation keeps the
+simpler fit; explicit exponential scenarios remain available. This prevents
+some late ramps from being mistaken for supported compound growth, but does
+not guarantee a frozen model stays appropriate after a change. See the
+[selection details](docs/forecasting.md).
+
 A straight line adds the same amount every day. Compound growth adds the same
 *rate*, so the absolute increase gets larger over time. Forced linear trend leaves
 a widening residual and flags 34 samples in this example. With five seasonal

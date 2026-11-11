@@ -179,12 +179,27 @@ cycles, use the previous matching observation. Trimming and downweighting are
 different from an extreme screening exclusion; a trimmed reference is not
 automatically marked an outlier. Original actuals are never modified.
 
+Automatic exponential trend selection additionally requires chronological
+confirmation entirely inside the fitted training window. Up to three trailing,
+non-overlapping holdouts of `max(7, season_length)` buckets compare rolling
+one-step MAE against automatic none/linear selection. At least two folds,
+5% aggregate improvement and wins on two thirds of folds are required.
+Validation prefix fits need at least eight points and two seasonal cycles;
+the final fit still requires four cycles. Insufficient or unsupported validation
+retains the simpler automatic trend. `exponential_validation` in historical
+`frozen_trend` diagnostics records windows, losses and the decision. Explicit
+`trend="exponential"` remains a caller-selected scenario. Confirmation does not
+guarantee that a frozen trend will remain appropriate after a regime change.
+
 The returned `outlier_indices` union current-fit screening positions and
 historical reference-adjustment positions, all in original chart coordinates.
 `model.outlier_policy` separates current screening, historical training and
 calibration adjustments, and evaluation replacements. No historical replacement
 enters the current forecast fit. Compare robust and include scenarios; robust
 does not inherently mean more accurate and can distort sustained changes.
+Describe this union as model reference adjustments, rather than outliers
+excluded from forward training. Use `screened_original_indices` when reporting
+only forward-fit exclusions.
 
 ## Historical expectations and maturity
 

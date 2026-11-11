@@ -16,8 +16,9 @@ acceptance:
     model and baseline selection; later observations cannot change earlier
     targets, with original indices and honest warmup and maturity preserved.
   - Results expose original indices, fit and inference windows, outlier policy
-    effects and separate forecast applicability from anomaly maturity without
-    confidence claims.
+    effects that distinguish forward screening from historical reference
+    adjustments, and separate forecast applicability from anomaly maturity
+    without confidence claims.
   - Validated calendar inputs honor local calendar boundaries including DST and
     variable months; invalid, budget and numerical failures never return a
     completed partial forecast.
