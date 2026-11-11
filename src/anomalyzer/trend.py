@@ -74,17 +74,18 @@ def _robust_phase_fit(ys, xs, phases, season, scale_floor):
     return coefficient, intercepts, residuals, weights
 
 
-def _fit_ordinary(values, season, mode, scale_floor, check_budget):
+def _fit_ordinary(values, season, mode, scale_floor, check_budget,
+                  minimum_cycles=4, allow_exponential=True):
     """Preserve the original least-squares selection and fit."""
     n = len(values)
     diagnostics = {"requested": mode, "selected": "none", "fit_samples": n,
-                   "minimum_samples": max(8, 4 * season),
+                   "minimum_samples": max(8, minimum_cycles * season),
                    "minimum_error_reduction": 0.5,
                    "rate_bounds": [-0.1, 0.1],
                    "outlier_handling": "include",
                    "fit_objective": "sum_of_squares",
                    "excluded_positions": []}
-    if mode == "none" or n < max(8, 4 * season):
+    if mode == "none" or n < diagnostics["minimum_samples"]:
         diagnostics["reason"] = ("disabled" if mode == "none" else
                                  "insufficient training for trend; seasonal fallback")
         return Trend(), diagnostics
@@ -124,7 +125,7 @@ def _fit_ordinary(values, season, mode, scale_floor, check_budget):
         selected = Trend()
     diagnostics.update(fit_window=[start, n - 1], seasonal_sse=null_error,
                        linear_sse=linear_error)
-    if mode in ("auto", "exponential"):
+    if mode == "exponential" or mode == "auto" and allow_exponential:
         bound = min(20.0, 0.1 * len(ys))
         diagnostics["rate_bounds"] = [-bound / len(ys), bound / len(ys)]
         grid = [-bound + 2 * bound * index / 80 for index in range(81)]
@@ -154,12 +155,13 @@ def _fit_ordinary(values, season, mode, scale_floor, check_budget):
     return selected, diagnostics
 
 
-def fit_trend(values, season, mode="auto", scale_floor=1e-8,
-              check_budget=lambda: None, outlier_handling="robust"):
+def _fit_trend(values, season, mode, scale_floor, check_budget,
+               outlier_handling, minimum_cycles=4, allow_exponential=True):
     """Fit trend normally, then robustly screen and refit extreme contamination."""
     ordinary, ordinary_diagnostics = _fit_ordinary(
-        values, season, mode, scale_floor, check_budget)
-    if outlier_handling == "include" or len(values) < max(8, 4 * season):
+        values, season, mode, scale_floor, check_budget,
+        minimum_cycles, allow_exponential)
+    if outlier_handling == "include" or len(values) < max(8, minimum_cycles * season):
         return ordinary, ordinary_diagnostics
 
     n = len(values)
@@ -187,7 +189,8 @@ def fit_trend(values, season, mode="auto", scale_floor=1e-8,
                 robust_coefficient * xs[index] if xs is not None else 0.0)
             cleaned[start + index] = fitted
         selected, selected_diagnostics = _fit_ordinary(
-            cleaned, season, mode, scale_floor, check_budget)
+            cleaned, season, mode, scale_floor, check_budget,
+            minimum_cycles, allow_exponential)
 
     selected_diagnostics.update(
         outlier_handling="robust",
@@ -196,3 +199,85 @@ def fit_trend(values, season, mode="auto", scale_floor=1e-8,
         robust_residuals=robust_diagnostics,
         downweighted_count=sum(weight < 1.0 for weight in weights))
     return selected, selected_diagnostics
+
+
+def _validate_exponential(values, season, scale_floor, check_budget,
+                          outlier_handling):
+    # Local import avoids baseline's dependency on Trend at module import time.
+    from .baseline import robust_expected_value
+
+    # Use the same bounded suffix as fitting. Nothing outside training may
+    # select the historical model, including its validation or fallback.
+    start = max(0, len(values) - max(256, 4 * season))
+    values = values[start:]
+    horizon = max(7, season)
+    minimum_training = max(8, 2 * season)
+    fold_count = min(3, max(0, (len(values) - minimum_training) // horizon))
+    validation = dict(status="unsupported", folds=[], horizon=horizon,
+                      minimum_folds=2, minimum_relative_improvement=0.05,
+                      minimum_fold_win_fraction=2 / 3,
+                      minimum_training_samples=minimum_training,
+                      objective="rolling_one_step_mae")
+    if fold_count < validation["minimum_folds"]:
+        validation["reason"] = "insufficient chronological training holdouts"
+        return validation
+
+    losses = [[], []]
+    for stop in range(len(values) - fold_count * horizon, len(values), horizon):
+        check_budget()
+        # Two seasonal cycles identify the prefix fit; independent later
+        # cycles confirm it. The final fit still requires four cycles.
+        candidates = [
+            _fit_trend(values[:stop], season, candidate_mode, scale_floor,
+                       check_budget, outlier_handling, minimum_cycles=2,
+                       allow_exponential=False)[0]
+            for candidate_mode in ("auto", "exponential")]
+        fold_losses = []
+        for candidate in candidates:
+            errors = []
+            for index in range(stop, stop + horizon):
+                check_budget()
+                expected = (robust_expected_value(values, index, season, 0,
+                                                  candidate, 4)
+                            if outlier_handling == "robust" else
+                            values[index - season]
+                            + candidate.change(index - season, index))
+                errors.append(abs(values[index] - expected))
+            fold_losses.append(math.fsum(errors) / horizon)
+        for candidate_losses, loss in zip(losses, fold_losses):
+            candidate_losses.append(loss)
+        validation["folds"].append(dict(
+            training_window=[start, start + stop - 1],
+            holdout_window=[start + stop, start + stop + horizon - 1],
+            baseline_mae=fold_losses[0], exponential_mae=fold_losses[1],
+            baseline_kind=candidates[0].kind,
+            exponential_kind=candidates[1].kind))
+    baseline_mae, exponential_mae = [math.fsum(items) / fold_count for items in losses]
+    improvement = ((baseline_mae - exponential_mae) / baseline_mae
+                   if baseline_mae > scale_floor else 0.0)
+    wins = sum(exponential < baseline for baseline, exponential in zip(*losses)) / fold_count
+    supported = (improvement >= validation["minimum_relative_improvement"]
+                 and wins >= validation["minimum_fold_win_fraction"])
+    validation.update(status="supported" if supported else "unsupported",
+                      reason="chronological improvement supported" if supported else
+                             "exponential lacks consistent chronological improvement",
+                      baseline_mae=baseline_mae, exponential_mae=exponential_mae,
+                      relative_improvement=improvement, fold_win_fraction=wins)
+    return validation
+
+
+def fit_trend(values, season, mode="auto", scale_floor=1e-8,
+              check_budget=lambda: None, outlier_handling="robust"):
+    """Fit a frozen trend; confirm automatic exponential fits within training."""
+    selected, diagnostics = _fit_trend(
+        values, season, mode, scale_floor, check_budget, outlier_handling)
+    if mode == "auto" and selected.kind == "exponential":
+        validation = _validate_exponential(values, season, scale_floor,
+                                           check_budget, outlier_handling)
+        if validation["status"] != "supported":
+            selected, diagnostics = _fit_trend(
+                values, season, mode, scale_floor, check_budget,
+                outlier_handling, allow_exponential=False)
+            diagnostics["reason"] = validation["reason"] + "; simpler trend retained"
+        diagnostics["exponential_validation"] = validation
+    return selected, diagnostics

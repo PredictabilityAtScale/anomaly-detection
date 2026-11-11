@@ -234,6 +234,30 @@ def test_historical_reference_adjustments_keep_original_chart_coordinates():
     assert result.predicted == [10.] * 30
 
 
+def test_late_training_ramp_does_not_create_runaway_historical_reference():
+    # Anonymous regression for the UsageTap report: a late training ramp,
+    # followed by usage at an ordinary level, must not imply compound growth.
+    values = [100 + 7 * (i % 5) + 60 * max(0, i - 35) for i in range(56)]
+    values += [1100 + 100 * (i % 5) for i in range(90)]
+    config = dict(baseline="recent-level-v1", historical_anomalies={},
+                  horizon=14, lower_bound=0)
+    result = completed(values, **config)
+    native = result.historical_anomalies
+    assert native.frozen_trend["selected"] != "exponential"
+    assert native.frozen_trend["exponential_validation"]["status"] == "unsupported"
+    assert max(v for v in result.expected if v is not None) < 10000
+    assert [point.observed for point in native.points] == values
+    # Validation uses the training prefix only; appends and changed targets
+    # cannot rewrite the frozen selection, calibration, or earlier evidence.
+    prefix = completed(values[:100], **config)
+    changed = completed(values[:100] + [99999.] * 46, **config)
+    assert prefix.expected == result.expected[:100] == changed.expected[:100]
+    assert prefix.historical_anomalies.frozen_trend == native.frozen_trend
+    assert changed.historical_anomalies.frozen_trend == native.frozen_trend
+    assert prefix.historical_anomalies.points == native.points[:100]
+    assert changed.historical_anomalies.points[:100] == native.points[:100]
+
+
 def calendar_data(stamps, interval="day", zone="UTC"):
     return {"values": [10.] * len(stamps), "timestamps": stamps, "interval": interval, "timezone": zone}
 
