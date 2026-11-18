@@ -163,11 +163,15 @@ def assert_regenerated_csv(expected, actual):
         for key, value in left.items():
             if value == right[key]:
                 continue
-            # Only exported computed measurements can differ with libm/rounding.
+            # Exported measurements can differ with libm roundoff. Fitted curves
+            # can amplify that roundoff, so compare them at eight relative digits.
             assert key in {"value", "reported_value", "anomaly_free_value", "expected", "actual",
                            "anomalyzer_predicted", "naive_predicted", "forecast_mae", "forecast_rmse",
                            "forecast_anomaly_free_mae", "naive_forecast_mae", "weight"}, (key, value, right[key])
-            assert math.isclose(float(value), float(right[key]), rel_tol=1e-12, abs_tol=1e-14)
+            fitted = key in {"expected", "anomalyzer_predicted", "forecast_mae", "forecast_rmse",
+                             "forecast_anomaly_free_mae"}
+            assert math.isclose(float(value), float(right[key]), rel_tol=1e-8 if fitted else 1e-12,
+                                abs_tol=1e-10 if fitted else 1e-14), (key, value, right[key])
 
 
 def test_generation_reproduces_every_delivered_file(tmp_path):
