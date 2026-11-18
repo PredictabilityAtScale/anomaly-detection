@@ -55,6 +55,16 @@
     },
     "CalendarReference": {
       "additionalProperties": false,
+      "if": {
+        "properties": {
+          "calibrated_fallback": {
+            "const": true
+          }
+        },
+        "required": [
+          "calibrated_fallback"
+        ]
+      },
       "properties": {
         "profile": {
           "const": "local-calendar-v1",
@@ -82,11 +92,37 @@
           ],
           "title": "Fallback",
           "type": "string"
+        },
+        "calibrated_fallback": {
+          "default": false,
+          "title": "Calibrated Fallback",
+          "type": "boolean"
+        },
+        "expected_range_coverage": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1,
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Range Coverage"
         }
       },
       "required": [
         "profile"
       ],
+      "then": {
+        "properties": {
+          "fallback": {
+            "const": "broader_calendar"
+          }
+        }
+      },
       "title": "CalendarReference",
       "type": "object"
     },

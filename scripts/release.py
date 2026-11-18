@@ -75,6 +75,11 @@ def check_archives(dist):
                      "schemas/forecast-selection-result.schema.json"):
             assert prefix + path in names, path
         metadata = BytesParser().parsebytes(archive.extractfile(prefix + "PKG-INFO").read())
+        for path in ("docs/rates.md", "docs/calendar-reference.md", "examples/rate-sparse.json",
+                     "schemas/rate-request.schema.json", "schemas/rate-result.schema.json",
+                     "schemas/rate-monitor-request.schema.json", "schemas/rate-monitor-result.schema.json",
+                     "tests/test_rates.py", "tests/test_calendar_baseline.py", "tests/test_expected_ranges.py"):
+            assert prefix + path in names, path
         assert metadata["Version"] == ver and metadata["Name"] == "anomalyzer"
     lock = tomllib.loads((ROOT / "uv.lock").read_text())
     locked = next(p for p in lock["package"] if p["name"] == "anomalyzer")

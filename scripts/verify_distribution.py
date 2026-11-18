@@ -42,7 +42,9 @@ def main():
         # test inputs/schemas copied outside the checkout and no source package.
         consumer = outside / "consumer"
         for relative in ("tests/test_forecast_anomalies.py", "tests/test_recent_level.py",
-                         "tests/test_forecast_selection.py", "tests/fixtures/usagetap_current.json",
+                         "tests/test_forecast_selection.py", "tests/test_rates.py",
+                         "tests/test_calendar_baseline.py", "tests/test_expected_ranges.py",
+                         "tests/fixtures/usagetap_current.json",
                          "examples/library/usagetap_forecast.py"):
             target = consumer / relative
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -76,11 +78,14 @@ def main():
                            input=json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}) + "\n")
             payload = json.loads(response.stdout)
             assert {t["name"] for t in payload["result"]["tools"]} == {
-                "analyze", "list_findings", "get_evidence", "compare_distributions", "monitor_distributions", "compare_seasonal_distributions"}
+                "analyze", "list_findings", "get_evidence", "compare_distributions",
+                "monitor_distributions", "compare_seasonal_distributions", "compare_rates", "monitor_rates"}
             run(["uv", "pip", "install", "--python", python, "--require-hashes", "-r", test_dependencies], outside, env=env)
             run([python, "-I", "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                 "--basetemp", outside / f"pytest-{index}",
                  consumer / "tests/test_forecast_anomalies.py", consumer / "tests/test_recent_level.py",
-                 consumer / "tests/test_forecast_selection.py"], consumer, env=env)
+                 consumer / "tests/test_forecast_selection.py", consumer / "tests/test_rates.py",
+                 consumer / "tests/test_calendar_baseline.py", consumer / "tests/test_expected_ranges.py"], consumer, env=env)
     print("Clean wheel and sdist consumer checks passed")
 
 

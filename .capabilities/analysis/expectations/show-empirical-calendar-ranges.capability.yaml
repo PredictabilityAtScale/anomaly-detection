@@ -1,0 +1,227 @@
+title: Inspect empirical expected ranges for calendar observations
+status: implemented
+summary: Calendar callers can request expected ranges calibrated on earlier
+  absolute prediction errors and inspect their support and historical cutoff.
+intent: Make the uncertainty around calendar expectations inspectable and
+  measurable on later data without changing anomaly alert criteria.
+acceptance:
+  - Ranges are opt-in for calendar references and retain a separate calibration
+    per segment, tier and target day group.
+  - Calibration retains unscreened earlier absolute errors and freezes only
+    after sample, date, week and finite-sample rank requirements pass.
+  - A range becomes available after its calibration cutoff, and insufficient
+    history remains explicit without borrowing support across resets.
+  - Requesting ranges leaves point triggers, observations and residual patterns
+    unchanged and describes coverage as an empirical target rather than a
+    guarantee.
+guidance:
+  - Assess later normal coverage, width and unavailable periods together.
+  - Serial dependence, changing references and regimes can alter future coverage.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/expectations/show-empirical-calendar-ranges
+  # run deterministic review only: capabilitykit review analysis/expectations/show-empirical-calendar-ranges --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/expectations/show-empirical-calendar-ranges --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/expectations/show-empirical-calendar-ranges --input review.json
+  # -----------------------------
+  depends_on:
+    - analysis/expectations/match-local-calendar-peers
+  implementation:
+    references:
+      - src/anomalyzer/contracts.py
+      - src/anomalyzer/expected_ranges.py
+      - src/anomalyzer/calendar_scoring.py
+      - tests/test_expected_ranges.py
+      - tests/test_calendar_baseline.py
+      - docs/calendar-reference.md
+      - examples/comparison/benchmark_calendar_improvements.py
+  verification:
+    automated:
+      - id: finite-rank
+        description: Check rank support, unscreened extreme errors and frozen bounds.
+        command: uv run python -m pytest -q tests/test_expected_ranges.py
+      - id: historical-cutoff
+        description: Check range cutoffs and invariant decisions after later arrivals.
+        command: uv run python -m pytest -q tests/test_calendar_baseline.py -k
+          calibrated_fallback
+      - id: unchanged-findings
+        description: Compare point evidence, observations and patterns with ranges enabled.
+        command: uv run python -m pytest -q tests/test_calendar_baseline.py -k
+          expected_ranges_do_not_change
+      - id: reset-and-options
+        description: Require fresh range support after reset and reject incompatible
+          options.
+        command: uv run python -m pytest -q tests/test_calendar_baseline.py -k
+          fallback_and_ranges_relearn
+    manual:
+      - Inspect later normal coverage and range widths alongside unscored
+        periods in a paired replay; confirm the coverage target is not presented
+        as an incident probability or guaranteed future coverage.
+    gaps:
+      - Representative operational histories are needed to establish useful
+        coverage targets and widths under dependence and changing regimes.
+  review:
+    depth: partial
+    source: deterministic-assessment
+    gaps:
+      - Ranges are opt-in for calendar references and retain a separate
+        calibration per segment, tier and target day group. Review the cited
+        evidence. If it is correct, save agent.review evidence or make the
+        criterion/reference wording more explicit.
+      - Calibration retains unscreened earlier absolute errors and freezes only
+        after sample, date, week and finite-sample rank requirements pass.
+        Review the cited evidence. If it is correct, save agent.review evidence
+        or make the criterion/reference wording more explicit.
+      - A range becomes available after its calibration cutoff, and insufficient
+        history remains explicit without borrowing support across resets. Review
+        the cited evidence. If it is correct, save agent.review evidence or make
+        the criterion/reference wording more explicit.
+      - Requesting ranges leaves point triggers, observations and residual
+        patterns unchanged and describes coverage as an empirical target rather
+        than a guarantee. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+    intent_summary: Implementation evidence synchronized from deterministic
+      assessment for analysis/expectations/show-empirical-calendar-ranges.
+    criteria:
+      - criterion: Ranges are opt-in for calendar references and retain a separate
+          calibration per segment, tier and target day group.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:294
+          - src/anomalyzer/contracts.py:311
+          - src/anomalyzer/contracts.py:313
+          - src/anomalyzer/contracts.py:315
+          - src/anomalyzer/contracts.py:318
+          - src/anomalyzer/expected_ranges.py:1
+          - src/anomalyzer/calendar_scoring.py:1
+          - src/anomalyzer/calendar_scoring.py:12
+          - src/anomalyzer/calendar_scoring.py:16
+          - src/anomalyzer/calendar_scoring.py:131
+          - src/anomalyzer/calendar_scoring.py:149
+          - tests/test_expected_ranges.py:1
+          - tests/test_calendar_baseline.py:36
+          - tests/test_calendar_baseline.py:88
+          - tests/test_calendar_baseline.py:97
+          - tests/test_calendar_baseline.py:98
+          - tests/test_calendar_baseline.py:99
+          - docs/calendar-reference.md:1
+          - docs/calendar-reference.md:3
+          - docs/calendar-reference.md:19
+          - docs/calendar-reference.md:51
+          - docs/calendar-reference.md:52
+          - examples/comparison/benchmark_calendar_improvements.py:33
+          - examples/comparison/benchmark_calendar_improvements.py:66
+          - examples/comparison/benchmark_calendar_improvements.py:67
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Calibration retains unscreened earlier absolute errors and freezes
+          only after sample, date, week and finite-sample rank requirements
+          pass.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:58
+          - src/anomalyzer/contracts.py:120
+          - src/anomalyzer/expected_ranges.py:1
+          - src/anomalyzer/expected_ranges.py:12
+          - src/anomalyzer/expected_ranges.py:17
+          - src/anomalyzer/expected_ranges.py:23
+          - src/anomalyzer/expected_ranges.py:24
+          - src/anomalyzer/calendar_scoring.py:12
+          - src/anomalyzer/calendar_scoring.py:61
+          - src/anomalyzer/calendar_scoring.py:70
+          - src/anomalyzer/calendar_scoring.py:82
+          - src/anomalyzer/calendar_scoring.py:131
+          - tests/test_expected_ranges.py:4
+          - tests/test_calendar_baseline.py:141
+          - tests/test_calendar_baseline.py:339
+          - tests/test_calendar_baseline.py:345
+          - tests/test_calendar_baseline.py:350
+          - tests/test_calendar_baseline.py:351
+          - docs/calendar-reference.md:50
+          - docs/calendar-reference.md:52
+          - docs/calendar-reference.md:66
+          - docs/calendar-reference.md:74
+          - docs/calendar-reference.md:93
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: A range becomes available after its calibration cutoff, and
+          insufficient history remains explicit without borrowing support across
+          resets.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:50
+          - src/anomalyzer/contracts.py:167
+          - src/anomalyzer/contracts.py:181
+          - src/anomalyzer/contracts.py:533
+          - src/anomalyzer/contracts.py:593
+          - src/anomalyzer/expected_ranges.py:34
+          - src/anomalyzer/calendar_scoring.py:20
+          - src/anomalyzer/calendar_scoring.py:88
+          - src/anomalyzer/calendar_scoring.py:166
+          - src/anomalyzer/calendar_scoring.py:204
+          - src/anomalyzer/calendar_scoring.py:292
+          - tests/test_expected_ranges.py:4
+          - tests/test_expected_ranges.py:8
+          - tests/test_calendar_baseline.py:45
+          - tests/test_calendar_baseline.py:312
+          - tests/test_calendar_baseline.py:334
+          - tests/test_calendar_baseline.py:338
+          - tests/test_calendar_baseline.py:340
+          - docs/calendar-reference.md:52
+          - docs/calendar-reference.md:87
+          - docs/calendar-reference.md:99
+          - docs/calendar-reference.md:100
+          - docs/calendar-reference.md:116
+          - examples/comparison/benchmark_calendar_improvements.py:61
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Requesting ranges leaves point triggers, observations and residual
+          patterns unchanged and describes coverage as an empirical target
+          rather than a guarantee.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:121
+          - src/anomalyzer/contracts.py:149
+          - src/anomalyzer/contracts.py:188
+          - src/anomalyzer/contracts.py:301
+          - src/anomalyzer/contracts.py:598
+          - src/anomalyzer/expected_ranges.py:1
+          - src/anomalyzer/expected_ranges.py:27
+          - src/anomalyzer/expected_ranges.py:34
+          - src/anomalyzer/expected_ranges.py:36
+          - src/anomalyzer/calendar_scoring.py:15
+          - src/anomalyzer/calendar_scoring.py:16
+          - src/anomalyzer/calendar_scoring.py:99
+          - src/anomalyzer/calendar_scoring.py:135
+          - src/anomalyzer/calendar_scoring.py:227
+          - tests/test_expected_ranges.py:1
+          - tests/test_calendar_baseline.py:137
+          - tests/test_calendar_baseline.py:212
+          - tests/test_calendar_baseline.py:306
+          - tests/test_calendar_baseline.py:312
+          - tests/test_calendar_baseline.py:313
+          - docs/calendar-reference.md:6
+          - docs/calendar-reference.md:52
+          - docs/calendar-reference.md:70
+          - docs/calendar-reference.md:71
+          - docs/calendar-reference.md:80
+          - examples/comparison/benchmark_calendar_improvements.py:34
+          - examples/comparison/benchmark_calendar_improvements.py:42
+          - examples/comparison/benchmark_calendar_improvements.py:67
+          - examples/comparison/benchmark_calendar_improvements.py:68
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+    done: false

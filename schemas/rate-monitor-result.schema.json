@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "RateContext": {
+      "additionalProperties": false,
+      "properties": {
+        "concern": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concern"
+        },
+        "metric_definition": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Definition"
+        },
+        "known_events": {
+          "items": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Known Events",
+          "type": "array"
+        }
+      },
+      "title": "RateContext",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "rate-v1",
+      "default": "rate-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "monitor_rates",
+      "default": "monitor_rates",
+      "title": "Task",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "horizon_exhausted",
+        "insufficient_history",
+        "partial"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "monitor_id": {
+      "title": "Monitor Id",
+      "type": "string"
+    },
+    "entity": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Entity",
+      "type": "object"
+    },
+    "context": {
+      "$ref": "#/$defs/RateContext"
+    },
+    "input_fingerprint": {
+      "title": "Input Fingerprint",
+      "type": "string"
+    },
+    "reference": {
+      "additionalProperties": true,
+      "title": "Reference",
+      "type": "object"
+    },
+    "evaluations": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Evaluations",
+      "type": "array"
+    },
+    "first_detection": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Detection"
+    },
+    "testing": {
+      "additionalProperties": true,
+      "title": "Testing",
+      "type": "object"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "monitor_id",
+    "entity",
+    "context",
+    "input_fingerprint",
+    "reference",
+    "evaluations",
+    "testing",
+    "limitations"
+  ],
+  "title": "RateMonitorResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

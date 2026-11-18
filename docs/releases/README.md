@@ -1,8 +1,8 @@
 # Release and use Anomalyzer
 
 Anomalyzer is a normal Python dependency. This checkout contains version
-**0.9.1** ([release notes](0.9.1.md), [public forecasting API](../forecasting.md),
-[UsageTap forecast migration](../usagetap-forecast-migration.md)).
+**0.10.0** ([release notes](0.10.0.md), [rate evidence](../rates.md),
+[calendar references](../calendar-reference.md)).
 A version is adoptable only after the publication workflow below completes.
 Nothing is uploaded to PyPI by this workflow. GitHub Releases is the
 initial distribution channel. Released v0.9.0 and earlier tags/assets are preserved.

@@ -1,0 +1,278 @@
+{
+  "$defs": {
+    "RateContext": {
+      "additionalProperties": false,
+      "properties": {
+        "concern": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concern"
+        },
+        "metric_definition": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Definition"
+        },
+        "known_events": {
+          "items": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Known Events",
+          "type": "array"
+        }
+      },
+      "title": "RateContext",
+      "type": "object"
+    },
+    "RateLimit": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "lt",
+            "lte",
+            "gt",
+            "gte"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "operator",
+        "threshold"
+      ],
+      "title": "RateLimit",
+      "type": "object"
+    },
+    "RatePopulation": {
+      "additionalProperties": false,
+      "properties": {
+        "samples": {
+          "items": {
+            "$ref": "#/$defs/RateSample"
+          },
+          "maxItems": 4096,
+          "title": "Samples",
+          "type": "array"
+        }
+      },
+      "title": "RatePopulation",
+      "type": "object"
+    },
+    "RateSample": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "successes": {
+          "anyOf": [
+            {
+              "maximum": 1000000000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Successes"
+        },
+        "trials": {
+          "anyOf": [
+            {
+              "maximum": 1000000000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trials"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        },
+        "complete": {
+          "default": true,
+          "title": "Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "RateSample",
+      "type": "object"
+    },
+    "RateSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 0.01,
+          "exclusiveMaximum": 1,
+          "minimum": 1e-12,
+          "title": "Alpha",
+          "type": "number"
+        },
+        "max_comparisons": {
+          "default": 1,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Comparisons",
+          "type": "integer"
+        },
+        "comparison_index": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Comparison Index",
+          "type": "integer"
+        },
+        "min_effect": {
+          "default": 0.01,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Min Effect",
+          "type": "number"
+        },
+        "min_reference_trials": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Min Reference Trials",
+          "type": "integer"
+        },
+        "min_current_trials": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Min Current Trials",
+          "type": "integer"
+        },
+        "interval_coverage": {
+          "default": 0.95,
+          "maximum": 0.999999,
+          "minimum": 0.5,
+          "title": "Interval Coverage",
+          "type": "number"
+        },
+        "max_tables": {
+          "default": 200000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Max Tables",
+          "type": "integer"
+        },
+        "max_runtime_seconds": {
+          "default": 30,
+          "exclusiveMinimum": 0,
+          "maximum": 3600,
+          "title": "Max Runtime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "RateSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "rate-v1",
+      "default": "rate-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "compare_rates",
+      "default": "compare_rates",
+      "title": "Task",
+      "type": "string"
+    },
+    "entity": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1,
+      "title": "Entity",
+      "type": "object"
+    },
+    "context": {
+      "$ref": "#/$defs/RateContext"
+    },
+    "reference": {
+      "$ref": "#/$defs/RatePopulation"
+    },
+    "current": {
+      "$ref": "#/$defs/RatePopulation"
+    },
+    "assume_independent_trials": {
+      "default": false,
+      "title": "Assume Independent Trials",
+      "type": "boolean"
+    },
+    "limits": {
+      "items": {
+        "$ref": "#/$defs/RateLimit"
+      },
+      "maxItems": 16,
+      "title": "Limits",
+      "type": "array"
+    },
+    "config": {
+      "$ref": "#/$defs/RateSettings"
+    }
+  },
+  "required": [
+    "entity",
+    "reference",
+    "current"
+  ],
+  "title": "RateRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

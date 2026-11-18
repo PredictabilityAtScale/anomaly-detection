@@ -15,6 +15,12 @@ def versions():
 def methods():
     return {
         "schema_version": "1.0", "dependencies": versions(),
+        "rate_detectors": [
+            {"id": "fisher_exact_two_sided", "tasks": ["compare_rates", "monitor_rates"],
+             "input": "explicit integer success and trial counts for disjoint comparable populations",
+             "score_semantics": "two-sided probability-ordered hypergeometric p-value with declared Bonferroni family; Wilson rate intervals are separate evidence",
+             "requirements": "independent Bernoulli trial assertion; positive known complete exposure; bounded exact table support"},
+        ],
         "distribution_detectors": [
             {"id": "explicit_seasonal_selection", "task": "compare_seasonal_distributions",
              "input": "timestamped history and explicit timezone/local-clock matching policy",

@@ -29,7 +29,7 @@ jobs:
       - run: uv run python examples/generate.py
       - run: uv run python examples/distributions/generate.py
       - run: git diff --exit-code -- examples
-      - run: uv run pytest -q
+      - run: uv run python -m pytest -q
       - run: uv run python examples/run_demo.py
       - run: uv run python examples/run_agentic_demo.py
       - run: uv run python examples/run_distribution_demo.py

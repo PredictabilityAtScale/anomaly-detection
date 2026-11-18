@@ -156,7 +156,7 @@ class CalendarIndex:
             return (), "window_crosses_offset_transition"
         return tuple(ranges), None
 
-    def select(self, index, segment, policy, peer_values, check, *, widths=None):
+    def select(self, index, segment, policy, peer_values, check, *, widths=None, only_tier=None):
         instant, local = self.instants[index], self.locals[index]
         day = local.date()
         age = instant - self.instants[segment]
@@ -164,6 +164,8 @@ class CalendarIndex:
         if not tiers:
             return Selection(None, None, [], [], "segment_younger_than_three_days")
         attempted = tiers[:1] if policy.fallback == "none" else tiers
+        if only_tier is not None:
+            attempted = [tier for tier in attempted if tier == only_tier]
         guard_buckets = (policy.guard_minutes * 60 + self.step_seconds - 1) // self.step_seconds
         last_peer = max(0, index - guard_buckets)
         first_peer = max(segment, index - policy.lookback_days * 86400 // self.step_seconds)

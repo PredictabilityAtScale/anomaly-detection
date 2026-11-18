@@ -22,6 +22,14 @@ from .validation import prepare, resolve_reset_points, timestamp
 def analyze(request: Request | dict | list[float | None],
             settings: Settings | dict | None = None):
     """Dispatch a validated request to its causal anomaly-detection recipe."""
+    from .rate_contracts import RateRequest, RateMonitorRequest
+    from .rates import compare_rates, monitor_rates
+    if isinstance(request, (RateRequest, RateMonitorRequest)) or (
+            isinstance(request, dict) and request.get("schema_version") == "rate-v1"):
+        if settings is not None:
+            raise ValueError("rate settings belong in the request config")
+        task = request.get("task", "compare_rates") if isinstance(request, dict) else request.task
+        return monitor_rates(request) if task == "monitor_rates" else compare_rates(request)
     from .distribution_contracts import DistributionRequest, DistributionMonitorRequest
     from .distributions import compare_distributions, monitor_distributions
     from .seasonal_distributions import SeasonalDistributionRequest, compare_seasonal_distributions

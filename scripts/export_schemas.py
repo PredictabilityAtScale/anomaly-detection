@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 from anomalyzer.contracts import Request, RequestV11, Result, ResultV11
+from anomalyzer.rate_contracts import RateRequest, RateResult, RateMonitorRequest, RateMonitorResult
 from anomalyzer.distribution_contracts import (
     DistributionRequest, DistributionResult, DistributionMonitorRequest, DistributionMonitorResult,
 )
@@ -30,7 +31,9 @@ for name, contract in (("request-1.1", RequestV11), ("result-1.1", ResultV11)):
     schema = contract.model_json_schema()
     schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
     write_schema(name, schema)
-for name, contract in (("distribution-request", DistributionRequest),
+for name, contract in (("rate-request", RateRequest), ("rate-result", RateResult),
+                       ("rate-monitor-request", RateMonitorRequest), ("rate-monitor-result", RateMonitorResult),
+                       ("distribution-request", DistributionRequest),
                        ("forecast-request", ForecastRequest),
                        ("forecast-result", ForecastResult),
                        ("forecast-model-request", ModelForecastRequest),

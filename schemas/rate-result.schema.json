@@ -1,0 +1,211 @@
+{
+  "$defs": {
+    "RateContext": {
+      "additionalProperties": false,
+      "properties": {
+        "concern": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Concern"
+        },
+        "metric_definition": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Definition"
+        },
+        "known_events": {
+          "items": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Known Events",
+          "type": "array"
+        }
+      },
+      "title": "RateContext",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "rate-v1",
+      "default": "rate-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task": {
+      "const": "compare_rates",
+      "default": "compare_rates",
+      "title": "Task",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "descriptive",
+        "insufficient_history",
+        "resolution_limited",
+        "budget_exceeded"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "entity": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Entity",
+      "type": "object"
+    },
+    "context": {
+      "$ref": "#/$defs/RateContext"
+    },
+    "input_fingerprint": {
+      "title": "Input Fingerprint",
+      "type": "string"
+    },
+    "method": {
+      "const": "fisher_exact_two_sided",
+      "default": "fisher_exact_two_sided",
+      "title": "Method",
+      "type": "string"
+    },
+    "reference": {
+      "additionalProperties": true,
+      "title": "Reference",
+      "type": "object"
+    },
+    "current": {
+      "additionalProperties": true,
+      "title": "Current",
+      "type": "object"
+    },
+    "effect": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effect"
+    },
+    "p_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P Value"
+    },
+    "adjusted_p_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Adjusted P Value"
+    },
+    "threshold": {
+      "title": "Threshold",
+      "type": "number"
+    },
+    "statistical_change": {
+      "default": false,
+      "title": "Statistical Change",
+      "type": "boolean"
+    },
+    "practical_change": {
+      "default": false,
+      "title": "Practical Change",
+      "type": "boolean"
+    },
+    "change_detected": {
+      "default": false,
+      "title": "Change Detected",
+      "type": "boolean"
+    },
+    "rate_limit_violations": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Rate Limit Violations",
+      "type": "array"
+    },
+    "observations": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Observations",
+      "type": "array"
+    },
+    "testing": {
+      "additionalProperties": true,
+      "title": "Testing",
+      "type": "object"
+    },
+    "details": {
+      "additionalProperties": true,
+      "title": "Details",
+      "type": "object"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "entity",
+    "context",
+    "input_fingerprint",
+    "reference",
+    "current",
+    "threshold",
+    "testing",
+    "limitations"
+  ],
+  "title": "RateResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

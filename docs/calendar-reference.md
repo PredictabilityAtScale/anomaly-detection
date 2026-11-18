@@ -85,3 +85,48 @@ Calendar readiness counts assessed and unassessed calibration keys in
 `assessed_calibration_keys` and `unassessed_calibration_keys`. Each segment can
 have multiple tier and day-group keys. An earlier tier can remain unassessed
 after a later tier becomes usable.
+
+## Keep a calibrated broader comparison during transitions
+
+Set `calendar_reference.calibrated_fallback` to `true` with
+`fallback="broader_calendar"` to learn supported age-eligible tiers in parallel.
+Each tier and day group retains its own residual errors, support checks, frozen
+center and scale. The scorer uses the narrowest currently supported tier that
+was calibrated before the current bucket. A broader calibrated tier can remain
+in use while the preferred tier collects its calibration. If none is calibrated,
+the preferred supported tier reports non-triggering provisional evidence.
+
+`calibration_candidates` lists the available keys and their prior calibration
+state. `fallback_reason` distinguishes insufficient preferred peer support from
+an uncalibrated preferred key. `calibration_key` identifies the exact scale used.
+Switching keys breaks consecutive residual patterns. Reset and restart segments
+cannot use calibration learned in an earlier segment. This option defaults to
+false, preserving the original selector behavior.
+
+## Inspect and validate expected ranges
+
+Set `calendar_reference.expected_range_coverage` to a fraction such as `0.95`
+to request an empirical expected range for calendar targets. The range uses a
+separate collection of absolute prediction errors, including errors screened out
+of the detector calibration. It starts collecting after training, independently
+for each tier, target day group and segment. It freezes when sample and date/week
+support pass and rank `ceil((n+1)*coverage)` lies within the available n errors.
+The radius is that ordered absolute error. The bounds are expectation plus or
+minus the radius, with no unit assumptions or zero clipping. They take effect
+on the next bucket. Short history returns `status="insufficient_history"`.
+
+Inspect `diagnostics.targets[i].expected_range` for status, bounds, key, sample
+count and cutoff. The key's range calibration is stored alongside its detector
+calibration. Ranges are optional evidence and do not change point flags, patterns,
+cases or eligibility. Serial dependence, changing expectations and regimes can
+change actual future coverage. The declared coverage is a target to validate on
+later observations, rather than an incident probability. Assess normal coverage,
+range width and unscored periods together. Use the expected ranges only for these
+opt-in calendar datasets in this first implementation.
+
+Run `examples/comparison/benchmark_calendar_improvements.py --output PATH` with
+the project Python environment for an hourly paired replay of the old selector
+and calibrated fallback, including flat, weekly and reset histories. Its output
+reports detection, alert burden, and later coverage of the 95% expected ranges.
+See [the paired replay results](../examples/comparison/CALENDAR-IMPROVEMENTS.md)
+for the coverage gain, false-alert tradeoff and each incident's delay.

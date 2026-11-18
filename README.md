@@ -14,6 +14,12 @@ Declared relationships expose changes such as falling conversion or rising unit
 cost even when the source metrics look ordinary. Every finding can be traced to
 its observations, reference, calculation, and limitations.
 
+The agent workflow is context → numerical analysis → compact observations →
+evidence drilldown → additional data or a focused rerun when needed. Anomalyzer
+provides forecasts, comparable-period references, significant events and evidence
+limits. The agent combines those results with customer context and caller policy
+to decide whether an alert is warranted. See [rate evidence and drilldown](docs/rates.md).
+
 ### What counts as an anomaly?
 
 A useful way to think about a time series is:
@@ -147,6 +153,15 @@ The [portable comparison pack](examples/comparison/README.md) follows all 27
 progression chapters with labelled CSVs, forecast holdouts, and actual Anomalyzer
 baselines for importing into other tools.
 
+The release also includes these reproducible cases alongside the portable pack:
+
+| Case | What to inspect | Example and results |
+| --- | --- | --- |
+| Local calendar matching | Compare similar local periods across weekdays, weekends, and clock changes. Inspect the chosen dates and reasons for missing support. | [Calendar replay](examples/comparison/CALENDAR-REFERENCE.md) |
+| Calendar transition and reset | Compare the current selector with calibrated fallback on flat and weekly histories. Inspect expected range coverage and width on later normal observations. | [Fallback and range replay](examples/comparison/CALENDAR-IMPROVEMENTS.md) |
+| Sparse conversion or error rate | Compare the same percentage change at different volumes. Inspect 2 successes in 20 trials against 4 in 20, including the wide interval. | [Runnable request](examples/rate-sparse.json) and [rate API](docs/rates.md) |
+| Sparse rate replay and investigation | Pool five-minute exposure across windows, check clustered controls, and use the MCP session ID to drill into all three sparse misses. | [Rate replay](examples/comparison/RATE-EVIDENCE.md) and [miss investigation](examples/comparison/RATE-MISSES.md) |
+
 ## Use the anomaly-detection skill
 
 The [anomaly-detection skill](.agents/skills/anomaly-detection/SKILL.md) lets an
@@ -277,6 +292,7 @@ when visualization is unavailable.
 | Should the expected level or growth rate evolve after every observation? | `adaptive-seasonal-v1`: a causal rolling expectation with frozen calibration | [Chapter 4](#4-update-the-expectation-one-step-at-a-time) |
 | What is happening within the day, while the full day is unfinished? | `multi-resolution-v1`: finalized subperiods and completed fixed 24-hour aggregates | [Chapter 11](#11-monitor-before-the-day-is-finished) |
 | Did conversion, a difference, unit cost, or a delayed response change? | Schema 1.1: up to four datasets and four declared relationships, using either single-resolution recipe | [Chapter 12](#12-look-between-the-metrics) |
+| Does a conversion or error-rate change have enough supporting attempts? | Opt-in `rate-v1`: exact success/trial comparison, uncertainty and bounded sparse-count replay, with agent evidence drilldown | [Rate evidence](docs/rates.md) |
 | What evidence can an analyst or agent investigate? | Early assessments, explicit rules, cases, policy replay, and MCP evidence drilldown | [Chapter 13](#13-turn-evidence-into-an-investigation) |
 
 Schema 1.0 is the single-series contract. Schema 1.1 adds named datasets,

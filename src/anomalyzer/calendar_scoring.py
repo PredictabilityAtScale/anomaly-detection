@@ -13,6 +13,7 @@ from .calendar_baseline import CALIBRATION_DATES, PEER_DATES, TIERS, CalendarInd
 from .contracts import Context, DataPolicy, MethodResult, Result
 from .events import fingerprint
 from .evidence import anomaly_patterns, episodes
+from .expected_ranges import EmpiricalRange
 from .readiness import MAX_TRAINING_CHECK, assess_segment, summarize_segments
 from .registry import versions
 from .robust import EXTREME_Z, extreme_indices
@@ -152,6 +153,16 @@ def _selection_record(selection, weights, parameters_id, segment, records):
     return selection_id
 
 
+def _candidates(grid, index, segment, policy, peer, check, width):
+    if not policy.calibrated_fallback:
+        return [grid.select(index, segment, policy, peer, check, widths=width)]
+    age = grid.instants[index] - grid.instants[segment]
+    tiers = [tier for tier in TIERS if age >= timedelta(days=tier.minimum_age_days)]
+    if not tiers:
+        return [grid.select(index, segment, policy, peer, check, widths=width)]
+    return [grid.select(index, segment, policy, peer, check, widths=width, only_tier=tier) for tier in tiers]
+
+
 def _score(ds, cfg, times, quality, step, resets, method, budget, parameters, *,
            calibration_stop, width_override, audit_selections):
     """Only admit the target after its forecast and reference action are decided."""
@@ -167,11 +178,13 @@ def _score(ds, cfg, times, quality, step, resets, method, budget, parameters, *,
     selector_id = fingerprint(parameters)
     segments = diagnostics["segments"]
     states = {}
+    range_states = {}
     resets = set(resets)
     segment_start = 0
     training = []
     overrides = diagnostics["scoring_sample_overrides"]
     previous_missing = False
+    previous_calibration_key = None
     guard_minutes = ds.calendar_reference.guard_minutes
     minute = timedelta(minutes=1)
     earliest_instant = datetime.min.replace(tzinfo=timezone.utc)
@@ -213,27 +226,43 @@ def _score(ds, cfg, times, quality, step, resets, method, budget, parameters, *,
             if training_position:
                 segment["training_reference_coverage"][target["reason"]] += 1
             continue
-        selection = grid.select(index, segment_start, ds.calendar_reference, available.peer,
-                                budget.check, widths=width_override)
+        candidates = _candidates(grid, index, segment_start, ds.calendar_reference, available.peer,
+                                 budget.check, width_override)
+        supported = []
+        for candidate in candidates:
+            if candidate.tier is None:
+                continue
+            tier = candidate.tier
+            group = day_group(day, tier.same_weekday)
+            key = (segment_start, selector_id, tier.name, group)
+            if key not in states:
+                key_id = f"{segment_start}:{selector_id}:{tier.name}:{group}"
+                states[key] = (key_id, Calibration(CALIBRATION_DATES, tier.calibration_weeks))
+                segment["calibration_keys"].append(key_id)
+                calibrations[key_id] = dict(segment_start_index=segment_start, selector=selector_id,
+                                            timezone=ds.timezone, tier=tier.name, day_group=group,
+                                            clock_width_minutes=candidate.attempts[-1]["clock_width_minutes"])
+                if ds.calendar_reference.expected_range_coverage is not None:
+                    range_states[key_id] = EmpiricalRange(ds.calendar_reference.expected_range_coverage,
+                                                         CALIBRATION_DATES, tier.calibration_weeks)
+            key_id, candidate_state = states[key]
+            expected, weights = candidate.expectation(cfg.outlier_handling)
+            supported.append((candidate, key_id, candidate_state, expected, weights))
+        chosen = next((item for item in supported if item[2].frozen), supported[0] if supported else None)
+        selection = chosen[0] if chosen else candidates[0]
         target.update(age_tier=selection.age_tier.name if selection.age_tier else None,
-                      attempts=selection.attempts)
-        if selection.tier is None:
+                      attempts=[attempt for candidate in candidates for attempt in candidate.attempts])
+        if chosen is None:
             target["reason"] = selection.reason
             if training_position:
                 segment["training_reference_coverage"][selection.reason] += 1
             continue
+        selection, key_id, state, expected, weights = chosen
         tier = selection.tier
-        group = day_group(day, tier.same_weekday)
-        key = (segment_start, selector_id, tier.name, group)
-        if key not in states:
-            key_id = f"{segment_start}:{selector_id}:{tier.name}:{group}"
-            states[key] = (key_id, Calibration(CALIBRATION_DATES, tier.calibration_weeks))
-            segment["calibration_keys"].append(key_id)
-            calibrations[key_id] = dict(segment_start_index=segment_start, selector=selector_id,
-                                        timezone=ds.timezone, tier=tier.name, day_group=group,
-                                        clock_width_minutes=selection.attempts[-1]["clock_width_minutes"])
-        key_id, state = states[key]
-        expected, weights = selection.expectation(cfg.outlier_handling)
+        if ds.calendar_reference.calibrated_fallback and previous_calibration_key not in (None, key_id):
+            if not boundaries or boundaries[-1] != index:
+                boundaries.append(index)
+        previous_calibration_key = key_id
         selection_id = (_selection_record(selection, weights, selector_id, segment_start, selections)
                         if audit_selections else None)
         center, scale, count, maturity = state.estimate(cfg)
@@ -253,6 +282,14 @@ def _score(ds, cfg, times, quality, step, resets, method, budget, parameters, *,
                       calibration_date_count=frozen["target_date_count"] if frozen else len(state.dates),
                       calibration_week_count=frozen["target_week_count"] if frozen else len(state.weeks),
                       maturity=maturity, reason=reason)
+        if ds.calendar_reference.calibrated_fallback:
+            target["calibration_candidates"] = [dict(tier=item[0].tier.name, key=item[1],
+                                                     calibrated=bool(item[2].frozen)) for item in supported]
+            target["fallback_reason"] = ("preferred_tier_not_calibrated" if tier != supported[0][0].tier
+                                         else "preferred_tier_unsupported" if tier != selection.age_tier else None)
+        if key_id in range_states:
+            target["expected_range"] = range_states[key_id].bounds(expected)
+            target["expected_range"]["calibration_key"] = key_id
         method.evidence.append(dict(
             id=f"{method.id}:{index}", method=method.id, index=index, timestamp=times[index],
             training_cutoff=times[max(segment_start, min(index - 1, segment_start + cfg.training_size - 1))],
@@ -264,9 +301,13 @@ def _score(ds, cfg, times, quality, step, resets, method, budget, parameters, *,
             excluded_from_model=protected, model_value=expected if protected else value,
             exclusion_reason="extreme_calibrated_residual" if protected else None,
             reference_action="use_expected" if protected else "use_observed"))
-        if not calibrated and not training_position and index < calibration_stop:
-            state.admit(dict(index=index, residual=residual, expected=expected, day=day, sample=sample),
-                        day, times, cfg, training, budget.check)
+        if not training_position and index < calibration_stop:
+            for _, candidate_key, candidate_state, candidate_expected, _ in supported:
+                record = dict(index=index, residual=value-candidate_expected, expected=candidate_expected, day=day, sample=sample)
+                if candidate_state.frozen is None:
+                    candidate_state.admit(record, day, times, cfg, training, budget.check)
+                if candidate_key in range_states:
+                    range_states[candidate_key].admit(record["residual"], day, week(day), index, times[index], cfg.calibration_size)
             available.protect_calibration(state)
         if protected:
             available.replacements[index] = (sample, expected)
@@ -274,6 +315,8 @@ def _score(ds, cfg, times, quality, step, resets, method, budget, parameters, *,
         calibrations[key_id].update(
             candidate_residual_count=len(state.records), target_dates=len(state.dates),
             target_weeks=len(state.weeks), frozen=state.frozen)
+        if key_id in range_states:
+            calibrations[key_id]["expected_range"] = range_states[key_id].frozen
 
 
 def analyze_calendar(ds, cfg, context, budget=None, prepared=None, *,
@@ -302,6 +345,8 @@ def analyze_calendar(ds, cfg, context, budget=None, prepared=None, *,
             "Calibration screening can protect later references once the key freezes. Earlier reference decisions and raw observations are preserved.",
             "Calendar residuals and their patterns are evidence of a modeled departure. Incident confirmation and business impact require external evidence.",
             "Unannotated complete observations are assumed available at bucket start. Supplied delivery and completion metadata are caller assertions.",
+            *(["Expected ranges use unscreened earlier absolute forecast errors with a finite-sample rank. The coverage target is empirical; serial dependence, changing references and regimes can alter future coverage. Range crossings do not create findings."]
+              if ds.calendar_reference.expected_range_coverage is not None else []),
         ])
     try:
         _score(ds, cfg, times, source_quality, step, resets, method, budget, parameters,
