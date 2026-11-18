@@ -41,6 +41,11 @@ def annotate_availability(assessments, times, samples):
 
 def _canonical_request(request: RequestV11) -> dict:
     document = request.model_dump(mode="json")
+    if any(dataset.calendar_reference for dataset in request.datasets):
+        document["config"].pop("season_length")
+    for dataset in document["datasets"]:
+        if dataset["calendar_reference"] is None:
+            del dataset["calendar_reference"]
     document["datasets"] = sorted(document["datasets"], key=lambda item: item["id"])
     document["relationships"] = sorted(
         document["relationships"], key=lambda item: item["id"])
@@ -134,23 +139,41 @@ def analyze_relationships(request: RequestV11 | dict, *, _budget=None) -> Result
                       if "data_policy" in source.quality and request.config.recipe != "multi-resolution-v1"
                       else analyze_dataset(dataset, request.config, request.context, budget=budget))
             _namespace_result(result, f"dataset:{dataset.id}")
+            samples = source.quality.get("samples", [])
+            rule_values = source.quality.get("rule_values", source.values)
+            if dataset.calendar_reference:
+                calendar = result.methods[0].diagnostics
+                overrides = calendar["scoring_sample_overrides"]
+                samples = [overrides.get(index, sample) for index, sample in enumerate(
+                    samples[:len(calendar["targets"])])]
+                rule_values = [sample["original_value"] if sample["coverage"] == "excluded"
+                               else sample["value"] for sample in samples]
             assessments = descriptive_assessments(
                 dataset.id,
-                source.times[:source.quality.get("grid_count", source.quality["observation_count"])],
-                source.quality.get("rule_values", source.values)[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.rules,
+                source.times[:len(rule_values)] if dataset.calendar_reference else
+                    source.times[:source.quality.get("grid_count", source.quality["observation_count"])],
+                rule_values[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.rules,
                 request.policy,
                 reset_positions=(source.quality["event_reset_positions"] + source.quality["sequence_boundaries"]
                     if "event_identity_contract" in source.quality else
                     active_resets(request.config.reset_points, source.times[:source.quality.get("grid_count", source.quality["observation_count"])], dataset.timezone, request.context.as_of)),
                 change_max_gap_seconds=dataset.data_policy.change_max_gap_seconds if dataset.data_policy else None,
-                excluded_positions=[s["index"] for s in source.quality.get("samples", []) if s["coverage"] == "excluded"])
+                excluded_positions=[s["index"] for s in samples if s["coverage"] == "excluded"])
             assessments.extend(calibrated_assessments(
                 dataset.id, result.methods, request.policy))
             if request.config.recipe == "adaptive-seasonal-v1" or "data_policy" in source.quality:
                 assessments.extend(location_pattern_assessments(
                     dataset.id, result.methods, result.anomaly_patterns,
                     request.policy))
-            annotate_availability(assessments, source.times, source.quality.get("samples", []))
+            if dataset.calendar_reference:
+                for assessment in assessments:
+                    target = calendar["targets"][assessment.index]
+                    assessment.baseline["known_input_availability_cutoff"] = target["timestamp"]
+                    if target.get("selection_id"):
+                        assessment.baseline["calendar_selection_id"] = target["selection_id"]
+                        assessment.baseline["calendar_calibration_key"] = target["calibration_key"]
+            else:
+                annotate_availability(assessments, source.times, samples)
             annotate_assessments(assessments, source.quality, result.methods)
             dataset_results.append(DatasetResultV11(
                 dataset_id=dataset.id, status=result.status,

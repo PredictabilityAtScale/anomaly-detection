@@ -28,7 +28,7 @@ def test_methods_and_invalid_options():
     result = run("methods", "--format", "json")
     assert result.returncode == 0
     assert {method["id"] for method in json.loads(result.stdout)["methods"]} == {
-        "seasonal_trend", "adaptive_seasonal", "multi_resolution"}
+        "seasonal_trend", "adaptive_seasonal", "multi_resolution", "local_calendar"}
     assert [d["id"] for d in json.loads(result.stdout)["detectors"]] == [
         "point", "consecutive_run", "nelson_rule_2", "nelson_rule_3",
         "nelson_rule_4", "nelson_rule_5", "nelson_rule_6", "nelson_rule_8",

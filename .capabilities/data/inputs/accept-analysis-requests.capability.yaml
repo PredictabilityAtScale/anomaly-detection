@@ -13,6 +13,8 @@ acceptance:
     numeric strings are rejected.
   - Published schema 1.0 and 1.1 request and result schemas match the public
     Python contracts.
+  - Schema 1.1 accepts calendar matching on a timestamped native grid with an
+    explicit IANA timezone, the seasonal residual recipe, and trend disabled.
 guidance:
   - Null observations remain unknown unless a schema-1.1 additive-volume policy
     explicitly authorizes confirmed empty collection as zero. Limits apply to

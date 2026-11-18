@@ -12,6 +12,9 @@ acceptance:
     otherwise completes.
   - Later evaluation changes do not rewrite the segment's
     training-and-calibration readiness assessment.
+  - Calendar readiness exposes training-window support and per-key calibration
+    diagnostics with counts labeled as calibration keys. Fixed-lag repeatability
+    is inapplicable to this selector.
 guidance:
   - Readiness does not prove real-world effectiveness and is not an automatic
     action-policy gate.
@@ -36,6 +39,7 @@ agent:
     - analysis/evidence/calibrate-departures
   implementation:
     references:
+      - src/anomalyzer/calendar_scoring.py
       - src/anomalyzer/readiness.py
       - src/anomalyzer/recipes.py
       - tests/test_readiness.py

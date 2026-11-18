@@ -66,7 +66,9 @@ def assess_segment(training_values, calibration, excluded_positions,
     training_values = training_values[-MAX_TRAINING_CHECK:]
     excluded = set(excluded_positions)
     retained = [item for item in calibration if item["index"] not in excluded]
-    repeatability = _seasonal_repeatability(training_values, season_length)
+    repeatability = (_seasonal_repeatability(training_values, season_length)
+                     if season_length is not None else
+                     {"status": "not_applicable", "reason": "not applicable to calendar selector"})
     result = {
         "status": "not_assessed", "reasons": [], "scope": SCOPE,
         "training_pattern": {"samples_checked": len(training_values),
@@ -79,11 +81,11 @@ def assess_segment(training_values, calibration, excluded_positions,
             "Fewer than eight retained calibration residuals; reference quality cannot be assessed reliably.")
         return result
 
-    training_level = statistics.median(training_values)
+    training_level = statistics.median(training_values) if training_values else None
     model_mae = statistics.mean(abs(item["residual"]) for item in retained)
-    level_mae = statistics.mean(abs(item["expected"] + item["residual"] - training_level)
-                                for item in retained)
-    skill = (1 - model_mae / level_mae if level_mae > scale_floor else None)
+    level_mae = (statistics.mean(abs(item["expected"] + item["residual"] - training_level)
+                                 for item in retained) if training_level is not None else None)
+    skill = (1 - model_mae / level_mae if level_mae is not None and level_mae > scale_floor else None)
     retained_by_index = {item["index"]: item["residual"] for item in retained}
     lag_pairs = [(retained_by_index[index - 1], residual)
                  for index, residual in retained_by_index.items()
@@ -134,18 +136,19 @@ def assess_segment(training_values, calibration, excluded_positions,
     return result
 
 
-def summarize_segments(segments, method_status):
+def summarize_segments(segments, method_status, *, unit="segment"):
     checks = [segment["detection_readiness"] for segment in segments
               if "detection_readiness" in segment]
     assessed = [item for item in checks if item["status"] != "not_assessed"]
     unassessed = len(segments) - len(assessed)
+    label = unit.replace("_", " ")
     if not assessed:
         reasons = list(dict.fromkeys(reason for item in checks
                                      for reason in item["reasons"]))
         if not reasons:
-            reasons = [f"No segment reached calibrated evaluation (method status: {method_status})."]
+            reasons = [f"No {label} reached calibrated evaluation (method status: {method_status})."]
         return {"status": "not_assessed", "reasons": reasons,
-            "assessed_segments": 0, "unassessed_segments": unassessed,
+            f"assessed_{unit}s": 0, f"unassessed_{unit}s": unassessed,
             "scope": SCOPE}
     reasons = list(dict.fromkeys(reason for item in assessed
                                  if item["status"] != "supported"
@@ -153,12 +156,12 @@ def summarize_segments(segments, method_status):
     reasons.extend(reason for item in checks if item["status"] == "not_assessed"
                    for reason in item["reasons"] if reason not in reasons)
     if unassessed:
-        reasons.append(f"{unassessed} segment(s) lacked calibrated evaluation.")
+        reasons.append(f"{unassessed} {label}(s) lacked calibrated evaluation.")
     if method_status != "completed":
         reasons.append(f"Method status is {method_status}.")
     status = "caution" if reasons else "supported"
     if not reasons:
         reasons.append("Checked training and calibration diagnostics support the modeled reference.")
     return {"status": status, "reasons": reasons,
-            "assessed_segments": len(assessed),
-            "unassessed_segments": unassessed, "scope": SCOPE}
+            f"assessed_{unit}s": len(assessed),
+            f"unassessed_{unit}s": unassessed, "scope": SCOPE}

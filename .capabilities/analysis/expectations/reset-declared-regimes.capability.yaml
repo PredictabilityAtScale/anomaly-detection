@@ -16,6 +16,8 @@ guidance:
   - Reset points are explicit caller decisions. Known-event notes and
     review-state fields do not rebuild regimes.
   - Multi-resolution analysis does not support reset_points.
+  - Calendar matching starts peer support, keyed calibration and residual
+    patterns again at each explicit reset.
 planning:
   story_map:
     backbone: Refine what ordinary behavior means
@@ -38,6 +40,7 @@ agent:
     - analysis/evidence/calibrate-departures
   implementation:
     references:
+      - src/anomalyzer/calendar_scoring.py
       - src/anomalyzer/validation.py
       - src/anomalyzer/recipes.py
       - tests/test_analysis.py

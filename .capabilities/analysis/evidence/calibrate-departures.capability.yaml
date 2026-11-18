@@ -16,6 +16,8 @@ guidance:
   - Evidence strength is not a probability of an incident.
   - Calibration and expectations are separate concerns; each declared regime
     calibrates again.
+  - Calendar matching also calibrates independently for each tier and target day
+    group within a regime.
 planning:
   story_map:
     backbone: Analyze a local series
@@ -38,6 +40,7 @@ agent:
   implementation:
     references:
       - src/anomalyzer/recipes.py
+      - src/anomalyzer/calendar_scoring.py
       - src/anomalyzer/contracts.py
       - tests/test_analysis.py
   verification:

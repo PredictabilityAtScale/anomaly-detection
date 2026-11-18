@@ -843,6 +843,11 @@ the remaining complete-span restrictions. All new fixtures run through
 `examples/run_demo.py`; the existing generator and figure renderer reproduce the
 full progression.
 
+Schema 1.1 datasets can opt into `local-calendar-v1` to compare native buckets
+with supported earlier dates in the source's IANA timezone. See the
+[local calendar reference guide](docs/calendar-reference.md) and the
+[paired benchmark results](examples/comparison/CALENDAR-REFERENCE.md).
+
 ### 23. Keep distinct calls at the same recorded time
 
 Two completed calls can share the exact timestamp while having different costs.

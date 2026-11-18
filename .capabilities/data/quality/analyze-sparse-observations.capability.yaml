@@ -17,6 +17,8 @@ acceptance:
   - As-of replay respects supplied arrival/revision timestamps and sparse
     multi-resolution views retain useful siblings without inventing complete
     totals.
+  - Calendar matching uses historical versions visible at each target cutoff.
+    Explicit gap restart clears peer support and calibration.
 guidance:
   - Default missingness is unknown. A modeled expectation is never a measurement.
   - Caller business severity, incident state and notifications remain outside
@@ -46,6 +48,7 @@ agent:
     - analysis/detection/identify-residual-patterns
   implementation:
     references:
+      - src/anomalyzer/calendar_scoring.py
       - src/anomalyzer/contracts.py
       - src/anomalyzer/sparse.py
       - src/anomalyzer/sparse_views.py

@@ -16,7 +16,7 @@ import time
 import uuid
 
 from .budget import RuntimeBudget
-from .contracts import Context, DataPolicy, Dataset, DatasetV11, MethodResult, Result
+from .contracts import CADENCE_UNITS, Context, DataPolicy, Dataset, DatasetV11, MethodResult, Result
 from .evidence import anomaly_patterns, episodes
 from .registry import versions
 from .robust import extreme_indices
@@ -25,17 +25,41 @@ from .validation import resolve_reset_points, timestamp
 
 def cadence_seconds(frequency):
     number, unit = re.fullmatch(r"([1-9][0-9]*)(s|min|h|d|w)", frequency).groups()
-    return int(number) * {"s": 1, "min": 60, "h": 3600, "d": 86400, "w": 604800}[unit]
+    return int(number) * CADENCE_UNITS[unit]
 
 
 def uses_policy(ds):
     if not isinstance(ds, DatasetV11) or ds.timestamps is None:
         return False
-    if ds.data_policy or ds.coverage is not None or ds.available_at is not None or ds.revisions or any(v is None for v in ds.values) or "incomplete" in (ds.period_statuses or []):
+    if ds.calendar_reference or ds.data_policy or ds.coverage is not None or ds.available_at is not None or ds.revisions or any(v is None for v in ds.values) or "incomplete" in (ds.period_statuses or []):
         return True
     times = sorted(timestamp(t, ds.timezone) for t in ds.timestamps)
     step = timedelta(seconds=cadence_seconds(ds.frequency))
     return any(b - a not in (timedelta(0), step) for a, b in zip(times, times[1:]))
+
+
+def _sample(index, row, policy, *, unavailable=False, supplied=True):
+    state, original = row["coverage"], row["original_value"]
+    reason = None
+    if unavailable:
+        state, original, reason = "unknown", None, "not_available_as_of"
+    if state == "empty" and original not in (None, 0):
+        raise ValueError("empty coverage conflicts with nonzero observed value")
+    if state in ("complete", "revised") and original is None:
+        state = "unknown"
+    value = original if state in ("complete", "revised") else None
+    if state == "empty" and policy.missing == "zero_for_empty":
+        value, reason = 0.0, "confirmed_empty_additive_volume"
+    if reason is None and value is None:
+        reason = {"empty": "empty_preserved_as_missing", "unknown": "collection_unknown",
+                  "incomplete": "period_incomplete", "excluded": "explicit_model_exclusion"}[state]
+    return dict(index=index, source_index=row["source_index"], original_value=original,
+                source_indexes=row.get("source_indexes", [row["source_index"]] if row["source_index"] >= 0 else []),
+                origin="duplicate_aggregate" if "source_indexes" in row else "revision" if row["revision_id"] else "supplied" if supplied else "omitted",
+                original_period_status=row.get("period_status"), original_coverage=row["coverage"],
+                value=value, coverage=state, reason=reason,
+                available_at=row["available_at"].isoformat() if row["available_at"] else None,
+                revision_id=row["revision_id"])
 
 
 def normalize(ds, cfg, context, budget=None):
@@ -80,6 +104,8 @@ def normalize(ds, cfg, context, budget=None):
             continue
         rows[observed_at] = dict(source_index=index, original_value=value, coverage=coverage,
                                  period_status=status, available_at=available, revision_id=None, duplicates=[value])
+    original_rows = rows.copy() if ds.calendar_reference else None
+    histories = {} if ds.calendar_reference and (ds.available_at or ds.revisions) else None
     revision_keys = set()
     for revision in ds.revisions:
         budget.check()
@@ -94,17 +120,23 @@ def normalize(ds, cfg, context, budget=None):
         if cutoff and (observed_at > cutoff or available > cutoff):
             continue
         previous = rows.get(observed_at)
+        revision_row = dict(source_index=previous["source_index"] if previous else -1,
+                            original_value=revision.value, coverage=revision.coverage,
+                            period_status="incomplete" if revision.coverage == "incomplete" else "complete",
+                            available_at=available, revision_id=revision.revision_id, duplicates=[])
+        if histories is not None:
+            histories.setdefault(observed_at, []).append(revision_row)
         if previous is not None and previous["available_at"] and previous["available_at"] > available and (not cutoff or previous["available_at"] <= cutoff):
             continue
-        rows[observed_at] = dict(source_index=previous["source_index"] if previous else -1,
-                                 original_value=revision.value, coverage=revision.coverage,
-                                 period_status="incomplete" if revision.coverage == "incomplete" else "complete",
-                                 available_at=available, revision_id=revision.revision_id, duplicates=[])
+        rows[observed_at] = revision_row
     times = sorted(rows)
     if policy.observation_basis == "calendar":
-        known_times = [t for t in times if not cutoff or not rows[t]["available_at"] or rows[t]["available_at"] <= cutoff]
+        known_times = [t for t in times if (original_rows is not None and t in original_rows)
+                       or not cutoff or not rows[t]["available_at"] or rows[t]["available_at"] <= cutoff]
         step = timedelta(seconds=cadence_seconds(ds.frequency))
-        start = timestamp(policy.grid_start, ds.timezone) if policy.grid_start else (known_times[0] if known_times else None)
+        start = (timestamp(policy.grid_start, ds.timezone) if policy.grid_start
+                 else min(original_rows) if original_rows
+                 else known_times[0] if known_times else None)
         end = timestamp(policy.grid_end, ds.timezone) if policy.grid_end else (known_times[-1] if known_times else None)
         if start is None or end is None:
             grid = []
@@ -126,36 +158,30 @@ def normalize(ds, cfg, context, budget=None):
             raise ValueError("events and revisions exceed max_points")
         grid = [t for t in times if not cutoff or not rows[t]["available_at"] or rows[t]["available_at"] <= cutoff]
     samples, values, rule_values = [], [], []
+    version_samples = {}
+    omitted = dict(source_index=-1, original_value=None,
+                   coverage="empty" if policy.absence_means_zero else "unknown",
+                   available_at=None, revision_id=None)
     for index, observed_at in enumerate(grid):
         budget.check()
-        row = rows.get(observed_at, dict(source_index=-1, original_value=None,
-                       coverage="empty" if policy.absence_means_zero else "unknown",
-                       available_at=None, revision_id=None))
-        state, original = row["coverage"], row["original_value"]
-        if row["available_at"] and cutoff and row["available_at"] > cutoff:
-            state, original = "unknown", None
-            reason = "not_available_as_of"
-        else:
-            reason = None
-        if state == "empty" and original not in (None, 0):
-            raise ValueError("empty coverage conflicts with nonzero observed value")
-        if state in ("complete", "revised") and original is None:
-            state = "unknown"
-        value = original if state in ("complete", "revised") else None
-        if state == "empty" and policy.missing == "zero_for_empty":
-            value, reason = 0.0, "confirmed_empty_additive_volume"
-        if reason is None and value is None:
-            reason = {"empty": "empty_preserved_as_missing", "unknown": "collection_unknown",
-                      "incomplete": "period_incomplete", "excluded": "explicit_model_exclusion"}[state]
-        values.append(value)
-        rule_values.append(original if state == "excluded" else value)
-        samples.append(dict(index=index, source_index=row["source_index"], original_value=original,
-                            source_indexes=row.get("source_indexes", [row["source_index"]] if row["source_index"] >= 0 else []),
-                            origin="duplicate_aggregate" if "source_indexes" in row else "revision" if row["revision_id"] else "supplied" if observed_at in rows else "omitted",
-                            original_period_status=row.get("period_status"), original_coverage=row["coverage"],
-                            value=value, coverage=state, reason=reason,
-                            available_at=row["available_at"].isoformat() if row["available_at"] else None,
-                            revision_id=row["revision_id"]))
+        row = rows.get(observed_at, omitted)
+        if histories is not None:
+            original = original_rows.get(observed_at)
+            revisions = histories.get(observed_at, [])
+            if revisions or (original and original["available_at"]):
+                versions = ([original] if original else []) + revisions
+                versions = sorted(versions, key=lambda item: item["available_at"] or observed_at)
+                version_samples[index] = [(item["available_at"] or observed_at, _sample(index, item, policy))
+                                          for item in versions]
+                if original is None:
+                    version_samples[index].insert(0, (observed_at, _sample(index, omitted, policy, supplied=False)))
+                row = next((item for item in reversed(versions)
+                            if not cutoff or (item["available_at"] or observed_at) <= cutoff), versions[0])
+        sample = _sample(index, row, policy, supplied=observed_at in rows,
+                         unavailable=bool(row["available_at"] and cutoff and row["available_at"] > cutoff))
+        samples.append(sample)
+        values.append(sample["value"])
+        rule_values.append(sample["original_value"] if sample["coverage"] == "excluded" else sample["value"])
     quality = dict(input_count=len(ds.values), grid_count=len(grid),
         observation_count=sum(v is not None for v in rule_values),
         reported_measurement_count=sum(s["original_value"] is not None and s["coverage"] in ("complete", "revised", "excluded") for s in samples),
@@ -181,11 +207,16 @@ def normalize(ds, cfg, context, budget=None):
         latest_evidence_state="insufficient_evidence" if values and values[-1] is None else "available",
         arrival_semantics="supplied availability timestamps; unannotated samples are event-time snapshots" if any(s["available_at"] and (s["value"] is not None or s["coverage"] == "excluded") for s in samples) else
                           "event-time snapshot only; historical delivery timing is unknown")
+    if version_samples:
+        quality["_calendar_versions"] = version_samples
     return [t.isoformat() for t in grid], values, quality
 
 
 def analyze_sparse(ds, cfg, context, budget=None, prepared=None):
     """Frozen training phase medians, eligible calibration counts, gap-broken patterns."""
+    if ds.calendar_reference:
+        from .calendar_scoring import analyze_calendar
+        return analyze_calendar(ds, cfg, context, budget, prepared)
     started = time.perf_counter()
     budget = budget or RuntimeBudget(cfg.max_runtime_seconds)
     context = Context.model_validate(context or {})

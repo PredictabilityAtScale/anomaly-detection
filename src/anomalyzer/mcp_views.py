@@ -75,6 +75,9 @@ def _quality(item):
         **({"resolution": item["resolution"]} if item.get("resolution") else {}),
         **({key: source[key] for key in ("event_identity_contract", "event_order", "tied_timestamp_count", "tied_event_count")}
            if "event_identity_contract" in source else {}),
+        **({"calendar_reference": source["calendar_reference"],
+            "calendar_latest_target": source["calendar_latest_target"]}
+           if "calendar_latest_target" in source else {}),
     }
 
 
@@ -354,6 +357,24 @@ def get_evidence(result, finding_id, cursor=0, limit=50):
     samples.sort(key=lambda item: (item["index"], item["id"]))
     end = min(cursor + limit, len(samples))
     selected_samples = samples[cursor:end]
+    calendar_evidence = []
+    for _, target, target_item in related:
+        for method in target_item["methods"]:
+            if not method["id"].endswith(":local_calendar"):
+                continue
+            diagnostics = method["diagnostics"]
+            for sample in selected_samples:
+                if sample["method"] != method["id"]:
+                    continue
+                detail = diagnostics["targets"][sample["index"]]
+                selection = diagnostics["selections"][detail["selection_id"]]
+                calendar_evidence.append(dict(
+                    evidence_id=sample["id"], target=detail,
+                    calibration=diagnostics["calibrations"][detail["calibration_key"]],
+                    selection={**selection, "dates": [
+                        dict(peer, peer_times=[diagnostics["targets"][i]["timestamp"]
+                                               for i in peer["peer_indexes"]])
+                        for peer in selection["dates"]]}))
     if finding["kind"] in ("pattern", "episode"):
         record = {key: value for key, value in record.items()
                   if key not in ("evidence_refs", "triggering_samples")}
@@ -383,4 +404,5 @@ def get_evidence(result, finding_id, cursor=0, limit=50):
         "sample_count": len(samples), "samples": selected_samples,
         "next_cursor": end if end < len(samples) else None,
         "note": "Evidence establishes numerical criteria only; source context, cause, impact, and action authority require external review.",
+        **({"calendar_evidence": calendar_evidence} if calendar_evidence else {}),
     }

@@ -23,7 +23,7 @@ def prepare_source(dataset: DatasetV11, settings: Settings,
     if dataset.timestamps is None:
         indexes = list(range(len(values)))
     else:
-        if quality["duplicate_count"] and dataset.data_policy is None:
+        if quality["duplicate_count"] and dataset.data_policy is None and not dataset.calendar_reference:
             raise ValueError(
                 "relationship lineage requires unique source timestamps; duplicates are not supported")
         by_time = {

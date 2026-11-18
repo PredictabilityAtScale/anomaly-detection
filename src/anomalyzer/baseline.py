@@ -5,6 +5,22 @@ import statistics
 from .trend import Trend
 
 
+def reduce_references(candidates: list[tuple[float, float]]) -> tuple[float, list[float]]:
+    """Trim the two outer values and return the expectation and effective weights."""
+    ordered = sorted(enumerate(candidates), key=lambda item: item[1])
+    retained = ordered[1:-1]
+    total = sum(weight for _, (_, weight) in retained)
+    weights = [0.0] * len(candidates)
+    for index, (_, weight) in retained:
+        weights[index] = weight / total
+    # Retain the fixed-lag order of operations, including the final division.
+    return sum(value * weight for _, (value, weight) in retained) / total, weights
+
+
+def reference_weight(age: int, count: int) -> float:
+    return 1.0 + 0.5 * (count - age) / (count - 1) if count > 1 else 1.0
+
+
 def expected_value(values: list[float], index: int, season_length: int) -> float:
     """Use the last observed value at this seasonal position, never future data."""
     if season_length < 1 or index < season_length or index > len(values):
@@ -33,13 +49,9 @@ def robust_expected_value(values: list[float], index: int, season_length: int,
         value = values[source] + trend.change(source - segment_start,
                                                index - segment_start)
         # The newest sample has only 1.5 times the oldest sample's weight.
-        weight = 1.0 if reference_seasons == 1 else 1.0 + 0.5 * (
-            reference_seasons - age) / (reference_seasons - 1)
+        weight = reference_weight(age, reference_seasons)
         candidates.append((value, weight))
-    ordered = sorted(candidates)
-    retained = ordered[1:-1]
-    return sum(value * weight for value, weight in retained) / sum(
-        weight for _, weight in retained)
+    return reduce_references(candidates)[0]
 
 
 def adaptive_expected_value(values: list[float], index: int, season_length: int,

@@ -2,6 +2,10 @@
 from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from typing_extensions import NotRequired, TypedDict
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+
+CADENCE_UNITS = {"s": 1, "min": 60, "h": 3600, "d": 86400, "w": 604800}
 
 
 class Contract(BaseModel):
@@ -284,11 +288,40 @@ class SampleRevision(Contract):
         return value
 
 
+class CalendarReference(Contract):
+    profile: Literal["local-calendar-v1"]
+    lookback_days: int = Field(default=84, gt=0, le=366, strict=True)
+    guard_minutes: int = Field(default=1440, gt=0, strict=True)
+    fallback: Literal["broader_calendar", "none"] = "broader_calendar"
+
+    def validate_settings(self, settings: Settings):
+        if settings.recipe != "seasonal-residual-v1" or settings.trend != "none":
+            raise ValueError("calendar_reference requires seasonal-residual-v1 and explicit trend='none'")
+        if "season_length" in settings.model_fields_set:
+            raise ValueError("calendar_reference requires omitting season_length")
+        if settings.robust_reference_seasons != 4:
+            raise ValueError("calendar_reference fixes robust_reference_seasons at four")
+
+
+_CALENDAR_OPT_IN = {"required": ["calendar_reference"],
+                    "properties": {"calendar_reference": {"type": "object"}}}
+
+
 class DatasetV11(Dataset):
+    model_config = ConfigDict(json_schema_extra={"if": _CALENDAR_OPT_IN, "then": {
+        "required": ["timestamps", "timezone", "frequency"],
+        "properties": {
+            "timestamps": {"type": "array", "minItems": 1},
+            "timezone": {"type": "string", "minLength": 1},
+            "frequency": {"type": "string"},
+            "data_policy": {"properties": {"observation_basis": {"const": "calendar"}}},
+        },
+    }})
     entity: dict[str, str] = Field(min_length=1)
     rules: list[ExplicitRule] = Field(default_factory=list)
     completed_period_rules: list[ExplicitRule] = Field(default_factory=list)
     data_policy: DataPolicy | None = None
+    calendar_reference: CalendarReference | None = None
     coverage: list[Coverage] | None = None
     available_at: list[str | None] | None = None
     revisions: list[SampleRevision] = Field(default_factory=list)
@@ -297,6 +330,19 @@ class DatasetV11(Dataset):
 
     @model_validator(mode="after")
     def source_annotations(self):
+        if self.calendar_reference:
+            if not self.timezone or not self.timestamps or not self.frequency:
+                raise ValueError("calendar_reference requires timestamps, an IANA timezone, and a fixed frequency")
+            try:
+                ZoneInfo(self.timezone)
+            except (ValueError, ZoneInfoNotFoundError) as exc:
+                raise ValueError(f"unknown timezone: {self.timezone}") from exc
+            unit = self.frequency.lstrip("0123456789")
+            step = int(self.frequency[:-len(unit)]) * CADENCE_UNITS[unit]
+            if self.calendar_reference.guard_minutes * 60 < step:
+                raise ValueError("calendar_reference guard_minutes must cover at least one native bucket")
+            if self.data_policy and self.data_policy.observation_basis != "calendar":
+                raise ValueError("calendar_reference requires calendar observation_basis")
         for name in ("coverage", "available_at", "event_ids", "event_sequence"):
             annotation = getattr(self, name)
             if annotation is not None and len(annotation) != len(self.values):
@@ -422,6 +468,14 @@ class ActionPolicy(Contract):
 
 
 class RequestV11(Contract):
+    model_config = ConfigDict(json_schema_extra={
+        "if": {"properties": {"datasets": {"contains": _CALENDAR_OPT_IN}}},
+        "then": {"required": ["config"], "properties": {"config": {
+            "required": ["trend"], "not": {"required": ["season_length"]},
+            "properties": {"recipe": {"const": "seasonal-residual-v1"}, "trend": {"const": "none"},
+                           "robust_reference_seasons": {"const": 4}},
+        }}},
+    })
     schema_version: Literal["1.1"]
     task: Literal["analyze"] = "analyze"
     datasets: list[DatasetV11] = Field(min_length=1, max_length=4)
@@ -432,6 +486,9 @@ class RequestV11(Contract):
 
     @model_validator(mode="after")
     def unique_ids_and_references(self):
+        for dataset in self.datasets:
+            if dataset.calendar_reference:
+                dataset.calendar_reference.validate_settings(self.config)
         dataset_ids = [dataset.id for dataset in self.datasets]
         if len(dataset_ids) != len(set(dataset_ids)):
             raise ValueError("dataset ids must be unique")

@@ -1,0 +1,358 @@
+title: Match observations from comparable local calendar dates
+status: implemented
+summary: Schema 1.1 callers can opt into an expectation based on supported
+  earlier dates in the source's declared timezone.
+intent: Compare native buckets with earlier observations from comparable local
+  periods and preserve the distinction between departures and confirmed
+  incidents.
+acceptance:
+  - Calendar references use only complete earlier buckets available at the
+    scoring cutoff within the declared segment, elapsed lookback, and recency
+    guard.
+  - The versioned calendar ladder selects four supported dates with
+    distinct-week support and reports each attempted tier and the configured
+    fallback.
+  - Each tier and target day group learns its own chronological residual
+    calibration within a segment, with provisional evidence unable to trigger.
+  - UTC bucket order and local DST evidence are preserved, unknown and
+    incomplete buckets stay unscored, and resets and gap policies bound
+    reference history.
+  - Callers can inspect selected peers, availability and calibration support,
+    and the limits of drawing incident conclusions from residual evidence.
+guidance:
+  - Calendar matching is opt-in. Date stamps alone do not establish calendar
+    repeatability or justify changing detector defaults.
+  - The recency guard delays contamination by a sustained departure.
+  - Native bucket matching leaves local-period aggregation and population
+    testing to their separate contracts.
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/expectations/match-local-calendar-peers
+  # run deterministic review only: capabilitykit review analysis/expectations/match-local-calendar-peers --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/expectations/match-local-calendar-peers --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/expectations/match-local-calendar-peers --input review.json
+  # -----------------------------
+  depends_on:
+    - data/inputs/accept-analysis-requests
+    - data/quality/analyze-sparse-observations
+    - analysis/expectations/reset-declared-regimes
+    - analysis/expectations/protect-reference-from-extremes
+    - analysis/evidence/calibrate-departures
+    - analysis/detection/identify-residual-patterns
+  implementation:
+    references:
+      - src/anomalyzer/contracts.py
+      - src/anomalyzer/calendar_baseline.py
+      - src/anomalyzer/calendar_scoring.py
+      - src/anomalyzer/sparse.py
+      - src/anomalyzer/orchestrator.py
+      - src/anomalyzer/readiness.py
+      - src/anomalyzer/mcp_views.py
+      - tests/test_calendar_baseline.py
+      - docs/calendar-reference.md
+      - examples/comparison/CALENDAR-REFERENCE.md
+  verification:
+    automated:
+      - id: supported-peers
+        description: Check distinct date and week support, fallback, guard endpoints and
+          fixed-lag arithmetic.
+        command: uv run python -m pytest -q tests/test_calendar_baseline.py -k
+          "stages_distinct or fixed_lag or sustained_departure"
+      - id: causal-calibration
+        description: Verify independent frozen calibration and replay across future
+          arrivals, revisions and reset boundaries.
+        command: uv run python -m pytest -q tests/test_calendar_baseline.py -k
+          "calibration_is_keyed or prefix_with_future"
+      - id: calendar-coverage
+        description: Check clock windows, DST, unknown collection, authorized zero and
+          gap restarts.
+        command: uv run python -m pytest -q tests/test_calendar_baseline.py -k "dst or
+          missing_incomplete"
+      - id: public-evidence
+        description: Verify Python, CLI, schema and MCP parity and visible request
+          budget failures.
+        command: uv run python -m pytest -q --basetemp .tmp-calendar-capability
+          tests/test_calendar_baseline.py -k "public_entry or mcp_finding or
+          resource_failure"
+    manual:
+      - Inspect an ordinary weekend, a weekend incident and a DST abstention
+        together. Confirm comparable date support, a calibrated departure with
+        unresolved incident and business impact, and an explicit DST exclusion.
+    gaps:
+      - Representative labeled operational histories are needed before any
+        decision to change detector defaults.
+  review:
+    depth: partial
+    source: deterministic-assessment
+    intent_summary: Implementation evidence synchronized from deterministic
+      assessment for analysis/expectations/match-local-calendar-peers.
+    done: false
+    criteria:
+      - criterion: Calendar references use only complete earlier buckets available at
+          the scoring cutoff within the declared segment, elapsed lookback, and
+          recency guard.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:71
+          - src/anomalyzer/contracts.py:119
+          - src/anomalyzer/contracts.py:126
+          - src/anomalyzer/contracts.py:267
+          - src/anomalyzer/contracts.py:299
+          - src/anomalyzer/calendar_baseline.py:10
+          - src/anomalyzer/calendar_baseline.py:100
+          - src/anomalyzer/calendar_baseline.py:167
+          - src/anomalyzer/calendar_baseline.py:168
+          - src/anomalyzer/calendar_baseline.py:169
+          - src/anomalyzer/calendar_scoring.py:1
+          - src/anomalyzer/calendar_scoring.py:40
+          - src/anomalyzer/calendar_scoring.py:67
+          - src/anomalyzer/calendar_scoring.py:134
+          - src/anomalyzer/calendar_scoring.py:175
+          - src/anomalyzer/sparse.py:1
+          - src/anomalyzer/sparse.py:34
+          - src/anomalyzer/sparse.py:75
+          - src/anomalyzer/sparse.py:93
+          - src/anomalyzer/sparse.py:107
+          - src/anomalyzer/orchestrator.py:44
+          - src/anomalyzer/orchestrator.py:47
+          - src/anomalyzer/orchestrator.py:48
+          - src/anomalyzer/orchestrator.py:144
+          - src/anomalyzer/orchestrator.py:146
+          - src/anomalyzer/mcp_views.py:78
+          - src/anomalyzer/mcp_views.py:307
+          - src/anomalyzer/mcp_views.py:325
+          - src/anomalyzer/mcp_views.py:329
+          - tests/test_calendar_baseline.py:15
+          - tests/test_calendar_baseline.py:36
+          - tests/test_calendar_baseline.py:88
+          - tests/test_calendar_baseline.py:99
+          - tests/test_calendar_baseline.py:101
+          - docs/calendar-reference.md:1
+          - docs/calendar-reference.md:3
+          - docs/calendar-reference.md:19
+          - docs/calendar-reference.md:31
+          - docs/calendar-reference.md:34
+          - examples/comparison/CALENDAR-REFERENCE.md:1
+          - examples/comparison/CALENDAR-REFERENCE.md:18
+          - examples/comparison/CALENDAR-REFERENCE.md:28
+          - examples/comparison/CALENDAR-REFERENCE.md:40
+          - examples/comparison/CALENDAR-REFERENCE.md:41
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: The versioned calendar ladder selects four supported dates with
+          distinct-week support and reports each attempted tier and the
+          configured fallback.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:200
+          - src/anomalyzer/contracts.py:295
+          - src/anomalyzer/contracts.py:303
+          - src/anomalyzer/contracts.py:491
+          - src/anomalyzer/calendar_baseline.py:1
+          - src/anomalyzer/calendar_baseline.py:29
+          - src/anomalyzer/calendar_baseline.py:30
+          - src/anomalyzer/calendar_baseline.py:33
+          - src/anomalyzer/calendar_baseline.py:34
+          - src/anomalyzer/calendar_scoring.py:12
+          - src/anomalyzer/calendar_scoring.py:25
+          - src/anomalyzer/calendar_scoring.py:28
+          - src/anomalyzer/calendar_scoring.py:51
+          - src/anomalyzer/calendar_scoring.py:59
+          - src/anomalyzer/sparse.py:234
+          - src/anomalyzer/sparse.py:236
+          - src/anomalyzer/sparse.py:293
+          - src/anomalyzer/sparse.py:383
+          - src/anomalyzer/orchestrator.py:173
+          - src/anomalyzer/orchestrator.py:296
+          - src/anomalyzer/readiness.py:71
+          - src/anomalyzer/mcp_views.py:374
+          - src/anomalyzer/mcp_views.py:377
+          - tests/test_calendar_baseline.py:54
+          - tests/test_calendar_baseline.py:88
+          - tests/test_calendar_baseline.py:93
+          - tests/test_calendar_baseline.py:99
+          - tests/test_calendar_baseline.py:101
+          - docs/calendar-reference.md:3
+          - docs/calendar-reference.md:23
+          - docs/calendar-reference.md:31
+          - docs/calendar-reference.md:44
+          - docs/calendar-reference.md:45
+          - examples/comparison/CALENDAR-REFERENCE.md:4
+          - examples/comparison/CALENDAR-REFERENCE.md:35
+          - examples/comparison/CALENDAR-REFERENCE.md:53
+          - examples/comparison/CALENDAR-REFERENCE.md:71
+          - examples/comparison/CALENDAR-REFERENCE.md:97
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Each tier and target day group learns its own chronological residual
+          calibration within a segment, with provisional evidence unable to
+          trigger.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:50
+          - src/anomalyzer/contracts.py:414
+          - src/anomalyzer/contracts.py:629
+          - src/anomalyzer/calendar_baseline.py:29
+          - src/anomalyzer/calendar_baseline.py:30
+          - src/anomalyzer/calendar_baseline.py:31
+          - src/anomalyzer/calendar_baseline.py:41
+          - src/anomalyzer/calendar_baseline.py:114
+          - src/anomalyzer/calendar_scoring.py:1
+          - src/anomalyzer/calendar_scoring.py:12
+          - src/anomalyzer/calendar_scoring.py:98
+          - src/anomalyzer/calendar_scoring.py:130
+          - src/anomalyzer/calendar_scoring.py:133
+          - src/anomalyzer/sparse.py:239
+          - src/anomalyzer/sparse.py:272
+          - src/anomalyzer/sparse.py:310
+          - src/anomalyzer/sparse.py:317
+          - src/anomalyzer/sparse.py:325
+          - src/anomalyzer/orchestrator.py:171
+          - src/anomalyzer/orchestrator.py:174
+          - src/anomalyzer/orchestrator.py:211
+          - src/anomalyzer/orchestrator.py:297
+          - src/anomalyzer/readiness.py:63
+          - src/anomalyzer/readiness.py:123
+          - src/anomalyzer/mcp_views.py:372
+          - src/anomalyzer/mcp_views.py:380
+          - tests/test_calendar_baseline.py:97
+          - tests/test_calendar_baseline.py:98
+          - tests/test_calendar_baseline.py:103
+          - tests/test_calendar_baseline.py:104
+          - tests/test_calendar_baseline.py:107
+          - docs/calendar-reference.md:32
+          - docs/calendar-reference.md:45
+          - docs/calendar-reference.md:51
+          - docs/calendar-reference.md:52
+          - docs/calendar-reference.md:55
+          - examples/comparison/CALENDAR-REFERENCE.md:97
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: UTC bucket order and local DST evidence are preserved, unknown and
+          incomplete buckets stay unscored, and resets and gap policies bound
+          reference history.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:251
+          - src/anomalyzer/contracts.py:343
+          - src/anomalyzer/contracts.py:364
+          - src/anomalyzer/contracts.py:601
+          - src/anomalyzer/calendar_baseline.py:125
+          - src/anomalyzer/calendar_baseline.py:151
+          - src/anomalyzer/calendar_baseline.py:167
+          - src/anomalyzer/calendar_baseline.py:168
+          - src/anomalyzer/calendar_baseline.py:204
+          - src/anomalyzer/calendar_scoring.py:19
+          - src/anomalyzer/calendar_scoring.py:134
+          - src/anomalyzer/calendar_scoring.py:155
+          - src/anomalyzer/calendar_scoring.py:185
+          - src/anomalyzer/calendar_scoring.py:191
+          - src/anomalyzer/sparse.py:1
+          - src/anomalyzer/sparse.py:34
+          - src/anomalyzer/sparse.py:54
+          - src/anomalyzer/sparse.py:81
+          - src/anomalyzer/sparse.py:163
+          - src/anomalyzer/orchestrator.py:23
+          - src/anomalyzer/orchestrator.py:39
+          - src/anomalyzer/orchestrator.py:157
+          - src/anomalyzer/orchestrator.py:159
+          - src/anomalyzer/orchestrator.py:160
+          - src/anomalyzer/mcp_views.py:307
+          - src/anomalyzer/mcp_views.py:325
+          - src/anomalyzer/mcp_views.py:329
+          - tests/test_calendar_baseline.py:36
+          - tests/test_calendar_baseline.py:88
+          - tests/test_calendar_baseline.py:126
+          - tests/test_calendar_baseline.py:189
+          - tests/test_calendar_baseline.py:190
+          - docs/calendar-reference.md:1
+          - docs/calendar-reference.md:63
+          - docs/calendar-reference.md:65
+          - docs/calendar-reference.md:66
+          - examples/comparison/CALENDAR-REFERENCE.md:24
+          - examples/comparison/CALENDAR-REFERENCE.md:54
+          - examples/comparison/CALENDAR-REFERENCE.md:99
+          - examples/comparison/CALENDAR-REFERENCE.md:113
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Callers can inspect selected peers, availability and calibration
+          support, and the limits of drawing incident conclusions from residual
+          evidence.
+        status: partial
+        evidence:
+          - src/anomalyzer/contracts.py:197
+          - src/anomalyzer/contracts.py:200
+          - src/anomalyzer/contracts.py:626
+          - src/anomalyzer/calendar_baseline.py:97
+          - src/anomalyzer/calendar_baseline.py:98
+          - src/anomalyzer/calendar_baseline.py:220
+          - src/anomalyzer/calendar_baseline.py:224
+          - src/anomalyzer/calendar_baseline.py:226
+          - src/anomalyzer/calendar_scoring.py:12
+          - src/anomalyzer/calendar_scoring.py:149
+          - src/anomalyzer/calendar_scoring.py:252
+          - src/anomalyzer/calendar_scoring.py:261
+          - src/anomalyzer/calendar_scoring.py:275
+          - src/anomalyzer/sparse.py:345
+          - src/anomalyzer/sparse.py:346
+          - src/anomalyzer/sparse.py:384
+          - src/anomalyzer/sparse.py:387
+          - src/anomalyzer/sparse.py:398
+          - src/anomalyzer/orchestrator.py:39
+          - src/anomalyzer/orchestrator.py:297
+          - src/anomalyzer/readiness.py:81
+          - src/anomalyzer/readiness.py:123
+          - src/anomalyzer/readiness.py:129
+          - src/anomalyzer/mcp_views.py:92
+          - src/anomalyzer/mcp_views.py:257
+          - src/anomalyzer/mcp_views.py:291
+          - tests/test_calendar_baseline.py:108
+          - tests/test_calendar_baseline.py:129
+          - tests/test_calendar_baseline.py:144
+          - tests/test_calendar_baseline.py:149
+          - tests/test_calendar_baseline.py:150
+          - docs/calendar-reference.md:3
+          - docs/calendar-reference.md:52
+          - docs/calendar-reference.md:55
+          - docs/calendar-reference.md:80
+          - docs/calendar-reference.md:81
+          - examples/comparison/CALENDAR-REFERENCE.md:97
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+    gaps:
+      - Calendar references use only complete earlier buckets available at the
+        scoring cutoff within the declared segment, elapsed lookback, and
+        recency guard. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - The versioned calendar ladder selects four supported dates with
+        distinct-week support and reports each attempted tier and the configured
+        fallback. Review the cited evidence. If it is correct, save agent.review
+        evidence or make the criterion/reference wording more explicit.
+      - Each tier and target day group learns its own chronological residual
+        calibration within a segment, with provisional evidence unable to
+        trigger. Review the cited evidence. If it is correct, save agent.review
+        evidence or make the criterion/reference wording more explicit.
+      - UTC bucket order and local DST evidence are preserved, unknown and
+        incomplete buckets stay unscored, and resets and gap policies bound
+        reference history. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Callers can inspect selected peers, availability and calibration
+        support, and the limits of drawing incident conclusions from residual
+        evidence. Review the cited evidence. If it is correct, save agent.review
+        evidence or make the criterion/reference wording more explicit.

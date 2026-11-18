@@ -15,7 +15,7 @@ from .forecast_selection_contracts import (
     ForecastFoldScore, default_forecast_candidates,
 )
 from .forecast_selection import forecast_with_model, select_forecast
-from .contracts import DataPolicy, DatasetV11, SampleRevision, Request, RequestV11, Result, ResultV11
+from .contracts import CalendarReference, DataPolicy, DatasetV11, SampleRevision, Request, RequestV11, Result, ResultV11
 from .agent import analyze_relationships, analyze_series, get_case, replay_policy
 from .recipes import analyze, analyze_dataset
 from .distribution_contracts import (
@@ -39,7 +39,7 @@ __all__ = [
     "ModelForecastRequest", "ModelForecastResult", "ModelForecastInfo",
     "ForecastSelectionRequest", "ForecastSelectionResult", "ForecastCandidateScore",
     "ForecastFoldScore", "default_forecast_candidates", "forecast_with_model", "select_forecast",
-    "DataPolicy", "DatasetV11", "SampleRevision",
+    "CalendarReference", "DataPolicy", "DatasetV11", "SampleRevision",
     "Request", "RequestV11", "Result", "ResultV11", "analyze",
     "analyze_dataset", "analyze_series", "analyze_relationships", "get_case",
     "replay_policy",

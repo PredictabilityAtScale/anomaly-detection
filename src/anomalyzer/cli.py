@@ -374,10 +374,16 @@ def readable(result):
                 f"assessments={len(item['assessments'])}" +
                 (f" — {item['error']}" if item["error"] else ""))
             for method in item["methods"]:
-                readiness = method.get("diagnostics", {}).get("detection_readiness")
+                diagnostics = method.get("diagnostics", {})
+                readiness = diagnostics.get("detection_readiness")
                 if readiness:
                     lines.append(f"    {method['id']} detection readiness: {readiness['status']}")
                     lines.extend(f"      {reason}" for reason in readiness["reasons"])
+                if method["id"].endswith(":local_calendar") and diagnostics.get("targets"):
+                    latest = diagnostics["targets"][-1]
+                    lines.append(f"      Latest calendar bucket {latest['timestamp']}: "
+                                 f"{latest.get('tier', 'unavailable')}, {latest['maturity']}"
+                                 + (f" ({latest['reason']})" if latest["reason"] else ""))
         for item in result["relationship_results"]:
             lines.append(
                 f"  relationship {item['relationship_id']} ({item['kind']}): "
@@ -391,7 +397,7 @@ def readable(result):
                     lines.append(f"    {method['id']} detection readiness: {readiness['status']}")
                     lines.extend(f"      {reason}" for reason in readiness["reasons"])
         lines.append("Detection readiness checks training/calibration reference quality; alert accuracy is unmeasured.")
-        lines.append("Cases come from supported point departures, explicit-rule violations, and under adaptive-seasonal-v1 calibrated Nelson/CUSUM location shifts; overlapping location rules are grouped.")
+        lines.append("Cases can come from supported point departures, explicit-rule violations, and calibrated Nelson/CUSUM location shifts where enabled. Overlapping location rules are grouped.")
         lines.append("Business impact: unresolved. Relationship evidence does not establish cause.")
         return "\n".join(lines)
     lines = [f"Analysis: {result['status']}",

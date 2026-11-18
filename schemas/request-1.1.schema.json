@@ -53,6 +53,43 @@
       "title": "ActionPolicy",
       "type": "object"
     },
+    "CalendarReference": {
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "local-calendar-v1",
+          "title": "Profile",
+          "type": "string"
+        },
+        "lookback_days": {
+          "default": 84,
+          "exclusiveMinimum": 0,
+          "maximum": 366,
+          "title": "Lookback Days",
+          "type": "integer"
+        },
+        "guard_minutes": {
+          "default": 1440,
+          "exclusiveMinimum": 0,
+          "title": "Guard Minutes",
+          "type": "integer"
+        },
+        "fallback": {
+          "default": "broader_calendar",
+          "enum": [
+            "broader_calendar",
+            "none"
+          ],
+          "title": "Fallback",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile"
+      ],
+      "title": "CalendarReference",
+      "type": "object"
+    },
     "Context": {
       "additionalProperties": false,
       "properties": {
@@ -195,6 +232,16 @@
     },
     "DatasetV11": {
       "additionalProperties": false,
+      "if": {
+        "properties": {
+          "calendar_reference": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "calendar_reference"
+        ]
+      },
       "properties": {
         "id": {
           "default": "series",
@@ -357,6 +404,17 @@
           ],
           "default": null
         },
+        "calendar_reference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CalendarReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "coverage": {
           "anyOf": [
             {
@@ -451,6 +509,33 @@
         "values",
         "entity"
       ],
+      "then": {
+        "properties": {
+          "timestamps": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "timezone": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string"
+          },
+          "data_policy": {
+            "properties": {
+              "observation_basis": {
+                "const": "calendar"
+              }
+            }
+          }
+        },
+        "required": [
+          "timestamps",
+          "timezone",
+          "frequency"
+        ]
+      },
       "title": "DatasetV11",
       "type": "object"
     },
@@ -1346,6 +1431,22 @@
     }
   },
   "additionalProperties": false,
+  "if": {
+    "properties": {
+      "datasets": {
+        "contains": {
+          "properties": {
+            "calendar_reference": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "calendar_reference"
+          ]
+        }
+      }
+    }
+  },
   "properties": {
     "schema_version": {
       "const": "1.1",
@@ -1415,6 +1516,34 @@
     "schema_version",
     "datasets"
   ],
+  "then": {
+    "properties": {
+      "config": {
+        "not": {
+          "required": [
+            "season_length"
+          ]
+        },
+        "properties": {
+          "recipe": {
+            "const": "seasonal-residual-v1"
+          },
+          "trend": {
+            "const": "none"
+          },
+          "robust_reference_seasons": {
+            "const": 4
+          }
+        },
+        "required": [
+          "trend"
+        ]
+      }
+    },
+    "required": [
+      "config"
+    ]
+  },
   "title": "RequestV11",
   "type": "object",
   "$schema": "https://json-schema.org/draft/2020-12/schema"
