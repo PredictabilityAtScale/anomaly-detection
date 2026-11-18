@@ -24,12 +24,19 @@ from .distribution_contracts import (
     DistributionMonitorResult,
 )
 from .distributions import compare_distributions, monitor_distributions
+from .rate_contracts import (
+    RateSample, RatePopulation, RateSettings, RateLimit, RateContext, RateRequest, RateResult,
+    RateMonitorRequest, RateMonitorResult,
+)
+from .rates import compare_rates, monitor_rates
 from .seasonal_distributions import (
     SeasonalReferencePolicy, SeasonalDistributionRequest, SeasonalDistributionResult,
     compare_seasonal_distributions,
 )
 
 __all__ = [
+    "RateSample", "RatePopulation", "RateSettings", "RateLimit", "RateContext", "RateRequest", "RateResult",
+    "RateMonitorRequest", "RateMonitorResult", "compare_rates", "monitor_rates",
     "HistoricalAnomalySettings", "HistoricalAnomalyPoint", "HistoricalPattern",
     "HistoricalReferenceAdjustment", "HistoricalCalibration", "HistoricalAnomalies",
     "HistoricalDetectorSettings",

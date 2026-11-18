@@ -1,12 +1,13 @@
 title: Give an agent read-only access to local analysis
 status: implemented
-summary: The local stdio MCP server advertises three read-only investigation
-  tools with schemas and interpretation guidance.
+summary: The local stdio MCP server advertises read-only investigation,
+  population-comparison and rate-evidence tools with schemas and interpretation
+  guidance.
 intent: Allow agent clients to discover and call the analysis tools using a
   clear local protocol contract.
 acceptance:
-  - Tool discovery advertises analyze, list_findings, and get_evidence as
-    read-only with input and output schemas.
+  - Tool discovery advertises analysis, investigation, population-comparison and
+    rate-evidence tools as read-only with input and output schemas.
   - Legacy initialization and modern stateless discovery return supported
     protocol metadata and interpretation guidance.
   - Analysis tool calls return structured content together with compact text.

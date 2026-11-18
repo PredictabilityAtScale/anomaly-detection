@@ -1,0 +1,8 @@
+{
+  "schema_version": "rate-v1",
+  "entity": {"customer": "new-customer"},
+  "context": {"concern": "Is the conversion decline supported by enough attempts?"},
+  "reference": {"samples": [{"id": "before", "successes": 4, "trials": 20}]},
+  "current": {"samples": [{"id": "now", "successes": 2, "trials": 20}]},
+  "assume_independent_trials": true
+}

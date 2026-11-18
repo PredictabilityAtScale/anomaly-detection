@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import sys
+import uuid
 from collections import OrderedDict
 
 from pydantic import Field, ValidationError
@@ -24,6 +25,9 @@ from .distribution_contracts import (
 )
 from .distributions import compare_distributions, monitor_distributions
 from .seasonal_distributions import SeasonalDistributionRequest, SeasonalDistributionResult, compare_seasonal_distributions
+from .rate_contracts import RateRequest, RateResult, RateMonitorRequest, RateMonitorResult
+from .rates import compare_rates, monitor_rates
+from .rate_views import RateSummary, summarize_rates, list_rate_findings, get_rate_evidence
 
 
 class AnalyzeRequestArguments(Contract):
@@ -42,6 +46,14 @@ class SeasonalDistributionArguments(Contract):
     request: SeasonalDistributionRequest
 
 
+class RateArguments(Contract):
+    request: RateRequest
+
+
+class RateMonitorArguments(Contract):
+    request: RateMonitorRequest
+
+
 class ListFindingsArguments(Contract):
     run_id: str = Field(min_length=1, strict=True)
     cursor: int = Field(default=0, ge=0, strict=True)
@@ -54,6 +66,7 @@ class GetEvidenceArguments(ListFindingsArguments):
 
 
 SERVER_INSTRUCTIONS = (
+    "Use compare_rates or monitor_rates for explicit bounded success/trial counts, including sparse counts. These return compact contextual summaries; use run_id with list_findings/get_evidence for comparisons and paginated counts. Inspect denominators, uncertainty, zero exposure and the independent-trial assumption. Arbitrary ratios remain in analyze. "
     "Use compare_seasonal_distributions for caller-declared timezone/day matching; inspect selected windows, fallback and distinct-day support. No automatic discovery or dependence correction is performed. "
     "Use compare_distributions for two explicit numeric/categorical populations, "
     "or monitor_distributions for bounded causal replay. These tools return full "
@@ -176,6 +189,10 @@ for _name, _arguments, _output, _description in (
      "Replay a finite causal distribution monitor against a frozen earlier reference, with planned-window/lookup correction and first detection. No persistence, scheduling or alerts."),
     ("compare_seasonal_distributions", SeasonalDistributionArguments, SeasonalDistributionResult,
      "Select earlier daily or weekday local-clock populations under an explicit timezone policy, match partial progress, expose insufficient history/fallback, then reuse the distribution test and caller-held testing family."),
+    ("compare_rates", RateArguments, RateSummary,
+     "Compare explicit disjoint success/trial populations with Fisher exact evidence and Wilson rate intervals. Returns a compact contextual summary and session run_id for list_findings/get_evidence count drilldown. Sparse counts stay exact; zero/unknown exposure stays unavailable. No alert decision."),
+    ("monitor_rates", RateMonitorArguments, RateSummary,
+     "Replay success/trial counts against a frozen reference with a fixed look/window testing family. Returns a compact contextual summary and session run_id; drill into comparisons and paginated source counts with list_findings/get_evidence. No alerts or scheduling."),
 ):
     TOOLS.append(dict(name=_name, description=_description,
         inputSchema=_input_schema(_arguments), outputSchema=_input_schema(_output),
@@ -217,6 +234,15 @@ def _compact_result(structured, message):
 
 
 def _tool_call(name, arguments):
+    if name in ("compare_rates", "monitor_rates"):
+        model = RateArguments if name == "compare_rates" else RateMonitorArguments
+        function = compare_rates if name == "compare_rates" else monitor_rates
+        request = model.model_validate(arguments).request
+        result = function(request).model_dump(mode="json")
+        result.update(run_id=str(uuid.uuid4()), _rate_request=request.model_dump(mode="json"))
+        _remember(result)
+        summary = summarize_rates(result)
+        return _compact_result(summary, f"Rate analysis: {result['status']}. Use run_id with list_findings/get_evidence to inspect counts and uncertainty.")
     if name == "compare_seasonal_distributions":
         result = compare_seasonal_distributions(SeasonalDistributionArguments.model_validate(arguments).request).model_dump(mode="json")
         return _compact_result(result, f"Seasonally matched distribution analysis: {result['status']}. Inspect matching, support and limitations.")
@@ -236,14 +262,18 @@ def _tool_call(name, arguments):
     if name == "list_findings":
         validated = ListFindingsArguments.model_validate(arguments)
         run_id = validated.run_id
-        page = list_findings(_cached(run_id), validated.cursor, validated.limit)
+        cached = _cached(run_id)
+        view = list_rate_findings if cached["schema_version"] == "rate-v1" else list_findings
+        page = view(cached, validated.cursor, validated.limit)
         return _compact_result(
             page, f"{len(page['findings'])} of {page['total']} findings for "
             f"run {run_id}.")
     if name == "get_evidence":
         validated = GetEvidenceArguments.model_validate(arguments)
         run_id = validated.run_id
-        detail = get_evidence(_cached(run_id), validated.finding_id,
+        cached = _cached(run_id)
+        view = get_rate_evidence if cached["schema_version"] == "rate-v1" else get_evidence
+        detail = view(cached, validated.finding_id,
                               validated.cursor, validated.limit)
         return _compact_result(
             detail, f"{detail['finding']['headline']} "

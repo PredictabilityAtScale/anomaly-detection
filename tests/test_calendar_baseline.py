@@ -300,3 +300,68 @@ def test_resource_failure_is_visible():
     normalized = RequestV11.model_validate(request(4))
     with pytest.raises(TimeoutError, match="runtime budget"):
         analyze_calendar(normalized.datasets[0], normalized.config, {}, RuntimeBudget(0))
+
+
+def test_calibrated_fallback_keeps_broader_key_and_learns_preferred_key():
+    document = request(65, calibrated_fallback=True, expected_range_coverage=0.95)
+    _, method = run(document)
+    target = at(method, 42 * 24 + 8)
+    assert target["maturity"] == "calibrated"
+    assert target["tier"] != target["age_tier"]
+    assert target["fallback_reason"] == "preferred_tier_not_calibrated"
+    assert target["expected_range"]["status"] == "available"
+    assert target["expected_range"]["effective_from_index"] <= target["index"]
+    key = target["calibration_key"]
+    assert method.diagnostics["calibrations"][key]["tier"] == target["tier"]
+    later = at(method, 64 * 24 + 8)
+    assert later["tier"] == later["age_tier"]
+    assert later["calibration_key"] != key
+    assert any(42*24 <= i <= later["index"] for i in method.diagnostics["pattern_boundaries"])
+    prefix = {**document, "context": {"as_of": document["datasets"][0]["timestamps"][43*24-1]}}
+    _, early = run(prefix)
+    assert method.diagnostics["targets"][:43*24] == early.diagnostics["targets"]
+    assert [e for e in method.evidence if e["index"] < 43*24] == early.evidence
+
+
+def test_expected_ranges_do_not_change_point_or_pattern_evidence():
+    document = request(45)
+    reference_result, reference = run(document)
+    document["datasets"][0]["calendar_reference"]["expected_range_coverage"] = 0.95
+    ranged_result, ranged = run(document)
+    assert reference.evidence == ranged.evidence
+    assert reference_result.anomaly_patterns == ranged_result.anomaly_patterns
+    assert reference_result.observations == ranged_result.observations
+    available = [t for t in ranged.diagnostics["targets"] if t.get("expected_range", {}).get("status") == "available"]
+    assert available
+    for target in available:
+        expected_range = target["expected_range"]
+        record = ranged.diagnostics["calibrations"][target["calibration_key"]]["expected_range"]
+        assert record["rank"] == math.ceil((record["sample_count"]+1)*0.95)
+        assert expected_range["cutoff"] < target["timestamp"]
+        evidence = next(e for e in ranged.evidence if e["index"] == target["index"])
+        assert expected_range["lower"] <= evidence["expected"] <= expected_range["upper"]
+
+
+def test_fallback_and_ranges_relearn_after_reset_and_validate_options():
+    document = request(70, calibrated_fallback=True, expected_range_coverage=0.95)
+    document["config"]["reset_points"] = [50*24]
+    _, method = run(document)
+    assert at(method, 49*24)["maturity"] == "calibrated"
+    after_reset = [t for t in method.diagnostics["targets"][50*24:] if "calibration_key" in t]
+    assert after_reset and all(t["calibration_key"].startswith(f"{50*24}:") for t in after_reset)
+    assert after_reset[0]["maturity"] != "calibrated"
+    assert after_reset[0]["expected_range"]["status"] == "insufficient_history"
+    for t in after_reset:
+        band = t["expected_range"]
+        if band["status"] == "available":
+            assert band["cutoff"] >= document["datasets"][0]["timestamps"][50*24]
+    policy = document["datasets"][0]["calendar_reference"]
+    policy["fallback"] = "none"
+    with pytest.raises(ValidationError, match="requires broader_calendar"):
+        analyze(document)
+    schema = json.loads((SCHEMAS / "request-1.1.schema.json").read_text())
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(document, schema)
+    policy.update(fallback="broader_calendar", expected_range_coverage=1.0)
+    with pytest.raises(ValidationError):
+        analyze(document)

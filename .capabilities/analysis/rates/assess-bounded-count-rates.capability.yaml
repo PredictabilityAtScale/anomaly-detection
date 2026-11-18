@@ -1,5 +1,5 @@
 title: Interpret rate changes with their supporting volume
-status: planned
+status: implemented
 summary: Analyze explicitly declared success-count and eligible-count rates with
   denominator-aware evidence and a stated count-model assumption.
 intent: Distinguish a sparse conversion swing from a well-supported change
@@ -12,12 +12,16 @@ acceptance:
   - Zero denominators remain unavailable, and low support is explicitly marked;
     intervals remain within the valid zero-to-one rate domain.
   - Statistical rate departures identify the model and support used and remain
-    distinct from exact caller-supplied rate-limit violations.
+    distinct from exact caller-supplied rate-limit violations and caller alert
+    decisions.
+  - Agent callers receive a compact contextual summary and can inspect
+    comparisons and paginated source counts without losing unavailable or
+    non-significant evidence.
 guidance:
   - Independence and stable exposure are modeling assumptions; clustered events,
     overdispersion, or changing populations require explicit limitations.
-  - Proposed automated checks cover zero denominators, tiny counts,
-    zero-or-all-success boundaries, and equal rates at different volumes.
+  - Sparse inference uses an exact conditional test; wider chronological windows
+    accumulate exposure against a frozen reference and fixed testing family.
   - Manual review should compare sparse and high-volume conversion changes and
     confirm the explanation discloses assumptions without inventing incident
     probability.
@@ -27,3 +31,288 @@ planning:
     step: Judge rates using their exposure
     release: Future - Business-aware expectations
     order: 20
+#
+#
+agent:
+  # -----------------------------
+  # machine managed agent metadata
+  # review all capabilities and save evidence: capabilitykit review
+  # review this capability and save evidence: capabilitykit review analysis/rates/assess-bounded-count-rates
+  # run deterministic review only: capabilitykit review analysis/rates/assess-bounded-count-rates --deterministic-only
+  # ask an agent and save review evidence: capabilitykit review analysis/rates/assess-bounded-count-rates --agent codex --arg exec --handoff stdin
+  # validate saved agent output without writing: capabilitykit review-result analysis/rates/assess-bounded-count-rates --input review.json
+  # -----------------------------
+  implementation:
+    references:
+      - src/anomalyzer/rate_contracts.py
+      - src/anomalyzer/rates.py
+      - src/anomalyzer/rate_views.py
+      - src/anomalyzer/mcp.py
+      - src/anomalyzer/cli.py
+      - tests/test_rates.py
+      - docs/rates.md
+      - examples/comparison/benchmark_rates.py
+  verification:
+    automated:
+      - id: exact-count-inference
+        description: Compare exact p-values against independent integer tables and
+          boundary cases.
+        command: uv run python -m pytest -q tests/test_rates.py -k "exact_test or
+          published_fisher or large_and_unbalanced or zero_all"
+      - id: sparse-and-unavailable
+        description: Check count validation, sparse uncertainty, unavailable exposure
+          and separate rate rules.
+        command: uv run python -m pytest -q tests/test_rates.py -k "percentage_change or
+          invalid_bounded or no_exposure or finite_reference or pooled_rate or
+          testing_family"
+      - id: causal-replay
+        description: Check frozen references, fixed testing families, prefix invariance
+          and incomplete windows.
+        command: uv run python -m pytest -q tests/test_rates.py -k "monitor or
+          budget_failure"
+      - id: public-agent-evidence
+        description: Check schemas and Python/CLI parity plus compact contextual MCP
+          summaries and source drilldown.
+        command: uv run python -m pytest -q tests/test_rates.py -k "public_python or
+          context_is_preserved"
+    manual:
+      - Inspect sparse and busy comparisons with the same percentage change,
+        drill into source counts, and confirm uncertainty, model assumptions and
+        the distinction between a numerical event and an alert decision are
+        clear.
+    gaps:
+      - Representative customer replay is needed for dependent trials and
+        changing traffic mix; exact binomial inference does not correct
+        clustering or overdispersion.
+  review:
+    depth: partial
+    source: deterministic-assessment
+    gaps:
+      - Callers declare aligned success and eligible counts; non-integer,
+        negative, or success-above-eligible inputs are rejected for the
+        bounded-count model. Review the cited evidence. If it is correct, save
+        agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Evidence retains numerator, denominator, rate, and the declared
+        reference population rather than reporting a percentage alone. Review
+        the cited evidence. If it is correct, save agent.review evidence or make
+        the criterion/reference wording more explicit.
+      - Zero denominators remain unavailable, and low support is explicitly
+        marked; intervals remain within the valid zero-to-one rate domain.
+        Review the cited evidence. If it is correct, save agent.review evidence
+        or make the criterion/reference wording more explicit.
+      - Statistical rate departures identify the model and support used and
+        remain distinct from exact caller-supplied rate-limit violations and
+        caller alert decisions. Review the cited evidence. If it is correct,
+        save agent.review evidence or make the criterion/reference wording more
+        explicit.
+      - Agent callers receive a compact contextual summary and can inspect
+        comparisons and paginated source counts without losing unavailable or
+        non-significant evidence. Review the cited evidence. If it is correct,
+        save agent.review evidence or make the criterion/reference wording more
+        explicit.
+    intent_summary: Implementation evidence synchronized from deterministic
+      assessment for analysis/rates/assess-bounded-count-rates.
+    criteria:
+      - criterion: Callers declare aligned success and eligible counts; non-integer,
+          negative, or success-above-eligible inputs are rejected for the
+          bounded-count model.
+        status: partial
+        evidence:
+          - src/anomalyzer/rate_contracts.py:1
+          - src/anomalyzer/rate_contracts.py:12
+          - src/anomalyzer/rate_contracts.py:23
+          - src/anomalyzer/rate_contracts.py:24
+          - src/anomalyzer/rate_contracts.py:147
+          - src/anomalyzer/rates.py:15
+          - src/anomalyzer/rates.py:16
+          - src/anomalyzer/rates.py:21
+          - src/anomalyzer/rates.py:34
+          - src/anomalyzer/rates.py:38
+          - src/anomalyzer/rate_views.py:1
+          - src/anomalyzer/rate_views.py:40
+          - src/anomalyzer/rate_views.py:60
+          - src/anomalyzer/mcp.py:69
+          - src/anomalyzer/mcp.py:70
+          - src/anomalyzer/mcp.py:101
+          - src/anomalyzer/mcp.py:121
+          - src/anomalyzer/mcp.py:130
+          - src/anomalyzer/cli.py:26
+          - src/anomalyzer/cli.py:39
+          - src/anomalyzer/cli.py:120
+          - src/anomalyzer/cli.py:261
+          - src/anomalyzer/cli.py:431
+          - tests/test_rates.py:89
+          - tests/test_rates.py:99
+          - tests/test_rates.py:101
+          - tests/test_rates.py:108
+          - tests/test_rates.py:109
+          - docs/rates.md:3
+          - docs/rates.md:44
+          - docs/rates.md:45
+          - docs/rates.md:56
+          - docs/rates.md:63
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Evidence retains numerator, denominator, rate, and the declared
+          reference population rather than reporting a percentage alone.
+        status: partial
+        evidence:
+          - src/anomalyzer/rate_contracts.py:74
+          - src/anomalyzer/rates.py:103
+          - src/anomalyzer/rates.py:106
+          - src/anomalyzer/rates.py:137
+          - src/anomalyzer/rates.py:159
+          - src/anomalyzer/rates.py:176
+          - src/anomalyzer/rate_views.py:1
+          - src/anomalyzer/rate_views.py:51
+          - src/anomalyzer/rate_views.py:72
+          - src/anomalyzer/rate_views.py:90
+          - src/anomalyzer/mcp.py:30
+          - src/anomalyzer/mcp.py:69
+          - src/anomalyzer/mcp.py:193
+          - src/anomalyzer/mcp.py:195
+          - src/anomalyzer/mcp.py:245
+          - src/anomalyzer/cli.py:26
+          - src/anomalyzer/cli.py:39
+          - src/anomalyzer/cli.py:54
+          - src/anomalyzer/cli.py:163
+          - src/anomalyzer/cli.py:447
+          - tests/test_rates.py:1
+          - tests/test_rates.py:129
+          - tests/test_rates.py:137
+          - tests/test_rates.py:264
+          - docs/rates.md:1
+          - docs/rates.md:3
+          - docs/rates.md:67
+          - docs/rates.md:71
+          - docs/rates.md:86
+          - examples/comparison/benchmark_rates.py:23
+          - examples/comparison/benchmark_rates.py:28
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Zero denominators remain unavailable, and low support is explicitly
+          marked; intervals remain within the valid zero-to-one rate domain.
+        status: partial
+        evidence:
+          - src/anomalyzer/rates.py:15
+          - src/anomalyzer/rates.py:39
+          - src/anomalyzer/rates.py:45
+          - src/anomalyzer/rates.py:62
+          - src/anomalyzer/rates.py:101
+          - src/anomalyzer/rate_views.py:40
+          - src/anomalyzer/mcp.py:69
+          - src/anomalyzer/mcp.py:70
+          - src/anomalyzer/mcp.py:95
+          - src/anomalyzer/mcp.py:193
+          - src/anomalyzer/cli.py:202
+          - src/anomalyzer/cli.py:286
+          - src/anomalyzer/cli.py:412
+          - tests/test_rates.py:82
+          - tests/test_rates.py:83
+          - tests/test_rates.py:92
+          - tests/test_rates.py:115
+          - tests/test_rates.py:126
+          - docs/rates.md:1
+          - docs/rates.md:3
+          - docs/rates.md:33
+          - docs/rates.md:48
+          - docs/rates.md:64
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Statistical rate departures identify the model and support used and
+          remain distinct from exact caller-supplied rate-limit violations and
+          caller alert decisions.
+        status: partial
+        evidence:
+          - src/anomalyzer/rate_contracts.py:77
+          - src/anomalyzer/rate_contracts.py:85
+          - src/anomalyzer/rate_contracts.py:106
+          - src/anomalyzer/rates.py:17
+          - src/anomalyzer/rates.py:98
+          - src/anomalyzer/rates.py:99
+          - src/anomalyzer/rates.py:106
+          - src/anomalyzer/rates.py:121
+          - src/anomalyzer/rate_views.py:36
+          - src/anomalyzer/rate_views.py:40
+          - src/anomalyzer/rate_views.py:56
+          - src/anomalyzer/rate_views.py:60
+          - src/anomalyzer/rate_views.py:63
+          - src/anomalyzer/mcp.py:69
+          - src/anomalyzer/mcp.py:70
+          - src/anomalyzer/mcp.py:95
+          - src/anomalyzer/mcp.py:193
+          - src/anomalyzer/mcp.py:238
+          - src/anomalyzer/cli.py:54
+          - src/anomalyzer/cli.py:90
+          - src/anomalyzer/cli.py:121
+          - src/anomalyzer/cli.py:190
+          - src/anomalyzer/cli.py:250
+          - tests/test_rates.py:137
+          - tests/test_rates.py:139
+          - tests/test_rates.py:141
+          - tests/test_rates.py:144
+          - tests/test_rates.py:151
+          - docs/rates.md:33
+          - docs/rates.md:56
+          - docs/rates.md:67
+          - docs/rates.md:71
+          - docs/rates.md:74
+          - examples/comparison/benchmark_rates.py:74
+          - examples/comparison/benchmark_rates.py:94
+          - examples/comparison/benchmark_rates.py:104
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+      - criterion: Agent callers receive a compact contextual summary and can inspect
+          comparisons and paginated source counts without losing unavailable or
+          non-significant evidence.
+        status: partial
+        evidence:
+          - src/anomalyzer/rate_contracts.py:23
+          - src/anomalyzer/rate_contracts.py:41
+          - src/anomalyzer/rate_contracts.py:52
+          - src/anomalyzer/rate_contracts.py:147
+          - src/anomalyzer/rate_contracts.py:148
+          - src/anomalyzer/rates.py:1
+          - src/anomalyzer/rates.py:16
+          - src/anomalyzer/rates.py:88
+          - src/anomalyzer/rates.py:89
+          - src/anomalyzer/rates.py:99
+          - src/anomalyzer/rate_views.py:1
+          - src/anomalyzer/rate_views.py:15
+          - src/anomalyzer/rate_views.py:16
+          - src/anomalyzer/rate_views.py:25
+          - src/anomalyzer/rate_views.py:46
+          - src/anomalyzer/mcp.py:30
+          - src/anomalyzer/mcp.py:69
+          - src/anomalyzer/mcp.py:70
+          - src/anomalyzer/mcp.py:75
+          - src/anomalyzer/mcp.py:76
+          - src/anomalyzer/cli.py:26
+          - src/anomalyzer/cli.py:39
+          - src/anomalyzer/cli.py:51
+          - src/anomalyzer/cli.py:54
+          - src/anomalyzer/cli.py:75
+          - tests/test_rates.py:101
+          - tests/test_rates.py:110
+          - tests/test_rates.py:137
+          - tests/test_rates.py:139
+          - tests/test_rates.py:146
+          - docs/rates.md:10
+          - docs/rates.md:33
+          - docs/rates.md:44
+          - docs/rates.md:77
+          - docs/rates.md:78
+        notes: Related implementation text was found, but deterministic matching cannot
+          prove the behavior. Review the cited evidence. If it is correct, save
+          agent.review evidence or make the criterion/reference wording more
+          explicit.
+    done: false

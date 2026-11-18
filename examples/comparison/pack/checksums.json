@@ -1,5 +1,5 @@
 {
-  "anomalyzer_version": "0.9.1",
+  "anomalyzer_version": "0.10.0",
   "sha256": {
     "baseline/01_control_flat.csv": "79ad282cdd1201388a7623f9d0f0ccb726da58f3ede1ad927a21952e16fc8e93",
     "baseline/01_control_zero.csv": "44ba260b70450926feec800139e03280eb8144ef5771b495520a5cefc263db76",

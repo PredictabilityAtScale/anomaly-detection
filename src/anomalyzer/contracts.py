@@ -289,10 +289,22 @@ class SampleRevision(Contract):
 
 
 class CalendarReference(Contract):
+    model_config = ConfigDict(json_schema_extra={
+        "if": {"required": ["calibrated_fallback"], "properties": {"calibrated_fallback": {"const": True}}},
+        "then": {"properties": {"fallback": {"const": "broader_calendar"}}},
+    })
     profile: Literal["local-calendar-v1"]
     lookback_days: int = Field(default=84, gt=0, le=366, strict=True)
     guard_minutes: int = Field(default=1440, gt=0, strict=True)
     fallback: Literal["broader_calendar", "none"] = "broader_calendar"
+    calibrated_fallback: bool = False
+    expected_range_coverage: float | None = Field(default=None, gt=0, lt=1)
+
+    @model_validator(mode="after")
+    def compatible_fallback(self):
+        if self.calibrated_fallback and self.fallback == "none":
+            raise ValueError("calibrated_fallback requires broader_calendar fallback")
+        return self
 
     def validate_settings(self, settings: Settings):
         if settings.recipe != "seasonal-residual-v1" or settings.trend != "none":

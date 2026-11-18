@@ -11,6 +11,7 @@ from .registry import methods
 from ._version import __version__
 from .distributions import compare_distributions, monitor_distributions
 from .seasonal_distributions import compare_seasonal_distributions
+from .rates import compare_rates, monitor_rates
 
 
 def parser():
@@ -34,9 +35,10 @@ Run 'anomalyzer methods --help' for method discovery.
 """ + exit_codes)
     root.add_argument("--version", action="version", version=f"anomalyzer {__version__}")
     commands = root.add_subparsers(dest="command", required=True, title="commands")
-    for command in ("compare-distributions", "monitor-distributions", "compare-seasonal-distributions"):
-        sub = commands.add_parser(command, help="Compare explicit populations" if command.startswith("compare") else "Replay a bounded causal distribution monitor")
-        sub.add_argument("input", help="distribution-v1 JSON request path, or '-' for stdin")
+    for command in ("compare-distributions", "monitor-distributions", "compare-seasonal-distributions", "compare-rates", "monitor-rates"):
+        sub = commands.add_parser(command, help="Compare declared success/trial counts" if command.endswith("rates") else
+            "Compare explicit populations" if command.startswith("compare") else "Replay a bounded causal distribution monitor")
+        sub.add_argument("input", help="rate-v1 JSON request path, or '-' for stdin" if command.endswith("rates") else "distribution-v1 JSON request path, or '-' for stdin")
         sub.add_argument("--format", choices=["json", "text"], default="json")
         sub.add_argument("--output")
         sub.add_argument("--overwrite", action="store_true")
@@ -343,6 +345,16 @@ def _recent_case_lines(result):
 
 
 def readable(result):
+    if result.get("schema_version") == "rate-v1":
+        if result["task"] == "monitor_rates":
+            return (f"Rate monitor: {result['status']}\n"
+                    f"Comparisons: {len(result['evaluations'])}; first detection: {result['first_detection']}\n"
+                    "Inspect counts, unavailable windows and the planned testing horizon.")
+        return (f"Rate comparison: {result['status']}\n"
+                f"Reference: {result['reference']['successes']}/{result['reference']['trials']}; "
+                f"current: {result['current']['successes']}/{result['current']['trials']}\n"
+                f"Rate change: {result['effect']}; change detected: {result['change_detected']}\n"
+                f"Caller rate-limit violations: {len(result['rate_limit_violations'])}\n" + "\n".join(result['reasons']))
     if result.get("schema_version") == "distribution-v1":
         if result["task"] == "compare_seasonal_distributions":
             selection = result["selection"]
@@ -453,11 +465,12 @@ def main(argv=None):
     try:
         if args.output and Path(args.output).exists() and not args.overwrite:
             raise ValueError("output exists; use --overwrite to replace it")
-        if args.command in ("compare-distributions", "monitor-distributions", "compare-seasonal-distributions"):
+        if args.command in ("compare-distributions", "monitor-distributions", "compare-seasonal-distributions", "compare-rates", "monitor-rates"):
             limit = Settings.model_validate({"max_bytes": args.max_bytes}).max_bytes
             document = load_json(read_text(args.input, limit))
             function = {"compare-distributions": compare_distributions, "monitor-distributions": monitor_distributions,
-                        "compare-seasonal-distributions": compare_seasonal_distributions}[args.command]
+                        "compare-seasonal-distributions": compare_seasonal_distributions,
+                        "compare-rates": compare_rates, "monitor-rates": monitor_rates}[args.command]
             result = function(document).model_dump(mode="json")
         else:
             result = methods() if args.command == "methods" else analyze(build_request(args)).model_dump(mode="json")
