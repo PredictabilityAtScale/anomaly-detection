@@ -22,6 +22,26 @@ def test_forecast_independent_reference(period, expected):
     assert expected_value([1., 2., 4., 8.], 4, period) == expected
 
 
+def test_count_scale_floor_keeps_a_two_count_spike_and_detects_repeated_one_count_rise():
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    values = [0] * 70
+    values[42], values[49] = 1, 2
+    values[56:61] = [1] * 5
+    request = {"datasets": [{"values": values, "frequency": "5min", "units": "requests",
+                            "timestamps": [(start + timedelta(minutes=5*i)).isoformat() for i in range(len(values))]}],
+               "config": {"season_length": 7, "training_size": 28, "calibration_size": 7, "trend": "none"}}
+    before = analyze(request)
+    request["config"]["scale_floor"] = 0.4
+    after = analyze(request)
+    before_points = {e["index"]: e for e in before.methods[0].evidence}
+    after_points = {e["index"]: e for e in after.methods[0].evidence}
+    assert before_points[42]["triggers"] == ["point"]
+    assert after_points[42]["triggers"] == []
+    assert after_points[42]["residual"] == 1
+    assert after_points[49]["triggers"] == ["point"]
+    assert any(p["kind"] == "location_shift" and p["detection_index"] == 57 for p in after.anomaly_patterns)
+
+
 def test_robust_weekly_reference_limits_one_high_week():
     values = [100.0] * 29
     for position, value in zip((0, 7, 14, 21), (17., 112., 46., 188.)):

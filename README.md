@@ -1105,6 +1105,12 @@ and reports a limitation. At least one sample after calibration is required for
 calibrated scoring. Before that, the result is `insufficient_history` but contains
 the weaker evidence available so far.
 
+For a declared integer count series, the [five-minute benchmark](examples/comparison/FIVE-MINUTE-COUNTS.md)
+tests `scale_floor=0.4` (`--scale-floor 0.4`) against the default. On a flat,
+centered reference with the default point threshold, this keeps isolated one-count
+departures below the point threshold while leaving larger departures and repeated
+shifts eligible. Use the replay to assess the effect on misses and detection delay.
+
 Each evidence record also reports `excluded_from_model`, `model_value`,
 `exclusion_reason`, and `reference_action`. A calibrated point is excluded from
 future model references only in robust mode and when its absolute standardized
