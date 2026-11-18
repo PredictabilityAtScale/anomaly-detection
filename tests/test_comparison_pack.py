@@ -3,6 +3,7 @@ import csv
 import hashlib
 import importlib.util
 import json
+import math
 from pathlib import Path
 import zipfile
 
@@ -139,9 +140,58 @@ def test_population_labels_do_not_claim_individual_point_anomalies():
     assert any(r["population"] == "future_excluded" for r in data("27_seasonal_morning"))
 
 
+def assert_regenerated_value(expected, actual):
+    if isinstance(expected, dict):
+        assert expected.keys() == actual.keys()
+        for key, value in expected.items():
+            assert_regenerated_value(value, actual[key])
+    elif isinstance(expected, list):
+        assert len(expected) == len(actual)
+        for left, right in zip(expected, actual):
+            assert_regenerated_value(left, right)
+    elif isinstance(expected, float):
+        assert actual == pytest.approx(expected, rel=1e-12, abs=1e-14)
+    else:
+        assert type(actual) is type(expected) and actual == expected
+
+
+def assert_regenerated_csv(expected, actual):
+    expected_rows, actual_rows = read_csv(expected), read_csv(actual)
+    assert len(expected_rows) == len(actual_rows)
+    for left, right in zip(expected_rows, actual_rows):
+        assert list(left) == list(right)
+        for key, value in left.items():
+            if value == right[key]:
+                continue
+            # Only exported computed measurements can differ with libm/rounding.
+            assert key in {"value", "reported_value", "anomaly_free_value", "expected", "actual",
+                           "anomalyzer_predicted", "naive_predicted", "forecast_mae", "forecast_rmse",
+                           "forecast_anomaly_free_mae", "naive_forecast_mae", "weight"}, (key, value, right[key])
+            assert math.isclose(float(value), float(right[key]), rel_tol=1e-12, abs_tol=1e-14)
+
+
 def test_generation_reproduces_every_delivered_file(tmp_path):
     generator.generate(tmp_path)
-    for path in PACK.rglob("*"):
-        if path.is_file():
-            relative = path.relative_to(PACK)
-            assert (tmp_path / relative).read_bytes() == path.read_bytes(), relative
+    expected = json.loads((PACK / "checksums.json").read_text())
+    generated = json.loads((tmp_path / "checksums.json").read_text())
+    assert expected["anomalyzer_version"] == generated["anomalyzer_version"]
+    assert expected["sha256"].keys() == generated["sha256"].keys()
+    # Verify the regenerated archive against its own inventory. Compression and
+    # last-bit libm differences can change bytes across platforms.
+    with zipfile.ZipFile(tmp_path / "comparison-cases.zip") as archive:
+        assert set(archive.namelist()) == set(generated["sha256"]) | {"checksums.json"}
+        assert archive.read("checksums.json") == (tmp_path / "checksums.json").read_bytes()
+        for relative, digest in generated["sha256"].items():
+            path = tmp_path / relative
+            assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, relative
+            assert archive.read(relative) == path.read_bytes(), relative
+            try:
+                if path.suffix == ".csv":
+                    assert_regenerated_csv(PACK / relative, path)
+                elif path.suffix == ".json":
+                    assert_regenerated_value(json.loads((PACK / relative).read_text(encoding="utf-8")),
+                                             json.loads(path.read_text(encoding="utf-8")))
+                else:
+                    assert (PACK / relative).read_bytes() == path.read_bytes()
+            except (AssertionError, ValueError) as exc:
+                raise AssertionError(f"Regenerated case differs: {relative}: {exc}") from exc

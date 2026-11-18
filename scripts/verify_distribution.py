@@ -82,6 +82,7 @@ def main():
                 "monitor_distributions", "compare_seasonal_distributions", "compare_rates", "monitor_rates"}
             run(["uv", "pip", "install", "--python", python, "--require-hashes", "-r", test_dependencies], outside, env=env)
             run([python, "-I", "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                 "--basetemp", outside / f"pytest-{index}",
                  consumer / "tests/test_forecast_anomalies.py", consumer / "tests/test_recent_level.py",
                  consumer / "tests/test_forecast_selection.py", consumer / "tests/test_rates.py",
                  consumer / "tests/test_calendar_baseline.py", consumer / "tests/test_expected_ranges.py"], consumer, env=env)
